@@ -3041,22 +3041,6 @@ Define Class c_foxbin2prg As Session
             loDBF_CFG   = .Null.
             lcExt       = Upper(Justext('.' + tcFileName))
 
-*!* Changed by: LScheffler 13.6.2022
-*!* <pdm>
-*!* <change date="{^2022-06-13,20:17:00}">Changed by: LScheffler<br />
-*!* https://github.com/fdbozzo/foxbin2prg/issues/56 / Configfile is ignored if foldername has "." v1.19.74
-*!* On operation per folder, change of folder must change configuration
-*!* this method does not recieve tcDir in such case
-*!* </change>
-*!* </pdm>
-
-*!*             If '\' $ tcFileName And lcExt == .c_DB2 Then
-*!*                 lcDir       = Justpath(tcFileName)
-*!*                 .get_DBF_Configuration(tcFileName, @loDBF_CFG)
-*!*             Else
-*!*                 lcDir       = tcDir
-*!*             Endif
-
             Do Case
                 Case '\' $ tcFileName And lcExt == .c_DB2
                     lcDir       = Justpath(tcFileName)
@@ -3066,8 +3050,6 @@ Define Class c_foxbin2prg As Session
                 Case Vartype( tcFileName ) = "C"
                     lcDir = Justpath( tcFileName )
             Endcase
-
-*!* /Changed by: LScheffler 13.6.2022
 
             If Not Empty(lcDir)
                 .evaluateConfiguration( '', '', '', '', '', '', '', '', lcDir, 'D' )
@@ -3117,7 +3099,7 @@ Define Class c_foxbin2prg As Session
                     Endif
 
                     lnSupportType   = Icase( ;
-                        INLIST(lcExt, .c_PJ2, 'PJX'), .n_PJX_Conversion_Support ;
+                          InList(lcExt, .c_PJ2, 'PJX'), .n_PJX_Conversion_Support ;
                         , Inlist(lcExt, .c_VC2, 'VCX'), .n_VCX_Conversion_Support ;
                         , Inlist(lcExt, .c_SC2, 'SCX'), .n_SCX_Conversion_Support ;
                         , Inlist(lcExt, .c_FR2, 'FRX'), .n_FRX_Conversion_Support ;
@@ -3175,22 +3157,25 @@ Define Class c_foxbin2prg As Session
 *                                       Normal inheritance may or may not run, see setting InhibitInheritance
 *--------------------------------------------------------------------------------------------------------------
         Lparameters tc_InputFile, tcType, tcTextName, tlGenText, tcDontShowErrors, tcDebug, tcDontShowProgress ;
-            , toModulo, toEx As Exception, tlRelanzarError, tcOriginalFileName, tcRecompile, tcNoTimestamps ;
-            , tcBackupLevels, tcClearUniqueID, tcOptimizeByFilestamp, tcCFG_File
+                  , toModulo, toEx As Exception, tlRelanzarError, tcOriginalFileName, tcRecompile, tcNoTimestamps ;
+                  , tcBackupLevels, tcClearUniqueID, tcOptimizeByFilestamp, tcCFG_File
 
         Try
                 Local I, lcPath, lnCodError, lcFileSpec, lcFile, laFiles(1,5), laDirInfo(1,5), lcInputFile_Type, lc_OldSetNotify ;
                     , lnFileCount, lcErrorInfo, lcErrorFile, lnPCount, laParams(1), lnConversionOption, lnErrorIcon, llError ;
-                    , lcOldSetEscape, lcOldOnEscape, llEscKeyRestored, lcType ;
-                    , loEx As Exception ;
-                    , loCFG As CL_CFG Of 'FOXBIN2PRG.PRG' ;
-                    , loFSO As Scripting.FileSystemObject ;
-                    , loLang As CL_LANG Of 'FOXBIN2PRG.PRG' ;
+                    , lcOldSetEscape, lcOldOnEscape, llEscKeyRestored, lcType
+                LOCAL lnVFPVersion, lcCFG_File
+
+                LOCAL loEx   As Exception ;
+                    , loFSO  As Scripting.FileSystemObject ;
+                    , loWSH  As WScript.Shell
+
+                LOCAL loCFG             As CL_CFG          Of 'FOXBIN2PRG.PRG' ;
+                    , loLang            As CL_LANG         Of 'FOXBIN2PRG.PRG' ;
+                    , loDBF_CFG         As CL_DBF_CFG      Of 'FOXBIN2PRG.PRG'
                     , loFrm_Interactive As frm_interactive Of 'FOXBIN2PRG.PRG' ;
-                    , loFrm_Main As frm_main Of 'FOXBIN2PRG.PRG' ;
-                    , loDBF_CFG As CL_DBF_CFG Of 'FOXBIN2PRG.PRG' ;
-                    , loWSH As WScript.Shell ;
-                    , lnVFPVersion, lcCFG_File
+                    , loFrm_Main        As frm_main        Of 'FOXBIN2PRG.PRG' ;
+
 
                 With This As c_foxbin2prg Of 'FOXBIN2PRG.PRG'
                     lc_OldSetNotify = Set("Notify")
@@ -3232,48 +3217,43 @@ Define Class c_foxbin2prg As Session
                                 + '*, *-, -BIN2PRG, -PRG2BIN, -BIN2TEXT, -TEXT2BIN, -SHOWMSG, -SIMERR_I0, -SIMERR_I1, -SIMERR_O1'
 
                         Otherwise
-* OK all versions from 900(3504) and up. For VFPA Guys :)
+                                * OK all versions from 900(3504) and up. For VFPA Guys :)
+
                     Endcase
 
                     Do Case
                         Case Atc('-SIMERR_I0','-'+tcType) > 0
                             .c_SimulateError = 'SIMERR_I0'
+
                         Case Atc('-SIMERR_I1','-'+tcType) > 0
                             .c_SimulateError = 'SIMERR_I1'
+
                         Case Atc('-SIMERR_O1','-'+tcType) > 0
                             .c_SimulateError = 'SIMERR_O1'
                     Endcase
 
                     If .l_AutoClearProcessedFiles Then
-                        .clearProcessedFiles()          && Para evitar acumular procesos anteriores
+                        && Para evitar acumular procesos anteriores
+                        .clearProcessedFiles()
                     Endif
 
-*-- Funciona y lee los parámetros, pero no le veo un caso de uso claro, ya que si se eligen
-*-- varios directorios de proyecto, la compilación será errónea. 12/12/2014
-*.readInputVFPParams( @laParams, @lnPCount )
 
-*IF lnPCount > 0 THEN
-*   .writeLog( 'Params.Externos: ' + TRANSFORM(lnPCount,'@L ##') )
-*   FOR I = 1 TO lnPCount
-*       .writeLog( 'Param.' + TRANSFORM(m.I,'@L ##') + ' [' + laParams(m.I) + ']' )
-*   ENDFOR
-*   EXIT
-*ENDIF
-
-*-- Reconocimiento de la clase indicada
-*-- Ej: [c:\desa\test\library.vcx::classname]
+                    *-- Reconocimiento de la clase indicada
+                    *-- Ej: [c:\desa\test\library.vcx::classname]
                     If '::' $ tc_InputFile Then
                         tc_InputFile            = Strtran(tc_InputFile, '::', '|')
+
                         .c_ClassOperationType   = Evl( Upper( Left( Alltrim( Getwordnum( tc_InputFile, 3, '|' ) ), 1) ), 'E')
                         .c_ClassToConvert       = Lower( Alltrim( Getwordnum( tc_InputFile, 2, '|' ) ) )
-* CUIDADO!, evaluar esta última, que si no las anteriores no evalúan.
-                        tc_InputFile            = Lower( Alltrim( Getwordnum( tc_InputFile, 1, '|' ) ) )
+
+                        * CUIDADO!, evaluar esta última, que si no las anteriores no evalúan.
+                        tc_InputFile = Lower( Alltrim( Getwordnum( tc_InputFile, 1, '|' ) ) )
                     Else
                         .c_ClassOperationType   = ''
                     Endif
 
                     If Vartype(tcCFG_File) = "O"
-* Validar el objeto
+                        * Validar el objeto
                         loCFG   = tcCFG_File
                         If Not (loCFG.Class == Proper('CL_CFG'))
                             Error 'CFG object: Invalid class. Please, generate it with get_DirSettings()'
@@ -3283,30 +3263,26 @@ Define Class c_foxbin2prg As Session
                         .n_CFG_EvaluateFromParam = 1
 
                     Else
-*!* LScheffler 30.08.2023: Change name only in Init
-*                   .c_Foxbin2prg_ConfigFile = Evl( tcCFG_File,  )
-*                       .n_CFG_EvaluateFromParam = Iif(Empty(tcCFG_File), 0, 1)
-                        lcCFG_File               = IIF(VARTYPE(tcCFG_File)='C' AND !EMPTY(tcCFG_File),tcCFG_File,.F.)
+
+                        lcCFG_File = IIF(VARTYPE(tcCFG_File)='C' AND !EMPTY(tcCFG_File),tcCFG_File,.F.)
                     Endif
 
-*-- Ajusto la ruta si no es absoluta
+                    *-- Ajusto la ruta si no es absoluta
                     tc_InputFile    = .get_AbsolutePath( tc_InputFile, .c_CurDir )
 
-*-- Determino el tipo de InputFile (Archivo o Directorio)
+                    *-- Determino el tipo de InputFile (Archivo o Directorio)
                     If Empty(lcInputFile_Type) And Not Empty(tc_InputFile)
                         Do Case
                             Case Len(tc_InputFile) = 1
                                 lcInputFile_Type    = C_FILETYPE_QUERYSUPPORT
 
                             Case Adir(laDirInfo, tc_InputFile, "D") = 1 And Substr( laDirInfo(1,5), 5, 1 ) = "D"
-*-- Ejemplo: "c:\desa\"
+                                *-- Ejemplo: "c:\desa\"
                                 lcInputFile_Type    = C_FILETYPE_DIRECTORY
 
-*!*                             Case Upper( tcType ) =='-C' Or tcType =='-t' Or Upper( tcType ) =='C' Or tcType =='t'
-*!*                                 lcInputFile_Type    = C_FILETYPE_QUERYSUPPORT   &&C_FILETYPE_CONFIG
 
                             Otherwise
-*-- Ejemplo: "c:\desa\*.scx", "c:\desa\file.ext", (lista de archivos)
+                                *-- Ejemplo: "c:\desa\*.scx", "c:\desa\file.ext", (lista de archivos)
                                 lcInputFile_Type    = C_FILETYPE_FILE
                         Endcase
                     Endif
@@ -3326,13 +3302,14 @@ Define Class c_foxbin2prg As Session
                     .writeLog( loLang.C_MAIN_EXECUTION_LOC, 2 )
                     .writeLog( Replicate( '*', 100 ) )
                     .writeLog( '> ' + loLang.C_EXTERNAL_PARAMETERS_LOC + ':' )
-                    If Upper(tcType)=='-C' Or tcType=='-t' ;
-                            OR Upper(tcType)=='C' Or tcType=='t' THEN
+                    If    Upper(tcType)=='-C' Or tcType=='-t' ;
+                       OR Upper(tcType)=='C'  Or tcType=='t' THEN
+
                         .writeLog( C_TAB + 'tcType:                       ' + Transform( Evl(lcType, '(empty)' ) ) )
                         .writeLog( C_TAB + 'tc_OutputFile:                ' + Transform( Evl(tc_InputFile, '(empty)  -> Will use Default [' + .c_InputFile + ']' ) ) )
                         .writeLog( C_TAB + 'tcCFG_File                    ' + Transform( Evl(tcCFG_File, '(empty)' ) ) )
                         .writeLog( C_TAB + 'tcDebug:                      ' + Transform( Evl(tcDebug, '(empty)  -> Will use Default [' + Transform(.n_Debug) + ']' ) ) )
-                    ELSE  &&Upper(tcType)=='-C' Or tcType=='-t' OR Upper(tcType)=='C' Or tcType=='t'
+                    ELSE
                         .writeLog( C_TAB + 'tc_InputFile:                 ' + Transform( Evl(tc_InputFile, '(empty)  -> Will use Default [' + .c_InputFile + ']' ) ) )
                         .writeLog( C_TAB + 'tcType:                       ' + Transform( Evl(lcType, '(empty)' ) ) )
                         .writeLog( C_TAB + 'tcTextName:                   ' + Transform( Evl(tcTextName, '(empty)' ) ) )
@@ -3348,7 +3325,7 @@ Define Class c_foxbin2prg As Session
                         .writeLog( C_TAB + 'tcClearUniqueID:              ' + Transform( Evl(tcClearUniqueID, '(empty)  -> Will use Default [' + Transform(.l_ClearUniqueID) + ']' ) ) )
                         .writeLog( C_TAB + 'tcOptimizeByFilestamp:        ' + Transform( Evl(tcOptimizeByFilestamp, '(empty)  -> Will use Default [' + Transform(.n_OptimizeByFilestamp) + ']' ) ) )
                         .writeLog( C_TAB + 'tcCFG_File                    ' + Transform( IIF(VARTYPE(tcCFG_File)='O' AND !ISNULL(tcCFG_File),'(object)',Evl(tcCFG_File, '(empty)' ) ) ) )
-                    ENDIF &&Upper(tcType)=='-C' Or tcType=='-t' OR Upper(tcType)=='C' Or tcType=='t'
+                    ENDIF
                     .writeLog( )
 
 *-- ARCHIVO DE CONFIGURACIÓN PRINCIPAL
