@@ -1,0 +1,469 @@
+*---------------------------------------------------------------------------------------------------
+* <HISTORIAL DE CAMBIOS Y NOTAS IMPORTANTES>
+* 04/11/2013	FDBOZZO		v1.0		Creación inicial de las clases y soporte de los archivos VCX/SCX/PJX
+* 22/11/2013	FDBOZZO		v1.1		Corrección de bugs
+* 23/11/2013	FDBOZZO		v1.2		Corrección de bugs, limpieza de código y refactorización
+* 24/11/2013	FDBOZZO		v1.3		Corrección de bugs, limpieza de código y refactorización
+* 27/11/2013	FDBOZZO		v1.4		Agregado soporte comodines *.VCX, configuración de extensiones (vca), parámetro p/log
+* 27/11/2013	FDBOZZO		v1.5		Arreglo bug que no generaba form completo
+* 01/12/2013	FDBOZZO		v1.6		Refactorización completa generación BIN y PRG, cambio de algoritmos, arreglo de bugs, Unit Testing con FoxUnit
+* 02/12/2013	FDBOZZO		v1.7		Arreglo bug "Name", barra de progreso, agregado mensaje de ayuda si se llama sin parámetros, verificación y logueo de archivos READONLY con debug activa
+* 03/12/2013	FDBOZZO		v1.8		Arreglo bug "Name" (otra vez), sort encapsulado y reutilizado para versiones TEXTO y BIN por seguridad
+* 06/12/2013	FDBOZZO		v1.9		Arreglo bug pérdida de propiedades causado por una mejora anterior
+* 06/12/2013	FDBOZZO		v1.10		Arreglo del bug de mezcla de métodos de una clase con la siguiente
+* 07/12/2013	FDBOZZO		v1.11		Arreglo del bug de _amembers detectado por Edgar K.con la clase BlowFish.vcx (http://www.tortugaproductiva.galeon.com/docs/blowfish/index.html)
+* 07/12/2013    FDBOZZO     v1.12		Agregado soporte preliminar de conversión de reportes y etiquetas (FRX/LBX)
+* 08/12/2013	FDBOZZO		v1.13		Arreglo bug "Error 1924, TOREG is not an object"
+* 15/12/2013	FDBOZZO		v1.14		Arreglo de bug AutoCenter y registro COMMENT en regeneración de forms
+* 08/12/2013    FDBOZZO     v1.15		Agregado soporte preliminar de conversión de tablas, índices y bases de datos (DBF,CDX,DBC)
+* 18/12/2013	FDBOZZO		v1.16		Agregado soporte para menús (MNX)
+* 03/01/2014	FDBOZZO		v1.17		Agregado Unit Testing de menús y arreglo de las incidencias del menu
+* 05/01/2013	FDBOZZO		v1.18		Agregado soporte para generar estructuras TEXTO de DBFs anteriores a VFP 9, pero los binarios a VFP 9 // Arreglado bug de datos faltantes en campos de vistas // Arreglado bug mnx
+* 08/01/2014	FDBOZZO		v1.19		Arreglo bug SCX-VCX: Orden incorrecto en Reserved3 ocaciona que no se disparen eventos ACCESS (y probablemente ASIGN)
+* 08/01/2014	FDBOZZO		v1.19		Arreglo bug DBF: Tipo de índice generado incorrecto en DB2 cuando es Candidate
+* 08/01/2014	FDBOZZO		v1.19		Agregado soporte para convertir PJM a PJ2
+* 08/01/2014	FDBOZZO		v1.19		Agregada validación al convertir Menús con estructura anterior a VFP9
+* 08/01/2014	FDBOZZO		v1.19		Cambiada la propiedad "Autor" por "Author" en los archivos MN2
+* 08/01/2014	FDBOZZO		v1.19.1		Cambio en los headers de los archivos TX2 para quitar el timestamp "Generated" que causa diferencias innecesarias
+* 08/01/2014	FDBOZZO		v1.19.2		Arreglo de bug PJ2: Al regenerar da un error por buscar "Autor" en vez de "Author"
+* 08/01/2014	FDBOZZO		v1.19.3		Cambio en los timestamps de los TXT para mantener los valores vacíos que generaban muchísimas diferencias
+* 22/01/2014	FDBOZZO		v1.19.4		Nuevo parámetro Recompile para forzar la recompilación. Ahora por defecto el binario no se recompila para ganar velocidad y evitar errores. Debe recompilar manualmente.
+* 22/01/2014	FDBOZZO		v1.19.4		DBC: Agregado soporte para comentarios multilínea (propiedad Comment)
+* 26/01/2014	FDBOZZO		v1.19.5		Agregado soporte multiidioma y traducción al Inglés
+* 01/02/2014	FDBOZZO		v1.19.6		Agregada compatibilidad con SourceSafe para Diff y Merge
+* 02/02/2014	FDBOZZO		v1.19.7		Encapsulación de objetos OLE en el propio control o clase // Blocksize ajustado
+* 03/02/2014	FDBOZZO		v1.19.8		Arreglo bug pageframe (error activePage)
+* 08/02/2014	FDBOZZO		v1.19.9		Nuevos items de config.en foxbin2prg.cfg / Bug en Localización  / Mejora log / Parametrización Nº backups / Timestamps desactivados por defecto
+* 09/02/2014	FDBOZZO		v1.19.10	Parametrización soporte de tipo de conversión por archivo / ClearUniqueID
+* 13/02/2014	FDBOZZO		v1.19.11	Optimizaciones WITH/ENDWITH (16%+velocidad) / Arreglo bug #IF anidados
+* 21/02/2014	FDBOZZO		v1.19.12	Centralizar ZOrder controles en metadata de cabecera de clase para minimizar diferencias / También mover UniqueIDs y Timestamps a metadata
+* 26/02/2014	FDBOZZO		v1.19.13	Arreglo bug TimeStamp en archivo cfg / ExtraBackupLevels se puede desactivar / Optimizaciones / Casos FoxUnit
+* 01/03/2014	FDBOZZO		v1.19.14	Arreglo bug regresion cuando no se define ExtraBackupLevels no hace backups / Optimización carga cfg en batch
+* 04/03/2014	FDBOZZO		v1.19.15	Arreglo bugs: OLE TX2 legacy / NoTimestamp=0 / DBFs backlink
+* 07/03/2014	FDBOZZO		v1.19.16	Arreglo bugs: Propiedades y métodos Hidden/Protected que no se generan /// Crash métodos vacíos
+* 16/03/2014	FDBOZZO		v1.19.17	Arreglo bugs frx/lbx: Expresiones con comillas // comment multilínea // Mejora tag2 para Tooltips // Arreglo bugs mnx
+* 22/03/2014	FDBOZZO		v1.19.18	Arreglo bug vcx/scx: Las imágenes no mantienen sus dimensiones programadas y asumen sus dimensiones reales // El comentario a nivel de librería se pierde
+* 29/03/2014	FDBOZZO		v1.19.19	Nueva característica: Hooks al regenerar DBF para poder realizar procesos intermedios, como la carga de datos del DBF regenerado desde una fuente externa
+* 17/04/2014	FDBOZZO		v1.19.20	Relativización de directorios de CDX dentro de los DB2 para minimizar diferencias
+* 29/04/2014	FDBOZZO		v1.19.21	Agregada posibilidad de convertir un proyecto entero a tx2 // Optimizaciones en generación según timestamps // AGAIN en aperturas // Simplificación sección PAM
+* 08/05/2014	FDBOZZO		v1.19.22	Arreglo bug vcx/scx: La propiedad Picture de una clase form se pierde y no muestra la imagen
+* 27/05/2014	FDBOZZO		v1.19.23	Arreglo bug vcx/scx: Redimensionamiento incorrecto de imagenes en ciertas situaciones (props_image.txt y props_optiongroup.txt actualizados)
+* 09/06/2014	FDBOZZO		v1.19.24	Arreglo bug vcx/scx: La falta de AGAIN en algunos comandos USE provoca error de "tabla en uso" si se usa el PRG desde la ventana de comandos
+* 14/06/2014	FDBOZZO		v1.19.24	Arreglo bug vcx/scx: Un campo de tabla llamado "text" que comienza la línea puede confundirse con la estructura TEXT/ENDTEXT y reconocer mal el resto del código
+* 16/06/2014	FDBOZZO		v1.19.25	Mejora: Agregado soporte de configuraciones (CFG) por directorio que, si existen, se usan en lugar del principal (Mario Peschke)
+* 17/06/2014	FDBOZZO		v1.19.25	Mejora: Si durante la generación de binarios o de textos se producen errores, mostrar un mensaje avisando de ello (Pedro Gutiérrez M.)
+* 06/07/2014	FDBOZZO		v1.19.26	Mejora: Cuando se convierten binarios a texto, los CHR(0) pasan también, pudiendo provocar falsa detección como binario. Se agrega opción para quitar los .Null.s. (Matt Slay)
+* 27/06/2014	FDBOZZO		v1.19.26	Mejora: Si el campo memo "methods" de los vcx/scx contiene asteriscos fuera de lugar (que no debería), FoxBin2Prg lo procesa igualmente. (Daniel Sánchez)
+* 06/07/2014	FDBOZZO		v1.19.26	Bug Fix cfg: ExtraBackupLevel no se tiene en cuenta cuando se usa multi-configuración
+* 02/06/2014	DH/FDBOZZO	v1.19.27	Mejora: Agregado soporte para exportar datos para DIFF (no para importar)
+* 21/07/2014	FDBOZZO		v1.19.28	Mejora: Agregada funcionalidad para filtrado de tablas y datos cuando se elige DBF_Conversion_Support:4 (Edyshor)
+* 29/07/2014	FDBOZZO		v1.19.29	Arreglo bug vcx/scx: Un campo de tabla llamado "text" que comienza la línea puede confundirse con la estructura TEXT/ENDTEXT y reconocer mal el resto del código
+* 07/08/2014	FDBOZZO		v1.19.30	Arreglo bug vcx/scx: Cuando la línea anterior a un ENDTEXT termina en ";" o "," no se reconoce como ENDTEXT sino como continuación (Jim Nelson)
+* 08/08/2014	FDBOZZO		v1.19.30	Arreglo bug vcx/vct v1.19.29: En ciertos casos de herencia no se mantiene el orden alfabetico de algunos metodos (Ryan Harris)
+* 17/08/2014	FDBOZZO		v1.19.31	Agregada versión del EXE cuando se genera LOG de depuración
+* 20/08/2014	FDBOZZO		v1.19.31	Mejora vcx/scx: Mejorado el reconocimiento de instrucciones #IF..#ENDIF cuando hay espacios entre # y el nombre de función
+* 20/08/2014	FDBOZZO		v1.19.31	Mejora: Ajuste de capitalización de los archivos origen, así ya no hay que hacerlo manualmente
+* 25/08/2014	FDBOZZO		v1.19.32	Arreglo bug vcx/vct v1.19.31: Una propiedad llamada "text" es confundida con la estructura text/endtext (Peter Hipp)
+* 27/08/2014	FDBOZZO		v1.19.33	Arreglo bug mnx v1.19.32: Si se crea un menú con una opción de tipo #Bar vacía, el menú se genera mal (Peter Hipp)
+* 29/08/2014	FDBOZZO		v1.19.33	Arreglo bug mnx v1.19.32: Si una opción tiene asociado un Procedure de 1 línea, no se mantiene como Procedure y se convierte a Command (Peter Hipp)
+* 19/09/2014	FDBOZZO		v1.19.34	Arreglo bug: Si se ejecuta FoxBin2Prg desde ventana de comandos FoxPro para un proyecto y hay algún archivo abierto o cacheado, se produce un error al intentar capitalizar el archivo de entrada (Jim Nelson)
+* 26/09/2014	FDBOZZO		v1.19.35	Mejora: Generar siempre el mismo Timestamp y UniqueID para los binarios minimizaría los cambios al regenerarlos (Marcio Gomez G.)
+* 08/10/2014	FDBOZZO		v1.19.36	Arreglo bug: Al generar el mn2 el identificador queda vacío (bug introducido en v1.19.35)
+* 19/11/2014	FDBOZZO		v1.19.37	Mejora: Las configuraciones de foxbin2prg.cfg no permiten comentarios && al final (edyshor)
+* 19/11/2014	FDBOZZO		v1.19.37	Arreglo bug: "String is too long to fit" cuando se procesa un DBF grande con DBF_Conversion_Support = 4 (edyshor)
+* 19/11/2014	FDBOZZO		v1.19.37	Mejora dbf: Nuevo parámetro ClearDBFLastUpdate para evitar diferencias por este dato (edyshor)
+* 21/10/2014    FDBOZZO     v1.19.37    Mejora: Permitir generar una clase por archivo (Ryan Harris/LScheffler)
+* 29/11/2014	FDBOZZO		v1.19.37	Arreglo bug scx/vcx: Algunas propiedades a veces tomaban la descripción de otras propiedades similares
+* 29/11/2014	FDBOZZO		v1.19.37	Arreglo bug scx/vcx: Las propiedades "Protected" y "Hidden" no siempre estaban ordenadas alfabéticamente
+* 30/10/2014	FDBOZZO		v1.19.37	Mejora: Optimizaciones en velocidad de proceso para scx/vcx/dbf
+* 30/11/2014	FDBOZZO		v1.19.37	Mejora: Indicador de avance de proceso más informativo
+* 30/11/2014	FDBOZZO		v1.19.37	Mejora: Se puede cancelar el proceso con la tecla Esc
+* 30/11/2014	FDBOZZO		v1.19.37	Mejora: Agregado control para detectar reportes no compatibles con VFP 9
+* 04/12/2014	FDBOZZO		v1.19.38	Mejora: Permitir hacer conversiones masivas bin2prg y prg2bin sin los scripts vbs (Francisco Prieto)
+* 06/12/2014	FDBOZZO		v1.19.38	Mejora: Rediseño de la Internacionalización. Ahora la selección es automática al cargar y no requiere recompilar.
+* 12/12/2014	FDBOZZO		v1.19.38	Mejora: Detección de métodos duplicados para notificar casos de corrupción (Álvaro Castrillón)
+* 18/12/2014	FDBOZZO		v1.19.39	Mejora: Cuando se usan las claves BIN2PRG o PRG2BIN permitir procesar un archivo solo (Mike Potjer)
+* 18/12/2014	FDBOZZO		v1.19.39	Mejora: Agregar la clave SHOWMSG y dejar INTERACTIVE para un diálogo interactivo (Mike Potjer)
+* 18/12/2014	FDBOZZO		v1.19.39	Mejora: Cuando se procesa un directorio con foxbin2prg.exe solo y la clave INTERACTIVE, mostrar un diálogo para preguntar qué procesar (Mike Potjer)
+* 18/12/2014	FDBOZZO		v1.19.39	Bug fix vbs: Los scripts vbs no muestren los errores del proceso de FoxBin2Prg
+* 30/12/2014	FDBOZZO		v1.19.39	Bug fix dc2: Los datos de DisplayClass y DisplayClassLibrary tenían el valor de "Default" en vez del propio (Christopher Kurth/Ryan Harris)
+* 04/01/2015	FDBOZZO		v1.19.40	Bug fix frx/lbx: Cuando se usa el entorno de datos, solo se está guardando un cursor, y si hay más se pierden
+* 06/01/2015	FDBOZZO		v1.19.40	Mejora: Permitir configurar la barra de progreso para que solamente aparezca cuando se procesan múltiples archivos y no cuando se procesa solo 1 (Jim Nelson)
+* 07/01/2015	FDBOZZO		v1.19.40	Bug fix db2: [Error 12, Variable "TCOUTPUTFILE" is not found] cuando DBF_Conversion_Support=4 y el archivo de salida es igual al generado (Mike Potjer)
+* 07/01/2015	FDBOZZO		v1.19.40	Mejora scx/vcx: Detección de nombres de objeto duplicados para notificar casos de corrupción
+* 13/01/2015	FDBOZZO		v1.19.41	Bug Fix scx/vcx: Detección errónea de estructuras PROCEDURE/ENDPROC cuando se usan como parámetros en LPARAMETERS (Ryan Harris)
+* 13/01/2015	FDBOZZO		v1.19.41	Bug Fix db2: Detección errónea de tabla inválida cuando el tamaño es inferior a 328 bytes. Límite mínimo cambiado a 65 bytes.
+* 20/01/2015	FDBOZZO		v1.19.42	Mejora: Validación de versión de Visual FoxPro SP1, para evitar problemas ajenos a FoxBin2Prg
+* 04/02/2015	FDBOZZO		v1.19.42	Mejora dc2: Permitir ordenar los campos de vistas y tablas alfabéticamente y mantener en una lista aparte el orden real, para facilitar el diff y el merge (Ryan Harris)
+* 22/01/2015    FDBOZZO     v1.19.42    Bug Fix: Compatibilidad con SourceSafe rota porque se genera un error al realizar la consulta para soporte de archivo (Tuvia Vinitsky)
+* 25/02/2015	FDBOZZO		v1.19.42	Bug Fix scx/vcx: Procesar solo un nivel de text/endtext, ya que no se admiten más niveles (LScheffler)
+* 25/02/2015	FDBOZZO		v1.19.42	Mejora: Hacer algunos mensajes de error más descriptivos (LScheffler)
+* 03/03/2015	FDBOZZO		v1.19.42	Mejora: Mejoras en la traducción al alemán (LScheffler)
+* 03/03/2015	FDBOZZO		v1.19.42	Mejora: Permitir definir el archivo de entrada con un path relativo (LScheffler)
+* 03/03/2015	FDBOZZO		v1.19.42	Bug Fix scx: Metadato del Dataenvironment no se genera bien cuando el Dataenvironment es renombrado
+* 03/03/2015	FDBOZZO		v1.19.42	Bug Fix scx: Agregada la generación del PJX/PJ2 cuando se indica "file.pjx", "*" (LScheffler)
+* 03/03/2015	FDBOZZO		v1.19.42	Mejora: Agregado soporte multi-proyecto (*.PJX, *.PJ2) cuando se especifica "file.pjx", "*" (LScheffler)
+* 05/03/2015	FDBOZZO		v1.19.42	Mejora: Cambiada la clase de base de FoxBin2Prg de custom a session (LScheffler)
+* 05/03/2015	FDBOZZO		v1.19.42	Mejora: Permitir procesar los archivos de un proyecto sin convertir el PJX/2, usando *- (LScheffler)
+* 06/03/2015	FDBOZZO		v1.19.42	Bug Fix pjx: Permitir usar fin de linea (CR/LF) en los atributos de versión del PJX
+* 10/03/2015	FDBOZZO		v1.19.42	Mejora API: Agregado soporte de errOut e implementado en writeErrorLog
+* 10/03/2015	FDBOZZO		v1.19.42	Mejora: Agregado soporte total de comodines *? en nombres de archivo para procesar múltiples archivos de la misma extensión (LScheffler)
+* 10/03/2015	FDBOZZO		v1.19.42	Mejora API: Nuevo parámetro para permitir un CFG alternativo (LScheffler)
+* 10/03/2015	FDBOZZO		v1.19.42	Mejora API: Nuevo método get_Processed() para obtener información de los archivos procesados (LScheffler)
+* 10/03/2015	FDBOZZO		v1.19.42	Mejora: Nueva salida de archivos procesados a stdOut (LScheffler)
+* 10/03/2015	FDBOZZO		v1.19.42	Bug Fix: Arreglada la cancelación del procesamiento con tecla Esc
+* 22/03/2015	FDBOZZO		v1.19.42	Mejora: Ordenar los campos de vistas y tablas alfabéticamente y mantener en una lista aparte el orden real, para facilitar el diff y el merge (Ryan Harris)
+* 22/03/2015	FDBOZZO		v1.19.42	Mejora: Aplicar ClassPerFile a las conexiones, tablas, vistas y stored procedures de los DBC (Ryan Harris)
+* 23/03/2015	FDBOZZO		v1.19.42	Bug Fix mnx: No se mantiene el Pad vacío al regenerar el menú cuando se define un menu con un Pad sin nombre (LScheffler)
+* 25/03/2015	FDBOZZO		v1.19.42	Mejora API: Nueva propiedad l_ProcessFiles que permite obtener la lista de archivos a procesar sin procesarlos realmente usando el valor .F.
+* 25/03/2015	FDBOZZO		v1.19.42	Bug Fix frx/lbx: Arreglo de CR,LF,TAB sobrantes en algunos archivos FR2/LB2 agregados en versiones anteriores (Ryan Harris)
+* 02/04/2015	FDBOZZO		v1.19.42	Mejora: Herencia de CFGs entre directorios
+* 12/04/2015	FDBOZZO		v1.19.42	Mejora API: Crear un método API get_DirSettings() para obtener información de seteos del directorio indicado (LScheffler)
+* 13/04/2015	FDBOZZO		v1.19.42	Mejora: Permitir generar texto de una clase de una librería (LScheffler)
+* 16/04/2015	FDBOZZO		v1.19.42	Mejora API: Renombrados los nombres de los métodos al Inglés para facilitar su entendimiento internacional (Mike Potjer)
+* 23/04/2015	FDBOZZO		v1.19.43	Mejora: Nueva configuración "RemoveZOrderSetFromProps" para quitar la propiedad ZOrderSet de los objetos que cambian constantemente, provocan diferencias y a veces dan problemas de objeto encima/debajo (Ryan Harris)
+* 23/04/2015	FDBOZZO		v1.19.43	Mejora: Hacer que la progressbar no se convierta en la ventana de salida por defecto de los ? (LScheffler)
+* 28/04/2015	FDBOZZO		v1.19.43	Bug Fix: FoxBin2Prg no retorna códigos de error cuando se llama como programa externo (Ralf Wagner)
+* 29/04/2015	FDBOZZO		v1.19.43	Bug Fix: FoxBin2Prg a veces genera errores OLE cuando se ejecuta más de una vez en modo objeto sobre un archivo con errores (Fidel Charny)
+* 10/05/2015	FDBOZZO		v1.19.43	Bug Fix: Cuando un form tiene AutoCenter=.T., hay veces en que al regenerar el binario y ejecutarlo no se muestra centrado (Esteban H)
+* 14/05/2015	FDBOZZO		v1.19.44	Bug Fix: En ciertos PCs FoxBin2Prg no retorna códigos de error cuando se llama como programa externo (Ralf Wagner)
+* 18/05/2015	FDBOZZO		v1.19.44	Mejora: Permitir la exportación de datos de DBFs cuando se usa DBF_Conversion_Support:1 y CFG individual opcional
+* 31/05/2015	FDBOZZO		v1.19.44	Bug Fix: Un arreglo previo en el manejo de errores en cascada provocó un reseteo del último estado de error de proceso, haciendo que a veces los errores no se reporten.
+* 01/06/2015	FDBOZZO		v1.19.45	Bug Fix: Cuando se exporta a texto un menu que usa comillas simples o una expresión en el mensaje de las opciones, al regenerar el binario se recortan partes del mensaje de esas opciones (Mike Potjer)
+* 09/06/2015	FDBOZZO		v1.19.45	Bug Fix: Cuando se procesan múltiples archivos PJ2, puede ocurrir un error de "variable llError no definida" (LScheffler)
+* 15/06/2015	FDBOZZO		v1.19.45	Bug Fix pjx,*/pj2,*: Los proyectos PJX/PJ2 que referencian archivos de otras unidades de disco causan errores ne esos archivos al procesar con las opciones "*" o "*-" (Matt Slay)
+* 22/06/2015	FDBOZZO		v1.19.46	Bug Fix: Arreglo de bug en método set_UserValue() cuando se intenta obtener información de un error que no puede abrir la tabla (por ej, porque el memo está corrupto)
+* 22/06/2015	FDBOZZO		v1.19.46	Mejora: Agregado soporte interno para consulta de información de cfg de directorio, mediante nuevo parámetro opcional, para los métodos API que lo requieren (por ej: get_Ext2FromExt, hasSupport*)
+* 29/07/2015	FDBOZZO		v1.19.46	Bug Fix: Cuando se procesa un directorio o un proyecto con todos los archivos, a veces puede ocurrir el error "Alias already in use" (Dave Crozier)
+* 01/09/2015	FDBOZZO		v1.19.46	Bug Fix mnx: Cuando se usa '&&' en los textos de las opciones, se corrompe el binario del menú al regenerarlo (Walter Nichols)
+* 14/09/2015	FDBOZZO		v1.19.46	Mejora: El objeto WSscript.Shell da problemas en algunos entornos o bajo ciertas condiciones, por lo que se reemplaza por llamadas Win32 nativas (Aurélien Dellieux)
+* 15/09/2015	FDBOZZO		v1.19.46	Bug Fix Frx/Lbx : El ordenamiento de registros de los reportes cambia el orden Z de los objetos próximos que se solapan, pudiendo causar que se visualicen mal (Ryan Harris)
+* 18/09/2015	FDBOZZO		v1.19.46	Bug Frx/Lbx: Cuando se regeneran reportes o etiquetas con textos multilinea alineados al centro o a la derecha, la alineación no es completamente correcta (Ryan Harris)
+* 29/10/2015	FDBOZZO		v1.19.46	Bug Frx/Lbx: Cuando se agrupan controles en diseño y se convierte a texto, al regenerar se pierden las agrupaciones (LScheffler)
+* 04/11/2015	RALFXWAGNER	v1.19.46	Bug Fix Pjx: Los archivos SPR y MPR no estan bien representados en la información del proyecto (Ralf Wagner)
+* 25/11/2015	FDBOZZO		v1.19.46	Bug Fix Pj2: Se genera un error al regenerar un PJX desde un PJ2 donde algún archivo contiene paréntesis (EddieC)
+* 25/11/2015	FDBOZZO		v1.19.46	Mejora dbf: Nuevo parámetro ExcludeDBFAutoincNextval para evitar diferencias por este dato (edyshor)
+* 04/02/2016	FDBOZZO		v1.19.46	Bug Fix: Cuando se procesa un archivo en el directorio raiz, se genera un error 2062 (Aurélien Dellieux)
+* 10/02/2016	FDBOZZO		v1.19.47	Bug Fix: Cuando se indica como nombre de archivo "*" y como tipo "*", se regeneran automáticamente todos los archivos binarios desde los archivos de texto (Alejandro Sosa)
+* 25/05/2016	FDBOZZO		v1.19.47	Mejora DBF-Data: Permitir importar datos de los DB2 a los DBF con el nuevo valor DBF_Conversion_Support=8. Todos los tipos de datos excepto General. (Walter Nicholls)
+* 24/06/2016	AndyGK63	v1.19.48	Bug Fix: Error en variable usada en una de las traducciones al Alemán (Andy Kasper)
+* 24/06/2016	AndyGK63	v1.19.48	Bug Fix: Posición de menú BEFORE siempre cambiada a AFTER al convertir (Andy Kasper)
+* 30/06/2016	FDBOZZO		v1.19.48	Bug Fix: No se respetan algunas restricciones de conversión para DBFs cuando se usan CFGs particulares por tabla (Nathan Brown)
+* 09/07/2016	FDBOZZO		v1.19.48	Bug Fix db2: Cuando se lee un memo multilínea de un db2 con datos antiguo, se produce un error de índice fuera de rango
+* 10/07/2016	FDBOZZO		v1.19.48	Bug Fix db2: Cuando se usa ExcludeDBFAutoincNextval: 1 en FoxBin2Prg.cfg y a la vez la importación de datos de una tabla con campo AutoInc, se produce el error "Error 2088, Field <FIELD> is read-only" (Nathan Brown)
+* 10/07/2016	FDBOZZO		v1.19.48	Fix defecto db2: Cuando se arregló el bug del memo multi-línea, se introdujo un nuevo defecto por el cual un memo de linea-simple se decodifica mal (Nathan Brown)
+* 11/07/2016	FDBOZZO		v1.19.48	Bug Fix pj2: Cuando se regenera el binario de un PJ2 con archivos en una ruta con paréntesis y espacios, se genera un error "Error 36, Command contains unrecognized phrase/keyword" (Nathan Brown)
+* 11/07/2016	FDBOZZO		v1.19.48	Bug Fix frx: Los ControlSource de objetos OLE que contienen comillas se generan mal (Nathan Brown)
+* 23/03/2017	FDBOZZO		v1.19.49	Bug Fix vcx: No funciona la generación de una clase individual con "classlib.vcx::classname" (LScheffler)
+* 25/03/2017	FDBOZZO		v1.19.49	Mejora vcx: Poder importar una clase (VC2 generado con ClassPerFile) en un VCX existente (LScheffler)
+* 26/03/2017    FDBOZZO     v1.19.49    Mejora cfg: Se permite indicar un archivo CFG por parámetro de cualquier directorio para anular los CFG predeterminados de los subdirectorios, para casos especiales donde sea necesario
+* 28/03/2017    FDBOZZO     v1.19.49    Mejora vcx: Implementada sintaxis para importar o exportar clases individuales usando "classlibrary.vcx::classname::import" y "classlibrary.vcx::classname::export"
+* 11/04/2017	FDBOZZO		v1.19.49	Bug Fix frx: Cuando dentro de una expresión se usa "&&", se corrompe el registro del FRX generado (Alejandro A Sosa)
+* 11/04/2017	FDBOZZO		v1.19.49	Mejora cfg : En modo objeto permitir indicar un objeto CFG en lugar de un archivo CFG (LScheffler)
+* 12/04/2017	DH&FDBOZZO	v1.19.49	Bug Fix & Report pjx: No se estaba guardando el campo User en los archivos PJX (Doug Hennig)
+* 25/06/2017	FDBOZZO		v1.19.49.1	Bug Fix tx2 v1.19.49: El campo DEVINFO usado en los PJX se estaba usando en los demás binarios, dando errores
+* 02/12/2017	FDBOZZO		v1.19.49.2	Bug Fix tx2 v1.19.49: No exporta los objetos a TX2 cuando se usa ClassPerFile (LScheffler)
+* 03/12/2017	JS&FDBOZZO	v1.19.49.3	Bug Fix db2: Los campos "Double" asumen 2 decimales cuando se definen con 0 decimales (Jerry Stager)
+* 04/12/2017	FDBOZZO		v1.19.49.4	Cuando se usa ClassPerFile an Modo API y se importan clases simples, a veces sus nombres se toman sin comillas, provocando errores (LScheffler)
+* 20/12/2017	DH&FDBOZZO	v1.19.49.5	Bug Fix dbf: Cuando se importan datos de un DB2 a DBF (con DBF_Conversion_Support = 8), los tabs al inicio de los memo se pierden (Doug Hennig)
+* 04/01/2018	FDBOZZO		v1.19.49.6	Bug Fix vcx/scx: FoxBin2Prg debería ignorar los registros que el diseñador de FoxPro ignora (Doug Hennig)
+* 04/01/2018	FDBOZZO		v1.19.49.6	Bug Fix vcx/scx: Cuando se regenera la propiedad _MemberData se agregan CR/LF por cada miembro, pudiendo provocar un error de "valor muy largo" (Doug Hennnig)
+* 11/01/2018	FDBOZZO		v1.19.49.7	Bug Fix: Cuando se convierte la estructura de un DBF puede dar error si existe un campo llamado I o X (Francisco Prieto)
+* 30/01/2018	FDBOZZO		v1.19.49.8	Bug Fix: Cuando se convierte a texto una libreria corrupta con registros duplicados, se genera el error "The specified key already exists" (Kirides)
+* 03/03/2018	FDBOZZO		v1.19.50	Mejora: La información DevInfo de los PJX estará inhabilitada por defecto y se podrá activar con el nuevo switch BodyDevInfo
+* 03/03/2018    FDBOZZO     v1.19.50    Mejora: Nueva opción de configuración "PRG_Compat_Level": 0=Legacy, 1=Usar HELPSTRING para comentarios de métodos de clase en vez de "&&"
+* 03/03/2018    FDBOZZO     v1.19.50    Mejora: Permitir exportar a texto la información de DBFs cuya apertura está protegida por eventos del DBC
+* 12/03/2018	FDBOZZO		v1.19.50.1	Bug Fix: Cuando se usa la equivalencia "extension: pj2=pjm" se debe manejar el pjm como un pj2 y no como un pjm de SourceSafe (Darko Kezic)
+* 15/03/2018	FDBOZZO		v1.19.50.3	Bug Fix: Cuando se agregan archivos de texto no-VFP, como html,css,etc, en la sección de Text del proyecto, FoxBin2Prg no mantiene esta selección al regenerar el PJX, dejándolos en la sección Files (Darko Kezic)
+* 16/03/2018	FDBOZZO		v1.19.51	Mejora: Agregado soporte para archivos de macros (.FKY)
+* 25/03/2018	FDBOZZO		v1.19.51	Mejora: Agregado soporte para archivos de memoria (.MEM)
+* 05/05/2018	SSF1&FDB	v1.19.51.1	Bug Fix: Si se usa capitalización en la información de las vistas, entonces la información relacionada no se exporta correctamente o completamente y puede perderse (SkySurfer1)
+* 20/06/2018	FDBOZZO		v1.19.51.2	Bug Fix: Cuando se exporta un DBF que pertenece a un DBC sin eventos, falla (Jairo Argüelles/Juan C.Perdomo)
+* 09/07/2018	FDBOZZO		v1.19.51.3	Bug Fix: Error 1098, Cannot find ... [ENDT] that closes ... [TEXT] Issue#26 when there is a field named TEXT as first line-word (KIRIDES)
+* 10/07/2018	FDBOZZO		v1.19.51.4	Bug Fix: El ordenamiento alfabético de los objetos de los ADD OBJECT puede causar que algunos objetos se creen en el orden erróneo, provocando comportamientos inesperados (Jochen Kauz)
+* 14/02/2019	TRACY_P		v1.19.51.5	Enhancement: Make FoxBin2Prg more COM friendly when using ESC key (Tracy Pearson)
+* 01/04/2020	RHARRIS		v1.19.51.6	Bug Fix: Si alguno de los archivos-por-clase no tiene CR_LF al final, al ensamblar la clase se pueden superponer instrucciones de forma inválida (Ryan Harris)
+* 01/04/2020	FDBOZZO		v1.19.51.6	Bug Fix: Incompatible with VFPA (#36) (Eric Selje)
+* 01/04/2020	DH			v1.19.51	Bug Fix: Manejo de AutoIncrement incompatible con Project Explorer (Dan Lauer)
+* 01/04/2020	FDBOZZO		v1.19.51	Bug Fix: La conversión de tablas falla si algún campo contiene una palabra reservada como UNIQUE (DAJU78)
+* 01/04/2020	FDBOZZO		v1.19.51	Bug Fix: No se respetan las propiedades de VCX/SCX con nombre "note" (Tracy Pearson)
+* 14/02/2021	LScheffler	v1.19.52	Bug Fix: conversion dbf -> prg, error if only test mode (toFoxBin2Prg.l_ProcessFiles is false)
+* 14/02/2021	LScheffler	v1.19.52	Bug Fix: conversion prg -> dbf, fields with .NULL. value are incorectly recreated
+* 15/02/2021	LScheffler	v1.19.53	Bug Fix: processing directory, flush log file after loop instead of file
+* 16/02/2021	LScheffler	v1.19.53	Bug Fix: conversion prg -> vcx, files per class could create one class multiple times
+* 03/03/2021	LScheffler	v1.19.54	Bug Fix: DBF_Conversion_Condition, problem with macro expansion
+* 14/02/2021	LScheffler	v1.19.55	Enhancement: inserted option UseFilesPerDBC to split DBC processing from vcx / scx
+* 15/02/2021	LScheffler	v1.19.55	Enhancement: inserted option RedirectFilePerDBCToMain to split DBC processing from vcx / scx
+* 15/02/2021	LScheffler	v1.19.55	Enhancement: inserted option ItemPerDBCCheck to split DBC processing from vcx / scx
+*													 the three above are straight forward, so no extra comment are within the code
+* 19/02/2021	LScheffler	v1.19.55	Enhancement: inserted option DBF_BinChar_Base64 to allow processing of NoCPTrans fields in non base64 way
+* 20/02/2021	LScheffler	v1.19.55	Enhancement: inserted option DBF_IncludeDeleted to allow including deleted records of DBF
+* 21/02/2021	LScheffler	v1.19.55	Enhancement: German translation improved
+* 21/02/2021	LScheffler	v1.19.55	Enhancement: Info screen-doc improved
+* 21/02/2021	LScheffler	v1.19.55	Enhancement: added option to create config file template
+* 23/02/2021	LScheffler	v1.19.55	Enhancement: inserted option OldFilesPerDBC to define the use splitting of DBC like version pre 1.20.0
+* 04/03/2021	LScheffler	v1.19.56	Bug Fix: Inputfile in form classlib.class.vc2 AND RedirectClassType = 1  and Execute param tcRecompile = 1
+*                                                generates classlib.class.vcx and tries to recompile classlib.vcx
+*                                                fails silent if classlib.vcx exists (compiles wrong lib), with message if not.
+* 04/03/2021	LScheffler	v1.19.56	Enhancement: New value for RedirectClassType = 2, just process the single class of classlib.class.vc2
+* 05/03/2021	LScheffler	v1.19.57	Bug Fix: For RedirectClassType = 2, Path was set wrong
+* 2021-03-04	DH			v1.19.58	Enhancement: added support for writing to a different folder than the source code (Doug Hennig)
+* 2021-03-04	DH			v1.19.58	Enhancement: added configuration item: HomeDir, which determines if HomeDir is saved in PJ2 files (Doug Hennig)
+* 09/03/2021	LScheffler	v1.19.59	Bug Fix: For RedirectClassType = 2, Path was set wrong
+* 09/03/2021	LScheffler	v1.19.59	Doc: Improved, Better description of ClassPerFileCheck.
+* 09/03/2021	LScheffler	v1.19.59	Bug Fix: RedirectClassType = 2, UseClassPerFile = 2 failed.
+* 09/03/2021	LScheffler	v1.19.59	Enhancement: Added option to create config file template based on current values of a directory
+* 09/03/2021	LScheffler	v1.19.59	Enhancement: Log settings object handed to execute (Debug > 0)
+* 22/03/2021	LScheffler	v1.19.60	Enhancement: -cC options learned to create default FoxBin2Prg._cfg file
+* 22/03/2021	LScheffler	v1.19.60	Enhancement: -t Option learned to create default  <tablename>._cfg file, if table is open.
+* 22/03/2021	LScheffler	v1.19.60	Enhancement: Handling of additional non structural index per DBF in Bin2Text and Text2Bin see config per DBF
+* 22/03/2021	LScheffler	v1.19.60	Enhancement: Debug-Logging for Index
+* 22/03/2021	LScheffler	v1.19.60	Bug Fix: DBF_Conversion_Condition was read, but never used
+* 22/03/2021	LScheffler	v1.19.60	Bug Fix: DBF_Conversion_Order sets an index that later would be stored as structural index
+* 22/03/2021	LScheffler	v1.19.60	Bug Fix: config options with text value fail, if line comment is set
+* 22/03/2021	LScheffler	v1.19.60	Enhancement: FoxBin2Prg template and debug output ordered and completed, order synched, grouped and groups named
+* 22/03/2021	LScheffler	v1.19.60	Enhancement: Option BackgroundImage was read, but not in template
+* 22/03/2021	LScheffler	v1.19.60	Bug Fix: issue #53 Variable lnFileCount in get_filesfromdirectory
+* 23/03/2021	LScheffler	v1.19.61	Bug Fix: missnamed property
+* 30/03/2021	LScheffler	v1.19.62	Bug Fix: *_Conversion_Support options not read from config file
+* 30/03/2021	LScheffler	v1.19.62	Bug Fix: Extension shift options not read from config file
+* 30/03/2021	LScheffler	v1.19.62	Bug Fix: RedirectFilePerDBCToMain option was defined wrong in configuration example
+* 30/03/2021	LScheffler	v1.19.62	Enhancement: Debug logging, level of config file.
+* 12/04/2021	LScheffler	v1.19.63	Bug Fix: Tables without indexes cause an error that the "Table ## is not marked as belonging to the ## database" (jstagerGH)
+* 12/04/2021	LScheffler	v1.19.63	Docu: Readme reworked (mattslay)
+* 22/04/2021	LScheffler	v1.19.64	Bug Fix: Converting MN2 to MNX ignores the programmer-defined bar # found in "Prompt Options" screen (Jimrnelson)
+* 22/04/2021	LScheffler	v1.19.64	Bug Fix: Converting MN2 to MNX ignores the programmer-defined Pad Name found in "Prompt Options" screen (LScheffler)
+* 20/05/2021	LScheffler 	v1.19.65	Bug Fix: Options "-cCt" are not usable on command line base EXE. "cCt" are allowed too now
+* 30/08/2021	LScheffler 	v1.19.66	Bug Fix: Incorrect version showing for v1.19.65 (siara-cc)
+*                                                This creates wrong version in generated config files too
+* 07/12/2021	LScheffler 	v1.19.67	Bug Fix: Double classes in VCX
+* 12/04/2021	LScheffler	v1.19.67	Docu: examples and template for config files reworked
+* 18/01/2022	LScheffler	v1.19.68	Docu: Minor links in readme.html
+* 18/01/2022	LScheffler	v1.19.68	Bug Fix: Converting MN2 to MNX ignores the programmer-defined "Pad Name" found in "Prompt Options" screen (Jimrnelson)
+* 23/02/2022	LScheffler	v1.19.69	Bug Fix: Creating a class, when an object is named equal to this class (bjornhoeksel)
+* 23/02/2022	LScheffler	v1.19.69	Docu: examples and template for config files reworked to English, Contribution.md reworked
+* 25/02/2022	LScheffler	v1.19.69	Bug Fix: Missing class when building text file from corrupted VCX (bjornhoeksel)
+* 25/02/2022	LScheffler	v1.19.69	github: added tags to bring links in docu to work
+* 25/02/2022	LScheffler	v1.19.69	Docu: examples and template for config files enhanced
+* 16/03/2022	LScheffler	v1.19.70	Bug Fix: Last bar in menu files are in some situations not converted correctly back in the mnx file. (bjornhoeksel)
+* 16/03/2022	LScheffler	v1.19.70	Docu: Bug list below
+* 30/03/2022	bjornhoeksel	v1.19.71	Bug Fix: Convert menu mn2 to mnx with skip for that contains a string with ; sign is missing part after that sign in mnx. (bjornhoeksel)
+* 06/04/2022	LScheffler	v1.19.72	Bug Fix: Problem on using "DBF_Conversion_Support" on table configuration file (LScheffler)
+* 06/04/2022	LScheffler	v1.19.72	Bug Fix: Problem converting intentionally trailing spaces to VarChar/VarBinary (LScheffler)
+* 06/04/2022	LScheffler	v1.19.72	Bug Fix: Problem converting trailing spaces on line end in memo (bjornhoeksel)
+* 07/04/2022	LScheffler	v1.19.72	Enhancement: Documentation in config file enhanced
+* 07/04/2022	LScheffler	v1.19.72	Enhancement: Added parameter "?" to show interactive help ("interactive" still works)
+* 08/04/2022	LScheffler	v1.19.73	Bug Fix: Problem converting trailing spaces on line end in memo again (bjornhoeksel)
+* 13/05/2022	bjornhoeksel	v1.19.74	Bug Fix: Fix menu bars with shortcuts keys like KEY F6, "F6"; are lost. (DanLauer)
+* 08/06/2022	LScheffler	v1.19.75	Enhancement: Typo in German (JoergSchneider)
+* 08/06/2022	LScheffler	v1.19.75	Bug Fix: Multiple text2bin and bin2text conversion on MNX causes space grow (JoergSchneider)
+* 13/06/2022	LScheffler	v1.19.76	Bug Fix: On operation per folder, change of folder must change configuration (JoergSchneider)
+* 16/03/2023	LScheffler	v1.19.77	Bug Fix: Bin2Txt Operation on VCX loses leading spaces in Property Values #90  (JoergSchneider)
+* 16/03/2023	LScheffler	v1.19.77	Bug Fix: Txt2Bin Operation on VCX looses double ampersand in Property Values #91 (LScheffler)
+* 20/03/2023	LScheffler	v1.19.78	Enhancement: Text2Bin on PJX errors out for projects with an attach icon that has a drive letter on its path. #93 (ericbarte)
+* 06/08/2023	LScheffler	v1.20.00	Enhancement: Added option to return version number (LScheffler)
+* 20/08/2023	LScheffler	v1.20.00	Bug Fix: codepage is lost on recreation, issue #96, fixes issue #95 (OLE) as well (KestasL)
+* 30/08/2023	LScheffler	v1.20.01	Bug Fix: Some values of config file would not be read, if the inline comment "&&" was not in the line (LScheffler)
+* 30/08/2023	LScheffler	v1.20.01	Bug Fix: config file set by parameter would be ignored, if the folder contains FoxBin2Prg.cfg (LScheffler)
+* 30/08/2023	LScheffler	v1.20.01	Enhancement: For run to create config file template new options to set config file and debug added
+* 30/08/2023	LScheffler	v1.20.01	Enhancement: New option for parameter set config file to control the use of "regular" config files
+* 30/08/2023	LScheffler	v1.20.01	Bug Fix: Fixed problems with table config files (LScheffler)
+* 31/08/2023	LScheffler	v1.20.02	Enhancement: New option for parameter set config file to control the use of "regular" config files enhanced.
+* 31/08/2023	LScheffler	v1.20.03	Enhancement: New option "tcCFG_File" for get_DirSettings method.
+* 01/09/2023	LScheffler	v1.20.04	Enhancement: New option "tcDebug" for get_DirSettings method.
+* 01/09/2023	LScheffler	v1.20.04	Enhancement: For better clearance, renamed setting AllowInheritance to InhibitInheritance.
+* 01/09/2023	LScheffler	v1.20.04	Enhancement: The debug option set via parameter has precedence over value from config file.
+* 01/09/2023	LScheffler	v1.20.04	Enhancement: For debug option set via parameter only first valid call is used
+* 03/09/2023	LScheffler	v1.20.05	Bug Fix: Problems recreating menu files (introduced with codepage) (LScheffler)
+* 03/09/2023	LScheffler	v1.20.05	Enhancement: Inserted options to allow splitting of SCX handling from VCX
+* 06/09/2023	LScheffler	v1.20.06	Bug Fix: Problems recreating tables (LScheffler)
+* 06/09/2023	LScheffler	v1.20.07	Enhancement: Option to block processing of directories. If file ".FoxBin2Prg_Ignore" is existing, this directories and all subdirectries will be ignored. (Mainly set up to ignore local GoFish settings) (LScheffler)
+* 20/10/2023	LScheffler	v1.21.00	Bug Fix: Problems with Spanish characters in comment. (ccantrell72)
+* 19/11/2023	LScheffler	v1.21.01	Bug Fix: Problems regenerating databases with splited contents due to the removed Spanish characters in comment. (LScheffler)
+* 03/01/2024	LScheffler	v1.21.02	Bug Fix: Problems regenerating single classes and forms from text files in class-per-file form; #105 (LScheffler)
+* 24/04/2024	LScheffler	v1.21.03	Bug Fix: Text To Bin with Fieldcaption = "NULL" (misnomer. it's the field name); #106; #106 (griessbach14943)
+* 26/08/2024	DHennig		v1.21.04	Added support for BodyDevInfo = 2 in CFG file to prevent both DevInfo and ObjRev from being written to PJ2 file
+* </HISTORIAL DE CAMBIOS Y NOTAS IMPORTANTES>
+*
+*---------------------------------------------------------------------------------------------------
+* <TESTEO, REPORTE DE BUGS Y MEJORAS (AGRADECIMIENTOS)>
+* 23/11/2013	Luis Martínez		REPORTE BUG scx v1.4: En algunos forms solo se generaba el dataenvironment (arreglado en v.1.5)
+* 27/11/2013	Fidel Charny		REPORTE BUG vcx v1.5: Error en el guardado de ciertas propiedades de array (arreglado en v.1.6)
+* 02/12/2013	Fidel Charny		REPORTE BUG scx v1.6: Se pierden algunas propiedades y no muestra picture si "Name" no es la última (arreglado en v.1.7)
+* 03/12/2013	Fidel Charny		REPORTE BUG scx v1.7: Se siguen perdiendo algunas propiedades por implementación defectuosa del arreglo anterior (arreglado en v.1.8)
+* 03/12/2013	Fidel Charny		REPORTE BUG scx v1.8: Se siguen perdiendo algunas propiedades por implementación defectuosa de una mejora anterior (arreglado en v.1.9)
+* 06/12/2013	Fidel Charny		REPORTE BUG scx v1.9: Cuando hay métodos que tienen el mismo nombre, aparecen mezclados en objetos a los que no corresponden (arreglado en v.1.10)
+* 07/12/2013	Edgar Kummers		REPORTE BUG vcx v1.10: Cuando se parsea una clase con un _memberdata largo, se parsea mal y se corrompe el valor (arreglado en v.1.11)
+* 08/12/2013	Fidel Charny		REPORTE BUG frx v1.12: Cuando se convierten algunos reportes da "Error 1924, TOREG is not an object" (arreglado en v.1.13)
+* 14/12/2013	Arturo Ramos		REPORTE BUG scx v1.13: La regeneración de los forms (SCX) no respeta la propiedad AutoCenter, estando pero no funcionando. (arreglado en v.1.14)
+* 14/12/2013	Fidel Charny		REPORTE BUG scx v1.13: La regeneración de los forms (SCX) no regenera el último registro COMMENT (arreglado en v.1.14)
+* 01/01/2014	Fidel Charny		REPORTE BUG mnx v1.16: El menú no siempre respeta la posición original LOCATION y a veces se genera mal el MNX (se arregla en v1.17)
+* 05/01/2014	Fidel Charny		REPORTE BUG mnx v1.17: Se genera cláusula "DO" o llamada Command cuando no Procedure ni Command que llamar // Diferencia de Case en NAME (se arregla en v1.18)
+* 20/02/2014	Ryan Harris			PROPUESTA DE MEJORA v1.19.11: Centralizar los ZOrder de los controles en metadata de cabecera de la clase para minimizar diferencias
+* 23/02/2014	Ryan Harris			BUG cfg v1.19.12: Si se define NoTimestamp en FoxBin2Prg.cfg, se toma el valor opuesto (solucionado en v1.19.13)
+* 27/02/2014						BUG REGRESION v1.19.13: Si no se define ExtraBackupLevels no se generan backups (solucionado en v1.19.14)
+* 06/03/2014	Ryan Harris			REPORTE BUG vcx/scx v1.19.15: Algunas propiedades no mantienen su visibilidad Hidden/Protected // Orden de properties defTop,defLeft,etc
+* 10/03/2014	Ryan Harris			REPORTE BUG frx/lbx v1.19.16: Las expresiones con comillas corrompen el fx2/lb2 // La propiedad Comment se pierde si es multilínea (solucionado en v1.19.17)
+* 10/03/2014	Ryan Harris			REPORTE BUG mnx v1.19.16: Al usar comentarios multilínea en las opciones, se corrompe el MN2 y el MNX regenerado (solucionado en v1.19.17)
+* 20/03/2014	Arturo Ramos		REPORTE BUG vcx/scx v1.19.17: Las imágenes no mantienen sus dimensiones programadas y asumen sus dimensiones reales (Solucionado en v1.19.18)
+* 24/03/2014	Ryan Harris			REPORTE BUG vcx/scx v1.19.17: El comentario a nivel de librería se pierde (Solucionado en v1.19.18)
+* 29/04/2014	Matt Slay			MEJORA v1.19.20: Posibilidad de convertir un proyecto entero a tx2 // Optimización de generación según timestamps  (Agregado en v1.19.21)
+* 30/04/2014	Jim Nelson			MEJORA v1.19.20: Agregado de AGAIN en apertura de tablas  (Agregado en v1.19.21)
+* 07/05/2014	Fidel Charny		REPORTE BUG vcx/scx v1.19.21: La propiedad Picture de una clase form se pierde y no muestra la imagen. No ocurre con la propiedad Picture de los controles (Arreglado en v1.19.22)
+* 09/05/2014	Miguel Durán		REPORTE BUG vcx/scx v1.19.21: Algunas opciones del optiongroup pierden el width cuando se subclasan de una clase con autosize=.T. (Arreglado en v1.19.22)
+* 13/05/2014	Andrés Mendoza		REPORTE BUG vcx/scx v1.19.21: Los métodos que contengan líneas o variables que comiencen con TEXT, provocan que los siguientes métodos queden mal indentados y se dupliquen vacíos (Arreglado en v1.19.22)
+* 27/05/2014	Kenny Vermassen		REPORTE BUG img v1.19.22: La propiedad Stretch no estaba incluida en la lista de propiedades props_image.txt, lo que provocaba un mal redimensionamiento de las imagenes en ciertas situaciones (Arreglado en v1.19.23)
+* 09/06/2014	Matt Slay			REPORTE BUG vcx/scx v1.19.23: La falta de AGAIN en algunos comandos USE provoca error de "tabla en uso" si se usa el PRG desde la ventana de comandos (Arreglado en v1.19.24)
+* 13/06/2014	Mario Peschke		REPORTE BUG vcx/scx v1.19.23: Los campos de tabla con nombre "text" a veces provocan corrupción del binario generado (Arreglado en v1.19.24)
+* 16/06/2014	Mario Peschke		MEJORA v1.19.24: Agregado soporte de configuraciones (CFG) por directorio que, si existen, se usan en lugar del CFG principal (Agregado en v1.19.25)
+* 17/06/2014	Pedro Gutiérrez M.	MEJORA v1.19.24: Si durante la generación de binarios o de textos se producen errores, mostrar un mensaje avisando de ello (Agregado en v1.19.25)
+* 02/07/2014	Matt Slay			MEJORA v1.19.25: Se filtran algunos CHR(0) de los binarios al tx2, provocando que a veces no sea reconocido como texto. Deberían poderse quitar los .Null.s (Arreglado en v1.19.26)
+* 27/06/2014	Daniel Sánchez		MEJORA v1.19.25: Si el campo memo "methods" de los vcx/scx contiene asteriscos fuera de lugar (que no debería), FoxBin2Prg falla. Debería poder procesarlo igual.
+* 02/06/2014	Doug Hennig			MEJORA v1.19.22: Agregada funcionalidad para exportar los datos de las tablas al archivo db2 (Agregado en v1.19.27)
+* 21/07/2014	Edyshor				PROPUESTA DE MEJORA db2 v1.19.27: Sería útil poder filtrar tablas y datos cuando se elige DBF_Conversion_Support:4 (Agregado en v1.19.28)
+* 29/07/2014	M_N_M				REPORTE BUG vcx/scx v1.19.28: Los campos de tabla con nombre "text" a veces provocan corrupción del binario generado (Arreglado en v1.19.29)
+* 07/08/2014	Jim Nelson			REPORTE BUG vcx/scx v1.19.29: Cuando la línea anterior a un ENDTEXT termina en ";" o "," no se reconoce como ENDTEXT sino como continuación (Arreglado en v1.19.30)
+* 08/08/2014	Ryan Harris			REPORTE BUG vcx/scx v1.19.29: En ciertos casos de herencia no se mantiene el orden alfabetico de algunos metodos (solucionado en v1.19.30)
+* 25/08/2014	Peter Hipp			REPORTE BUG vcx/scx v1.19.31: Una propiedad llamada "text" es confundida con la estructura text/endtext (solucionado en v1.19.32)
+* 27/08/2014	Peter Hipp			REPORTE BUG mnx v1.19.32: Si se crea un menú con una opción de tipo #Bar vacía, el menú se genera mal (solucionado en v1.19.33)
+* 28/08/2014	Peter Hipp			REPORTE BUG mnx v1.19.32: Si una opción tiene asociado un Procedure de 1 línea, no se mantiene como Procedure y se convierte a Command (solucionado en v1.19.33)
+* 19/09/2014	Jim  Nelson			REPORTE BUG v1.19.33: Si se ejecuta FoxBin2Prg desde ventana de comandos FoxPro para un proyecto y hay algún archivo abierto o cacheado, se produce un error (solucionado en v1.19.34)
+* 26/09/2014	Marcio Gomez G.		MEJORA v1.19.34: Generar siempre el mismo Timestamp y UniqueID para los binarios minimizaría los cambios al regenerarlos (Agregado en v1.19.35)
+* 19/11/2014	edyshor				MEJORA cfg v1.19.36: DBF_Conversion_Excluded no permite comentarios && al final (Agregado en v1.19.37)
+* 19/11/2014	edyshor				REPORTE BUG dbf v1.19.36: "String is too long to fit" cuando se procesa un DBF grande con DBF_Conversion_Support = 4 (Agregado en v1.19.37)
+* 19/11/2014	edyshor				MEJORA dbf v1.19.36: Nuevo parámetro ClearDBFLastUpdate para evitar diferencias por este dato (Agregado en v1.19.37)
+* 14/10/2014	LScheffler			MEJORA v1.19.36: Permitir generar una clase por archivo (pregunta) (Agregado en v1.19.37)
+* 21/10/2014	Ryan Harris			MEJORA v1.19.36: Permitir generar una clase por archivo (sugerencia) (Agregado en v1.19.37)
+* 04/12/2014	Francisco Prieto	MEJORA v1.19.36: Permitir hacer conversiones masivas bin2prg y prg2bin sin los scripts vbs (Agregado en v1.19.38)
+* 12/12/2014	Álvaro Castrillón	MEJORA v1.19.36: Detección de métodos duplicados para notificar casos de corrupción (Agregado en v1.19.38)
+* 16/12/2014	Mike Potjer			Mejora v1.19.38: Cuando se usan las claves BIN2PRG o PRG2BIN permitir procesar un archivo solo (Agregado en v1.19.39)
+* 16/12/2014	Mike Potjer			Mejora v1.19.38: Agregar la clave SHOWMSG y dejar INTERACTIVE para un diálogo interactivo (Agregado en v1.19.39)
+* 16/12/2014	Mike Potjer			Mejora v1.19.38: Cuando se procesa un directorio con foxbin2prg.exe solo y la clave INTERACTIVE, mostrar un diálogo para preguntar qué procesar (Agregado en v1.19.39)
+* 30/12/2014	Ryan Harris			Reporte bug dbc v1.19.38: Los datos de DisplayClass y DisplayClassLibrary tenían el valor de "Default" en vez del propio (Agregado en v1.19.39)
+* 06/01/2015	Jim Nelson			Mejora v1.19.39: Permitir configurar la barra de progreso para que solamente aparezca cuando se procesan múltiples archivos y no cuando se procesa solo 1 (Agregado en v1.19.40)
+* 06/01/2015    Mike Potjer         Reporte bug db2: [Error 12, Variable "TCOUTPUTFILE" is not found] cuando DBF_Conversion_Support=4 y el archivo de salida es igual al generado (Agregado en v1.19.40)
+* 13/01/2015	Ryan Harris			Reporte bug vcx/scx v1.19.40: Detección errónea de estructuras PROCEDURE/ENDPROC cuando se usan como parámetros LPARAMETERS en línea aparte (Arreglado en v1.19.41)
+* 24/01/2015	Ryan Harris			Mejora dc2 v1.19.41: Permitir ordenar los campos de vistas y tablas alfabéticamente y mantener en una lista aparte el orden real, para facilitar el diff y el merge (Agregado en v1.19.42)
+* 24/01/2015	Ryan Harris			Mejora dc2 v1.19.41: Aplicar ClassPerFile a las conexiones, tablas, vistas y stored procedures de los DBC (Agregado en v1.19.42)
+* 22/01/2015	Tuvia Vinitsky		Reporte bug v1.19.41: Compatibilidad con SourceSafe rota porque se genera un error al realizar la consulta para soporte de archivo (Arreglado en v1.19.42)
+* 25/02/2015	LScheffler			Reporte de Bug scx/vcx v1.19.41: Procesar solo un nivel de text/endtext, ya que no se admiten más niveles (Arreglado en v1.19.42)
+* 25/02/2015	LScheffler			Mejora v1.19.41: Hacer algunos mensajes de error más descriptivos (Agregado en v1.19.42)
+* 03/03/2015	LScheffler			Mejora v1.19.41: Mejoras en la traducción al alemán (Agregado en v1.19.42)
+* 03/03/2015	LScheffler			Mejora v1.19.41: Permitir definir el archivo de entrada con un path relativo (Agregado en v1.19.42)
+* 03/03/2015	LScheffler			Reporte bug scx v1.19.41: Agregada la generación del PJX/PJ2 cuando se indica "file.pjx", "*" (Agregado en v1.19.42)
+* 03/03/2015	LScheffler			Mejora v1.19.41: Permitir proceso multi-proyecto (*.PJX, *.PJ2) cuando se especifica "file.pjx", "*" (Agregado en v1.19.42)
+* 05/03/2015	LScheffler			Mejora v1.19.41: Cambiar clase de base de FoxBin2Prg de custom a session (Agregado en v1.19.42)
+* 05/03/2015	LScheffler			Mejora v1.19.41: Permitir procesar los archivos de un proyecto sin convertir el PJX/2 (Agregado en v1.19.42)
+* 10/03/2015	LScheffler			Mejora v1.19.41: Permitir configurar un CFG alternativo (Agregado en v1.19.42)
+* 10/03/2015	LScheffler			Mejora v1.19.41: Crear un método API get_Processed() para obtener información de los archivos procesados (Agregado en v1.19.42)
+* 10/03/2015	LScheffler			Mejora v1.19.41: Permitir salida de archivos procesados a stdOut (Agregado en v1.19.42)
+* 23/03/2015	LScheffler			Reporte bug mnx v1.19.41: No se mantiene el Pad vacío al regenerar el menú cuando se define un menu con un Pad sin nombre (Arreglado en v1.19.42)
+* 24/03/2015	Ryan Harris			Reporte bug frx/lbx v1.19.41: Hay algunos CR,LF,TAB sobrantes en las etiquetas tag de algunos archivos FR2/LB2 (Arreglado en v1.19.42)
+* 24/03/2015	Ryan Harris			Mejora v1.19.41: Borrar archivos ERR al procesar, cuando se usa UseClassPerFile (Agregado en v1.19.42)
+* 10/04/2015	LScheffler			Mejora v1.19.41: Crear un método API get_DirSettings() para obtener información de seteos del directorio indicado (Agregado en v1.19.42)
+* 12/04/2015	LScheffler			Mejora v1.19.41: Permitir generar texto de una clase de una librería (Agregado en v1.19.42)
+* 15/04/2015	Mike Potjer			Sugerencia v1.19.41: Los nombres de los métodos en Inglés facilitarían su entendimiento a más personas (Agregado en v1.19.42)
+* 22/04/2015	Ryan Harris			Mejora v1.19.42: Permitir que FoxBin quite los ZOrderProps de los objetos que cambian constantemente, provocan diferencias y a veces dan problemas de objeto encima/debajo (Agregado en v1.19.43)
+* 23/04/2015	LScheffler			Mejora v1.19.42: Hacer que la progressbar no se convierta en la ventana de salida por defecto de los ? (Agregado en v1.19.43)
+* 28/04/2015	Ralf Wagner			Reporte bug v1.19.42: FoxBin2Prg no retorna códigos de error cuando se llama como programa externo (Arreglado en v1.19.43)
+* 29/04/2015	Fidel Charny		Reporte bug v1.19.42: FoxBin2Prg a veces genera errores OLE cuando se ejecuta más de una vez en modo objeto sobre un archivo con errores (Arreglado en v1.19.43)
+* 10/05/2015	Esteban Herrero		Reporte bug v1.19.42: Cuando un form tiene AutoCenter=.T., hay veces en que al regenerar el binario y ejecutarlo no se muestra centrado (Arreglado en v1.19.43)
+* 29/04/2015	Ralf Wagner			Reporte bug v1.19.43: En ciertos PCs FoxBin2Prg no retorna códigos de error cuando se llama como programa externo (Arreglado en v1.19.44)
+* 01/06/2015	Mike Potjer			Reporte bug v1.19.44: Cuando se exporta a texto un menu que usa comillas simples o una expresión en el mensaje de las opciones, al regenerar el binario se recortan partes del mensaje de esas opciones (Arreglado en v1.19.45)
+* 09/06/2015	LScheffler			Reporte bug v1.19.44: Cuando se procesan múltiples archivos PJ2, puede ocurrir un error de "variable llError no definida" (Arreglado en v1.19.45)
+* 13/06/2015	Matt Slay			Reporte bug v1.19.44: Los proyectos PJX/PJ2 que referencian archivos de otras unidades de disco causan errores ne esos archivos al procesar con las opciones "*" o "*-" (Arreglado en v1.19.45)
+* 29/07/2015	Dave Crozier		Reporte bug v1.19.45: Cuando se procesa un directorio o un proyecto con todos los archivos, a veces puede ocurrir el error "Alias already in use" (Arreglado en v1.19.46)
+* 29/07/2015	Walter Nicholls		Mejora DBF-Data v1.19.45: Permitir exportar e importar datos de los DBF
+* 28/08/2015	Walter Nicholls		Reporte bug: Cuando se usa '&&' en los textos de las opciones, se corrompe el binario del menú al regenerarlo (Arreglado en v1.19.46)
+* 09/09/2015	Aurélien Dellieux	Mejora v1.19.45: El objeto WSscript.Shell da problemas en algunos entornos o bajo ciertas condiciones (Cambiado en v1.19.46)
+* 11/09/2015	Ryan Harris			Reporte bug Frx/Lbx v1.19.45: El ordenamiento de registros de los reportes cambia el orden Z de los objetos próximos que se solapan, pudiendo causar que se visualicen mal (Arreglado en v1.19.46)
+* 17/09/2015	Ryan Harris			Reporte bug Frx/Lbx v1.19.45: Cuando se regeneran reportes o etiquetas con textos multilinea alineados al centro o a la derecha, la alineación no es completamente correcta (Arreglado en v1.19.46)
+* 11/10/2015	LScheffler			Reporte bug Frx/Lbx v1.19.45: Cuando se agrupan controles en diseño y se convierte a texto, al regenerar se pierden las agrupaciones (Arreglado en v1.19.46 Preview-7)
+* 04/11/2015	Ralf Wagner			Reporte bug Pjx v1.19.45: Los archivos SPR y MPR no estan bien representados en la información del proyecto (Arreglado en v1.19.46 Preview-8)
+* 20/11/2015	EddieC				Reporte bug Pjx v1.19.45: Se genera un error al regenerar un PJX desde un PJ2 donde algún archivo contiene paréntesis (Arreglado en v1.19.46 Preview-9)
+* 24/11/2015	edyshor				Mejora dbf v1.19.45: Nuevo parámetro ExcludeDBFAutoincNextval para evitar diferencias por este dato (Agregado en v1.19.46 Preview-9)
+* 01/02/2016	Aurélien Dellieux	Reporte bug v1.19.45: Cuando se procesa un archivo en el directorio raiz, se genera un error 2062 (Arreglado en v1.19.46 Preview-10)
+* 10/02/2016	Alejandro Sosa		Reporte bug v1.19.46: Cuando se indica como nombre de archivo "*" y como tipo "*", se regeneran automáticamente todos los archivos binarios desde los archivos de texto (Arreglado en v1.19.47 Preview-1)
+* 24/06/2016	Andy Kasper			Reporte bug v1.19.47: Error en variable usada en una de las traducciones al Alemán (Arreglado en v1.19.48 Preview-1)
+* 24/06/2016	Andy Kasper			Reporte bug v1.19.47: Posición de menú BEFORE siempre cambiada a AFTER al convertir (Arreglado en v1.19.48 Preview-1)
+* 30/06/2016	Nathan Brown		Reporte bug v1.19.47: No se respetan algunas restricciones de conversión para DBFs cuando se usan CFGs particulares por tabla (Arreglado en v1.19.48 Preview-2)
+* 30/06/2016	Nathan Brown		Reporte bug v1.19.47: Cuando se usa ExcludeDBFAutoincNextval: 1 en FoxBin2Prg.cfg y a la vez la importación de datos de una tabla con campo AutoInc, se produce el error "Error 2088, Field <FIELD> is read-only" (Arreglado en v1.19.48 Preview-3)
+* 10/07/2016	Nathan Brown		Reporte defecto v1.19.48-Preview3: Cuando se arregló el bug del memo multi-línea, se introdujo un nuevo defecto por el cual un memo de linea-simple se decodifica mal (Arreglado en v1.19.48 Preview-4)
+* 11/07/2016	Nathan Brown		Reporte bug pj2 v1.19.48-Preview4: Cuando se regenera el binario de un PJ2 con archivos en una ruta con paréntesis y espacios, se genera un error "Error 36, Command contains unrecognized phrase/keyword" (Arreglado en v1.19.48 Preview-5)
+* 11/07/2016	Nathan Brown		Reporte bug frx v1.19.48-Preview5: Los ControlSource de objetos OLE que contienen comillas se generan mal (Arreglado en v1.19.48 Preview-6)
+* 23/03/2017	LScheffler			Reporte bug vcx v1.19.48: No funciona la generación de una clase individual con "classlib.vcx::classname" (Arreglado en v1.19.49)
+* 23/03/2017	LScheffler			Mejora vcx v1.19.48: Poder importar una clase (VC2 generado con ClassPerFile) en un VCX existente (Agragado en v1.19.49)
+* 30/03/2017	Alejandro A Sosa	Reporte bug frx v1.19.48: Cuando dentro de una expresión se usa "&&", se corrompe el registro del FRX generado (Arreglado en v1.19.49)
+* 28/03/2017	LScheffler			Mejora cfg v1.19.48: En modo objeto permitir indicar un objeto CFG en lugar de un archivo CFG (Agragado en v1.19.49)
+* 06/04/2017	Doug Hennig			Reporte Bug y arreglo parcial PJX v1.19.48: No se estaba guardando el campo User en los archivos PJX (Agregado en v1.19.49)
+* 28/11/2017	LScheffler			Reporte Bug vx2 v1.19.49: No exporta los objetos a VX2 cuando se usa ClassPerFile (Arreglado en v1.19.49.2)
+* 31/08/2017	Jerry Stager		Reporte bug db2 v1.19.48: Los campos "Double" asumen 2 decimales cuando se definen con 0 decimales (Agregado en v1.19.49.3)
+* 03/12/2017	LScheffler			Reporte Bug vx2 v1.19.49: Cuando se usa ClassPerFile an Modo API y se importan clases simples, a veces sus nombres se toman sin comillas, provocando errores (Arreglado en v1.19.49.4)
+* 18/12/2017	Doug Hennnig		Reporte Bug dbf v1.19.49: Cuando se importan datos de un DB2 a DBF (con DBF_Conversion_Support = 8), los tabs al inicio de los memo se pierden (Arreglado en v1.19.49.5)
+* 04/01/2018	Doug Hennnig		Reporte Bug vcx/scx v1.19.49: FoxBin2Prg debería ignorar los registros que el diseñador de FoxPro ignora (Arreglado en v1.19.49.6)
+* 04/01/2018	Doug Hennnig		Reporte Bug vcx/scx v1.19.49: Cuando se regenera la propiedad _MemberData se agregan CR/LF por cada miembro, pudiendo provocar un error de "valor muy largo" (Arreglado en v1.19.49.6)
+* 11/01/2018	Francisco Prieto	Reporte Bug v1.19.49: Cuando se convierte la estructura de un DBF puede dar error si existe un campo llamado I o X (Arreglado en v1.19.49.7)
+* 30/01/2018	Kirides				Reporte Bug v1.19.49: Cuando se convierte a texto una libreria corrupta con registros duplicados, se genera el error "The specified key already exists" (Arreglado en v1.19.49.9)
+* 12/03/2018	Darko Kezic			Reporte Bug v1.19.50: Cuando se usa la equivalencia "extension: pj2=pjm" se debe manejar el pjm como un pj2 y no como un pjm de SourceSafe (Arreglado en v1.19.50.1)
+* 15/03/2018	Darko Kezic			Reporte Bug v1.19.50: Cuando se agregan archivos de texto no-VFP, como html,css,etc, en la sección de Text del proyecto, FoxBin2Prg no mantiene esta selección al regenerar el PJX, dejándolos en la sección Files (Arreglado en v1.19.50.3)
+* 05/05/2018	SkySurfer1			Reporte Bug v1.19.51: Si se usa capitalización en la información de las vistas, entonces la información relacionada no se exporta correctamente o completamente y puede perderse (Arreglado en v1.19.51.1)
+* 20/06/2018	Jairo A/Juan CP		Reporte Bug v1.19.51: Cuando se exporta un DBF que pertenece a un DBC sin eventos, falla (Arreglado en v1.19.51.2)
+* 09/07/2018	KIRIDES				Reporte Bug v1.19.51: Error 1098, Cannot find ... [ENDT] that closes ... [TEXT] Issue#26 when there is a field named TEXT as first line-word (Se arregla en v1.19.51.3)
+* 10/07/2018	Jochen Kauz			Reporte Bug v1.19.51: El ordenamiento alfabético de los objetos de los ADD OBJECT puede causar que algunos objetos se creen en el orden erróneo, provocando comportamientos inesperados (Se arregla en v1.19.51.3)
+* 14/03/2019	Tracy Pearson		Reporte Bug v1.19.51: No se respetan las propiedades de VCX/SCX con nombre "note" (Se arregla en v1.19.51.6)
+* 18/04/2019	DAJU78				Reporte Bug v1.19.51: La conversión de tablas falla si algún campo contiene una palabra reservada como UNIQUE (Se arregla en v1.19.51.6)
+* 19/07/2019	Dan Lauer			Reporte Bug v1.19.51: Manejo de AutoIncrement incompatible con Project Explorer (Arreglado en v1.19.49.6, con solución de Doug Hennnig)
+* 13/11/2019	Eric Selje			Reporte Bug v1.19.51: Incompatible with VFPA (#36) (Se arregla en v1.19.51.6)
+* 31/03/2020	Ryan Harris			Reporte Bug v1.19.51: Si alguno de los archivos-por-clase no tiene CR_LF al final, al ensamblar la clase se pueden superponer instrucciones de forma inválida (Se arregla en v1.19.51.6)
+* 01/04/2020	FDBOZZO		        Bug report v1.19.51	No se respetan las propiedades de VCX/SCX con nombre "note" (Tracy Pearson)
+* 14/02/2021	LScheffler			Bug report v1.19.51	conversion dbf -> prg, error if only test mode (toFoxBin2Prg.l_ProcessFiles is false)
+* 14/02/2021	LScheffler  	    Bug report v1.19.51	conversion prg -> dbf, fields with .NULL. value are incorectly recreated
+* 15/02/2021	LScheffler      	Bug report v1.19.52	processing directory, flush log file after loop instead of file
+* 16/02/2021	LScheffler  	    Bug report v1.19.52	conversion prg -> vcx, files per class could create one class multiple times
+* 03/03/2021	LScheffler      	Bug report v1.19.53	DBF_Conversion_Condition, problem with macro expansion
+* 04/03/2021	LScheffler			Bug report v1.19.55	Inputfile in form classlib.class.vc2 AND RedirectClassType = 1  and Execute param tcRecompile = 1
+*                                                     generates classlib.class.vcx and tries to recompile classlib.vcx
+*                                                     fails silent if classlib.vcx exists (compiles wrong lib), with message if not.
+* 05/03/2021	LScheffler			Bug report v1.19.56	For RedirectClassType = 2, Path was set wrong
+* 09/03/2021	LScheffler  	    Bug report v1.19.57	For RedirectClassType = 2, Path was set wrong
+* 09/03/2021	LScheffler      	Bug report v1.19.57	RedirectClassType = 2, UseClassPerFile = 2 failed.
+* 22/03/2021	LScheffler			Bug report v1.19.59 DBF_Conversion_Condition was read, but never used
+* 22/03/2021	LScheffler			Bug report v1.19.59 DBF_Conversion_Order sets an index that later would be stored as structural index
+* 22/03/2021	LScheffler			Bug report v1.19.59 config options with text value fail, if line comment is set
+* 16/03/2021	msueping			BUG REPORT v1.19.57 Variable lnFileCount in get_filesfromdirectory
+* 30/03/2021	Sergej s-s-a		BUG REPORT v1.19.61 Ignoring extention in foxbin2prg.cfg
+* 08/04/2021	jstagerGH 			BUG REPORT v1.19.62 Tables without indexes cause an error that the "Table ## is not marked as belonging to the ## database"
+* 22/04/2021	LScheffler 			BUG REPORT v1.19.63 Converting MN2 to MNX ignores the programmer-defined Pad Name found in "Prompt Options" screen
+* 21/04/2021	Jimrnelson 			BUG REPORT v1.19.63 Converting MN2 to MNX ignores the programmer-defined bar # found in "Prompt Options" screen
+* 17/05/2021	LScheffler 			BUG REPORT v1.19.64 Options "-cCt" are not usable on command line base EXE.
+* 05/08/2021	siara-cc 			BUG REPORT v1.19.65 Incorrect version number shown.
+* 05/08/2021	siara-cc 			BUG REPORT v1.19.65 Tags missing on github.
+* 05/08/2021	siara-cc 			BUG REPORT v1.19.65 Incorrect links on documentation.
+* 05/11/2021	LScheffler 			BUG REPORT v1.19.66 Double classes in VCX
+* 18/01/2022	Jimrnelson 			BUG REPORT v1.19.67 Converting MN2 to MNX ignores the programmer-defined "Pad Name" found in "Prompt Options" screen
+* 23/02/2022	bjornhoeksel		Bug REPORT v1.19.68 Missing class when building text file from corrupted VCX
+* 23/02/2022	bjornhoeksel		Bug REPORT v1.19.68 Creating a class, when an object is named equal to this class
+* 16/03/2022	bjornhoeksel		Bug REPORT v1.19.69 Last bar in menu files are in some situations not converted correctly back in the mnx file.
+* 30/03/2022	bjornhoeksel		Bug REPORT v1.19.70 Convert menu mn2 to mnx with skip for that contains a string with ; sign is missing part after that sign in mnx.
+
+* 05/04/2022	bjornhoeksel		Bug REPORT v1.19.71 Problem converting trailing spaces to text on memos.
+* 06/04/2022	LScheffler			Bug REPORT v1.19.71 Problem on using "DBF_Conversion_Support" on table configuration file (LScheffler)
+* 06/04/2022	LScheffler			Bug REPORT v1.19.71 Problem converting intentionally trailing spaces to VarChar/VarBinary.
+* 06/04/2022	bjornhoeksel		Bug REPORT v1.19.71 Problem converting trailing spaces on line end in memo (bjornhoeksel)
+* 08/04/2022	bjornhoeksel		Bug REPORT v1.19.72 Problem converting trailing spaces on line end in memo (again) (bjornhoeksel)
+* 13/05/2022	DanLauer			Bug REPORT v1.19.73 Fix menu bars with shortcuts keys like KEY F6, "F6"; are lost.
+* 08/06/2022	JoergSchneider		Bug REPORT v1.19.74	Typo in German (JoergSchneider)
+* 08/06/2022	JoergSchneider		Bug REPORT v1.19.74	Multiple text2bin and bin2text conversion on MNX causes space grow (JoergSchneider)
+* 10/06/2022	JoergSchneider		Bug REPORT v1.19.75	On operation per folder, change of folder must change configuration (JoergSchneider)
+* 16/03/2023	JoergSchneider		Bug REPORT v1.19.76	Bin2Txt Operation on VCX loses leading spaces in Property Values #90  (JoergSchneider)
+* 16/03/2023	LScheffler		 	Bug REPORT v1.19.76	Txt2Bin Operation on VCX looses double ampersand in Property Values #91 (LScheffler)
+* 17/03/2023	ericbarte			Bug REPORT v1.19.76	Text2Bin on PJX errors out for projects with an attach icon that has a drive letter on its path. #93 (ericbarte)
+* 04/08/2023	KestasL				Bug REPORT v1.19.78	Bin2Text: Forms with ole controls conversion error issue #95 (also: any vcx) (KestasL)
+* 04/08/2023	KestasL				Bug REPORT v1.19.78	Codepage is lost on recreation, issue #96 (KestasL)
+* 28/08/2023	LScheffler			Bug REPORT v1.20.00	Sometimes Language is not changed fitting to conmfig file
+* 20/10/2023	ccantrell72			Bug REPORT v1.20.07	Problems with Spanish characters in comment.
+* 19/09/2023	LScheffler			Bug REPORT v1.21.00	Splitted database file is not regenerated. Problem with removed Spanish comment.
+* 03/01/2024	LScheffler			Bug REPORT v1.21.01	Problems regenerating single classes and forms from text files in class-per-file form; #105
+* 25/03/2024	griessbach14943		Bug REPORT v1.21.02	Text To Bin with Fieldcaption = "NULL" (misnomer. it's the field name); #106
+
+* </TESTEO Y REPORTE DE BUGS (AGRADECIMIENTOS)>

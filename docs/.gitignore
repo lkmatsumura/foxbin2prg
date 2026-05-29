@@ -5,6 +5,7 @@
 #include general
 # docs
 !*.md
+!*.txt
 
 #include special
 #default git
