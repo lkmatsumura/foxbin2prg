@@ -3172,9 +3172,9 @@ Define Class c_foxbin2prg As Session
 
                 LOCAL loCFG             As CL_CFG          Of 'FOXBIN2PRG.PRG' ;
                     , loLang            As CL_LANG         Of 'FOXBIN2PRG.PRG' ;
-                    , loDBF_CFG         As CL_DBF_CFG      Of 'FOXBIN2PRG.PRG'
+                    , loDBF_CFG         As CL_DBF_CFG      Of 'FOXBIN2PRG.PRG' ;
                     , loFrm_Interactive As frm_interactive Of 'FOXBIN2PRG.PRG' ;
-                    , loFrm_Main        As frm_main        Of 'FOXBIN2PRG.PRG' ;
+                    , loFrm_Main        As frm_main        Of 'FOXBIN2PRG.PRG'
 
 
                 With This As c_foxbin2prg Of 'FOXBIN2PRG.PRG'
