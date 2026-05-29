@@ -8153,7 +8153,7 @@ Define Class c_conversor_base As Custom
                 TEXT TO tcValue TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
                 <VFPData>
                 <<SUBSTR( lcValue, 3)>>
-                <<>>        </VFPData>
+                <<Chr(9)+Chr(9)>></VFPData>
                 ENDTEXT
 
             Case Left( tcValue, C_LEN_FB2P_VALUE_I ) == C_FB2P_VALUE_I
@@ -8163,7 +8163,6 @@ Define Class c_conversor_base As Custom
                     STREXTRACT( tcValue, C_FB2P_VALUE_I, C_FB2P_VALUE_F, 1, 1 ) ;
                     , CR_LF, '&#13+10;' ), C_CR, '&#13;' ), C_LF, '&#10;' ), '&#13+10;', CR_LF ) ;
                     + C_FB2P_VALUE_F
-
 
         Endcase
 
@@ -16102,12 +16101,12 @@ Define Class c_conversor_bin_a_prg As c_conversor_base
                     If '.' $ toRegObj.Parent
 *-- Este caso: clase.objeto.objeto ==> se quita clase
                         TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>    ADD OBJECT '<<SUBSTR(toRegObj.Parent, AT('.', toRegObj.Parent)+1)>>.<<toRegObj.objName>>' AS <<LOWER(ALLTRIM(toRegObj.Class))>> <<>>
+                        <<Chr(9)>>ADD OBJECT '<<SUBSTR(toRegObj.Parent, AT('.', toRegObj.Parent)+1)>>.<<toRegObj.objName>>' AS <<LOWER(ALLTRIM(toRegObj.Class))>> <<>>
                         ENDTEXT
                     Else
 *-- Este caso: objeto
                         TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>    ADD OBJECT '<<toRegObj.objName>>' AS <<LOWER(ALLTRIM(toRegObj.Class))>> <<>>
+                        <<Chr(9)>>ADD OBJECT '<<toRegObj.objName>>' AS <<LOWER(ALLTRIM(toRegObj.Class))>> <<>>
                         ENDTEXT
                     Endif
 
@@ -16306,7 +16305,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base
             lcPropsMethodsDefd  = ''
 
             TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                <<>>    <<C_DEFINED_PAM_I>>
+                <<Chr(9)>><<C_DEFINED_PAM_I>>
             ENDTEXT
 
             For I = 1 To tnPropsAndComments_Count
@@ -16331,7 +16330,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base
             Endfor
 
             TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                <<>>    <<C_DEFINED_PAM_F>>
+                <<Chr(9)>><<C_DEFINED_PAM_F>>
             ENDTEXT
 
             tcCodigo    = tcCodigo + CR_LF
@@ -16373,13 +16372,13 @@ Define Class c_conversor_bin_a_prg As c_conversor_base
 *-- Si es multilínea, debe ir en un tag <ClassComments> aparte
             If Occurs( Chr(13), toRegClass.RESERVED7 ) > 0 Then
                 TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                    <<>>    <<C_CLASSCOMMENTS_I>>
+                    <<Chr(9)>><<C_CLASSCOMMENTS_I>>
                     <<THIS.indentMemo( toRegClass.Reserved7, C_TAB + C_TAB + '*' )>>
-                    <<>>    <<C_CLASSCOMMENTS_F>>
+                    <<Chr(9)>><<C_CLASSCOMMENTS_F>>
                 ENDTEXT
             Else    && Comentario in-line
                 TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                    <<>>        <<'&'+'&'>> <<toRegClass.Reserved7>>
+                    <<Chr(9)+Chr(9)>><<'&'+'&'>> <<toRegClass.Reserved7>>
                 ENDTEXT
             Endif
         Endif
@@ -16454,7 +16453,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base
 *-- #INCLUDE
         If Not Empty(toReg.RESERVED8) Then
             TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                <<>>    #INCLUDE "<<toReg.Reserved8>>"
+                <<Chr(9)>>#INCLUDE "<<toReg.Reserved8>>"
             ENDTEXT
         Endif
 
@@ -16472,7 +16471,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base
         ENDTEXT
 
         TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2+4+8
-            <<>>    <<C_CLASSDATA_I>>
+            <<Chr(9)>><<C_CLASSDATA_I>>
             Baseclass="<<toRegClass.Baseclass>>"
             Timestamp="<<ALLTRIM(THIS.getTimeStamp(toRegClass.Timestamp))>>"
             Scale="<<toRegClass.Reserved6>>"
@@ -16523,14 +16522,14 @@ Define Class c_conversor_bin_a_prg As c_conversor_base
 
         If '.' $ toRegObj.Parent
 *-- Este caso: clase.objeto.objeto ==> se quita clase
-            lcNombre    = Substr(toRegObj.Parent, At('.', toRegObj.Parent)+1) + '.' + toRegObj.OBJNAME
+            lcNombre = Substr(toRegObj.Parent, At('.', toRegObj.Parent)+1) + '.' + toRegObj.OBJNAME
         Else
 *-- Este caso: objeto
-            lcNombre    = toRegObj.OBJNAME
+            lcNombre = toRegObj.OBJNAME
         Endif
 
         TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2+4+8
-            <<>>    <<C_OBJECTDATA_I>>
+            <<Chr(9)>><<C_OBJECTDATA_I>>
             ObjPath="<<lcNombre>>"
             UniqueID="<<toRegObj.Uniqueid>>"
             Timestamp="<<ALLTRIM(THIS.getTimeStamp(toRegObj.Timestamp))>>"
@@ -16551,7 +16550,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base
 
         If Not Empty(tcHiddenProp)
             TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                <<>>    HIDDEN <<SUBSTR(tcHiddenProp,2)>>
+                <<Chr(9)>>HIDDEN <<SUBSTR(tcHiddenProp,2)>>
             ENDTEXT
         Endif
 
@@ -16566,7 +16565,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base
 
         If Not Empty(tcProtectedProp)
             TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                <<>>    PROTECTED <<SUBSTR(tcProtectedProp,2)>>
+                <<Chr(9)>>PROTECTED <<SUBSTR(tcProtectedProp,2)>>
             ENDTEXT
         Endif
 
@@ -16588,7 +16587,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base
                 ENDTEXT
 
                 TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                <<>>    platform="WINDOWS " uniqueid="<<toReg.UniqueID>>" timestamp="<<toReg.TimeStamp>>" objtype="<<toReg.ObjType>>" <<>>
+                <<Chr(9)>>platform="WINDOWS " uniqueid="<<toReg.UniqueID>>" timestamp="<<toReg.TimeStamp>>" objtype="<<toReg.ObjType>>" <<>>
                 ENDTEXT
 
                 TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
@@ -16659,28 +16658,28 @@ Define Class c_conversor_bin_a_prg As c_conversor_base
                 supgroup="<<toReg.supgroup>>" supvalchng="<<toReg.supvalchng>>" <<>>
                 ENDTEXT
 
-                C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + "   <picture><![CDATA[" + toReg.Picture + "]]>"
+                C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + Chr(9) + "<picture><![CDATA[" + toReg.Picture + "]]>"
 
                 If Inlist(toReg.ObjType, 25, 26) && Dataenvironment, cursors and relations
-                    C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + "   <tag><![CDATA[" + Iif( Empty( Chrtran( toReg.Tag, CR_LF+C_TAB, '') ), '', CR_LF + toReg.Tag) + "]]>"
-                    C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + "   <tag2><![CDATA[]]>"
+                    C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + Chr(9) + "<tag><![CDATA[" + Iif( Empty( Chrtran( toReg.Tag, CR_LF+C_TAB, '') ), '', CR_LF + toReg.Tag) + "]]>"
+                    C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + Chr(9) + "<tag2><![CDATA[]]>"
                 Else
-                    C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + "   <tag><![CDATA[" + This.encode_SpecialCodes_1_31( toReg.Tag ) + "]]>"
-                    C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + "   <tag2><![CDATA[" + Iif( Inlist(toReg.ObjType,5,6,8), toReg.TAG2, Strconv( toReg.TAG2,13 ) ) + "]]>"
+                    C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + Chr(9) + "<tag><![CDATA[" + This.encode_SpecialCodes_1_31( toReg.Tag ) + "]]>"
+                    C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + Chr(9) + "<tag2><![CDATA[" + Iif( Inlist(toReg.ObjType,5,6,8), toReg.TAG2, Strconv( toReg.TAG2,13 ) ) + "]]>"
                 Endif
 
-                C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + "   <penred><![CDATA[" + Transform(toReg.penred) + "]]>"
-                C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + "   <style><![CDATA[" + toReg.Style + "]]>"
+                C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + Chr(9) + "<penred><![CDATA[" + Transform(toReg.penred) + "]]>"
+                C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + Chr(9) + "<style><![CDATA[" + toReg.Style + "]]>"
 
                 If Inlist(toReg.ObjType, 25, 26) && Dataenvironment, cursors and relations
-                    C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + "   <expr><![CDATA[" + Chrtran( toReg.Expr, C_NULL_CHAR, '' ) + "]]>"
+                    C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + Chr(9) + "<expr><![CDATA[" + Chrtran( toReg.Expr, C_NULL_CHAR, '' ) + "]]>"
                 Else
-                    C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + "   <expr><![CDATA[" + toReg.Expr + "]]>"
+                    C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + Chr(9) + "<expr><![CDATA[" + toReg.Expr + "]]>"
                 Endif
 
-                C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + "   <supexpr><![CDATA[" + toReg.supexpr + "]]>"
-                C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + "   <comment><![CDATA[" + toReg.Comment + "]]>"
-                C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + "   <user><![CDATA[" + toReg.User + "]]>"
+                C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + Chr(9) + "<supexpr><![CDATA[" + toReg.supexpr + "]]>"
+                C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + Chr(9) + "<comment><![CDATA[" + toReg.Comment + "]]>"
+                C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + Chr(9) + "<user><![CDATA[" + toReg.User + "]]>"
 
                 TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                 <<lc_TAG_REPORTE_F>>
@@ -17783,7 +17782,7 @@ toFoxBin2Prg.n_CheckFileInPath=2
                         TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                         <<>>
                         FOR EACH loProject IN _VFP.Projects FOXOBJECT
-                        <<>>    loProject.Close()
+                        <<Chr(9)>>loProject.Close()
                         ENDFOR
                         <<>>
                         STRTOFILE( '', '__newproject.f2b' )
@@ -17794,7 +17793,7 @@ toFoxBin2Prg.n_CheckFileInPath=2
 *-- Abro el proyecto
                         TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                         FOR EACH loProject IN _VFP.Projects FOXOBJECT
-                        <<>>    loProject.Close()
+                        <<Chr(9)>>loProject.Close()
                         ENDFOR
                         <<>>
                         MODIFY PROJECT '<<JUSTFNAME( EVL( .c_OriginalFileName, .c_InputFile ) )>>' NOWAIT NOSHOW NOPROJECTHOOK
@@ -17810,7 +17809,7 @@ toFoxBin2Prg.n_CheckFileInPath=2
 
                         For Each loReg In loProject &&FOXOBJECT
                             TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                            <<>>    .ADD('<<loReg.NAME>>')
+                            <<Chr(9)>>.ADD('<<loReg.NAME>>')
                             ENDTEXT
 
 *** DH 2024-08-26: changed IF to CASE and added case for BodyDevInfo = 2 meaning omit DEVINFO and OBJREV
@@ -17819,7 +17818,7 @@ toFoxBin2Prg.n_CheckFileInPath=2
                                  case toFoxBin2Prg.n_BodyDevInfo=1
 * Generates an extra DevInfo tag for each body PJX record
                                     TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2+4+8
-                                    <<>>        <<'&'>><<'&'>> <<C_FILE_META_I>>
+                                    <<Chr(9)+Chr(9)>><<'&'>><<'&'>> <<C_FILE_META_I>>
                                     Type="<<loReg.TYPE>>"
                                     Cpid="<<INT( loReg.CPID )>>"
                                     Timestamp="<<INT( loReg.TIMESTAMP )>>"
@@ -17832,7 +17831,7 @@ toFoxBin2Prg.n_CheckFileInPath=2
 *                           Else
                                 case toFoxBin2Prg.n_BodyDevInfo=2
                                     TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2+4+8
-                                    <<>>        <<'&'>><<'&'>> <<C_FILE_META_I>>
+                                    <<Chr(9)+Chr(9)>><<'&'>><<'&'>> <<C_FILE_META_I>>
                                     Type="<<loReg.TYPE>>"
                                     Cpid="<<INT( loReg.CPID )>>"
                                     Timestamp="<<INT( loReg.TIMESTAMP )>>"
@@ -17842,7 +17841,7 @@ toFoxBin2Prg.n_CheckFileInPath=2
                                     ENDTEXT
                                 otherwise
                                     TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2+4+8
-                                    <<>>        <<'&'>><<'&'>> <<C_FILE_META_I>>
+                                    <<Chr(9)+Chr(9)>><<'&'>><<'&'>> <<C_FILE_META_I>>
                                     Type="<<loReg.TYPE>>"
                                     Cpid="<<INT( loReg.CPID )>>"
                                     Timestamp="<<INT( loReg.TIMESTAMP )>>"
@@ -17859,15 +17858,15 @@ toFoxBin2Prg.n_CheckFileInPath=2
                         Endfor
 
                         TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>    <<C_BUILDPROJ_F>>
+                        <<Chr(9)>><<C_BUILDPROJ_F>>
                         <<>>
-                        <<>>    .ITEM('__newproject.f2b').Remove()
+                        <<Chr(9)>>.ITEM('__newproject.f2b').Remove()
                         <<>>
                         ENDTEXT
 
 
                         TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>    <<C_FILE_CMTS_I>>
+                        <<Chr(9)>><<C_FILE_CMTS_I>>
                         ENDTEXT
 
 
@@ -17887,9 +17886,9 @@ toFoxBin2Prg.n_CheckFileInPath=2
 
 *-- Exclusiones
                         TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>    <<C_FILE_CMTS_F>>
+                        <<Chr(9)>><<C_FILE_CMTS_F>>
                         <<>>
-                        <<>>    <<C_FILE_EXCL_I>>
+                        <<Chr(9)>><<C_FILE_EXCL_I>>
                         ENDTEXT
 
                         loProject.KeySort = 2
@@ -17907,9 +17906,9 @@ toFoxBin2Prg.n_CheckFileInPath=2
 
 *-- Tipos de archivos especiales
                         TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>    <<C_FILE_EXCL_F>>
+                        <<Chr(9)>><<C_FILE_EXCL_F>>
                         <<>>
-                        <<>>    <<C_FILE_TXT_I>>
+                        <<Chr(9)>><<C_FILE_TXT_I>>
                         ENDTEXT
 
                         loProject.KeySort = 2
@@ -17927,11 +17926,11 @@ toFoxBin2Prg.n_CheckFileInPath=2
 
 *-- ProjectHook, Debug, Encrypt, Build y cierre
                         TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>    <<C_FILE_TXT_F>>
+                        <<Chr(9)>><<C_FILE_TXT_F>>
                         <<C_ENDWITH>>
                         <<>>
                         <<C_WITH>> loProject
-                        <<>>    <<C_PROJPROPS_I>>
+                        <<Chr(9)>><<C_PROJPROPS_I>>
                         ENDTEXT
 
                         If Not Empty(loProject._MainProg)
@@ -17950,15 +17949,15 @@ toFoxBin2Prg.n_CheckFileInPath=2
                         Endif
 
                         TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>    .Debug = <<loProject._Debug>>
-                        <<>>    .Encrypted = <<loProject._Encrypted>>
-                        <<>>    *<.CmntStyle = <<loProject._CmntStyle>> />
-                        <<>>    *<.NoLogo = <<loProject._NoLogo>> />
-                        <<>>    *<.SaveCode = <<loProject._SaveCode>> />
-                        <<>>    *<.User = '<<STRCONV(loProject._User,13)>>' />
-                        <<>>    .ProjectHookLibrary = '<<loProject._ProjectHookLibrary>>'
-                        <<>>    .ProjectHookClass = '<<loProject._ProjectHookClass>>'
-                        <<>>    <<C_PROJPROPS_F>>
+                        <<Chr(9)>>.Debug = <<loProject._Debug>>
+                        <<Chr(9)>>.Encrypted = <<loProject._Encrypted>>
+                        <<Chr(9)>>*<.CmntStyle = <<loProject._CmntStyle>> />
+                        <<Chr(9)>>*<.NoLogo = <<loProject._NoLogo>> />
+                        <<Chr(9)>>*<.SaveCode = <<loProject._SaveCode>> />
+                        <<Chr(9)>>*<.User = '<<STRCONV(loProject._User,13)>>' />
+                        <<Chr(9)>>.ProjectHookLibrary = '<<loProject._ProjectHookLibrary>>'
+                        <<Chr(9)>>.ProjectHookClass = '<<loProject._ProjectHookClass>>'
+                        <<Chr(9)>><<C_PROJPROPS_F>>
                         <<C_ENDWITH>>
                         <<>>
                         ENDTEXT
@@ -18441,7 +18440,7 @@ Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg
                         TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                         <<>>
                         FOR EACH loProject IN _VFP.Projects FOXOBJECT
-                        <<>>    loProject.Close()
+                        <<Chr(9)>>loProject.Close()
                         ENDFOR
                         <<>>
                         STRTOFILE( '', '__newproject.f2b' )
@@ -18452,7 +18451,7 @@ Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg
 *-- Abro el proyecto
                         TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                         FOR EACH loProject IN _VFP.Projects FOXOBJECT
-                        <<>>    loProject.Close()
+                        <<Chr(9)>>loProject.Close()
                         ENDFOR
                         <<>>
                         MODIFY PROJECT '<<JUSTFNAME( EVL( .c_OriginalFileName, .c_InputFile ) )>>' NOWAIT NOSHOW NOPROJECTHOOK
@@ -18469,10 +18468,10 @@ Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg
 messagebox('convert')
                         For Each loReg In loProject &&FOXOBJECT
                             TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                            <<>>    .ADD('<<loReg.NAME>>')
+                            <<Chr(9)>>.ADD('<<loReg.NAME>>')
                             ENDTEXT
                             TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2+4+8
-                            <<>>        <<'&'>><<'&'>> <<C_FILE_META_I>>
+                            <<Chr(9)+Chr(9)>><<'&'>><<'&'>> <<C_FILE_META_I>>
                             Type="<<loReg.TYPE>>"
                             Cpid="<<INT( loReg.CPID )>>"
                             Timestamp="<<INT( loReg.TIMESTAMP )>>"
@@ -18485,15 +18484,15 @@ messagebox('convert')
                         Endfor
 
                         TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>    <<C_BUILDPROJ_F>>
+                        <<Chr(9)>><<C_BUILDPROJ_F>>
                         <<>>
-                        <<>>    .ITEM('__newproject.f2b').Remove()
+                        <<Chr(9)>>.ITEM('__newproject.f2b').Remove()
                         <<>>
                         ENDTEXT
 
 
                         TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>    <<C_FILE_CMTS_I>>
+                        <<Chr(9)>><<C_FILE_CMTS_I>>
                         ENDTEXT
 
 
@@ -18509,9 +18508,9 @@ messagebox('convert')
 
 *-- Exclusiones
                         TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>    <<C_FILE_CMTS_F>>
+                        <<Chr(9)>><<C_FILE_CMTS_F>>
                         <<>>
-                        <<>>    <<C_FILE_EXCL_I>>
+                        <<Chr(9)>><<C_FILE_EXCL_I>>
                         ENDTEXT
 
                         loProject.KeySort = 2
@@ -18526,9 +18525,9 @@ messagebox('convert')
 
 *-- Tipos de archivos especiales
                         TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>    <<C_FILE_EXCL_F>>
+                        <<Chr(9)>><<C_FILE_EXCL_F>>
                         <<>>
-                        <<>>    <<C_FILE_TXT_I>>
+                        <<Chr(9)>><<C_FILE_TXT_I>>
                         ENDTEXT
 
                         loProject.KeySort = 2
@@ -18543,35 +18542,35 @@ messagebox('convert')
 
 *-- ProjectHook, Debug, Encrypt, Build y cierre
                         TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>    <<C_FILE_TXT_F>>
+                        <<Chr(9)>><<C_FILE_TXT_F>>
                         <<C_ENDWITH>>
                         <<>>
                         <<C_WITH>> loProject
-                        <<>>    <<C_PROJPROPS_I>>
+                        <<Chr(9)>><<C_PROJPROPS_I>>
                         ENDTEXT
 
                         If Not Empty(loProject._MainProg)
                             TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                            <<>>    .SetMain(lcCurdir + '<<loProject._MainProg>>')
+                            <<Chr(9)>>.SetMain(lcCurdir + '<<loProject._MainProg>>')
                             ENDTEXT
                         Endif
 
                         If Not Empty(loProject._Icon)
                             TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                            <<>>    .Icon = lcCurdir + '<<loProject._Icon>>'
+                            <<Chr(9)>>.Icon = lcCurdir + '<<loProject._Icon>>'
                             ENDTEXT
                         Endif
 
                         TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>    .Debug = <<loProject._Debug>>
-                        <<>>    .Encrypted = <<loProject._Encrypted>>
-                        <<>>    *<.CmntStyle = <<loProject._CmntStyle>> />
-                        <<>>    *<.NoLogo = <<loProject._NoLogo>> />
-                        <<>>    *<.SaveCode = <<loProject._SaveCode>> />
-                        <<>>    *<.User = '<<loProject._User>>' />
-                        <<>>    .ProjectHookLibrary = '<<loProject._ProjectHookLibrary>>'
-                        <<>>    .ProjectHookClass = '<<loProject._ProjectHookClass>>'
-                        <<>>    <<C_PROJPROPS_F>>
+                        <<Chr(9)>>.Debug = <<loProject._Debug>>
+                        <<Chr(9)>>.Encrypted = <<loProject._Encrypted>>
+                        <<Chr(9)>>*<.CmntStyle = <<loProject._CmntStyle>> />
+                        <<Chr(9)>>*<.NoLogo = <<loProject._NoLogo>> />
+                        <<Chr(9)>>*<.SaveCode = <<loProject._SaveCode>> />
+                        <<Chr(9)>>*<.User = '<<loProject._User>>' />
+                        <<Chr(9)>>.ProjectHookLibrary = '<<loProject._ProjectHookLibrary>>'
+                        <<Chr(9)>>.ProjectHookClass = '<<loProject._ProjectHookClass>>'
+                        <<Chr(9)>><<C_PROJPROPS_F>>
                         <<C_ENDWITH>>
                         <<>>
                         ENDTEXT
@@ -22239,11 +22238,11 @@ Define Class CL_DBC As CL_DBC_BASE
                     TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                     <<>>
                     <DATABASE>
-                    <<>>    <Name><<lcDBC>></Name>
-                    <<>>    <Comment><<DBGETPROP(lcDBC,"DATABASE","Comment")>></Comment>
-                    <<>>    <Version><<DBGETPROP(lcDBC,"DATABASE","Version")>></Version>
-                    <<>>    <DBCEvents><<DBGETPROP(lcDBC,"DATABASE","DBCEvents")>></DBCEvents>
-                    <<>>    <DBCEventFilename><<DBGETPROP(lcDBC,"DATABASE","DBCEventFilename")>></DBCEventFilename>
+                    <<Chr(9)>><Name><<lcDBC>></Name>
+                    <<Chr(9)>><Comment><<DBGETPROP(lcDBC,"DATABASE","Comment")>></Comment>
+                    <<Chr(9)>><Version><<DBGETPROP(lcDBC,"DATABASE","Version")>></Version>
+                    <<Chr(9)>><DBCEvents><<DBGETPROP(lcDBC,"DATABASE","DBCEvents")>></DBCEvents>
+                    <<Chr(9)>><DBCEventFilename><<DBGETPROP(lcDBC,"DATABASE","DBCEventFilename")>></DBCEventFilename>
                     ENDTEXT
 
 *-- Connections
@@ -22263,9 +22262,9 @@ Define Class CL_DBC As CL_DBC_BASE
                         WHERE Str(ParentId) + ObjectType + Lower(ObjectName) = Str(1) + Padr('Database',10) + Padr(Lower('StoredProceduresSource'),128) ;
                         INTO Array laCode
                     TEXT TO ._StoredProcedures TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                    <<>>    <<C_STORED_PROC_I>>
+                    <<Chr(9)>><<C_STORED_PROC_I>>
                     <<laCode(1,1)>>
-                    <<>>    <<C_STORED_PROC_F>>
+                    <<Chr(9)>><<C_STORED_PROC_F>>
                     ENDTEXT
 
                     If Not toFoxBin2Prg.n_UseFilesPerDBC > 0 Then
@@ -22429,7 +22428,7 @@ Define Class CL_DBC_CONNECTIONS As CL_DBC_COL_BASE
                     If .Count > 0 Then
 
                         TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>    <CONNECTIONS>
+                        <<Chr(9)>><CONNECTIONS>
                         ENDTEXT
 
                         .KeySort = 2
@@ -22438,7 +22437,7 @@ Define Class CL_DBC_CONNECTIONS As CL_DBC_COL_BASE
                         Endfor
 
                         TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>    </CONNECTIONS>
+                        <<Chr(9)>></CONNECTIONS>
                         <<>>
                         ENDTEXT
                     Endif
@@ -22638,26 +22637,26 @@ Define Class CL_DBC_CONNECTION As CL_DBC_BASE
                     .read_BinDataToProperties(tcConnection)
 
                     TEXT TO lcText TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                    <<>>        <CONNECTION>
-                    <<>>            <Name><<._Name>></Name>
-                    <<>>            <Comment><<._Comment>></Comment>
-                    <<>>            <DataSource><<._DataSource>></DataSource>
-                    <<>>            <Database><<._Database>></Database>
-                    <<>>            <ConnectString><<._ConnectString>></ConnectString>
-                    <<>>            <Asynchronous><<._Asynchronous>></Asynchronous>
-                    <<>>            <BatchMode><<._BatchMode>></BatchMode>
-                    <<>>            <ConnectTimeout><<._ConnectTimeout>></ConnectTimeout>
-                    <<>>            <DisconnectRollback><<._DisconnectRollback>></DisconnectRollback>
-                    <<>>            <DispLogin><<._DispLogin>></DispLogin>
-                    <<>>            <DispWarnings><<._DispWarnings>></DispWarnings>
-                    <<>>            <IdleTimeout><<._IdleTimeout>></IdleTimeout>
-                    <<>>            <PacketSize><<._PacketSize>></PacketSize>
-                    <<>>            <PassWord><<._PassWord>></PassWord>
-                    <<>>            <QueryTimeout><<._QueryTimeout>></QueryTimeout>
-                    <<>>            <Transactions><<._Transactions>></Transactions>
-                    <<>>            <UserId><<._UserId>></UserId>
-                    <<>>            <WaitTime><<._WaitTime>></WaitTime>
-                    <<>>        </CONNECTION>
+                    <<Chr(9)+Chr(9)>><CONNECTION>
+                    <<Chr(9)+Chr(9)+Chr(9)>><Name><<._Name>></Name>
+                    <<Chr(9)+Chr(9)+Chr(9)>><Comment><<._Comment>></Comment>
+                    <<Chr(9)+Chr(9)+Chr(9)>><DataSource><<._DataSource>></DataSource>
+                    <<Chr(9)+Chr(9)+Chr(9)>><Database><<._Database>></Database>
+                    <<Chr(9)+Chr(9)+Chr(9)>><ConnectString><<._ConnectString>></ConnectString>
+                    <<Chr(9)+Chr(9)+Chr(9)>><Asynchronous><<._Asynchronous>></Asynchronous>
+                    <<Chr(9)+Chr(9)+Chr(9)>><BatchMode><<._BatchMode>></BatchMode>
+                    <<Chr(9)+Chr(9)+Chr(9)>><ConnectTimeout><<._ConnectTimeout>></ConnectTimeout>
+                    <<Chr(9)+Chr(9)+Chr(9)>><DisconnectRollback><<._DisconnectRollback>></DisconnectRollback>
+                    <<Chr(9)+Chr(9)+Chr(9)>><DispLogin><<._DispLogin>></DispLogin>
+                    <<Chr(9)+Chr(9)+Chr(9)>><DispWarnings><<._DispWarnings>></DispWarnings>
+                    <<Chr(9)+Chr(9)+Chr(9)>><IdleTimeout><<._IdleTimeout>></IdleTimeout>
+                    <<Chr(9)+Chr(9)+Chr(9)>><PacketSize><<._PacketSize>></PacketSize>
+                    <<Chr(9)+Chr(9)+Chr(9)>><PassWord><<._PassWord>></PassWord>
+                    <<Chr(9)+Chr(9)+Chr(9)>><QueryTimeout><<._QueryTimeout>></QueryTimeout>
+                    <<Chr(9)+Chr(9)+Chr(9)>><Transactions><<._Transactions>></Transactions>
+                    <<Chr(9)+Chr(9)+Chr(9)>><UserId><<._UserId>></UserId>
+                    <<Chr(9)+Chr(9)+Chr(9)>><WaitTime><<._WaitTime>></WaitTime>
+                    <<Chr(9)+Chr(9)>></CONNECTION>
                     ENDTEXT
 
                     ._ToText    = lcText
@@ -22832,7 +22831,7 @@ Define Class CL_DBC_TABLES As CL_DBC_COL_BASE
 
                     If .Count > 0 Then
                         TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>    <TABLES>
+                        <<Chr(9)>><TABLES>
                         ENDTEXT
 
                         .KeySort = 2
@@ -22841,7 +22840,7 @@ Define Class CL_DBC_TABLES As CL_DBC_COL_BASE
                         Endfor
 
                         TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>    </TABLES>
+                        <<Chr(9)>></TABLES>
                         <<>>
                         ENDTEXT
                     Endif
@@ -23089,20 +23088,20 @@ Define Class CL_DBC_TABLE As CL_DBC_BASE
 
                     TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                     <<>>
-                    <<>>        <TABLE>
-                    <<>>            <Name><<._Name>></Name>
-                    <<>>            <Comment><<._Comment>></Comment>
-                    <<>>            <Path><<._Path>></Path>
-                    <<>>            <DeleteTrigger><<._DeleteTrigger>></DeleteTrigger>
-                    <<>>            <InsertTrigger><<._InsertTrigger>></InsertTrigger>
-                    <<>>            <UpdateTrigger><<._UpdateTrigger>></UpdateTrigger>
-                    <<>>            <PrimaryKey><<._PrimaryKey>></PrimaryKey>
-                    <<>>            <RuleExpression><<._RuleExpression>></RuleExpression>
-                    <<>>            <RuleText><<._RuleText>></RuleText>
+                    <<Chr(9)+Chr(9)>><TABLE>
+                    <<Chr(9)+Chr(9)+Chr(9)>><Name><<._Name>></Name>
+                    <<Chr(9)+Chr(9)+Chr(9)>><Comment><<._Comment>></Comment>
+                    <<Chr(9)+Chr(9)+Chr(9)>><Path><<._Path>></Path>
+                    <<Chr(9)+Chr(9)+Chr(9)>><DeleteTrigger><<._DeleteTrigger>></DeleteTrigger>
+                    <<Chr(9)+Chr(9)+Chr(9)>><InsertTrigger><<._InsertTrigger>></InsertTrigger>
+                    <<Chr(9)+Chr(9)+Chr(9)>><UpdateTrigger><<._UpdateTrigger>></UpdateTrigger>
+                    <<Chr(9)+Chr(9)+Chr(9)>><PrimaryKey><<._PrimaryKey>></PrimaryKey>
+                    <<Chr(9)+Chr(9)+Chr(9)>><RuleExpression><<._RuleExpression>></RuleExpression>
+                    <<Chr(9)+Chr(9)+Chr(9)>><RuleText><<._RuleText>></RuleText>
                     <<lcFields>>
                     <<lcIndexes>>
                     <<lcRelations>>
-                    <<>>        </TABLE>
+                    <<Chr(9)+Chr(9)>></TABLE>
                     ENDTEXT
 
                     ._ToText    = lcText
@@ -23369,7 +23368,7 @@ Define Class CL_DBC_FIELDS_DB As CL_DBC_COL_BASE
 
                     If .Count > 0 Then
                         TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>            <FIELD_ORDER>
+                        <<Chr(9)+Chr(9)+Chr(9)>><FIELD_ORDER>
                         <<>>
                         ENDTEXT
 
@@ -23378,16 +23377,16 @@ Define Class CL_DBC_FIELDS_DB As CL_DBC_COL_BASE
 
                         .KeySort = 0
                         For Each loField In This &&FOXOBJECT
-                        \               <<loField._Name>>
+                        \<<Chr(9)+Chr(9)+Chr(9)+Chr(9)>><<loField._Name>>
                         Endfor
 
                         Set Textmerge Off
                         Set Textmerge To
 
                         TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>            </FIELD_ORDER>
+                        <<Chr(9)+Chr(9)+Chr(9)>></FIELD_ORDER>
                         <<>>
-                        <<>>            <FIELDS>
+                        <<Chr(9)+Chr(9)+Chr(9)>><FIELDS>
                         ENDTEXT
 
                         .KeySort = 2    && Comentar para forzar modo LEGACY
@@ -23396,7 +23395,7 @@ Define Class CL_DBC_FIELDS_DB As CL_DBC_COL_BASE
                         Endfor
 
                         TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>            </FIELDS>
+                        <<Chr(9)+Chr(9)+Chr(9)>></FIELDS>
                         ENDTEXT
                     Endif
                 Endwith
@@ -23597,18 +23596,18 @@ Define Class CL_DBC_FIELD_DB As CL_DBC_BASE
                     .read_BinDataToProperties(tcTable, tcField)
 
                     TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                    <<>>                <FIELD>
-                    <<>>                    <Name><<._Name>></Name>
-                    <<>>                    <Caption><<._Caption>></Caption>
-                    <<>>                    <Comment><<._Comment>></Comment>
-                    <<>>                    <DefaultValue><<._DefaultValue>></DefaultValue>
-                    <<>>                    <DisplayClass><<._DisplayClass>></DisplayClass>
-                    <<>>                    <DisplayClassLibrary><<._DisplayClassLibrary>></DisplayClassLibrary>
-                    <<>>                    <Format><<._Format>></Format>
-                    <<>>                    <InputMask><<._InputMask>></InputMask>
-                    <<>>                    <RuleExpression><<._RuleExpression>></RuleExpression>
-                    <<>>                    <RuleText><<._RuleText>></RuleText>
-                    <<>>                </FIELD>
+                    <<Chr(9)+Chr(9)+Chr(9)+Chr(9)>><FIELD>
+                    <<Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)>><Name><<._Name>></Name>
+                    <<Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)>><Caption><<._Caption>></Caption>
+                    <<Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)>><Comment><<._Comment>></Comment>
+                    <<Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)>><DefaultValue><<._DefaultValue>></DefaultValue>
+                    <<Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)>><DisplayClass><<._DisplayClass>></DisplayClass>
+                    <<Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)>><DisplayClassLibrary><<._DisplayClassLibrary>></DisplayClassLibrary>
+                    <<Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)>><Format><<._Format>></Format>
+                    <<Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)>><InputMask><<._InputMask>></InputMask>
+                    <<Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)>><RuleExpression><<._RuleExpression>></RuleExpression>
+                    <<Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)>><RuleText><<._RuleText>></RuleText>
+                    <<Chr(9)+Chr(9)+Chr(9)+Chr(9)>></FIELD>
                     ENDTEXT
 
                     ._ToText    = lcText
@@ -23775,7 +23774,7 @@ Define Class CL_DBC_INDEXES_DB As CL_DBC_COL_BASE
 
                     If .Count > 0 Then
                         TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>            <<C_INDEXES_I>>
+                        <<Chr(9)+Chr(9)+Chr(9)>><<C_INDEXES_I>>
                         ENDTEXT
 
                         .KeySort = 2    && Comentar para forzar modo LEGACY
@@ -23784,7 +23783,7 @@ Define Class CL_DBC_INDEXES_DB As CL_DBC_COL_BASE
                         Endfor
 
                         TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>            <<C_INDEXES_F>>
+                        <<Chr(9)+Chr(9)+Chr(9)>><<C_INDEXES_F>>
                         ENDTEXT
                     Endif
 
@@ -23969,11 +23968,11 @@ Define Class CL_DBC_INDEX_DB As CL_DBC_BASE
                     .read_BinDataToProperties(tcIndex)
 
                     TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                    <<>>                <<C_INDEX_I>>
-                    <<>>                    <Name><<._Name>></Name>
-                    <<>>                    <Comment><<._Comment>></Comment>
-                    <<>>                    <IsUnique><<._IsUnique>></IsUnique>
-                    <<>>                <<C_INDEX_F>>
+                    <<Chr(9)+Chr(9)+Chr(9)+Chr(9)>><<C_INDEX_I>>
+                    <<Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)>><Name><<._Name>></Name>
+                    <<Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)>><Comment><<._Comment>></Comment>
+                    <<Chr(9)+Chr(9)+Chr(9)+Chr(9)+Chr(9)>><IsUnique><<._IsUnique>></IsUnique>
+                    <<Chr(9)+Chr(9)+Chr(9)+Chr(9)>><<C_INDEX_F>>
                     ENDTEXT
 
                     ._ToText    = lcText
@@ -24128,7 +24127,7 @@ Define Class CL_DBC_VIEWS As CL_DBC_COL_BASE
 
                     If .Count > 0 Then
                         TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>    <VIEWS>
+                        <<Chr(9)>><VIEWS>
                         ENDTEXT
 
                         .KeySort    = 2
@@ -24137,7 +24136,7 @@ Define Class CL_DBC_VIEWS As CL_DBC_COL_BASE
                         Endfor
 
                         TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>    </VIEWS>
+                        <<Chr(9)>></VIEWS>
                         <<>>
                         ENDTEXT
                     Endif
@@ -24421,30 +24420,30 @@ Define Class CL_DBC_VIEW As CL_DBC_BASE
 
                     TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                     <<>>
-                    <<>>        <VIEW>
-                    <<>>            <Name><<tcView>></Name>
-                    <<>>            <Comment><<._Comment>></Comment>
-                    <<>>            <Tables><<._Tables>></Tables>
-                    <<>>            <SQL><<._SQL>></SQL>
-                    <<>>            <AllowSimultaneousFetch><<._AllowSimultaneousFetch>></AllowSimultaneousFetch>
-                    <<>>            <BatchUpdateCount><<._BatchUpdateCount>></BatchUpdateCount>
-                    <<>>            <CompareMemo><<._CompareMemo>></CompareMemo>
-                    <<>>            <ConnectName><<._ConnectName>></ConnectName>
-                    <<>>            <FetchAsNeeded><<._FetchAsNeeded>></FetchAsNeeded>
-                    <<>>            <FetchMemo><<._FetchMemo>></FetchMemo>
-                    <<>>            <FetchSize><<._FetchSize>></FetchSize>
-                    <<>>            <MaxRecords><<._MaxRecords>></MaxRecords>
-                    <<>>            <Offline><<._Offline>></Offline>
-                    <<>>            <ParameterList><<._ParameterList>></ParameterList>
-                    <<>>            <Prepared><<._Prepared>></Prepared>
-                    <<>>            <RuleExpression><<._RuleExpression>></RuleExpression>
-                    <<>>            <RuleText><<._RuleText>></RuleText>
-                    <<>>            <SendUpdates><<._SendUpdates>></SendUpdates>
-                    <<>>            <ShareConnection><<._ShareConnection>></ShareConnection>
-                    <<>>            <SourceType><<._SourceType>></SourceType>
-                    <<>>            <UpdateType><<._UpdateType>></UpdateType>
-                    <<>>            <UseMemoSize><<._UseMemoSize>></UseMemoSize>
-                    <<>>            <WhereType><<._WhereType>></WhereType>
+                    <<Chr(9)+Chr(9)>><VIEW>
+                    <<Chr(9)+Chr(9)+Chr(9)>><Name><<tcView>></Name>
+                    <<Chr(9)+Chr(9)+Chr(9)>><Comment><<._Comment>></Comment>
+                    <<Chr(9)+Chr(9)+Chr(9)>><Tables><<._Tables>></Tables>
+                    <<Chr(9)+Chr(9)+Chr(9)>><SQL><<._SQL>></SQL>
+                    <<Chr(9)+Chr(9)+Chr(9)>><AllowSimultaneousFetch><<._AllowSimultaneousFetch>></AllowSimultaneousFetch>
+                    <<Chr(9)+Chr(9)+Chr(9)>><BatchUpdateCount><<._BatchUpdateCount>></BatchUpdateCount>
+                    <<Chr(9)+Chr(9)+Chr(9)>><CompareMemo><<._CompareMemo>></CompareMemo>
+                    <<Chr(9)+Chr(9)+Chr(9)>><ConnectName><<._ConnectName>></ConnectName>
+                    <<Chr(9)+Chr(9)+Chr(9)>><FetchAsNeeded><<._FetchAsNeeded>></FetchAsNeeded>
+                    <<Chr(9)+Chr(9)+Chr(9)>><FetchMemo><<._FetchMemo>></FetchMemo>
+                    <<Chr(9)+Chr(9)+Chr(9)>><FetchSize><<._FetchSize>></FetchSize>
+                    <<Chr(9)+Chr(9)+Chr(9)>><MaxRecords><<._MaxRecords>></MaxRecords>
+                    <<Chr(9)+Chr(9)+Chr(9)>><Offline><<._Offline>></Offline>
+                    <<Chr(9)+Chr(9)+Chr(9)>><ParameterList><<._ParameterList>></ParameterList>
+                    <<Chr(9)+Chr(9)+Chr(9)>><Prepared><<._Prepared>></Prepared>
+                    <<Chr(9)+Chr(9)+Chr(9)>><RuleExpression><<._RuleExpression>></RuleExpression>
+                    <<Chr(9)+Chr(9)+Chr(9)>><RuleText><<._RuleText>></RuleText>
+                    <<Chr(9)+Chr(9)+Chr(9)>><SendUpdates><<._SendUpdates>></SendUpdates>
+                    <<Chr(9)+Chr(9)+Chr(9)>><ShareConnection><<._ShareConnection>></ShareConnection>
+                    <<Chr(9)+Chr(9)+Chr(9)>><SourceType><<._SourceType>></SourceType>
+                    <<Chr(9)+Chr(9)+Chr(9)>><UpdateType><<._UpdateType>></UpdateType>
+                    <<Chr(9)+Chr(9)+Chr(9)>><UseMemoSize><<._UseMemoSize>></UseMemoSize>
+                    <<Chr(9)+Chr(9)+Chr(9)>><WhereType><<._WhereType>></WhereType>
                     ENDTEXT
 
 *-- ALGUNOS VALORES QUE EL DBGETPROP OFICIAL NO DEVUELVE
@@ -24452,8 +24451,8 @@ Define Class CL_DBC_VIEW As CL_DBC_BASE
 *--     OfflineRecordCount
                     If ._Offline Then
                         TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>            <Path><<._Path>></Path>
-                        <<>>            <RecordCount><<._RecordCount>></RecordCount>
+                        <<Chr(9)+Chr(9)+Chr(9)>><Path><<._Path>></Path>
+                        <<Chr(9)+Chr(9)+Chr(9)>><RecordCount><<._RecordCount>></RecordCount>
                         ENDTEXT
                     Endif
 *--
@@ -24471,7 +24470,7 @@ Define Class CL_DBC_VIEW As CL_DBC_BASE
                     <<lcFields>>
                     <<lcIndexes>>
                     <<lcRelations>>
-                    <<>>        </VIEW>
+                    <<Chr(9)+Chr(9)>></VIEW>
                     ENDTEXT
 
                     ._ToText    = lcText
@@ -24779,7 +24778,7 @@ Define Class CL_DBC_FIELDS_VW As CL_DBC_COL_BASE
 
                     If .Count > 0 Then
                         TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>            <FIELD_ORDER>
+                        <<chr(9)+chr(9)+chr(9)>><FIELD_ORDER>
                         <<>>
                         ENDTEXT
 
@@ -24788,16 +24787,16 @@ Define Class CL_DBC_FIELDS_VW As CL_DBC_COL_BASE
 
                         .KeySort = 0
                         For Each loField In This &&FOXOBJECT
-                        \               <<loField._Name>>
+                        \<<chr(9)+chr(9)+chr(9)+chr(9)>><<loField._Name>>
                         Endfor
 
                         Set Textmerge Off
                         Set Textmerge To
 
                         TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>            </FIELD_ORDER>
+                        <<chr(9)+chr(9)+chr(9)>></FIELD_ORDER>
                         <<>>
-                        <<>>            <FIELDS>
+                        <<chr(9)+chr(9)+chr(9)>><FIELDS>
                         ENDTEXT
 
                         .KeySort = 2    && Comentar para forzar modo LEGACY
@@ -24806,7 +24805,7 @@ Define Class CL_DBC_FIELDS_VW As CL_DBC_COL_BASE
                         Endfor
 
                         TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>            </FIELDS>
+                        <<chr(9)+chr(9)+chr(9)>></FIELDS>
                         ENDTEXT
                     Endif
                 Endwith
@@ -25014,22 +25013,22 @@ Define Class CL_DBC_FIELD_VW As CL_DBC_BASE
                     lcText  = ''
 
                     TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                    <<>>                <FIELD>
-                    <<>>                    <Name><<._Name>></Name>
-                    <<>>                    <Caption><<._Caption>></Caption>
-                    <<>>                    <Comment><<._Comment>></Comment>
-                    <<>>                    <DataType><<._DataType>></DataType>
-                    <<>>                    <DefaultValue><<._DefaultValue>></DefaultValue>
-                    <<>>                    <DisplayClass><<._DisplayClass>></DisplayClass>
-                    <<>>                    <DisplayClassLibrary><<._DisplayClassLibrary>></DisplayClassLibrary>
-                    <<>>                    <Format><<._Format>></Format>
-                    <<>>                    <InputMask><<._InputMask>></InputMask>
-                    <<>>                    <KeyField><<._KeyField>></KeyField>
-                    <<>>                    <RuleExpression><<._RuleExpression>></RuleExpression>
-                    <<>>                    <RuleText><<._RuleText>></RuleText>
-                    <<>>                    <Updatable><<._Updatable>></Updatable>
-                    <<>>                    <UpdateName><<._UpdateName>></UpdateName>
-                    <<>>                </FIELD>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)>><FIELD>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><Name><<._Name>></Name>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><Caption><<._Caption>></Caption>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><Comment><<._Comment>></Comment>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><DataType><<._DataType>></DataType>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><DefaultValue><<._DefaultValue>></DefaultValue>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><DisplayClass><<._DisplayClass>></DisplayClass>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><DisplayClassLibrary><<._DisplayClassLibrary>></DisplayClassLibrary>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><Format><<._Format>></Format>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><InputMask><<._InputMask>></InputMask>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><KeyField><<._KeyField>></KeyField>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><RuleExpression><<._RuleExpression>></RuleExpression>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><RuleText><<._RuleText>></RuleText>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><Updatable><<._Updatable>></Updatable>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><UpdateName><<._UpdateName>></UpdateName>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)>></FIELD>
                     ENDTEXT
 
                     ._ToText    = lcText
@@ -25202,7 +25201,7 @@ Define Class CL_DBC_RELATIONS As CL_DBC_COL_BASE
 
                     If .Count > 0 Then
                         TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>            <RELATIONS>
+                        <<chr(9)+chr(9)+chr(9)>><RELATIONS>
                         ENDTEXT
 
                         .KeySort=2  && Comentar para forzar modo LEGACY
@@ -25211,7 +25210,7 @@ Define Class CL_DBC_RELATIONS As CL_DBC_COL_BASE
                         Endfor
 
                         TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>            </RELATIONS>
+                        <<chr(9)+chr(9)+chr(9)>></RELATIONS>
                         <<>>
                         ENDTEXT
                     Endif
@@ -25397,14 +25396,14 @@ Define Class CL_DBC_RELATION As CL_DBC_BASE
                     .read_BinDataToProperties(@taRelations, m.X)
 
                     TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                    <<>>                <RELATION>
-                    <<>>                    <Name><<._Name>></Name>
-                    <<>>                    <ChildTable><<._ChildTable>></ChildTable>
-                    <<>>                    <ParentTable><<._ParentTable>></ParentTable>
-                    <<>>                    <ChildIndex><<._ChildIndex>></ChildIndex>
-                    <<>>                    <ParentIndex><<._ParentIndex>></ParentIndex>
-                    <<>>                    <RefIntegrity><<._RefIntegrity>></RefIntegrity>
-                    <<>>                </RELATION>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)>><RELATION>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><Name><<._Name>></Name>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><ChildTable><<._ChildTable>></ChildTable>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><ParentTable><<._ParentTable>></ParentTable>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><ChildIndex><<._ChildIndex>></ChildIndex>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><ParentIndex><<._ParentIndex>></ParentIndex>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><RefIntegrity><<._RefIntegrity>></RefIntegrity>
+                    <<chr(9)+chr(9)+chr(9)+chr(9)>></RELATION>
                     ENDTEXT
 
                     ._ToText    = lcText
@@ -25677,12 +25676,12 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE
                 TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                 <<>>
                 <<C_TABLE_I>>
-                <<>>    <MemoFile><<IIF( tl_FileHasMemo, FORCEEXT(tc_InputFile, 'FPT'), '' )>></MemoFile>
-                <<>>    <CodePage><<Cpdbf('TABLABIN')>></CodePage>
-                <<>>    <LastUpdate><<IIF( toFoxBin2Prg.l_ClearDBFLastUpdate, '', LUPDATE('TABLABIN') )>></LastUpdate>
-                <<>>    <Database><<tc_DBC_Name>></Database>
-                <<>>    <FileType><<TRANSFORM(tn_HexFileType, '@0')>></FileType>
-                <<>>    <FileType_Descrip><<tc_FileTypeDesc>></FileType_Descrip>
+                <<chr(9)>><MemoFile><<IIF( tl_FileHasMemo, FORCEEXT(tc_InputFile, 'FPT'), '' )>></MemoFile>
+                <<chr(9)>><CodePage><<Cpdbf('TABLABIN')>></CodePage>
+                <<chr(9)>><LastUpdate><<IIF( toFoxBin2Prg.l_ClearDBFLastUpdate, '', LUPDATE('TABLABIN') )>></LastUpdate>
+                <<chr(9)>><Database><<tc_DBC_Name>></Database>
+                <<chr(9)>><FileType><<TRANSFORM(tn_HexFileType, '@0')>></FileType>
+                <<chr(9)>><FileType_Descrip><<tc_FileTypeDesc>></FileType_Descrip>
                 ENDTEXT
 
 *-- Fields
@@ -25898,7 +25897,7 @@ Define Class CL_DBF_FIELDS As CL_COL_BASE
 
                 TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                 <<>>
-                <<>>    <<C_FIELDS_I>>
+                <<Chr(9)>><<C_FIELDS_I>>
                 ENDTEXT
 
                 tnField_Count   = Afields(taFields)
@@ -25915,7 +25914,7 @@ Define Class CL_DBF_FIELDS As CL_COL_BASE
                 Endfor
 
                 TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                <<>>    <<C_FIELDS_F>>
+                <<Chr(9)>><<C_FIELDS_F>>
                 <<>>
                 ENDTEXT
 
@@ -26061,26 +26060,26 @@ Define Class CL_DBF_FIELD As CL_CUS_BASE
                 lcText  = ''
 
                 TEXT TO lcText TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                <<>>        <<C_FIELD_I>>
-                <<>>            <Name><<taFields(m.I,1)>></Name>
-                <<>>            <Type><<taFields(m.I,2)>></Type>
-                <<>>            <Width><<taFields(m.I,3)>></Width>
-                <<>>            <Decimals><<taFields(m.I,4)>></Decimals>
-                <<>>            <Null><<taFields(m.I,5)>></Null>
-                <<>>            <NoCPTran><<taFields(m.I,6)>></NoCPTran>
-                <<>>            <Field_Valid_Exp><<taFields(m.I,7)>></Field_Valid_Exp>
-                <<>>            <Field_Valid_Text><<taFields(m.I,8)>></Field_Valid_Text>
-                <<>>            <Field_Default_Value><<taFields(m.I,9)>></Field_Default_Value>
-                <<>>            <Table_Valid_Exp><<taFields(m.I,10)>></Table_Valid_Exp>
-                <<>>            <Table_Valid_Text><<taFields(m.I,11)>></Table_Valid_Text>
-                <<>>            <LongTableName><<taFields(m.I,12)>></LongTableName>
-                <<>>            <Ins_Trig_Exp><<taFields(m.I,13)>></Ins_Trig_Exp>
-                <<>>            <Upd_Trig_Exp><<taFields(m.I,14)>></Upd_Trig_Exp>
-                <<>>            <Del_Trig_Exp><<taFields(m.I,15)>></Del_Trig_Exp>
-                <<>>            <TableComment><<taFields(m.I,16)>></TableComment>
-                <<>>            <Autoinc_Nextval><<taFields(m.I,17)>></Autoinc_Nextval>
-                <<>>            <Autoinc_Step><<taFields(m.I,18)>></Autoinc_Step>
-                <<>>        <<C_FIELD_F>>
+                <<chr(9)+chr(9)>><<C_FIELD_I>>
+                <<chr(9)+chr(9)+chr(9)>><Name><<taFields(m.I,1)>></Name>
+                <<chr(9)+chr(9)+chr(9)>><Type><<taFields(m.I,2)>></Type>
+                <<chr(9)+chr(9)+chr(9)>><Width><<taFields(m.I,3)>></Width>
+                <<chr(9)+chr(9)+chr(9)>><Decimals><<taFields(m.I,4)>></Decimals>
+                <<chr(9)+chr(9)+chr(9)>><Null><<taFields(m.I,5)>></Null>
+                <<chr(9)+chr(9)+chr(9)>><NoCPTran><<taFields(m.I,6)>></NoCPTran>
+                <<chr(9)+chr(9)+chr(9)>><Field_Valid_Exp><<taFields(m.I,7)>></Field_Valid_Exp>
+                <<chr(9)+chr(9)+chr(9)>><Field_Valid_Text><<taFields(m.I,8)>></Field_Valid_Text>
+                <<chr(9)+chr(9)+chr(9)>><Field_Default_Value><<taFields(m.I,9)>></Field_Default_Value>
+                <<chr(9)+chr(9)+chr(9)>><Table_Valid_Exp><<taFields(m.I,10)>></Table_Valid_Exp>
+                <<chr(9)+chr(9)+chr(9)>><Table_Valid_Text><<taFields(m.I,11)>></Table_Valid_Text>
+                <<chr(9)+chr(9)+chr(9)>><LongTableName><<taFields(m.I,12)>></LongTableName>
+                <<chr(9)+chr(9)+chr(9)>><Ins_Trig_Exp><<taFields(m.I,13)>></Ins_Trig_Exp>
+                <<chr(9)+chr(9)+chr(9)>><Upd_Trig_Exp><<taFields(m.I,14)>></Upd_Trig_Exp>
+                <<chr(9)+chr(9)+chr(9)>><Del_Trig_Exp><<taFields(m.I,15)>></Del_Trig_Exp>
+                <<chr(9)+chr(9)+chr(9)>><TableComment><<taFields(m.I,16)>></TableComment>
+                <<chr(9)+chr(9)+chr(9)>><Autoinc_Nextval><<taFields(m.I,17)>></Autoinc_Nextval>
+                <<chr(9)+chr(9)+chr(9)>><Autoinc_Step><<taFields(m.I,18)>></Autoinc_Step>
+                <<chr(9)+chr(9)>><<C_FIELD_F>>
                 ENDTEXT
 
 
@@ -26331,10 +26330,10 @@ Define Class CL_DBF_INDEXES As CL_COL_BASE
                     toFoxBin2Prg.writeLog( ' ' + Replicate('-', 98) )
                     toFoxBin2Prg.writeLog( '  ' + m.lcIndexType )
                     TEXT To m.lcText Additive Textmerge Noshow Flags 1+2 Pretext 1+2
-                                    <<>>
-                                    <<>>        <<C_CDX_I>> <<C_CDX_Type_>><<m.lcIndexType>>" >
-                                    <<>>
-                                    <<>>            <<C_INDEXES_I>>
+                    <<>>
+                    <<chr(9)+chr(9)>><<C_CDX_I>> <<C_CDX_Type_>><<m.lcIndexType>>" >
+                    <<>>
+                    <<chr(9)+chr(9)+chr(9)>><<C_INDEXES_I>>
                     ENDTEXT
 
 *                   tnTagInfo_Count = Ataginfo( taTagInfo )
@@ -26349,9 +26348,9 @@ Define Class CL_DBF_INDEXES As CL_COL_BASE
                     Endfor
 
                     TEXT To m.lcText Additive Textmerge Noshow Flags 1+2 Pretext 1+2
-                                    <<>>            <<C_INDEXES_F>>
-                                    <<>>        <<C_CDX_F>>
-                                    <<>>
+                    <<chr(9)+chr(9)+chr(9)>><<C_INDEXES_F>>
+                    <<chr(9)+chr(9)>><<C_CDX_F>>
+                    <<>>
                     ENDTEXT
                 Endif
 
@@ -26375,10 +26374,10 @@ Define Class CL_DBF_INDEXES As CL_COL_BASE
                                 If Tagcount( m.lcIndexFile ) > 0 Then
                                     lnTagInfo_Count = Ataginfo( taTagInfo , m.lcIndexFile )
                                     TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                                                    <<>>
-                                                    <<>>        <<C_CDX_I>> <<C_CDX_Type_>><<m.lcIndexType+'"'>> <<C_CDX_File_>><<m.lcIndexFile+'"'>> >
-                                                    <<>>
-                                                    <<>>            <<C_INDEXES_I>>
+                                    <<>>
+                                    <<+chr(9)+chr(9)>><<C_CDX_I>> <<C_CDX_Type_>><<m.lcIndexType+'"'>> <<C_CDX_File_>><<m.lcIndexFile+'"'>> >
+                                    <<>>
+                                    <<+chr(9)+chr(9)+chr(9)>><<C_INDEXES_I>>
                                     ENDTEXT
 
                                     lnTagInfo_Count = Ataginfo( laTagInfo , m.lcIndexFile)
@@ -26390,9 +26389,9 @@ Define Class CL_DBF_INDEXES As CL_COL_BASE
                                     Endfor
 
                                     TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                                                    <<>>            <<C_INDEXES_F>>
-                                                    <<>>        <<C_CDX_F>>
-                                                    <<>>
+                                    <<+chr(9)+chr(9)+chr(9)>><<C_INDEXES_F>>
+                                    <<+chr(9)+chr(9)>><<C_CDX_F>>
+                                    <<>>
                                     ENDTEXT
                                 Endif &&TAGCOUNT( m.lcIndexFile ) > 0
 
@@ -26421,8 +26420,8 @@ Define Class CL_DBF_INDEXES As CL_COL_BASE
 
                 If !Empty(m.lcText) Then
                     TEXT TO lcText TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                                    <<>>    <<C_CDXIDX_I>><<m.lcText>>
-                                    <<>>    <<C_CDXIDX_F>>
+                    <<Chr(9)>><<C_CDXIDX_I>><<m.lcText>>
+                    <<Chr(9)>><<C_CDXIDX_F>>
                     ENDTEXT
                 Endif &&!EMPTY(m.lcText)
 
@@ -26558,14 +26557,14 @@ Define Class CL_DBF_INDEX As CL_CUS_BASE
                 Endfor
 
                 TEXT TO lcText TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                <<>>                <<C_INDEX_I>>
-                <<>>                    <TagName><<taTagInfo(m.I,1)>></TagName>
-                <<>>                    <TagType><<ICASE(LEFT(taTagInfo(m.I,2),3)='BIN','BINARY',PRIMARY(m.X),'PRIMARY',CANDIDATE(m.X),'CANDIDATE',UNIQUE(m.X),'UNIQUE','REGULAR'))>></TagType>
-                <<>>                    <Key><<taTagInfo(m.I,3)>></Key>
-                <<>>                    <Filter><<taTagInfo(m.I,4)>></Filter>
-                <<>>                    <Order><<IIF(DESCENDING(m.X), 'DESCENDING', 'ASCENDING')>></Order>
-                <<>>                    <Collate><<taTagInfo(m.I,6)>></Collate>
-                <<>>                <<C_INDEX_F>>
+                <<chr(9)+chr(9)+chr(9)+chr(9)>><<C_INDEX_I>>
+                <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><TagName><<taTagInfo(m.I,1)>></TagName>
+                <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><TagType><<ICASE(LEFT(taTagInfo(m.I,2),3)='BIN','BINARY',PRIMARY(m.X),'PRIMARY',CANDIDATE(m.X),'CANDIDATE',UNIQUE(m.X),'UNIQUE','REGULAR'))>></TagType>
+                <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><Key><<taTagInfo(m.I,3)>></Key>
+                <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><Filter><<taTagInfo(m.I,4)>></Filter>
+                <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><Order><<IIF(DESCENDING(m.X), 'DESCENDING', 'ASCENDING')>></Order>
+                <<chr(9)+chr(9)+chr(9)+chr(9)+chr(9)>><Collate><<taTagInfo(m.I,6)>></Collate>
+                <<chr(9)+chr(9)+chr(9)+chr(9)>><<C_INDEX_F>>
                 ENDTEXT
 
             Catch To loEx
@@ -26731,7 +26730,7 @@ Define Class CL_DBF_RECORDS As CL_COL_BASE
 
                 TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                 <<>>
-                <<>>    <<C_RECORDS_I>>
+                <<Chr(9)>><<C_RECORDS_I>>
                 ENDTEXT
 
 *FWRITE( toFoxBin2Prg.n_FileHandle, lcText )
@@ -26780,7 +26779,7 @@ Define Class CL_DBF_RECORDS As CL_COL_BASE
                 lcText  = ''
 
                 TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                <<>>    <<C_RECORDS_F>>
+                <<Chr(9)>><<C_RECORDS_F>>
                 <<>>
                 ENDTEXT
 
@@ -27064,7 +27063,7 @@ Define Class CL_DBF_RECORD As CL_CUS_BASE
 *!* /Changed by: LScheffler 21.02.2021
 
                     TEXT TO lcText TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                    <<>>        <<m.lcStartTag>>
+                    <<Chr(9)+Chr(9)>><<m.lcStartTag>>
                     ENDTEXT
 
                     For I = 1 To tnField_Count
@@ -27131,7 +27130,7 @@ Define Class CL_DBF_RECORD As CL_CUS_BASE
                                 lcText = lcText + CR_LF + '         <' + lcField + '>' + luValue + '</' + lcField + '>'
                             Else
                                 TEXT TO lcText TEXTMERGE NOSHOW flags 1+2 PRETEXT 1+2 additive
-                                <<>>            <<'<' + lcField + '>'>><<luValue>><<'</' + lcField + '>'>>
+                                <<Chr(9)+Chr(9)+Chr(9)>><<'<' + lcField + '>'>><<luValue>><<'</' + lcField + '>'>>
                                 ENDTEXT
                             Endif
 *!* /Changed by LScheffler 07.4.2022
@@ -27139,7 +27138,7 @@ Define Class CL_DBF_RECORD As CL_CUS_BASE
                     Next
 
                     TEXT TO lcText TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2 additive
-                    <<>>        <<m.lcEndTag>>
+                    <<Chr(9)+Chr(9)>><<m.lcEndTag>>
                     ENDTEXT
                 Endwith
 
@@ -29587,14 +29586,14 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE
                         Case toParentReg.ObjType = C_OBJTYPE_MENUTYPE_BARorPOPUP And toParentReg.OBJCODE = C_OBJCODE_MENUBARPOPUP_MENUPAD
 *-- Define Bar
                             TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<.get_DefineBarText(loReg, loBarPop, tnNivel, toHeader)>>
+                            <<.get_DefineBarText(loReg, loBarPop, tnNivel, toHeader)>>
                             ENDTEXT
 
                         Case toParentReg.ObjType = C_OBJTYPE_MENUTYPE_BARorPOPUP And toParentReg.OBJCODE = C_OBJCODE_MENUBARPOPUP_MENUBAR ;
                                 AND (toHeader.ObjType = C_OBJTYPE_MENUTYPE_DEFAULT Or toHeader.ObjType = C_OBJTYPE_MENUTYPE_MENUBARONTOP)
 *-- Define Pad
                             TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<.get_DefinePadText(loReg, loBarPop, tnNivel, toHeader)>>
+                            <<.get_DefinePadText(loReg, loBarPop, tnNivel, toHeader)>>
                             ENDTEXT
 
                     Endcase
@@ -32577,11 +32576,11 @@ Define Class CL_MACRO_RECORD As CL_CUS_BASE
 
         With This As CL_MACRO_RECORD Of 'FOXBIN2PRG.PRG'
             TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                <<>><MACRO>
-                <<>>    Macro_Name      : <<ALLTRIM(.Macro_Name, 0, CHR(0), CHR(32))>>
-                <<>>    Keystroke       : <<.get_Macro_Keystrokes(.Keystroke, .T.)>>
-                <<>>    Macro_Keystrokes: <<.get_Macro_Keystrokes(.Macro_Keystrokes)>>
-                <<>></MACRO>
+             <<>><MACRO>
+             <<Chr(9)>>Macro_Name      : <<ALLTRIM(.Macro_Name, 0, CHR(0), CHR(32))>>
+             <<Chr(9)>>Keystroke       : <<.get_Macro_Keystrokes(.Keystroke, .T.)>>
+             <<Chr(9)>>Macro_Keystrokes: <<.get_Macro_Keystrokes(.Macro_Keystrokes)>>
+             <<>></MACRO>
             ENDTEXT
 
         Endwith
