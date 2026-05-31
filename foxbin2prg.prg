@@ -8316,7 +8316,9 @@ Define Class c_conversor_base As Custom
 
     Procedure sortSpecialProps
         Try
-                Local I, loEx As Exception, lcPropsFile
+                LOCAL loEx As Exception
+                LOCAL I, lcPropsFile
+
                 lcPropsFile = ''
 
                 With This As conversor_base Of "FOXBIN2PRG.PRG"
@@ -8327,108 +8329,111 @@ Define Class c_conversor_base As Custom
 *-- unas 1500 propiedades casi no hay diferencias (10 segundos en unos 1600 archivos) :(
                         Use (Fullpath( 'foxbin2prg_keywords', .c_Foxbin2prg_FullPath )) Shared Noupdate Again In 0 Order PK  && C_CLASS+C_KEYWORD
                     #Else
+                        LOCAL lcPropsDir
+                        lcPropsDir  = .c_Foxbin2prg_FullPath + '\props'
+
                         I = 0
 
-                        lcPropsFile = Forcepath( "props_all.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_all.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_checkbox.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_checkbox.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Chk, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_collection.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_collection.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Coll, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_combobox.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_combobox.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Cbo, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_commandgroup.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_commandgroup.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Cmg, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_commandbutton.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_commandbutton.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Cmd, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_cursor.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_cursor.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Cur, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_cursoradapter.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_cursoradapter.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_CA, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_dataenvironment.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_dataenvironment.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_DE, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_editbox.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_editbox.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Edt, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_formset.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_formset.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Frs, Filetostr( lcPropsFile ), 1+4 )
 
-*lcPropsFile    = FORCEPATH( "props_grid.txt", JUSTPATH( .c_Foxbin2prg_FullPath ) )
+*lcPropsFile    = FORCEPATH( "props_grid.txt", JUSTPATH( lcPropsDir ) )
 *I   = ALINES( .a_SpecialProps_Grd, FILETOSTR( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_grid_column.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_grid_column.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Grc, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_grid_header.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_grid_header.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Grh, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_hyperlink.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_hyperlink.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Hlk, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_image.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_image.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Img, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_label.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_label.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Lbl, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_line.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_line.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Lin, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_listbox.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_listbox.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Lst, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_olebound.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_olebound.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Ole, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_optiongroup.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_optiongroup.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Opg, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_optiongroup_option.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_optiongroup_option.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Opb, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_projecthook.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_projecthook.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Phk, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_relation.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_relation.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Rel, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_reportlistener.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_reportlistener.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Rls, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_separator.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_separator.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Sep, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_shape.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_shape.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Shp, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_spinner.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_spinner.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Spn, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_textbox.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_textbox.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Txt, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_timer.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_timer.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_Tmr, Filetostr( lcPropsFile ), 1+4 )
 
-*lcPropsFile    = FORCEPATH( "props_toolbar.txt", JUSTPATH( .c_Foxbin2prg_FullPath ) )
-*I   = ALINES( .a_SpecialProps_Tbr, FILETOSTR( lcPropsFile ), 1+4 )
+                        *lcPropsFile    = FORCEPATH( "props_toolbar.txt", JUSTPATH( lcPropsDir ) )
+                        *I   = ALINES( .a_SpecialProps_Tbr, FILETOSTR( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_xmladapter.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_xmladapter.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_XMLAda, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_xmlfield.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_xmlfield.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_XMLFld, Filetostr( lcPropsFile ), 1+4 )
 
-                        lcPropsFile = Forcepath( "props_xmltable.txt", Justpath( .c_Foxbin2prg_FullPath ) )
+                        lcPropsFile = Forcepath( "props_xmltable.txt", Justpath( lcPropsDir ) )
                         I   = Alines( .a_SpecialProps_XMLTbl, Filetostr( lcPropsFile ), 1+4 )
                     #Endif
 

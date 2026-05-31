@@ -41,6 +41,9 @@
 !*.lb2
 !*.d[bc]2
 
+#props
+!props/*.*
+
 #include special
 #default git
 !*.gitignore
