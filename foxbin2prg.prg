@@ -17661,7 +17661,7 @@ toFoxBin2Prg.n_CheckFileInPath=2
                         If Not Empty(loProject._MainProg)
 *                           <<>>    .SetMain(lcCurdir + '<<loProject._MainProg>>')
                             TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                            <<>>    .SetMain(<<THIS.GetPathFromHome(m.loProject._MainProg, m.lcStr, "lcCurdir + '", "'", m.toFoxBin2Prg)>>)
+                            <<Chr(9)>>.SetMain(<<THIS.GetPathFromHome(m.loProject._MainProg, m.lcStr, "lcCurdir + '", "'", m.toFoxBin2Prg)>>)
 
                             ENDTEXT
                         Endif
@@ -17669,7 +17669,7 @@ toFoxBin2Prg.n_CheckFileInPath=2
                         If Not Empty(loProject._Icon)
 *                           <<>>    .Icon = lcCurdir + '<<loProject._Icon>>'
                             TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                            <<>>    .Icon = <<THIS.GetPathFromHome(m.loProject._Icon, m.lcStr, "lcCurdir + '", "'", toFoxBin2Prg)>>
+                            <<Chr(9)>>.Icon = <<THIS.GetPathFromHome(m.loProject._Icon, m.lcStr, "lcCurdir + '", "'", toFoxBin2Prg)>>
                             ENDTEXT
                         Endif
 
@@ -26852,7 +26852,7 @@ Define Class CL_DBF_RECORD As CL_CUS_BASE
 *!* TEXT .. ENDTEXT removes trailing spaces from lines inserted with TEXXTMERGE
 *!* Char etc are processed special
                             If Vartype(luValue) = 'C'
-                                lcText = lcText + CR_LF + '         <' + lcField + '>' + luValue + '</' + lcField + '>'
+                                lcText = lcText + CR_LF + Chr(9)+Chr(9)+Chr(9) + '<' + lcField + '>' + luValue + '</' + lcField + '>'
                             Else
                                 TEXT TO lcText TEXTMERGE NOSHOW flags 1+2 PRETEXT 1+2 additive
                                 <<Chr(9)+Chr(9)+Chr(9)>><<'<' + lcField + '>'>><<luValue>><<'</' + lcField + '>'>>
