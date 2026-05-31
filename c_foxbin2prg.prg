@@ -304,31 +304,31 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       tcCancelWithEscKey  = EVL(tcCancelWithEscKey, '')
 
       IF NOT EMPTY(tcCancelWithEscKey)
-         THIS.l_CancelWithEscKey = ( tcCancelWithEscKey == '1' )
+         This.l_CancelWithEscKey = ( tcCancelWithEscKey == '1' )
       ENDIF
 
-      THIS.declareDLL()
+      This.declareDLL()
 
-      IF ATC("\PROGRAM FILES", THIS.c_TempDir) > 0 OR ATC("\ARCHIVOS DE PROGRAMA", THIS.c_TempDir) > 0
-         THIS.c_TempDir  = GETENV("TEMP")
+      IF ATC("\PROGRAM FILES", This.c_TempDir) > 0 OR ATC("\ARCHIVOS DE PROGRAMA", This.c_TempDir) > 0
+         This.c_TempDir  = GETENV("TEMP")
       ENDIF
 
-      THIS.c_LogFile      = ADDBS( THIS.c_TempDir ) + 'FoxBin2Prg_Debug.LOG'
-      THIS.c_ErrorLogFile = ADDBS( THIS.c_TempDir ) + 'FoxBin2Prg_Error.LOG'
+      This.c_LogFile      = ADDBS( This.c_TempDir ) + 'FoxBin2Prg_Debug.LOG'
+      This.c_ErrorLogFile = ADDBS( This.c_TempDir ) + 'FoxBin2Prg_Error.LOG'
 
-      IF ADIR(laDir, THIS.c_ErrorLogFile) > 0 THEN
-         IF ADIR(laDir, THIS.c_ErrorLogFile + '.BAK') > 0 THEN
-            THIS.changeFileAttribute( THIS.c_ErrorLogFile + '.BAK', '-R-S-H' )
-            ERASE (THIS.c_ErrorLogFile + '.BAK')
+      IF ADIR(laDir, This.c_ErrorLogFile) > 0 THEN
+         IF ADIR(laDir, This.c_ErrorLogFile + '.BAK') > 0 THEN
+            This.changeFileAttribute( This.c_ErrorLogFile + '.BAK', '-R-S-H' )
+            ERASE (This.c_ErrorLogFile + '.BAK')
          ENDIF
 
-         THIS.changeFileAttribute( THIS.c_ErrorLogFile, '-R-S-H' )
-         RENAME (THIS.c_ErrorLogFile) TO (THIS.c_ErrorLogFile + '.BAK')
+         This.changeFileAttribute( This.c_ErrorLogFile, '-R-S-H' )
+         RENAME (This.c_ErrorLogFile) TO (This.c_ErrorLogFile + '.BAK')
       ENDIF
 
-      IF ADIR(laDir, THIS.c_LogFile) > 0 THEN
-         ERASE (THIS.c_LogFile + '.BAK')
-         RENAME (THIS.c_LogFile) TO (THIS.c_LogFile + '.BAK')
+      IF ADIR(laDir, This.c_LogFile) > 0 THEN
+         ERASE (This.c_LogFile + '.BAK')
+         RENAME (This.c_LogFile) TO (This.c_LogFile + '.BAK')
       ENDIF
 
       lcSys16 = SYS(16)
@@ -339,27 +339,27 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       ENDIF
 
       && Directorio actual, que no necesariamente es donde está FoxBin2Prg
-      THIS.c_CurDir                   = SYS(5) + CURDIR()
+      This.c_CurDir                   = SYS(5) + CURDIR()
 
-      THIS.c_Foxbin2prg_FullPath      = SUBSTR( lcSys16, lnPosProg )
-      THIS.c_Foxbin2prg_ConfigFile    = EVL( tcCFG_File, FORCEEXT( THIS.c_Foxbin2prg_FullPath, 'CFG' ) )
-      THIS.c_BackgroundImage          = THIS.get_AbsolutePath( ADDBS(JUSTPATH(THIS.c_Foxbin2prg_FullPath)) + 'foxbin2prg.jpg' )
-      lc_Foxbin2prg_EXE               = FORCEEXT( THIS.c_Foxbin2prg_FullPath, 'EXE' )
+      This.c_Foxbin2prg_FullPath      = SUBSTR( lcSys16, lnPosProg )
+      This.c_Foxbin2prg_ConfigFile    = EVL( tcCFG_File, FORCEEXT( This.c_Foxbin2prg_FullPath, 'CFG' ) )
+      This.c_BackgroundImage          = This.get_AbsolutePath( ADDBS(JUSTPATH(This.c_Foxbin2prg_FullPath)) + 'foxbin2prg.jpg' )
+      lc_Foxbin2prg_EXE               = FORCEEXT( This.c_Foxbin2prg_FullPath, 'EXE' )
 
-      THIS.c_FB2PRG_EXE_Version       = 'v' + TRANSFORM(THIS.c_FB2PRG_Version_Real)
+      This.c_FB2PRG_EXE_Version       = 'v' + TRANSFORM(This.c_FB2PRG_Version_Real)
 
-      ADDPROPERTY(_SCREEN, 'c_FB2PRG_EXE_Version', THIS.c_FB2PRG_EXE_Version)
+      ADDPROPERTY(_SCREEN, 'c_FB2PRG_EXE_Version', This.c_FB2PRG_EXE_Version)
       ADDPROPERTY(_SCREEN, 'ExitCode', 0)
 
-      THIS.writeLog( REPLICATE( '*', 100 ) )
-      THIS.writeLog( 'FoxBin2Prg INIT  -', 2 )
-      THIS.writeLog( REPLICATE( '*', 100 ) )
-      THIS.writeLog( 'FoxBin2Prg: [' + THIS.c_Foxbin2prg_FullPath + '] (EXE Version: ' + THIS.c_FB2PRG_EXE_Version + ', FoxPro Version: ' + VERSION(4) + ')' )
-      THIS.writeLog( TEXTMERGE( '- Internal CFG: <<SYS(2019,2)>> / External CFG: <<SYS(2019,1)>> / CodePage Used: <<CPCURRENT()>>)' ) )
+      This.writeLog( REPLICATE( '*', 100 ) )
+      This.writeLog( 'FoxBin2Prg INIT  -', 2 )
+      This.writeLog( REPLICATE( '*', 100 ) )
+      This.writeLog( 'FoxBin2Prg: [' + This.c_Foxbin2prg_FullPath + '] (EXE Version: ' + This.c_FB2PRG_EXE_Version + ', FoxPro Version: ' + VERSION(4) + ')' )
+      This.writeLog( TEXTMERGE( '- Internal CFG: <<SYS(2019,2)>> / External CFG: <<SYS(2019,1)>> / CodePage Used: <<CPCURRENT()>>)' ) )
 
       * Get default language info
       * ISO 639-2 Language Codes: https://www.loc.gov/standards/iso639-2/php/code_list.php
-      lcLang  = THIS.getLocaleInfo(0x00000067) && ie: spa
+      lcLang  = This.getLocaleInfo(0x00000067) && ie: spa
 
       DO CASE
       CASE lcLang = 'spa'
@@ -375,14 +375,14 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          lcLang = 'EN'
       ENDCASE
 
-      THIS.changeLanguage(lcLang)
+      This.changeLanguage(lcLang)
 
-      THIS.o_FSO           = CREATEOBJECT("Scripting.FileSystemObject")
-      THIS.o_Configuration = CREATEOBJECT("COLLECTION")
+      This.o_FSO           = CREATEOBJECT("Scripting.FileSystemObject")
+      This.o_Configuration = CREATEOBJECT("COLLECTION")
 
-      THIS.o_CFG           = CREATEOBJECT('CL_CFG')
-      THIS.o_CFG.CopyFrom(THIS)
-      THIS.evaluateConfiguration()
+      This.o_CFG           = CREATEOBJECT('CL_CFG')
+      This.o_CFG.CopyFrom(THIS)
+      This.evaluateConfiguration()
       RELEASE lcSys16, lnPosProg, lc_Foxbin2prg_EXE, laValues
       RETURN
    ENDPROC
@@ -391,27 +391,27 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    PROCEDURE DESTROY
       TRY
          LOCAL lcFileCDX
-         lcFileCDX   = FORCEPATH( "TABLABIN.CDX", JUSTPATH(THIS.c_InputFile) )
+         lcFileCDX   = FORCEPATH( "TABLABIN.CDX", JUSTPATH(This.c_InputFile) )
 
          ERASE ( lcFileCDX )
 
-         THIS.writeLog( 'FoxBin2Prg UNLOAD  -', 2 )
-         THIS.writeLog( REPLICATE( '*', 100 ) )
-         THIS.writeLog( )
-         THIS.writeLog_Flush()
-         THIS.unloadProgressbarForm()
-         THIS.o_Configuration    = .NULL.
-         THIS.o_WSH              = .NULL.
-         THIS.o_FSO              = .NULL.
+         This.writeLog( 'FoxBin2Prg UNLOAD  -', 2 )
+         This.writeLog( REPLICATE( '*', 100 ) )
+         This.writeLog( )
+         This.writeLog_Flush()
+         This.unloadProgressbarForm()
+         This.o_Configuration    = .NULL.
+         This.o_WSH              = .NULL.
+         This.o_FSO              = .NULL.
          IF VARTYPE(_SCREEN.o_FoxBin2Prg_Lang) = "O" THEN
             _SCREEN.o_FoxBin2Prg_Lang = .NULL.
          ENDIF
       CATCH
 
       FINALLY
-         THIS.o_FSO  = .NULL.
-         THIS.o_WSH  = .NULL.
-         THIS.o_FNC  = .NULL.
+         This.o_FSO  = .NULL.
+         This.o_WSH  = .NULL.
+         This.o_FNC  = .NULL.
          *-- Funciones para changeFileAttributes
          CLEAR DLLS fb2p_SetFileAttributes, fb2p_GetFileAttributes
          *-- Funciones para escribir en StdOut
@@ -470,11 +470,11 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
       tnID = 0
 
-      IF THIS.n_ProcessedFiles = 0
+      IF This.n_ProcessedFiles = 0
          RETURN .F.
       ENDIF
 
-      tnID = ASCAN( THIS.a_ProcessedFiles, tcFile, 1, 0, 1, 1+2+4 )
+      tnID = ASCAN( This.a_ProcessedFiles, tcFile, 1, 0, 1, 1+2+4 )
 
       RETURN (tnID > 0)
    ENDPROC
@@ -505,9 +505,9 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       LPARAMETERS tcLanguageId
       _SCREEN.ADDPROPERTY( "o_FoxBin2Prg_Lang", CREATEOBJECT("CL_LANG", tcLanguageId) )
       *-- Localized properties
-      THIS.c_Language                 = _SCREEN.o_FoxBin2Prg_Lang.C_LANGUAGE_LOC
-      THIS.c_loc_processing_file      = _SCREEN.o_FoxBin2Prg_Lang.C_PROCESSING_LOC
-      THIS.c_loc_process_progress     = _SCREEN.o_FoxBin2Prg_Lang.C_PROCESS_PROGRESS_LOC
+      This.c_Language                 = _SCREEN.o_FoxBin2Prg_Lang.C_LANGUAGE_LOC
+      This.c_loc_processing_file      = _SCREEN.o_FoxBin2Prg_Lang.C_PROCESSING_LOC
+      This.c_loc_process_progress     = _SCREEN.o_FoxBin2Prg_Lang.C_PROCESS_PROGRESS_LOC
    ENDPROC
 
 
@@ -552,7 +552,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
       *-- Ajusto la ruta si no es absoluta
       tc_InputFile    = EVL(tc_InputFile,'')
-      tc_FullPath     = EVL(tc_FullPath, THIS.c_Foxbin2prg_FullPath)
+      tc_FullPath     = EVL(tc_FullPath, This.c_Foxbin2prg_FullPath)
 
       IF NOT EMPTY( JUSTEXT(tc_FullPath) ) THEN
          *-- Se indicó PATH+archivo.ext
@@ -573,12 +573,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    FUNCTION get_l_ConfigEvaluated
-      RETURN THIS.l_Main_CFG_Loaded
+      RETURN This.l_Main_CFG_Loaded
    ENDFUNC
 
 
    FUNCTION get_l_CFG_CachedAccess
-      RETURN THIS.l_CFG_CachedAccess
+      RETURN This.l_CFG_CachedAccess
    ENDFUNC
 
 
@@ -711,7 +711,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          THROW
 
       FINALLY
-         THIS.writeLog( C_TAB + LOWER(PROGRAM()) + ' >> [' + tcFileName + '] lnRet = ' + TRANSFORM(lnRet) + ', dwFileAttributes_Orig = ' + TRANSFORM(dwFileAttributes_Orig) )
+         This.writeLog( C_TAB + LOWER(PROGRAM()) + ' >> [' + tcFileName + '] lnRet = ' + TRANSFORM(lnRet) + ', dwFileAttributes_Orig = ' + TRANSFORM(dwFileAttributes_Orig) )
          RELEASE tcFileName, tcAttrib, dwFileAttributes
       ENDTRY
 
@@ -813,7 +813,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       LPARAMETERS tcFileName
       LOCAL lcType
 
-      tcFileName  = EVL(tcFileName, THIS.c_OutputFile)
+      tcFileName  = EVL(tcFileName, This.c_OutputFile)
       lcType      = UPPER(JUSTEXT(tcFileName))
 
       DO CASE
@@ -935,7 +935,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          ENDWITH && THIS
 
       CATCH TO toEx
-         IF THIS.n_Debug > 0 AND _VFP.STARTMODE = 0
+         IF This.n_Debug > 0 AND _VFP.STARTMODE = 0
             SET STEP ON
          ENDIF
 
@@ -954,19 +954,19 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE loadProgressbarForm
-      IF VARTYPE(THIS.o_Frm_Avance) <> "O" THEN
-         THIS.o_Frm_Avance   = CREATEOBJECT("frm_avance", THIS)
-         THIS.o_Frm_Avance.SHOW()
+      IF VARTYPE(This.o_Frm_Avance) <> "O" THEN
+         This.o_Frm_Avance   = CREATEOBJECT("frm_avance", THIS)
+         This.o_Frm_Avance.SHOW()
       ENDIF
    ENDPROC
 
 
    PROCEDURE unloadProgressbarForm
       LPARAMETERS tlForceUnload
-      IF (tlForceUnload OR THIS.n_ShowProgressbar <> 0) AND VARTYPE(THIS.o_Frm_Avance) = "O" THEN
-         THIS.o_Frm_Avance.HIDE()
-         THIS.o_Frm_Avance.RELEASE()
-         THIS.o_Frm_Avance = .NULL.
+      IF (tlForceUnload OR This.n_ShowProgressbar <> 0) AND VARTYPE(This.o_Frm_Avance) = "O" THEN
+         This.o_Frm_Avance.HIDE()
+         This.o_Frm_Avance.RELEASE()
+         This.o_Frm_Avance = .NULL.
       ENDIF
    ENDPROC
 
@@ -993,71 +993,78 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       * tcCFG_File                (v? IN    ) Config file. If a config file is set, the normal chain of inheritance is reset and this file is read atop of the defaults
       *                                       Normal inheritance may or may not run, see setting InhibitInheritance
       *--------------------------------------------------------------------------------------------------------------
-      LPARAMETERS tcDontShowProgress, tcDontShowErrors, tcNoTimestamps, tcDebug, tcRecompile, tcExtraBackupLevels ;
-         , tcClearUniqueID, tcOptimizeByFilestamp, tc_InputFile, tcInputFile_Type, toParentCFG, tl_ForceLog, tcCFG_File
+      LPARAMETERS tcDontShowProgress  , tcDontShowErrors, tcNoTimestamps       , tcDebug     , tcRecompile      ;
+                , tcExtraBackupLevels , tcClearUniqueID , tcOptimizeByFilestamp, tc_InputFile, tcInputFile_Type ;
+                , toParentCFG         , tl_ForceLog     , tcCFG_File
 
       #IF .F.
          LOCAL toParentCFG AS CL_CFG OF 'FOXBIN2PRG.PRG'
       #ENDIF
 
-      LOCAL lcConfigFile, lcLockFile, llExiste_CFG_EnDisco, llLockFileExists, llFirstRead, laConfig(1), I, lcConfData, lcExt, lcValue, lc_CFG_Path, lcConfigLine, laDirInfo(1,5) ;
-         , lnDirs, laDirs(1), llMasterEval, lcProp ;
-         , lo_CFG AS CL_CFG OF 'FOXBIN2PRG.PRG' ;
-         , loCFG_Manual AS CL_CFG OF 'FOXBIN2PRG.PRG' ;
-         , lo_Configuration AS COLLECTION ;
-         , loLang AS CL_LANG OF 'FOXBIN2PRG.PRG' ;
-         , loEx AS EXCEPTION, llSetSingleConfig, lc_Foxbin2prg_ConfigFile, lc_InputPath
+      LOCAL lcConfigFile, lcLockFile, llExiste_CFG_EnDisco, llLockFileExists, llFirstRead, I, lcConfData, lcExt, lcValue, lc_CFG_Path, lcConfigLine
+      LOCAL lnDirs, llMasterEval, lcProp, llSetSingleConfig, lc_Foxbin2prg_ConfigFile, lc_InputPath
+      LOCAL laConfig(1), laDirInfo(1,5), laDirs(1)
+      
+      LOCAL lo_CFG           AS CL_CFG OF 'FOXBIN2PRG.PRG' ;
+          , loCFG_Manual     AS CL_CFG OF 'FOXBIN2PRG.PRG' ;
+          , lo_Configuration AS COLLECTION ;
+          , loLang           AS CL_LANG OF 'FOXBIN2PRG.PRG' ;
+          , loEx             AS EXCEPTION
 
       TRY
          WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
 
-            IF INLIST( TRANSFORM(tcDebug), '0', '1', '2' ) THEN
+            IF INLIST( TRANSFORM(tcDebug), '0', '1', '2' )
                .writeLog( C_TAB + ' > Parameter tcDebug: ' + tcDebug +;
-                  IIF(ISNULL(THIS.n_DebugP), "", ", will be ignored, second use of parameter. Using: " + TRANSFORM(THIS.n_DebugP) )+CR_LF )
-               IF ISNULL(THIS.n_DebugP) THEN
-                  THIS.n_Debug    = INT(VAL(tcDebug))
-                  THIS.n_DebugP   = THIS.n_Debug
-               ENDIF &&ISNULL(This.n_DebugP)
+                          IIF(ISNULL(This.n_DebugP), "", ", will be ignored, second use of parameter. Using: " + TRANSFORM(This.n_DebugP) )+CR_LF )
+
+               IF ISNULL(This.n_DebugP)
+                  This.n_Debug    = INT(VAL(tcDebug))
+                  This.n_DebugP   = This.n_Debug
+               ENDIF
             ENDIF
 
             STORE 0 TO lnKey
             llSetSingleConfig = .NULL.
 
-            loLang              = _SCREEN.o_FoxBin2Prg_Lang
-            tcRecompile         = EVL(tcRecompile, .c_Recompile)
-            lo_Configuration    = .o_Configuration
+            loLang           = _SCREEN.o_FoxBin2Prg_Lang
+            tcRecompile      = EVL(tcRecompile, .c_Recompile)
+            lo_Configuration = .o_Configuration
 
             *!* is a config file given by programm parameter
-            IF VARTYPE(tcCFG_File)='C' AND !EMPTY(tcCFG_File) THEN
-               IF EMPTY(lo_Configuration.GETKEY(tcCFG_File)) THEN
-                  THIS.writeLog( '> ' + loLang.C_USING_THIS_SETTINGS_LOC6+tcCFG_File )
+            IF Vartype(tcCFG_File)='C' AND !Empty(tcCFG_File)
+               
+               IF Empty(lo_Configuration.GetKey(tcCFG_File))
 
+                  This.writeLog( '> ' + loLang.C_USING_THIS_SETTINGS_LOC6+tcCFG_File )
 
-                  .l_Main_CFG_Loaded         = .F.
+                  .l_Main_CFG_Loaded  = .F.
                   *restore default
                   .o_CFG.CopyFrom(.o_CFG,THIS)
 
-                  lc_Foxbin2prg_ConfigFile   = .c_Foxbin2prg_ConfigFile
-                  .c_Foxbin2prg_ConfigFile  = tcCFG_File
+                  lc_Foxbin2prg_ConfigFile = .c_Foxbin2prg_ConfigFile
+                  .c_Foxbin2prg_ConfigFile = tcCFG_File
 
                   .o_Configuration.REMOVE(-1)
-                  .n_CFG_EvaluateFromParam  = 0
-                  .l_SingleConfig            = .F.
-
-                  llSetSingleConfig         = .T.
+                  .n_CFG_EvaluateFromParam = 0
+                  
+                  .l_SingleConfig   = .F.
+                  llSetSingleConfig = .T.
+                  
                   .writeLog( '> ' + UPPER(loLang.C_USING_THIS_SETTINGS_LOC) + ': ' + .c_Foxbin2prg_ConfigFile + ;
                      loLang.C_USING_THIS_SETTINGS_LOC1 )
 
-               ELSE &&EMPTY(lo_Configuration.GetKey(tcCFG_File))
-                  THIS.writeLog( '> ' + loLang.C_USING_THIS_SETTINGS_LOC6+tcCFG_File + loLang.C_USING_THIS_SETTINGS_LOC7+;
-                     ICASE(THIS.n_InhibitInheritance=0, loLang.C_USING_THIS_SETTINGS_LOC2,;
-                     THIS.n_InhibitInheritance=1, loLang.C_USING_THIS_SETTINGS_LOC3,;
-                     THIS.n_InhibitInheritance=2, loLang.C_USING_THIS_SETTINGS_LOC4,;
-                     THIS.n_InhibitInheritance=3, loLang.C_USING_THIS_SETTINGS_LOC5," Failure."+CR_LF))
+               ELSE
 
-               ENDIF &&EMPTY(lo_Configuration.GetKey(tcCFG_File))
-            ENDIF &&VARTYPE(tcCFG_File)='C' AND !EMPTY(tcCFG_File)
+                  This.writeLog( '> ' + loLang.C_USING_THIS_SETTINGS_LOC6+tcCFG_File + loLang.C_USING_THIS_SETTINGS_LOC7+;
+                                 ICase( This.n_InhibitInheritance=0, loLang.C_USING_THIS_SETTINGS_LOC2 ;
+                                      , This.n_InhibitInheritance=1, loLang.C_USING_THIS_SETTINGS_LOC3 ;
+                                      , This.n_InhibitInheritance=2, loLang.C_USING_THIS_SETTINGS_LOC4 ;
+                                      , This.n_InhibitInheritance=3, loLang.C_USING_THIS_SETTINGS_LOC5 ;
+                                      , " Failure."+CR_LF) )
 
+               ENDIF
+            ENDIF
 
             lcConfigFile        = .c_Foxbin2prg_ConfigFile
             tc_InputFile        = EVL(tc_InputFile, .c_InputFile)
@@ -1202,7 +1209,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                IF ISNULL(llSetSingleConfig);
                      AND ISNULL(toParentCFG);
                      AND (lo_Configuration.COUNT = 0 OR .n_CFG_Actual = 0);
-                     AND !THIS.c_Foxbin2prg_ConfigFile==tc_InputFile THEN
+                     AND !This.c_Foxbin2prg_ConfigFile==tc_InputFile THEN
                   llMasterEval    = .T.
                   toParentCFG     = THIS
 
@@ -1369,11 +1376,11 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   CASE LEFT( laConfig(m.I), 6 ) == LOWER('Debug:')
                      lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 7 ) )
                      IF NOT INLIST( TRANSFORM(tcDebug), '0', '1' ) AND INLIST( lcValue, '0', '1' ) THEN
-                        IF ISNULL(THIS.n_DebugP) THEN
+                        IF ISNULL(This.n_DebugP) THEN
                            lo_CFG.n_Debug = INT(VAL(lcValue))
                         ENDIF &&ISNULL(This.n_DebugP)
                         .writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > Debug:                      ' + lcValue +;
-                           IIF(ISNULL(THIS.n_DebugP), "", ", will be ignored, debug set via parameter. Using: " + TRANSFORM(THIS.n_DebugP) ) )
+                           IIF(ISNULL(This.n_DebugP), "", ", will be ignored, debug set via parameter. Using: " + TRANSFORM(This.n_DebugP) ) )
                      ENDIF
 
                      *** DH 2021-03-04: handle n_HomeDir configuration setting
@@ -1752,35 +1759,35 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
                .writeLog( )
 
-            ENDIF && llExiste_CFG_EnDisco
+            ENDIF
 
             *-- ESTOS SE EVALÚAN FUERA DEL IF PORQUE NO DEPENDEN DEL CFG
             *-- Y PUEDEN VENIR TAMBIÉN DE PARÁMETROS EXTERNOS.
             IF INLIST( TRANSFORM(tcDontShowProgress), '0', '1', '2' ) THEN
-               lo_CFG.n_ShowProgressbar        = ICASE(tcDontShowProgress=='0',1, tcDontShowProgress=='1',0, 2)
+               lo_CFG.n_ShowProgressbar = ICase(tcDontShowProgress=='0',1, tcDontShowProgress=='1',0, 2)
             ENDIF
             IF INLIST( TRANSFORM(tcDontShowErrors), '0', '1' ) THEN
-               lo_CFG.l_ShowErrors             = NOT (TRANSFORM(tcDontShowErrors) == '1')
-            ENDIF
-            *IF NOT .l_Main_CFG_Loaded
-            lo_CFG.l_Recompile              = (EMPTY(tcRecompile) OR TRANSFORM(tcRecompile) == '1' OR DIRECTORY(tcRecompile))
-            *ENDIF
-            IF INLIST( TRANSFORM(tcNoTimestamps), '0', '1' ) THEN
-               lo_CFG.l_NoTimestamps           = NOT (TRANSFORM(tcNoTimestamps) == '0')
+               lo_CFG.l_ShowErrors = NOT (Transform(tcDontShowErrors) == '1')
             ENDIF
 
-            IF INLIST( TRANSFORM(tcClearUniqueID), '0', '1' ) THEN
-               lo_CFG.l_ClearUniqueID          = NOT (TRANSFORM(tcClearUniqueID) == '0')
+            lo_CFG.l_Recompile = (Empty(tcRecompile) OR Transform(tcRecompile) == '1' OR Directory(tcRecompile))
+
+            IF InList( Transform(tcNoTimestamps), '0', '1' ) THEN
+               lo_CFG.l_NoTimestamps = NOT (TRANSFORM(tcNoTimestamps) == '0')
             ENDIF
 
-            tcExtraBackupLevels     = EVL( tcExtraBackupLevels, TRANSFORM( .n_ExtraBackupLevels ) )
-
-            IF ISDIGIT(tcExtraBackupLevels)
-               lo_CFG.n_ExtraBackupLevels      = INT( VAL( TRANSFORM(tcExtraBackupLevels) ) )
+            IF InList( Transform(tcClearUniqueID), '0', '1' ) THEN
+               lo_CFG.l_ClearUniqueID = NOT (TRANSFORM(tcClearUniqueID) == '0')
             ENDIF
 
-            IF INLIST( TRANSFORM(tcOptimizeByFilestamp), '0', '1', '2' ) THEN
-               lo_CFG.n_OptimizeByFilestamp    = INT(VAL(tcOptimizeByFilestamp))
+            tcExtraBackupLevels = EVL( tcExtraBackupLevels, Transform( .n_ExtraBackupLevels ) )
+
+            IF IsDigit(tcExtraBackupLevels)
+               lo_CFG.n_ExtraBackupLevels = Int( Val( Transform(tcExtraBackupLevels) ) )
+            ENDIF
+
+            IF InList( Transform(tcOptimizeByFilestamp), '0', '1', '2' ) THEN
+               lo_CFG.n_OptimizeByFilestamp = Int(Val(tcOptimizeByFilestamp))
             ENDIF
 
             .l_Main_CFG_Loaded  = .T.
@@ -1798,21 +1805,21 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   EXIT
                ENDIF &&NOT tl_ForceLog
             ENDIF
-            * SF
 
             IF lo_CFG.l_AllowFolder THEN
                .writeLog( '> ' + loLang.C_USING_THIS_SETTINGS_LOC + ':' )
-               *internal info, just what is read to this moment
+               * internal info, just what is read to this moment
                .writeLog( C_TAB + 'CFG_Actual:                 ' + TRANSFORM(.n_CFG_Actual) + ICASE(.n_CFG_Actual=1, ' [MASTER]', ' [SECONDARY]') )
                .writeLog( C_TAB + 'CFG_CachedAccess:           ' + TRANSFORM(.l_CFG_CachedAccess) )
                .writeLog( C_TAB + 'tc_InputFile:               ' + TRANSFORM(EVL(tc_InputFile,'') ) )
                .writeLog( C_TAB + 'Foxbin2prg_ConfigFile:      ' + TRANSFORM(EVL(lo_CFG.c_Foxbin2prg_ConfigFile, '(Internal defaults)') ) )
 
-               *settings for internal work, not processing
+               * settings for internal work, not processing
                .writeLog( C_TAB + 'Language:                   ' + TRANSFORM(.c_Language) + ' (' + .c_Language_In + ')' )
                .writeLog( C_TAB + 'ShowProgressbar:            ' + TRANSFORM(.n_ShowProgressbar) )
                .writeLog( C_TAB + 'ShowErrors:                 ' + TRANSFORM(.l_ShowErrors) )
                .writeLog( C_TAB + 'ExtraBackupLevels:          ' + TRANSFORM(.n_ExtraBackupLevels) )
+
                DO CASE
                CASE EMPTY ( .c_BackgroundImage )
                   .writeLog( C_TAB + 'BackgroundImage:            ' + '(Empty)' )
@@ -1824,6 +1831,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   .writeLog( C_TAB + 'BackgroundImage:            ' + TRANSFORM(.c_BackgroundImage) )
 
                ENDCASE
+
                .writeLog( C_TAB + 'Debug:                      ' + TRANSFORM(.n_Debug) )
 
                * LScheffler, 2021/030/06: added DH HomeDir option
@@ -1912,41 +1920,41 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
             .writeLog( )
 
-         ENDWITH && THIS
+         ENDWITH
 
       CATCH TO loEx
          loEx.USERVALUE  = loEx.USERVALUE + 'lcConfigFile = [' + TRANSFORM(lcConfigFile) + ']' + CR_LF
          loEx.USERVALUE  = loEx.USERVALUE + 'lc_CFG_Path = [' + TRANSFORM(lc_CFG_Path) + ']' + CR_LF
          loEx.USERVALUE  = loEx.USERVALUE + 'lcValue = [' + TRANSFORM(lcValue) + ']' + CR_LF
 
-         IF THIS.n_Debug > 0 AND _VFP.STARTMODE = 0
+         IF This.n_Debug > 0 AND _VFP.STARTMODE = 0
             SET STEP ON
          ENDIF
 
          THROW
 
       FINALLY
-         THIS.l_SingleConfig        = NVL(llSetSingleConfig,THIS.l_SingleConfig)
+         This.l_SingleConfig        = NVL(llSetSingleConfig,This.l_SingleConfig)
          *!* LScheffler 31.08.2023 more sophisticated control of inheritance for para file
 
          IF llSetSingleConfig THEN
-            THIS.c_SingleConfig_Folder   = UPPER(JUSTPATH(tcCFG_File))
-            THIS.c_Foxbin2prg_ConfigFile = lc_Foxbin2prg_ConfigFile
+            This.c_SingleConfig_Folder   = UPPER(JUSTPATH(tcCFG_File))
+            This.c_Foxbin2prg_ConfigFile = lc_Foxbin2prg_ConfigFile
             DO CASE
-            CASE THIS.n_InhibitInheritance=0
-               THIS.writeLog( '> ' + loLang.C_USING_THIS_SETTINGS_LOC2 )
-            CASE THIS.n_InhibitInheritance=1
-               THIS.writeLog( '> ' + loLang.C_USING_THIS_SETTINGS_LOC3 )
-            CASE THIS.n_InhibitInheritance=2
-               THIS.writeLog( '> ' + loLang.C_USING_THIS_SETTINGS_LOC4 )
-            CASE THIS.n_InhibitInheritance=3
-               THIS.writeLog( '> ' + loLang.C_USING_THIS_SETTINGS_LOC5 )
+            CASE This.n_InhibitInheritance=0
+               This.writeLog( '> ' + loLang.C_USING_THIS_SETTINGS_LOC2 )
+            CASE This.n_InhibitInheritance=1
+               This.writeLog( '> ' + loLang.C_USING_THIS_SETTINGS_LOC3 )
+            CASE This.n_InhibitInheritance=2
+               This.writeLog( '> ' + loLang.C_USING_THIS_SETTINGS_LOC4 )
+            CASE This.n_InhibitInheritance=3
+               This.writeLog( '> ' + loLang.C_USING_THIS_SETTINGS_LOC5 )
             ENDCASE
 
-            IF THIS.n_InhibitInheritance=0 THEN
-               THIS.evaluateConfiguration( '', '', '', '', '', '', '', '', THIS.c_Foxbin2prg_ConfigFile, C_FILETYPE_FILE, lo_CFG)
+            IF This.n_InhibitInheritance=0 THEN
+               This.evaluateConfiguration( '', '', '', '', '', '', '', '', This.c_Foxbin2prg_ConfigFile, C_FILETYPE_FILE, lo_CFG)
                *In case we run FoxBin2Prg against FoxBin2Prg folder. do not reread
-               THIS.n_InhibitInheritance = 1
+               This.n_InhibitInheritance = 1
 
             ENDIF &&This.n_InhibitInheritance=0
          ENDIF &&llSetSingleConfig
@@ -2086,8 +2094,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          to_out_DBF_CFG  = CREATEOBJECT("CL_DBF_CFG")
 
          IF tlGenerateLog THEN
-            THIS.writeLog()
-            THIS.writeLog(' > Found DBF configuration file: ' + lcTableCFG)
+            This.writeLog()
+            This.writeLog(' > Found DBF configuration file: ' + lcTableCFG)
          ENDIF
 
          FOR I = 1 TO ALINES( laConfig, FILETOSTR( lcTableCFG ), 1+4 )
@@ -2100,19 +2108,19 @@ DEFINE CLASS c_foxbin2prg AS SESSION
             CASE LEFT( lcConfigItem, 23 ) == LOWER('DBF_Conversion_Support:')
                to_out_DBF_CFG.n_DBF_Conversion_Support = INT( VAL( SUBSTR( laConfig(m.I), 24 ) ) )
                IF tlGenerateLog THEN
-                  THIS.writeLog('     ' + JUSTFNAME(lcTableCFG) + ' > DBF_Conversion_Support: ' + TRANSFORM(to_out_DBF_CFG.n_DBF_Conversion_Support) )
+                  This.writeLog('     ' + JUSTFNAME(lcTableCFG) + ' > DBF_Conversion_Support: ' + TRANSFORM(to_out_DBF_CFG.n_DBF_Conversion_Support) )
                ENDIF
 
             CASE LEFT( lcConfigItem, 21 ) == LOWER('DBF_Conversion_Order:')
                to_out_DBF_CFG.DBF_Conversion_Order     = ALLTRIM( SUBSTR( laConfig(m.I), 22 , AT('&'+'&',laConfig(m.I)) - 22 ) )
                IF tlGenerateLog THEN
-                  THIS.writeLog('     ' + JUSTFNAME(lcTableCFG) + ' > DBF_Conversion_Order: ' + to_out_DBF_CFG.DBF_Conversion_Order )
+                  This.writeLog('     ' + JUSTFNAME(lcTableCFG) + ' > DBF_Conversion_Order: ' + to_out_DBF_CFG.DBF_Conversion_Order )
                ENDIF
 
             CASE LEFT( lcConfigItem, 25 ) == LOWER('DBF_Conversion_Condition:')
                to_out_DBF_CFG.DBF_Conversion_Condition = ALLTRIM( SUBSTR( laConfig(m.I), 26 , AT('&'+'&',laConfig(m.I)) - 26 ) )
                IF tlGenerateLog THEN
-                  THIS.writeLog('     ' + JUSTFNAME(lcTableCFG) + ' > DBF_Conversion_Condition: ' + to_out_DBF_CFG.DBF_Conversion_Condition )
+                  This.writeLog('     ' + JUSTFNAME(lcTableCFG) + ' > DBF_Conversion_Condition: ' + to_out_DBF_CFG.DBF_Conversion_Condition )
                ENDIF
 
                *!* Changed by: LScheffler 18.03.2021
@@ -2122,7 +2130,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
             CASE LEFT( lcConfigItem, 14 ) == LOWER('DBF_IndexList:')
                to_out_DBF_CFG.DBF_IndexList    = SUBSTR( laConfig(m.I), 15 , AT('&'+'&',laConfig(m.I)) - 15 )
                IF tlGenerateLog THEN
-                  THIS.writeLog('     ' + JUSTFNAME(lcTableCFG) + ' >DBF_IndexList:           ' + TRANSFORM(to_out_DBF_CFG.DBF_IndexList) )
+                  This.writeLog('     ' + JUSTFNAME(lcTableCFG) + ' >DBF_IndexList:           ' + TRANSFORM(to_out_DBF_CFG.DBF_IndexList) )
                ENDIF
                *!* /Changed by: LScheffler 18.03.2021
 
@@ -2136,7 +2144,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                IF INLIST( m.lcValue, '0', '1' ) THEN
                   to_out_DBF_CFG.l_DBF_BinChar_Base64     = ( TRANSFORM(m.lcValue ) == '1' )
                   IF tlGenerateLog THEN
-                     THIS.writeLog('     ' + JUSTFNAME(lcTableCFG) + ' > DBF_BinChar_Base64:     ' + TRANSFORM(to_out_DBF_CFG.l_DBF_BinChar_Base64) )
+                     This.writeLog('     ' + JUSTFNAME(lcTableCFG) + ' > DBF_BinChar_Base64:     ' + TRANSFORM(to_out_DBF_CFG.l_DBF_BinChar_Base64) )
                   ENDIF
                ENDIF
 
@@ -2145,7 +2153,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                IF INLIST( m.lcValue, '0', '1' ) THEN
                   to_out_DBF_CFG.l_DBF_IncludeDeleted     = ( TRANSFORM( m.lcValue ) == '1' )
                   IF tlGenerateLog THEN
-                     THIS.writeLog('     ' + JUSTFNAME(lcTableCFG) + ' > DBF_IncludeDeleted:     ' + TRANSFORM(to_out_DBF_CFG.l_DBF_IncludeDeleted) )
+                     This.writeLog('     ' + JUSTFNAME(lcTableCFG) + ' > DBF_IncludeDeleted:     ' + TRANSFORM(to_out_DBF_CFG.l_DBF_IncludeDeleted) )
                   ENDIF
                ENDIF
                *!* /Changed by: LScheffler 21.02.2021
@@ -2154,7 +2162,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          ENDFOR
 
          IF tlGenerateLog THEN
-            THIS.writeLog()
+            This.writeLog()
          ENDIF
 
       ENDIF
@@ -2388,45 +2396,54 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       * tcCFG_File                (v? IN    ) Config file. If a config file is set, the normal chain of inheritance is reset and this file is read atop of the defaults
       *                                       Normal inheritance may or may not run, see setting InhibitInheritance
       *--------------------------------------------------------------------------------------------------------------
-      LPARAMETERS tc_InputFile, tcType, tcTextName, tlGenText, tcDontShowErrors, tcDebug, tcDontShowProgress ;
-         , toModulo, toEx AS EXCEPTION, tlRelanzarError, tcOriginalFileName, tcRecompile, tcNoTimestamps ;
-         , tcBackupLevels, tcClearUniqueID, tcOptimizeByFilestamp, tcCFG_File
+      LPARAMETERS tc_InputFile         , tcType             , tcTextName      , tlGenText         , tcDontShowErrors ;
+                , tcDebug              , tcDontShowProgress , toModulo        , toEx AS EXCEPTION , tlRelanzarError  ;
+                , tcOriginalFileName   , tcRecompile        , tcNoTimestamps  , tcBackupLevels    , tcClearUniqueID  ;
+                , tcOptimizeByFilestamp, tcCFG_File
 
       TRY
-         LOCAL I, lcPath, lnCodError, lcFileSpec, lcFile, laFiles(1,5), laDirInfo(1,5), lcInputFile_Type, lc_OldSetNotify ;
-            , lnFileCount, lcErrorInfo, lcErrorFile, lnPCount, laParams(1), lnConversionOption, lnErrorIcon, llError ;
-            , lcOldSetEscape, lcOldOnEscape, llEscKeyRestored, lcType
+         LOCAL I, lcPath, lnCodError, lcFileSpec, lcFile, lcInputFile_Type, lc_OldSetNotify ;
+               , lnFileCount, lcErrorInfo, lcErrorFile, lnPCount, lnConversionOption, lnErrorIcon, llError ;
+               , lcOldSetEscape, lcOldOnEscape, llEscKeyRestored, lcType
+
+         LOCAL laFiles(1,5)   ;
+             , laDirInfo(1,5) ;
+             , laParams(1)
+
          LOCAL lnVFPVersion, lcCFG_File
 
          LOCAL loEx   AS EXCEPTION ;
-            , loFSO  AS Scripting.FileSystemObject ;
-            , loWSH  AS WScript.SHELL
+             , loFSO  AS Scripting.FileSystemObject ;
+             , loWSH  AS WScript.SHELL
 
          LOCAL loCFG             AS CL_CFG          OF 'FOXBIN2PRG.PRG' ;
-            , loLang            AS CL_LANG         OF 'FOXBIN2PRG.PRG' ;
-            , loDBF_CFG         AS CL_DBF_CFG      OF 'FOXBIN2PRG.PRG' ;
-            , loFrm_Interactive AS frm_interactive OF 'FOXBIN2PRG.PRG' ;
-            , loFrm_Main        AS frm_main        OF 'FOXBIN2PRG.PRG'
+             , loLang            AS CL_LANG         OF 'FOXBIN2PRG.PRG' ;
+             , loDBF_CFG         AS CL_DBF_CFG      OF 'FOXBIN2PRG.PRG' ;
+             , loFrm_Interactive AS frm_interactive OF 'FOXBIN2PRG.PRG' ;
+             , loFrm_Main        AS frm_main        OF 'FOXBIN2PRG.PRG'
 
 
-         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
-            lc_OldSetNotify = SET("Notify")
+         WITH This AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+            
+            lc_OldSetNotify  = SET("Notify")
             SET NOTIFY OFF
-            lnCodError          = 0
-            loLang              = _SCREEN.o_FoxBin2Prg_Lang
-            loFSO               = .o_FSO
-            loWSH               = .o_WSH
-            loCFG               = .NULL.
-            lnPCount            = 0
-            lcInputFile_Type    = ''
-            .l_Error            = .F.
-            lcType              = EVL(tcType,'')
-            tcType              = UPPER( lcType )
-            llEscKeyRestored    = .T.
-            lnVFPVersion        = VERSION(5)
+            
+            lnCodError       = 0
+            loLang           = _SCREEN.o_FoxBin2Prg_Lang
+            loFSO            = .o_FSO
+            loWSH            = .o_WSH
+            loCFG            = .NULL.
+            lnPCount         = 0
+            lcInputFile_Type = ''
+            .l_Error         = .F.
+            lcType           = EVL(tcType,'')
+            tcType           = UPPER( lcType )
+            llEscKeyRestored = .T.
+            lnVFPVersion     = VERSION(5)
+
             .declareDLL()
 
-            IF THIS.l_CancelWithEscKey THEN
+            IF This.l_CancelWithEscKey THEN
                lcOldSetEscape  = SET("Escape")
                lcOldOnEscape   = ON("Escape")
                ON ESCAPE ERROR 1799
@@ -2435,21 +2452,21 @@ DEFINE CLASS c_foxbin2prg AS SESSION
             ENDIF
 
             DO CASE
-            CASE lnVFPVersion = 900 AND INT( VAL( SUBSTR( VERSION(4), RAT('.', VERSION(4)) + 1 ) ) ) < 3504
-               ERROR loLang.C_INCORRECT_VFP9_VERSION__MISSING_SP1_LOC
+             CASE lnVFPVersion = 900 AND Int( Val( Substr( Version(4), Rat('.', Version(4)) + 1 ) ) ) < 3504
+                 ERROR loLang.C_INCORRECT_VFP9_VERSION__MISSING_SP1_LOC
 
-            CASE lnVFPVersion < 900
-               ERROR loLang.C_INCORRECT_VFP9_VERSION__MISSING_SP1_LOC
+             CASE lnVFPVersion < 900
+                  ERROR loLang.C_INCORRECT_VFP9_VERSION__MISSING_SP1_LOC
 
-            CASE '\' $ tcType
-               ERROR loLang.C_INVALID_PARAMETER_LOC + ':' + CR_LF ;
-                  + 'tcType = "' + tcType + '"' + CR_LF ;
-                  + CR_LF ;
-                  + loLang.C_ALLOWED_VALUES_ARE_LOC + ': ' + CR_LF ;
-                  + '*, *-, -BIN2PRG, -PRG2BIN, -BIN2TEXT, -TEXT2BIN, -SHOWMSG, -SIMERR_I0, -SIMERR_I1, -SIMERR_O1'
+             CASE '\' $ tcType
+                  ERROR loLang.C_INVALID_PARAMETER_LOC + ':' + CR_LF ;
+                      + 'tcType = "' + tcType + '"' + CR_LF ;
+                      + CR_LF ;
+                      + loLang.C_ALLOWED_VALUES_ARE_LOC + ': ' + CR_LF ;
+                      + '*, *-, -BIN2PRG, -PRG2BIN, -BIN2TEXT, -TEXT2BIN, -SHOWMSG, -SIMERR_I0, -SIMERR_I1, -SIMERR_O1'
 
             OTHERWISE
-               * OK all versions from 900(3504) and up. For VFPA Guys :)
+                  * OK all versions from 900(3504) and up. For VFPA Guys :)
 
             ENDCASE
 
@@ -2473,21 +2490,21 @@ DEFINE CLASS c_foxbin2prg AS SESSION
             *-- Reconocimiento de la clase indicada
             *-- Ej: [c:\desa\test\library.vcx::classname]
             IF '::' $ tc_InputFile THEN
-               tc_InputFile            = STRTRAN(tc_InputFile, '::', '|')
+               tc_InputFile          = STRTRAN(tc_InputFile, '::', '|')
 
-               .c_ClassOperationType   = EVL( UPPER( LEFT( ALLTRIM( GETWORDNUM( tc_InputFile, 3, '|' ) ), 1) ), 'E')
-               .c_ClassToConvert       = LOWER( ALLTRIM( GETWORDNUM( tc_InputFile, 2, '|' ) ) )
+               .c_ClassOperationType = Evl( Upper( Left( Alltrim( GetWordNum( tc_InputFile, 3, '|' ) ), 1) ), 'E')
+               .c_ClassToConvert     = Lower( Alltrim( GetWordNum( tc_InputFile, 2, '|' ) ) )
 
                * CUIDADO!, evaluar esta última, que si no las anteriores no evalúan.
-               tc_InputFile = LOWER( ALLTRIM( GETWORDNUM( tc_InputFile, 1, '|' ) ) )
+               tc_InputFile = Lower( Alltrim( GetWordNum( tc_InputFile, 1, '|' ) ) )
             ELSE
                .c_ClassOperationType   = ''
             ENDIF
 
-            IF VARTYPE(tcCFG_File) = "O"
+            IF Vartype(tcCFG_File) = "O"
                * Validar el objeto
                loCFG   = tcCFG_File
-               IF NOT (loCFG.CLASS == PROPER('CL_CFG'))
+               IF NOT (loCFG.CLASS == Proper('CL_CFG'))
                   ERROR 'CFG object: Invalid class. Please, generate it with get_DirSettings()'
                ENDIF
 
@@ -2496,19 +2513,19 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
             ELSE
 
-               lcCFG_File = IIF(VARTYPE(tcCFG_File)='C' AND !EMPTY(tcCFG_File),tcCFG_File,.F.)
+               lcCFG_File = Iif(Vartype(tcCFG_File)='C' AND !Empty(tcCFG_File),tcCFG_File,.F.)
             ENDIF
 
             *-- Ajusto la ruta si no es absoluta
             tc_InputFile    = .get_AbsolutePath( tc_InputFile, .c_CurDir )
 
             *-- Determino el tipo de InputFile (Archivo o Directorio)
-            IF EMPTY(lcInputFile_Type) AND NOT EMPTY(tc_InputFile)
+            IF Empty(lcInputFile_Type) AND NOT Empty(tc_InputFile)
                DO CASE
                CASE LEN(tc_InputFile) = 1
                   lcInputFile_Type    = C_FILETYPE_QUERYSUPPORT
 
-               CASE ADIR(laDirInfo, tc_InputFile, "D") = 1 AND SUBSTR( laDirInfo(1,5), 5, 1 ) = "D"
+               CASE ADir(laDirInfo, tc_InputFile, "D") = 1 AND Substr( laDirInfo(1,5), 5, 1 ) = "D"
                   *-- Ejemplo: "c:\desa\"
                   lcInputFile_Type    = C_FILETYPE_DIRECTORY
 
@@ -2519,7 +2536,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                ENDCASE
             ENDIF
 
-            IF EMPTY(tcRecompile) AND NOT EMPTY(lcInputFile_Type) AND NOT lcInputFile_Type == C_FILETYPE_QUERYSUPPORT THEN
+            IF Empty(tcRecompile) AND NOT Empty(lcInputFile_Type) AND NOT lcInputFile_Type == C_FILETYPE_QUERYSUPPORT THEN
                IF lcInputFile_Type == C_FILETYPE_DIRECTORY THEN
                   tcRecompile = tc_InputFile
                ELSE
@@ -2534,6 +2551,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
             .writeLog( loLang.C_MAIN_EXECUTION_LOC, 2 )
             .writeLog( REPLICATE( '*', 100 ) )
             .writeLog( '> ' + loLang.C_EXTERNAL_PARAMETERS_LOC + ':' )
+
             IF    UPPER(tcType)=='-C' OR tcType=='-t' ;
                   OR UPPER(tcType)=='C'  OR tcType=='t' THEN
 
@@ -2561,36 +2579,36 @@ DEFINE CLASS c_foxbin2prg AS SESSION
             .writeLog( )
 
             *-- ARCHIVO DE CONFIGURACIÓN PRINCIPAL
-
-            *!* Changed by: LScheffler 09.3.2021
-            *!* change date="{^2021-03-09,08:06:00}"
             * log settings for tcCFG_File - cfg as object
-            .evaluateConfiguration( @tcDontShowProgress, @tcDontShowErrors, @tcNoTimestamps, @tcDebug, @tcRecompile, @tcBackupLevels ;
-               , @tcClearUniqueID, @tcOptimizeByFilestamp, @tc_InputFile, @lcInputFile_Type, , VARTYPE(tcCFG_File) = "O", lcCFG_File)
-            *!* /Changed by: LScheffler 09.3.2021
+            .evaluateConfiguration( @tcDontShowProgress, @tcDontShowErrors        , @tcNoTimestamps       , @tcDebug     , @tcRecompile      ;
+                                  , @tcBackupLevels    , @tcClearUniqueID         , @tcOptimizeByFilestamp, @tc_InputFile, @lcInputFile_Type ;
+                                  ,                    , Vartype(tcCFG_File) = "O", lcCFG_File            )
 
-            *!* Changed by: LScheffler 04.3.2021
-            *!* change date="{^2021-03-04,13:25:00}"
             * for Input file in the form file[.baseclass].class.vc2 (normaly sc2 too, but no support in old code)
             * allow to import only the class to file.VCX with n_RedirectClassType = 2
             * n_RedirectClassType = 0 will import all classes of file.VCX (as just handing file.vc2)
             * n_RedirectClassType = 1 will import the class to single lib file[.baseclass].class.VCX
-            lcExt = JUSTEXT( m.tc_InputFile )
+            lcExt = JustExt( m.tc_InputFile )
 
             DO CASE
             CASE ( LOWER(m.lcType)=='-c' OR LOWER(m.lcType)=='c' )
                * not handled
+
             CASE ( m.lcType=='-t' OR m.lcType=='t' )
                * not handled
-            CASE lcExt==THIS.c_VC2 OR lcExt=="VCX"
+ 
+            CASE lcExt==This.c_VC2 OR lcExt=="VCX"
                *ClassLib
                DO CASE
                CASE .n_RedirectClassType # 2
                   * not handled
+ 
                CASE !EMPTY(.c_ClassToConvert)
                   * not otherwise
+ 
                CASE .n_UseClassPerFile = 0
                   * not handled
+ 
                CASE OCCURS('.',m.tc_InputFile) > .n_UseClassPerFile
                   * we must have more dots then UseClassPerFile, because there is an extension
 
@@ -2608,9 +2626,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
                OTHERWISE
                   * not handled
+ 
                ENDCASE
 
-            CASE lcExt==THIS.c_SC2 OR lcExt=="SCX"
+            CASE lcExt==This.c_SC2 OR lcExt=="SCX"
                *Form
                DO CASE
                CASE .n_RedirectFormType # 2
@@ -2692,7 +2711,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
             DO CASE
             CASE VERSION(5) < 900
                *-- '¡FOXBIN2PRG es solo para Visual FoxPro 9.0!'
-               MESSAGEBOX( loLang.C_FOXBIN2PRG_JUST_VFP_9_LOC, 0+64+4096, 'FoxBin2Prg ' + THIS.c_FB2PRG_EXE_Version + ': ' + loLang.C_FOXBIN2PRG_WARN_CAPTION_LOC + ' (' + .c_Language + ')', 60000 )
+               MESSAGEBOX( loLang.C_FOXBIN2PRG_JUST_VFP_9_LOC, 0+64+4096, 'FoxBin2Prg ' + This.c_FB2PRG_EXE_Version + ': ' + loLang.C_FOXBIN2PRG_WARN_CAPTION_LOC + ' (' + .c_Language + ')', 60000 )
                lnCodError  = 1
 
                *!* Changed by: LScheffler 15.2.2021
@@ -2989,7 +3008,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
             CASE EMPTY(tc_InputFile)
                *-- (Ejemplo de sintaxis y uso)
-               *MESSAGEBOX( loLang.C_FOXBIN2PRG_SYNTAX_INFO_EXAMPLE_LOC, 0+64+4096, 'FoxBin2Prg ' + THIS.c_FB2PRG_EXE_Version + ': ' + loLang.C_FOXBIN2PRG_SYNTAX_INFO_LOC + ' (' + .c_Language + ')', 60000 )
+               *MESSAGEBOX( loLang.C_FOXBIN2PRG_SYNTAX_INFO_EXAMPLE_LOC, 0+64+4096, 'FoxBin2Prg ' + This.c_FB2PRG_EXE_Version + ': ' + loLang.C_FOXBIN2PRG_SYNTAX_INFO_LOC + ' (' + .c_Language + ')', 60000 )
                loFrm_Main  = CREATEOBJECT('frm_main', THIS)
                loFrm_Main.SHOW()
                READ EVENTS
@@ -3042,7 +3061,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
                   IF .l_ShowErrors
                      *MESSAGEBOX( 'No se admiten extensiones * o ? porque es peligroso (se pueden pisar binarios con archivo xx2 vacíos).', 0+48+4096, 'FOXBIN2PRG: ERROR!!', 60000 )
-                     MESSAGEBOX( loLang.C_ASTERISK_EXT_NOT_ALLOWED_LOC, 0+48+4096, 'FoxBin2Prg ' + THIS.c_FB2PRG_EXE_Version + ': ' + loLang.C_FOXBIN2PRG_ERROR_CAPTION_LOC, 60000 )
+                     MESSAGEBOX( loLang.C_ASTERISK_EXT_NOT_ALLOWED_LOC, 0+48+4096, 'FoxBin2Prg ' + This.c_FB2PRG_EXE_Version + ': ' + loLang.C_FOXBIN2PRG_ERROR_CAPTION_LOC, 60000 )
                      EXIT
                   ELSE
                      ERROR loLang.C_ASTERISK_EXT_NOT_ALLOWED_LOC
@@ -3408,7 +3427,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          ENDWITH && THIS
 
       CATCH TO toEx
-         IF NOT llEscKeyRestored AND THIS.l_CancelWithEscKey THEN
+         IF NOT llEscKeyRestored AND This.l_CancelWithEscKey THEN
             IF EMPTY(lcOldOnEscape)
                ON ESCAPE
             ELSE
@@ -3431,7 +3450,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          ENDIF
 
          IF lnCodError <> 1799 THEN  && Conversion Cancelled
-            toEx.USERVALUE  = toEx.USERVALUE + 'FoxBin2Prg: [' + THIS.c_Foxbin2prg_FullPath + '] (EXE Version: ' + THIS.c_FB2PRG_EXE_Version + ')' + CR_LF
+            toEx.USERVALUE  = toEx.USERVALUE + 'FoxBin2Prg: [' + This.c_Foxbin2prg_FullPath + '] (EXE Version: ' + This.c_FB2PRG_EXE_Version + ')' + CR_LF
             lnErrorIcon     = 16
          ENDIF
 
@@ -3439,16 +3458,16 @@ DEFINE CLASS c_foxbin2prg AS SESSION
             IF lnCodError <> 1799 THEN  && Conversion Cancelled
                toEx.USERVALUE = toEx.USERVALUE + 'lcInputFile_Type  = [' + TRANSFORM(lcInputFile_Type) + ']' + CR_LF
             ENDIF
-            THIS.l_ShowErrors   = .F.   && La opción "SHOWMSG" muestra su propio mensaje
+            This.l_ShowErrors   = .F.   && La opción "SHOWMSG" muestra su propio mensaje
          ENDIF
 
          IF lnCodError <> 1799 THEN  && Conversion Cancelled
             toEx.USERVALUE = toEx.USERVALUE + 'tc_InputFile = [' + TRANSFORM(tc_InputFile) + ']' + CR_LF
          ENDIF
 
-         THIS.doWriteErrorLog( @toEx, @lcErrorInfo )
+         This.doWriteErrorLog( @toEx, @lcErrorInfo )
 
-         IF THIS.n_Debug > 0 THEN
+         IF This.n_Debug > 0 THEN
             IF _VFP.STARTMODE = 0
                SET STEP ON
             ENDIF
@@ -3459,7 +3478,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          ENDIF
 
       FINALLY
-         IF NOT llEscKeyRestored AND THIS.l_CancelWithEscKey THEN
+         IF NOT llEscKeyRestored AND This.l_CancelWithEscKey THEN
             IF EMPTY(lcOldOnEscape)
                ON ESCAPE
             ELSE
@@ -3479,42 +3498,42 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          ENDIF
 
          USE IN (SELECT("TABLABIN"))
-         THIS.writeLog_Flush()
-         THIS.unloadProgressbarForm()
-         CD (JUSTPATH(THIS.c_CurDir))
+         This.writeLog_Flush()
+         This.unloadProgressbarForm()
+         CD (JUSTPATH(This.c_CurDir))
 
          DO CASE
          CASE EVL( lcInputFile_Type, C_FILETYPE_QUERYSUPPORT ) <> C_FILETYPE_QUERYSUPPORT ;
                AND ATC('-SHOWMSG', ('-' + tcType)) > 0 ;
-               OR THIS.l_ShowErrors AND lnCodError > 0 AND NOT ISNULL(toEx)
-            THIS.writeErrorLog_Flush()
+               OR This.l_ShowErrors AND lnCodError > 0 AND NOT ISNULL(toEx)
+            This.writeErrorLog_Flush()
 
             DO CASE
             CASE lnCodError = 1098  && User Error
-               MESSAGEBOX( toEx.MESSAGE, 0+64+4096, 'FoxBin2Prg ' + THIS.c_FB2PRG_EXE_Version, 60000 )
-               *loWSH.Run( THIS.c_ErrorLogFile, 3 )
-               THIS.wscriptshell_run( THIS.c_ErrorLogFile, 3 )
+               MESSAGEBOX( toEx.MESSAGE, 0+64+4096, 'FoxBin2Prg ' + This.c_FB2PRG_EXE_Version, 60000 )
+               *loWSH.Run( This.c_ErrorLogFile, 3 )
+               This.wscriptshell_run( This.c_ErrorLogFile, 3 )
 
             CASE lnCodError = 1799  && Conversion Cancelled
-               MESSAGEBOX( loLang.C_CONVERSION_CANCELLED_BY_USER_LOC + '!', 0+64+4096, 'FoxBin2Prg ' + THIS.c_FB2PRG_EXE_Version, 60000 )
+               MESSAGEBOX( loLang.C_CONVERSION_CANCELLED_BY_USER_LOC + '!', 0+64+4096, 'FoxBin2Prg ' + This.c_FB2PRG_EXE_Version, 60000 )
 
-            CASE THIS.l_Errors
-               IF ADIR(laDirInfo, THIS.c_ErrorLogFile) > 0 THEN
-                  MESSAGEBOX( loLang.C_END_OF_PROCESS_LOC + '! (' + loLang.C_WITH_ERRORS_LOC + ')', 0+48+4096, 'FoxBin2Prg ' + THIS.c_FB2PRG_EXE_Version, 60000 )
-                  *loWSH.Run( THIS.c_ErrorLogFile, 3 )
-                  THIS.wscriptshell_run( THIS.c_ErrorLogFile, 3 )
+            CASE This.l_Errors
+               IF ADIR(laDirInfo, This.c_ErrorLogFile) > 0 THEN
+                  MESSAGEBOX( loLang.C_END_OF_PROCESS_LOC + '! (' + loLang.C_WITH_ERRORS_LOC + ')', 0+48+4096, 'FoxBin2Prg ' + This.c_FB2PRG_EXE_Version, 60000 )
+                  *loWSH.Run( This.c_ErrorLogFile, 3 )
+                  This.wscriptshell_run( This.c_ErrorLogFile, 3 )
                ELSE
-                  MESSAGEBOX( loLang.C_END_OF_PROCESS_LOC + '! (' + loLang.C_WITH_ERRORS_LOC + ')' + CR_LF + "[Warning: Can't show Error LOG file because does not exist!]", 0+48+4096, 'FoxBin2Prg ' + THIS.c_FB2PRG_EXE_Version, 60000 )
+                  MESSAGEBOX( loLang.C_END_OF_PROCESS_LOC + '! (' + loLang.C_WITH_ERRORS_LOC + ')' + CR_LF + "[Warning: Can't show Error LOG file because does not exist!]", 0+48+4096, 'FoxBin2Prg ' + This.c_FB2PRG_EXE_Version, 60000 )
                ENDIF
 
             OTHERWISE
-               MESSAGEBOX( loLang.C_END_OF_PROCESS_LOC + '', 0+64+4096, 'FoxBin2Prg ' + THIS.c_FB2PRG_EXE_Version, 60000 )
+               MESSAGEBOX( loLang.C_END_OF_PROCESS_LOC + '', 0+64+4096, 'FoxBin2Prg ' + This.c_FB2PRG_EXE_Version, 60000 )
 
             ENDCASE
 
          ENDCASE
 
-         IF EMPTY(lnCodError) AND THIS.l_Errors
+         IF EMPTY(lnCodError) AND This.l_Errors
             lnCodError = 1098
          ENDIF
 
@@ -4169,7 +4188,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
             ENDCASE
 
             *** DH 2021-03-04: handle cOutputFolder
-            loConversor.cOutputFolder = THIS.cOutputFolder
+            loConversor.cOutputFolder = This.cOutputFolder
 
             *-- Optimización: Comparación de los timestamps de InputFile y OutputFile para saber
             *-- si el OutputFile se debe regenerar o no.
@@ -4216,22 +4235,22 @@ DEFINE CLASS c_foxbin2prg AS SESSION
             DO CASE
             CASE INLIST(lcExtension,"VCX",.c_VC2) AND .n_UseClassPerFile = 0 AND .n_OptimizeByFilestamp = 1 AND .t_InputFile_TimeStamp < .t_OutputFile_TimeStamp
                *-- Optimizado: El Origen es anterior al Destino - No hace falta regenerar
-               *.writeLog( '> El archivo de salida [<<THIS.c_OutputFile>>] no se regenera porque su timestamp es más nuevo que el de entrada.' )
+               *.writeLog( '> El archivo de salida [<<This.c_OutputFile>>] no se regenera porque su timestamp es más nuevo que el de entrada.' )
                .writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC) )
 
             CASE INLIST(lcExtension,"VCX",.c_VC2) AND .n_UseClassPerFile = 0 AND .n_OptimizeByFilestamp = 2 AND .t_InputFile_TimeStamp = .t_OutputFile_TimeStamp
                *-- Optimizado: El Origen es igual al Destino - No hace falta regenerar
-               *.writeLog( '> El archivo de salida [<<THIS.c_OutputFile>>] no se regenera porque su timestamp es igual que el de entrada.' )
+               *.writeLog( '> El archivo de salida [<<This.c_OutputFile>>] no se regenera porque su timestamp es igual que el de entrada.' )
                .writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC) )
 
             CASE INLIST(lcExtension,"SCX",.c_SC2) AND .n_UseFormPerFile = 0 AND .n_OptimizeByFilestamp = 1 AND .t_InputFile_TimeStamp < .t_OutputFile_TimeStamp
                *-- Optimizado: El Origen es anterior al Destino - No hace falta regenerar
-               *.writeLog( '> El archivo de salida [<<THIS.c_OutputFile>>] no se regenera porque su timestamp es más nuevo que el de entrada.' )
+               *.writeLog( '> El archivo de salida [<<This.c_OutputFile>>] no se regenera porque su timestamp es más nuevo que el de entrada.' )
                .writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC) )
 
             CASE INLIST(lcExtension,"SCX",.c_SC2) AND .n_UseFormPerFile = 0 AND .n_OptimizeByFilestamp = 2 AND .t_InputFile_TimeStamp = .t_OutputFile_TimeStamp
                *-- Optimizado: El Origen es igual al Destino - No hace falta regenerar
-               *.writeLog( '> El archivo de salida [<<THIS.c_OutputFile>>] no se regenera porque su timestamp es igual que el de entrada.' )
+               *.writeLog( '> El archivo de salida [<<This.c_OutputFile>>] no se regenera porque su timestamp es igual que el de entrada.' )
                .writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC) )
 
             OTHERWISE
@@ -4278,12 +4297,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
       CATCH TO toEx
          lnCodError  = toEx.ERRORNO
-         *lcErrorInfo    = THIS.exception2Str(toEx) + CR_LF + CR_LF + loLang.C_SOURCEFILE_LOC + THIS.c_InputFile
+         *lcErrorInfo    = This.exception2Str(toEx) + CR_LF + CR_LF + loLang.C_SOURCEFILE_LOC + This.c_InputFile
 
          *-- updateProcessedFile( tcProcessed, tcHasErrors, tcSupported, tcReserved )
-         THIS.updateProcessedFile( lnIDInputFile, '', '', 'E1' )
+         This.updateProcessedFile( lnIDInputFile, '', '', 'E1' )
 
-         IF THIS.n_Debug > 0 THEN
+         IF This.n_Debug > 0 THEN
             IF _VFP.STARTMODE = 0
                SET STEP ON
             ENDIF
@@ -4299,10 +4318,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
          STORE .NULL. TO loConversor, loFSO
 
-         IF lnCodError = 0 AND THIS.l_Error THEN
-            THIS.updateProcessedFile( lnIDInputFile, '', '', 'E1' )
+         IF lnCodError = 0 AND This.l_Error THEN
+            This.updateProcessedFile( lnIDInputFile, '', '', 'E1' )
          ELSE
-            *THIS.updateProcessedFile( lnIDInputFile )
+            *This.updateProcessedFile( lnIDInputFile )
          ENDIF
 
          RELEASE lcErrorInfo, laDirFile, lcExtension, lnFileCount, laFiles, I ;
@@ -4326,13 +4345,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       LPARAMETERS tcDir, tcDebug, tcCFG_File
 
       IF NOT EMPTY(tcDir)
-         THIS.evaluateConfiguration( '', '', '', tcDebug, '', '', '', '', tcDir, 'D', , , tcCFG_File )
+         This.evaluateConfiguration( '', '', '', tcDebug, '', '', '', '', tcDir, 'D', , , tcCFG_File )
       ENDIF
 
-      IF THIS.n_CFG_Actual = 0 THEN
+      IF This.n_CFG_Actual = 0 THEN
          loCFG = .NULL.
       ELSE
-         loCFG = THIS.o_Configuration(THIS.n_CFG_Actual)
+         loCFG = This.o_Configuration(This.n_CFG_Actual)
       ENDIF
 
       IF ISNULL(loCFG) THEN
@@ -4355,7 +4374,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
             *--------------------------------------------------------------------------------------------------------------------------------------------------------
             * (EN) AUTOGENERATED - ATTENTION!! - NOT INTENDED FOR EXECUTION!! USE ONLY FOR MERGING CHANGES AND STORING WITH SCM TOOLS!!
             *--------------------------------------------------------------------------------------------------------------------------------------------------------
-            <<C_FB2PRG_META_I>> Version="<<TRANSFORM(THIS.n_FB2PRG_Version)>>" SourceFile="<<LOWER( JUSTFNAME( EVL( THIS.c_OriginalFileName, THIS.c_InputFile ) ) )>>" CPID="<<THIS.i_CPID>>" <<C_FB2PRG_META_F>> (Solo para binarios VFP 9 / Only for VFP 9 binaries)
+            <<C_FB2PRG_META_I>> Version="<<TRANSFORM(This.n_FB2PRG_Version)>>" SourceFile="<<LOWER( JUSTFNAME( EVL( This.c_OriginalFileName, This.c_InputFile ) ) )>>" CPID="<<This.i_CPID>>" <<C_FB2PRG_META_F>> (Solo para binarios VFP 9 / Only for VFP 9 binaries)
             *
       ENDTEXT
 
@@ -4372,7 +4391,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       LOCAL lcNext_Bak, I, laDirInfo(1,5)
       lcNext_Bak  = '.BAK'
 
-      FOR I = 1 TO THIS.n_ExtraBackupLevels
+      FOR I = 1 TO This.n_ExtraBackupLevels
          IF m.I = 1
             IF NOT ADIR( laDirInfo, tcOutputFileName + '.BAK' ) > 0 THEN
                lcNext_Bak  = '.BAK'
@@ -4792,12 +4811,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
       CATCH TO toEx
          lnCodError  = toEx.ERRORNO
-         *lcErrorInfo    = THIS.exception2Str(toEx) + CR_LF + CR_LF + loLang.C_SOURCEFILE_LOC + THIS.c_InputFile
+         *lcErrorInfo    = This.exception2Str(toEx) + CR_LF + CR_LF + loLang.C_SOURCEFILE_LOC + This.c_InputFile
 
          *-- updateProcessedFile( tcProcessed, tcHasErrors, tcSupported, tcReserved )
-         *THIS.updateProcessedFile( lnIDInputFile, '', '', 'E1' )
+         *This.updateProcessedFile( lnIDInputFile, '', '', 'E1' )
 
-         IF THIS.n_Debug > 0 THEN
+         IF This.n_Debug > 0 THEN
             IF _VFP.STARTMODE = 0
                SET STEP ON
             ENDIF
@@ -4815,10 +4834,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
          STORE .NULL. TO loConversor, loFSO
 
-         *IF lnCodError = 0 AND THIS.l_Error THEN
-         *   THIS.updateProcessedFile( lnIDInputFile, '', '', 'E1' )
+         *IF lnCodError = 0 AND This.l_Error THEN
+         *   This.updateProcessedFile( lnIDInputFile, '', '', 'E1' )
          *ELSE
-         *   *THIS.updateProcessedFile( lnIDInputFile )
+         *   *This.updateProcessedFile( lnIDInputFile )
          *ENDIF
 
          RELEASE lcErrorInfo, laDirFile, lcExtension, lnFileCount, laFiles, I ;
@@ -4897,9 +4916,9 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       LOCAL lcTmpFile, loFSO AS Scripting.FileSystemObject, loEx AS EXCEPTION
 
       TRY
-         *loFSO      = THIS.o_FSO
+         *loFSO      = This.o_FSO
          lcTmpFile   = tcFileName + '.TMP'
-         THIS.changeFileAttribute( tcFileName, '+N' )
+         This.changeFileAttribute( tcFileName, '+N' )
          ERASE (tcFileName)
          RENAME (lcTmpFile) TO (tcFileName)
 
@@ -4928,7 +4947,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       LPARAMETERS tcTexto
 
       TRY
-         IF THIS.l_StdOutHabilitado
+         IF This.l_StdOutHabilitado
             LOCAL loException AS EXCEPTION, lcOutput, lnOutHandle, lnBytesWritten, lnOverlappedIO
             lcOutput        = EVL(tcTexto,'') + CR_LF
             lnOutHandle     = fb2p_GetStdHandle(-12)    && CAPTURAR ERROR DESDE CONSOLA: FOXBIN2PRG.EXE PARAMS 2>&1 | FIND /V ""
@@ -4938,7 +4957,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          ENDIF
 
       CATCH TO loException
-         THIS.l_StdOutHabilitado = .F.
+         This.l_StdOutHabilitado = .F.
 
       ENDTRY
 
@@ -4951,7 +4970,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       LPARAMETERS tcTexto
 
       TRY
-         IF THIS.l_StdOutHabilitado
+         IF This.l_StdOutHabilitado
             LOCAL loException AS EXCEPTION, lcOutput, lnOutHandle, lnBytesWritten, lnOverlappedIO
             lcOutput        = EVL(tcTexto,'') + CR_LF
             lnOutHandle     = fb2p_GetStdHandle(-11)    && CAPTURAR STDOUT DESDE CONSOLA: FOXBIN2PRG.EXE PARAMS | FIND /V ""
@@ -4961,7 +4980,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          ENDIF
 
       CATCH TO loException
-         THIS.l_StdOutHabilitado = .F.
+         This.l_StdOutHabilitado = .F.
 
       ENDTRY
 
@@ -5012,7 +5031,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          ENDWITH
 
       CATCH TO loEx
-         IF THIS.n_Debug > 0 THEN
+         IF This.n_Debug > 0 THEN
             IF _VFP.STARTMODE = 0
                SET STEP ON
             ENDIF
@@ -5111,12 +5130,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       LPARAMETERS tcValType
 
       tcValType   = EVL(tcValType,'C')
-      THIS.n_ID   = INT( THIS.n_ID + 1 )
+      This.n_ID   = INT( This.n_ID + 1 )
 
       IF tcValType = 'N'
-         RETURN THIS.n_ID
+         RETURN This.n_ID
       ELSE
-         RETURN '_' + TRANSFORM( THIS.n_ID, '@L #########' )
+         RETURN '_' + TRANSFORM( This.n_ID, '@L #########' )
       ENDIF
    ENDPROC
 
@@ -5441,50 +5460,50 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    *
    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
    PROCEDURE n_Debug_ACCESS
-      IF ISNULL(THIS.n_DebugP) THEN
-         IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-            RETURN THIS.n_Debug
+      IF ISNULL(This.n_DebugP) THEN
+         IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+            RETURN This.n_Debug
          ELSE
-            RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_Debug, THIS.n_Debug )
+            RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_Debug, This.n_Debug )
          ENDIF
       ELSE
-         RETURN THIS.n_DebugP
+         RETURN This.n_DebugP
       ENDIF
    ENDPROC
 
 
    PROCEDURE n_BodyDevInfo_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.n_BodyDevInfo
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.n_BodyDevInfo
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_BodyDevInfo, THIS.n_BodyDevInfo )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_BodyDevInfo, This.n_BodyDevInfo )
       ENDIF
    ENDPROC
 
 
    PROCEDURE l_ShowErrors_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.l_ShowErrors
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.l_ShowErrors
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).l_ShowErrors, THIS.l_ShowErrors )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).l_ShowErrors, This.l_ShowErrors )
       ENDIF
    ENDPROC
 
 
    PROCEDURE n_ShowProgressbar_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.n_ShowProgressbar
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.n_ShowProgressbar
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_ShowProgressbar, THIS.n_ShowProgressbar )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_ShowProgressbar, This.n_ShowProgressbar )
       ENDIF
    ENDPROC
 
 
    PROCEDURE l_NoTimestamps_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.l_NoTimestamps
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.l_NoTimestamps
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).l_NoTimestamps, THIS.l_NoTimestamps )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).l_NoTimestamps, This.l_NoTimestamps )
       ENDIF
    ENDPROC
 
@@ -5492,10 +5511,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    * additional options controlling
    * files in non subpath of the PJX
    PROCEDURE n_CheckFileInPath_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.n_CheckFileInPath
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.n_CheckFileInPath
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_CheckFileInPath, THIS.n_CheckFileInPath )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_CheckFileInPath, This.n_CheckFileInPath )
       ENDIF
    ENDPROC
 
@@ -5503,450 +5522,450 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    * - splitt of DBC separated from VCX/SCX
    * - new operations of DBF
    PROCEDURE l_OldFilesPerDBC_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.l_OldFilesPerDBC
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.l_OldFilesPerDBC
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).l_OldFilesPerDBC, THIS.l_OldFilesPerDBC )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).l_OldFilesPerDBC, This.l_OldFilesPerDBC )
       ENDIF
    ENDPROC
 
 
    PROCEDURE n_UseFilesPerDBC_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.n_UseFilesPerDBC
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.n_UseFilesPerDBC
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_UseFilesPerDBC, THIS.n_UseFilesPerDBC )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_UseFilesPerDBC, This.n_UseFilesPerDBC )
       ENDIF
    ENDPROC
 
 
    PROCEDURE l_RedirectFilePerDBCToMain_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.l_RedirectFilePerDBCToMain
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.l_RedirectFilePerDBCToMain
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).l_RedirectFilePerDBCToMain, THIS.l_RedirectFilePerDBCToMain )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).l_RedirectFilePerDBCToMain, This.l_RedirectFilePerDBCToMain )
       ENDIF
    ENDPROC
 
 
    PROCEDURE l_ItemPerDBCCheck_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.l_ItemPerDBCCheck
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.l_ItemPerDBCCheck
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).l_ItemPerDBCCheck, THIS.l_ItemPerDBCCheck )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).l_ItemPerDBCCheck, This.l_ItemPerDBCCheck )
       ENDIF
    ENDPROC
 
 
    PROCEDURE l_DBF_BinChar_Base64_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.l_DBF_BinChar_Base64
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.l_DBF_BinChar_Base64
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).l_DBF_BinChar_Base64, THIS.l_DBF_BinChar_Base64 )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).l_DBF_BinChar_Base64, This.l_DBF_BinChar_Base64 )
       ENDIF
    ENDPROC
 
 
    PROCEDURE l_DBF_IncludeDeleted_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.l_DBF_IncludeDeleted
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.l_DBF_IncludeDeleted
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).l_DBF_IncludeDeleted, THIS.l_DBF_IncludeDeleted )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).l_DBF_IncludeDeleted, This.l_DBF_IncludeDeleted )
       ENDIF
    ENDPROC
 
 
    PROCEDURE c_Language_In_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.c_Language_In
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.c_Language_In
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).c_Language_In, THIS.c_Language_In )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).c_Language_In, This.c_Language_In )
       ENDIF
    ENDPROC
 
 
    PROCEDURE n_UseClassPerFile_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.n_UseClassPerFile
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.n_UseClassPerFile
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_UseClassPerFile, THIS.n_UseClassPerFile )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_UseClassPerFile, This.n_UseClassPerFile )
       ENDIF
    ENDPROC
 
 
    PROCEDURE l_RedirectClassPerFileToMain_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.l_RedirectClassPerFileToMain
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.l_RedirectClassPerFileToMain
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).l_RedirectClassPerFileToMain, THIS.l_RedirectClassPerFileToMain )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).l_RedirectClassPerFileToMain, This.l_RedirectClassPerFileToMain )
       ENDIF
    ENDPROC
 
 
    PROCEDURE n_RedirectClassType_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.n_RedirectClassType
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.n_RedirectClassType
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_RedirectClassType, THIS.n_RedirectClassType )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_RedirectClassType, This.n_RedirectClassType )
       ENDIF
    ENDPROC
 
 
    PROCEDURE l_ClassPerFileCheck_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.l_ClassPerFileCheck
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.l_ClassPerFileCheck
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).l_ClassPerFileCheck, THIS.l_ClassPerFileCheck )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).l_ClassPerFileCheck, This.l_ClassPerFileCheck )
       ENDIF
    ENDPROC
 
 
    PROCEDURE l_UseFormSettings_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.l_UseFormSettings
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.l_UseFormSettings
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).l_UseFormSettings, THIS.l_UseFormSettings )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).l_UseFormSettings, This.l_UseFormSettings )
       ENDIF
    ENDPROC
 
 
    PROCEDURE n_UseFormPerFile_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.n_UseFormPerFile
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.n_UseFormPerFile
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_UseFormPerFile, THIS.n_UseFormPerFile )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_UseFormPerFile, This.n_UseFormPerFile )
       ENDIF
    ENDPROC
 
 
    PROCEDURE l_RedirectFormPerFileToMain_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.l_RedirectFormPerFileToMain
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.l_RedirectFormPerFileToMain
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).l_RedirectFormPerFileToMain, THIS.l_RedirectFormPerFileToMain )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).l_RedirectFormPerFileToMain, This.l_RedirectFormPerFileToMain )
       ENDIF
    ENDPROC
 
 
    PROCEDURE n_RedirectFormType_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.n_RedirectFormType
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.n_RedirectFormType
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_RedirectFormType, THIS.n_RedirectFormType )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_RedirectFormType, This.n_RedirectFormType )
       ENDIF
    ENDPROC
 
 
    PROCEDURE l_FormPerFileCheck_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.l_FormPerFileCheck
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.l_FormPerFileCheck
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).l_FormPerFileCheck, THIS.l_FormPerFileCheck )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).l_FormPerFileCheck, This.l_FormPerFileCheck )
       ENDIF
    ENDPROC
 
 
 
    PROCEDURE l_RemoveNullCharsFromCode_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.l_RemoveNullCharsFromCode
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.l_RemoveNullCharsFromCode
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).l_RemoveNullCharsFromCode, THIS.l_RemoveNullCharsFromCode )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).l_RemoveNullCharsFromCode, This.l_RemoveNullCharsFromCode )
       ENDIF
    ENDPROC
 
 
    PROCEDURE l_RemoveZOrderSetFromProps_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.l_RemoveZOrderSetFromProps
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.l_RemoveZOrderSetFromProps
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).l_RemoveZOrderSetFromProps, THIS.l_RemoveZOrderSetFromProps )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).l_RemoveZOrderSetFromProps, This.l_RemoveZOrderSetFromProps )
       ENDIF
    ENDPROC
 
    PROCEDURE n_InhibitInheritance_ACCESS
       * only from base config (and only if this is from parameter)
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( 1 ) )
-         RETURN THIS.n_InhibitInheritance
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( 1 ) )
+         RETURN This.n_InhibitInheritance
       ELSE
-         RETURN NVL( THIS.o_Configuration( 1 ).n_InhibitInheritance, THIS.n_InhibitInheritance )
+         RETURN NVL( This.o_Configuration( 1 ).n_InhibitInheritance, This.n_InhibitInheritance )
       ENDIF
    ENDPROC
 
    PROCEDURE l_ClearUniqueID_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.l_ClearUniqueID
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.l_ClearUniqueID
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).l_ClearUniqueID, THIS.l_ClearUniqueID )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).l_ClearUniqueID, This.l_ClearUniqueID )
       ENDIF
    ENDPROC
 
 
    PROCEDURE l_ClearDBFLastUpdate_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.l_ClearDBFLastUpdate
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.l_ClearDBFLastUpdate
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).l_ClearDBFLastUpdate, THIS.l_ClearDBFLastUpdate )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).l_ClearDBFLastUpdate, This.l_ClearDBFLastUpdate )
       ENDIF
    ENDPROC
 
 
    PROCEDURE n_OptimizeByFilestamp_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.n_OptimizeByFilestamp
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.n_OptimizeByFilestamp
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_OptimizeByFilestamp, THIS.n_OptimizeByFilestamp )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_OptimizeByFilestamp, This.n_OptimizeByFilestamp )
       ENDIF
    ENDPROC
 
 
    PROCEDURE n_ExtraBackupLevels_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.n_ExtraBackupLevels
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.n_ExtraBackupLevels
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_ExtraBackupLevels, THIS.n_ExtraBackupLevels )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_ExtraBackupLevels, This.n_ExtraBackupLevels )
       ENDIF
    ENDPROC
 
 
    PROCEDURE c_VC2_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.c_VC2
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.c_VC2
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).c_VC2, THIS.c_VC2 )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).c_VC2, This.c_VC2 )
       ENDIF
    ENDPROC
 
 
    PROCEDURE c_SC2_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.c_SC2
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.c_SC2
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).c_SC2, THIS.c_SC2 )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).c_SC2, This.c_SC2 )
       ENDIF
    ENDPROC
 
 
    PROCEDURE c_PJ2_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.c_PJ2
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.c_PJ2
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).c_PJ2, THIS.c_PJ2 )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).c_PJ2, This.c_PJ2 )
       ENDIF
    ENDPROC
 
 
    PROCEDURE c_FR2_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.c_FR2
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.c_FR2
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).c_FR2, THIS.c_FR2 )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).c_FR2, This.c_FR2 )
       ENDIF
    ENDPROC
 
 
    PROCEDURE c_LB2_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.c_LB2
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.c_LB2
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).c_LB2, THIS.c_LB2 )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).c_LB2, This.c_LB2 )
       ENDIF
    ENDPROC
 
 
    PROCEDURE c_DB2_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.c_DB2
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.c_DB2
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).c_DB2, THIS.c_DB2 )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).c_DB2, This.c_DB2 )
       ENDIF
    ENDPROC
 
 
    PROCEDURE c_DC2_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.c_DC2
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.c_DC2
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).c_DC2, THIS.c_DC2 )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).c_DC2, This.c_DC2 )
       ENDIF
    ENDPROC
 
 
    PROCEDURE c_MN2_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.c_MN2
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.c_MN2
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).c_MN2, THIS.c_MN2 )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).c_MN2, This.c_MN2 )
       ENDIF
    ENDPROC
 
 
    PROCEDURE c_FK2_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.c_FK2
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.c_FK2
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).c_FK2, THIS.c_FK2 )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).c_FK2, This.c_FK2 )
       ENDIF
    ENDPROC
 
 
    PROCEDURE c_ME2_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.c_ME2
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.c_ME2
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).c_ME2, THIS.c_ME2 )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).c_ME2, This.c_ME2 )
       ENDIF
    ENDPROC
 
 
    PROCEDURE n_PJX_Conversion_Support_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.n_PJX_Conversion_Support
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.n_PJX_Conversion_Support
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_PJX_Conversion_Support, THIS.n_PJX_Conversion_Support )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_PJX_Conversion_Support, This.n_PJX_Conversion_Support )
       ENDIF
    ENDPROC
 
 
    PROCEDURE n_VCX_Conversion_Support_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.n_VCX_Conversion_Support
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.n_VCX_Conversion_Support
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_VCX_Conversion_Support, THIS.n_VCX_Conversion_Support )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_VCX_Conversion_Support, This.n_VCX_Conversion_Support )
       ENDIF
    ENDPROC
 
 
    PROCEDURE n_SCX_Conversion_Support_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.n_SCX_Conversion_Support
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.n_SCX_Conversion_Support
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_SCX_Conversion_Support, THIS.n_SCX_Conversion_Support )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_SCX_Conversion_Support, This.n_SCX_Conversion_Support )
       ENDIF
    ENDPROC
 
 
    PROCEDURE n_FRX_Conversion_Support_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.n_FRX_Conversion_Support
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.n_FRX_Conversion_Support
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_FRX_Conversion_Support, THIS.n_FRX_Conversion_Support )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_FRX_Conversion_Support, This.n_FRX_Conversion_Support )
       ENDIF
    ENDPROC
 
 
    PROCEDURE n_LBX_Conversion_Support_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.n_LBX_Conversion_Support
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.n_LBX_Conversion_Support
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_LBX_Conversion_Support, THIS.n_LBX_Conversion_Support )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_LBX_Conversion_Support, This.n_LBX_Conversion_Support )
       ENDIF
    ENDPROC
 
 
    PROCEDURE n_DBC_Conversion_Support_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.n_DBC_Conversion_Support
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.n_DBC_Conversion_Support
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_DBC_Conversion_Support, THIS.n_DBC_Conversion_Support )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_DBC_Conversion_Support, This.n_DBC_Conversion_Support )
       ENDIF
    ENDPROC
 
 
    PROCEDURE n_DBF_Conversion_Support_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.n_DBF_Conversion_Support
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.n_DBF_Conversion_Support
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_DBF_Conversion_Support, THIS.n_DBF_Conversion_Support )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_DBF_Conversion_Support, This.n_DBF_Conversion_Support )
       ENDIF
    ENDPROC
 
 
    PROCEDURE n_MNX_Conversion_Support_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.n_MNX_Conversion_Support
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.n_MNX_Conversion_Support
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_MNX_Conversion_Support, THIS.n_MNX_Conversion_Support )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_MNX_Conversion_Support, This.n_MNX_Conversion_Support )
       ENDIF
    ENDPROC
 
 
    PROCEDURE n_FKY_Conversion_Support_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.n_FKY_Conversion_Support
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.n_FKY_Conversion_Support
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_FKY_Conversion_Support, THIS.n_FKY_Conversion_Support )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_FKY_Conversion_Support, This.n_FKY_Conversion_Support )
       ENDIF
    ENDPROC
 
 
    PROCEDURE n_MEM_Conversion_Support_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.n_MEM_Conversion_Support
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.n_MEM_Conversion_Support
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_MEM_Conversion_Support, THIS.n_MEM_Conversion_Support )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_MEM_Conversion_Support, This.n_MEM_Conversion_Support )
       ENDIF
    ENDPROC
 
 
    PROCEDURE c_DBF_Conversion_Included_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.c_DBF_Conversion_Included
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.c_DBF_Conversion_Included
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).c_DBF_Conversion_Included, THIS.c_DBF_Conversion_Included )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).c_DBF_Conversion_Included, This.c_DBF_Conversion_Included )
       ENDIF
    ENDPROC
 
 
    PROCEDURE c_DBF_Conversion_Excluded_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.c_DBF_Conversion_Excluded
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.c_DBF_Conversion_Excluded
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).c_DBF_Conversion_Excluded, THIS.c_DBF_Conversion_Excluded )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).c_DBF_Conversion_Excluded, This.c_DBF_Conversion_Excluded )
       ENDIF
    ENDPROC
 
 
    PROCEDURE c_BackgroundImage_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.c_BackgroundImage
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.c_BackgroundImage
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).c_BackgroundImage, THIS.c_BackgroundImage )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).c_BackgroundImage, This.c_BackgroundImage )
       ENDIF
    ENDPROC
 
 
    PROCEDURE n_ExcludeDBFAutoincNextval_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.n_ExcludeDBFAutoincNextval
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.n_ExcludeDBFAutoincNextval
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_ExcludeDBFAutoincNextval, THIS.n_ExcludeDBFAutoincNextval )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_ExcludeDBFAutoincNextval, This.n_ExcludeDBFAutoincNextval )
       ENDIF
    ENDPROC
 
 
    PROCEDURE n_PRG_Compat_Level_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.n_PRG_Compat_Level
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.n_PRG_Compat_Level
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_PRG_Compat_Level, THIS.n_PRG_Compat_Level )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_PRG_Compat_Level, This.n_PRG_Compat_Level )
       ENDIF
    ENDPROC
 
 
    PROCEDURE n_HomeDir_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.n_HomeDir
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.n_HomeDir
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).n_HomeDir, THIS.n_HomeDir )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).n_HomeDir, This.n_HomeDir )
       ENDIF
    ENDPROC
 
    PROCEDURE l_AllowFolder_ACCESS
-      IF THIS.n_CFG_Actual = 0 OR ISNULL( THIS.o_Configuration( THIS.n_CFG_Actual ) )
-         RETURN THIS.l_AllowFolder
+      IF This.n_CFG_Actual = 0 OR ISNULL( This.o_Configuration( This.n_CFG_Actual ) )
+         RETURN This.l_AllowFolder
       ELSE
-         RETURN NVL( THIS.o_Configuration( THIS.n_CFG_Actual ).l_AllowFolder, THIS.l_AllowFolder )
+         RETURN NVL( This.o_Configuration( This.n_CFG_Actual ).l_AllowFolder, This.l_AllowFolder )
       ENDIF
    ENDPROC
 
