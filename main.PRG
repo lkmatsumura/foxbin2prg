@@ -73,15 +73,9 @@
 * tcNoTimestamps            (v? IN    ) Indica si se debe anular el timestamp ('1') o no ('0' ó vacío)
 * tcCFG_File                (v? IN    ) Config file. If a config file is set, the normal chain of inheritance is reset and this file is read atop of the defaults
 *                                       Normal inheritance may or may not run, see setting AllowInheritance
-*** DH 2021-03-04: added tcOutputFolder parameter
 * tcOutputFolder            (v? IN    ) The output folder to write to (optional: if it isn't specified, the same folder as the source is used)
 *---------------------------------------------------------------------------------------------------
-*                           Ej: DO FOXBIN2PRG.PRG WITH "C:\DESA\INTEGRACION\LIBRERIA.VCX"
-*---------------------------------------------------------------------------------------------------
-*** DH 2021-03-04: added tcOutputFolder parameter
-*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-*** LScheffler 2021-03-08: added optional set of parameters, config file
-* Usage 2
+* Usage 2 : Create Config
 * PARAMETERS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
 * tcType            (c! IN    ) Modus (case sensitive)
 *                               -c Create config template "tcType" with default values
@@ -92,8 +86,7 @@
 *                               Normal inheritance may or may not run, see setting AllowInheritance
 * tcDebug           (v? IN    ) '1' write debug log (posiibly to GETENV("TEMP") )
 *---------------------------------------------------------------------------------------------------
-*** LScheffler 2023-08-06: added option to output version number
-* Usage 3
+* Usage 3 : output version number
 * PARAMETERS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
 * tc_InputFile              (@! OUT   ) -VERNO Return version number (DC_FB2PRG_VERSION_REAL)
 *---------------------------------------------------------------------------------------------------
@@ -104,7 +97,6 @@ Lparameters   tc_InputFile      , tcType             , tcTextName      ;
 
 #INCLUDE foxbin2prg.h
 
-SET PROCEDURE TO foxbin2prg.prg
 
 *-- Predefine 64MB of RAM
 Sys(3050,1,64*1024*1024)
@@ -114,8 +106,10 @@ If _vfp.StartMode > 0 Then
     Sys(2450,1)     && Set Application Search Path Order to APP/EXE 1st when not in Dev-Mode
 Endif
 
-Local loCnv As c_foxbin2prg Of 'FOXBIN2PRG.PRG'
-Local lnResp, loEx As Exception
+LOCAL loCnv AS c_foxbin2prg OF 'FOXBIN2PRG.PRG' ;
+    . loEx  AS Exception
+
+LOCAL lnResp
 
 *SET COVERAGE TO c:\desa\foxbin2prg\foxbin2prg_coverage.log
 *SYS(2030,1)    && Enable system component debugging
@@ -131,102 +125,118 @@ tc_InputFile    = Evl(tc_InputFile,'')
 tcType          = Evl(tcType,'')
 
 * added option to return version number
-If Atc('-VERNO','-'+tc_InputFile) > 0
+IF Atc('-VERNO','-'+tc_InputFile) > 0
    tc_InputFile = DC_FB2PRG_VERSION_REAL
    RETURN DC_FB2PRG_VERSION_REAL
-Endif
-
-*!* /Changed by: LScheffler 06.08.2023
-
+ENDIF
 
 *-- En el caso de recibir "BIN2PRG" o "PRG2BIN" en el primer parámetro, los invierto.
-If    Atc('-BIN2PRG','-'+tc_InputFile) > 0 Or Atc('-PRG2BIN','-'+tc_InputFile) > 0 ;
-        OR Atc('-BIN2TEXT','-'+tc_InputFile) > 0 Or Atc('-TEXT2BIN','-'+tc_InputFile) > 0 ;
-        OR Atc('-SHOWMSG','-'+tc_InputFile) > 0;
-        Or Atc('-INTERACTIVE','-'+tc_InputFile) > 0 Or Atc('-?','-'+tc_InputFile) > 0 ;
-        OR Atc('-SIMERR_I0','-'+tc_InputFile) > 0 Or Atc('-SIMERR_I1','-'+tc_InputFile) > 0 ;
-        OR Atc('-SIMERR_O1','-'+tc_InputFile) > 0;
-        OR Upper(tc_InputFile)=='-C' Or tc_InputFile=='-t' ;
-        OR Upper(tc_InputFile)=='C' Or tc_InputFile=='t' Then
-    pcParamX        = tc_InputFile
-    tc_InputFile    = tcType
-    tcType          = pcParamX
-    Release pcParamX
-Endif
+IF    Atc('-BIN2PRG'    , '-'+tc_InputFile) > 0 ;
+   Or Atc('-PRG2BIN'    , '-'+tc_InputFile) > 0 ;
+   OR Atc('-BIN2TEXT'   , '-'+tc_InputFile) > 0 ;
+   Or Atc('-TEXT2BIN'   , '-'+tc_InputFile) > 0 ;
+   OR Atc('-SHOWMSG'    , '-'+tc_InputFile) > 0 ;
+   Or Atc('-INTERACTIVE', '-'+tc_InputFile) > 0 ;
+   Or Atc('-?'          , '-'+tc_InputFile) > 0 ;
+   OR Atc('-SIMERR_I0'  , '-'+tc_InputFile) > 0 ;
+   Or Atc('-SIMERR_I1'  , '-'+tc_InputFile) > 0 ;
+   OR Atc('-SIMERR_O1'  , '-'+tc_InputFile) > 0 ;
+   OR Upper(tc_InputFile) == '-C' ;
+   OR Upper(tc_InputFile) ==  'C' ;
+   Or tc_InputFile == '-t' ;
+   Or tc_InputFile ==  't'
+
+   pcParamX     = tc_InputFile
+   tc_InputFile = tcType
+   tcType       = pcParamX
+   Release pcParamX
+
+ENDIF
 
 * -cCt Create config files
-If Upper(tcType)=='-C' Or tcType=='-t' ;
-        OR Upper(tcType)=='C' Or tcType=='t' THEN
+If    Upper(tcType) == '-C' ;
+   OR Upper(tcType) ==  'C' ;
+   OR tcType == '-t' ;
+   OR tcType ==  't'
 
-    If Pcount()>2 THEN
-        tcCFG_File = tcTextName
-        IF VARTYPE(tcCFG_File)="C" AND EMPTY(JUSTPATH(tcCFG_File)) THEN
-         tcCFG_File = FULLPATH(tcCFG_File,"")
-        ENDIF &&VARTYPE(tcCFG_File)="C" AND EMPTY(JUSTPATH(tcCFG_File))
-        tcTextName = .F.
-    ENDIF &&Pcount()>2
+   If Pcount() > 2
+      tcCFG_File = tcTextName
 
-    If Pcount()>3 THEN
-        tcDebug   = tlGenText
-        tlGenText = .F.
-    ENDIF &&Pcount()>3
+      IF Vartype(tcCFG_File) = "C" AND Empty(JustPath(tcCFG_File))
+         tcCFG_File = FullPath(tcCFG_File, "")
+      ENDIF
 
-    Do Case
-        Case Pcount()>4
-            tc_InputFile = ""
-            tcType       = ""
-        Case !EMPTY( tc_InputFile)
+      tcTextName = .F.
+   ENDIF
 
-        Case ( tcType == '-t' Or tcType == 't' ) And !Empty( Dbf() )
-            tc_InputFile = Dbf() + '._cfg'
+   If Pcount() > 3
+      tcDebug   = tlGenText
+      tlGenText = .F.
+   ENDIF
 
-        Case ( Upper( tcType ) =='-C' Or Upper( tcType ) =='C' ) And tc_InputFile
-            tc_InputFile = 'FoxBin2PRG._cfg'
+   DO CASE
+    CASE Pcount() > 4
+         tc_InputFile = ""
+         tcType       = ""
+
+    Case ! Empty(tc_InputFile)
+
+    CASE ( tcType == '-t' OR tcType == 't' ) And ! Empty( Dbf() )
+         tc_InputFile = Dbf() + '._cfg'
+
+    CASE ( Upper( tcType ) =='-C' OR Upper( tcType ) =='C' ) And tc_InputFile
+         tc_InputFile = 'FoxBin2PRG._cfg'
 
     Endcase
-*!* /Changed by: LScheffler 15.2.2021
-ENDIF &&Upper(tcType)=='-C' Or tcType=='-t' OR Upper(tcType)=='C' Or tcType=='t'
 
-Try
-        loEx    = .Null.
-        loCnv   = Createobject("c_foxbin2prg")
-*** DH 2021-03-04: handle tcOutputFolder
-        If Not Empty(tcOutputFolder)
-            loCnv.cOutputFolder = tcOutputFolder
-        Endif &&not empty(tcOutputFolder)
-*** DH 2021-03-04: end of new code
+ENDIF
 
-        lnResp  = loCnv.execute( tc_InputFile, tcType, tcTextName, tlGenText, tcDontShowErrors, tcDebug ;
-            , tcDontShowProgress, .Null., @loEx, .F., tcOriginalFileName, tcRecompile, tcNoTimestamps ;
-            , .F., .F., .F., tcCFG_File )
-    Catch To loEx
-*-- Esto solo es para errores en el INIT, ya que los demás se deben capturar y tratar antes.
-        lnResp      = loEx.ErrorNo
-        Messagebox( 'Error ' + Transform(loEx.ErrorNo) + ', ' + loEx.Message + C_CR ;
-            + loEx.Procedure + ', Line ' + Transform(loEx.Lineno) + C_CR ;
-            + loEx.Details ;
-            , 0+16+4096 ;
-            , '' ;
-            , 60000 )
-Endtry
+TRY
+   loEx  = .Null.
+   loCnv = NewObject( "c_foxbin2prg", "foxbin2prg.prg", "foxbin2prg.exe" )
+
+   *** handle tcOutputFolder
+   IF Not Empty(tcOutputFolder)
+      loCnv.cOutputFolder = tcOutputFolder
+   ENDIF
+
+   lnResp  = loCnv.execute( tc_InputFile              , tcType            , tcTextName        , tlGenText   ;
+                          , tcDontShowErrors          , tcDebug           , tcDontShowProgress, .Null.      ;
+                          , @loEx                     , .F.               , tcOriginalFileName, tcRecompile ;
+                          , tcNoTimestamps            , .F.               , .F.               , .F.         ;
+                          , tcCFG_File                )
+
+CATCH TO loEx
+   *-- Esto solo es para errores en el INIT, ya que los demás se deben capturar y tratar antes.
+   lnResp      = loEx.ErrorNo
+   Messagebox( 'Error ' + Transform(loEx.ErrorNo) + ', ' + loEx.Message + C_CR ;
+             + loEx.Procedure + ', Line ' + Transform(loEx.Lineno) + C_CR ;
+             + loEx.Details ;
+             , 0+16+4096 ;
+             , '' ;
+             , 60000 )
+
+ENDTRY
 
 AddProperty(_Screen, 'ExitCode', lnResp)
-*SET COVERAGE TO
 
-If _vfp.StartMode <> 4 Or Not Sys(16) == Sys(16,0) && 4 = Visual FoxPro was started as a distributable .app or .exe file.
-    Store .Null. To loEx, loCnv
-    Release loEx, loCnv
-    Return lnResp   && lnResp contiene un código de error, pero invocado desde SourceSafe puede contener el tipo de soporte de archivo (0,1,2).
+If _vfp.StartMode <> 4 Or Not Sys(16) == Sys(16,0)
+   && _vfp.StartMode 4 = Visual FoxPro was started as a distributable .app or .exe file.
+   Store .Null. To loEx, loCnv
+   Release loEx, loCnv
+
+   * lnResp contiene un código de error, pero invocado desde SourceSafe puede contener el tipo de soporte de archivo (0,1,2).
+   Return lnResp
 Endif
 
 If Empty(lnResp)
-    Store .Null. To loEx, loCnv
-    Release loEx, loCnv
-    Quit
+   Store .Null. To loEx, loCnv
+   Release loEx, loCnv
+   Quit
 Endif
 
-Store .Null. To loEx, loCnv
-Release loEx, loCnv
+STORE .Null. To loEx, loCnv
+RELEASE loEx, loCnv
 
 *-- Muy útil para procesos batch que capturan el código de error
 *KillMode 1
@@ -234,9 +244,10 @@ Release loEx, loCnv
 *ExitProcess(1) && Esta debe ser de las últimas instrucciones
 
 *KillMode 2 - This one works better.
-Declare Integer OpenProcess In Win32API Integer dwDesiredAccess, Integer bInheritHandle, Integer dwProcessID
-lnHandle = OpenProcess(1, 1, _vfp.ProcessID)
+Declare Integer OpenProcess      In Win32API Integer dwDesiredAccess, Integer bInheritHandle, Integer dwProcessID
 Declare Integer TerminateProcess In Win32API Integer hProcess, Integer uExitCode
+
+lnHandle = OpenProcess(1, 1, _vfp.ProcessID)
 =TerminateProcess(lnHandle,1)
 
 *KillMode 3
