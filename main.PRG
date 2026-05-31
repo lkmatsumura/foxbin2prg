@@ -104,6 +104,8 @@ Lparameters   tc_InputFile      , tcType             , tcTextName      ;
 
 #INCLUDE foxbin2prg.h
 
+SET PROCEDURE TO foxbin2prg.prg
+
 *-- Predefine 64MB of RAM
 Sys(3050,1,64*1024*1024)
 Sys(3050,2,64*1024*1024)
