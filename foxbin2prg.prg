@@ -441,26 +441,23 @@ Define Class c_foxbin2prg As Session
     l_Recompile                     = .T.
     n_PRG_Compat_Level              = 0             && 0=COMPATIBLE WITH FoxBin2Prg v1.19.49 and earlier, 1=Include HELPSTRING
     n_ExcludeDBFAutoincNextval      = 0
-*!* Changed by: LScheffler 21.02.2021
-*!* change date="{^2021-02-21,10:57:00}"
-* additional options controlling
-* - splitt of DBC separated from VCX/SCX
-* - new operations of DBF
+
+    * additional options controlling
+    * - splitt of DBC separated from VCX/SCX
+    * - new operations of DBF
     l_OldFilesPerDBC                = .T.
     n_UseFilesPerDBC                = 0
     l_RedirectFilePerDBCToMain      = .F.
     l_ItemPerDBCCheck               = .F.
     l_DBF_BinChar_Base64            = .T.
     l_DBF_IncludeDeleted            = .F.
-*!* /Changed by: LScheffler 21.02.2021
-*!* Changed by: LScheffler 19.03.2023
-* additional options controlling
-* files in non subpath of the PJX
+
+    * additional options controlling
+    * files in non subpath of the PJX
     n_CheckFileInPath               = 0
-*!* /Changed by: LScheffler 19.03.2023
     n_PRG_Compat_Level              = 0             && 0=COMPATIBLE WITH FoxBin2Prg v1.19.49 and earlier, 1=Include HELPSTRING
     n_ExcludeDBFAutoincNextval      = 0
-*!* LScheffler 30.08.2023
+
     n_InhibitInheritance            = 0
     n_UseClassPerFile               = 0
     l_RedirectClassPerFileToMain    = .F.
@@ -520,13 +517,14 @@ Define Class c_foxbin2prg As Session
     n_MEM_Conversion_Support        = 1
     c_DBF_Conversion_Included       = ''
     c_DBF_Conversion_Excluded       = ''
-*** DH 2021-03-04: added cOutputFolder and n_HomeDir properties
+
     cOutputFolder                   = ''            && the folder to write files to (blank = same folder as source file)
     n_HomeDir                       = 1             && 0 = don't save HomeDir in PJ2, 1 = save HomeDir in PJ2
-*!* LScheffler 20.08.2023
-*issue #96, [KestasL] keep CodePage relavant information for binary sources
+
+    *keep CodePage relavant information for binary sources
     i_CPID                          = 0 &&CPCURRENT(1)
-*!* LScheffler 31.08.2023 more sophisticated control of inheritance for para file
+
+    *!* more sophisticated control of inheritance for para file
     c_SingleConfig_Folder           = ''
     o_CFG                           = .NULL.
     l_AllowFolder                   = .T.
@@ -540,6 +538,7 @@ Define Class c_foxbin2prg As Session
 
         Local lcSys16, lnPosProg, lc_Foxbin2prg_EXE, laValues(1,5), lcPicturePath, laDir(1,5) ;
             , lcLang
+
         Set Deleted On
         Set Date YMD
         Set Hours To 24
@@ -549,6 +548,7 @@ Define Class c_foxbin2prg As Session
         Set TablePrompt Off
         Set Point To '.'
         Set Separator To ','
+
         tcCancelWithEscKey  = Evl(tcCancelWithEscKey, '')
 
         If Not Empty(tcCancelWithEscKey)
@@ -557,13 +557,12 @@ Define Class c_foxbin2prg As Session
 
         This.declareDLL()
 
-* Check if SYS(2023) point to "Program Files"
         If Atc("\PROGRAM FILES", This.c_TempDir) > 0 Or Atc("\ARCHIVOS DE PROGRAMA", This.c_TempDir) > 0
             This.c_TempDir  = Getenv("TEMP")
         Endif
 
-        This.c_LogFile          = Addbs( This.c_TempDir ) + 'FoxBin2Prg_Debug.LOG'
-        This.c_ErrorLogFile     = Addbs( This.c_TempDir ) + 'FoxBin2Prg_Error.LOG'
+        This.c_LogFile      = Addbs( This.c_TempDir ) + 'FoxBin2Prg_Debug.LOG'
+        This.c_ErrorLogFile = Addbs( This.c_TempDir ) + 'FoxBin2Prg_Error.LOG'
 
         If Adir(laDir, This.c_ErrorLogFile) > 0 Then
             If Adir(laDir, This.c_ErrorLogFile + '.BAK') > 0 Then
@@ -587,23 +586,15 @@ Define Class c_foxbin2prg As Session
             lnPosProg   = 1
         Endif
 
-        This.c_CurDir                   = Sys(5) + Curdir()     && Directorio actual, que no necesariamente es donde está FoxBin2Prg
+        && Directorio actual, que no necesariamente es donde está FoxBin2Prg
+        This.c_CurDir                   = Sys(5) + Curdir()
+
         This.c_Foxbin2prg_FullPath      = Substr( lcSys16, lnPosProg )
         This.c_Foxbin2prg_ConfigFile    = Evl( tcCFG_File, Forceext( This.c_Foxbin2prg_FullPath, 'CFG' ) )
         This.c_BackgroundImage          = This.get_AbsolutePath( Addbs(Justpath(This.c_Foxbin2prg_FullPath)) + 'foxbin2prg.jpg' )
         lc_Foxbin2prg_EXE               = Forceext( This.c_Foxbin2prg_FullPath, 'EXE' )
-*!* Changed by: LScheffler 30.8.2021
-*!* <pdm>
-*!* <change date="{^2021-08-30,07:48:00}">Changed by: LScheffler<br />
-*!* https://github.com/fdbozzo/foxbin2prg/issues/69 / Incorrect version showing for v1.19.65
-*!* Set version number to This.c_FB2PRG_Version_Real and ignore Exe
-*!* </change>
-*!* </pdm>
 
-*       This.c_FB2PRG_EXE_Version       = 'v' + Iif( Agetfileversion( laValues, lc_Foxbin2prg_EXE ) = 0, Transform(This.c_FB2PRG_Version_Real), laValues(11) )
         This.c_FB2PRG_EXE_Version       = 'v' + Transform(This.c_FB2PRG_Version_Real)
-
-*!* /Changed by LScheffler 30.8.2021
 
         AddProperty(_Screen, 'c_FB2PRG_EXE_Version', This.c_FB2PRG_EXE_Version)
         AddProperty(_Screen, 'ExitCode', 0)
@@ -614,28 +605,30 @@ Define Class c_foxbin2prg As Session
         This.writeLog( 'FoxBin2Prg: [' + This.c_Foxbin2prg_FullPath + '] (EXE Version: ' + This.c_FB2PRG_EXE_Version + ', FoxPro Version: ' + Version(4) + ')' )
         This.writeLog( Textmerge( '- Internal CFG: <<SYS(2019,2)>> / External CFG: <<SYS(2019,1)>> / CodePage Used: <<CPCURRENT()>>)' ) )
 
-* Get default language info
-* ISO 639-2 Language Codes: https://www.loc.gov/standards/iso639-2/php/code_list.php
+        * Get default language info
+        * ISO 639-2 Language Codes: https://www.loc.gov/standards/iso639-2/php/code_list.php
         lcLang  = This.getLocaleInfo(0x00000067) && ie: spa
 
         Do Case
             Case lcLang = 'spa'
                 lcLang = 'ES'
+
             Case Inlist(lcLang, 'den', 'deu', 'ger', 'gmh', 'goh', 'gsw', 'nds')
                 lcLang = 'DE'
+
             Case Inlist(lcLang, 'cpf', 'fra', 'fre', 'frm', 'fro')
                 lcLang = 'FR'
+
             Otherwise && Default: EN
                 lcLang = 'EN'
         Endcase
 
         This.changeLanguage(lcLang)
 
-        This.o_FSO                      = Createobject("Scripting.FileSystemObject")
-*THIS.o_WSH                     = CREATEOBJECT("WScript.Shell")
-        This.o_Configuration            = Createobject("COLLECTION")
-        This.o_CFG  = Createobject('CL_CFG')
-*store default
+        This.o_FSO           = Createobject("Scripting.FileSystemObject")
+        This.o_Configuration = Createobject("COLLECTION")
+
+        This.o_CFG           = Createobject('CL_CFG')
         This.o_CFG.CopyFrom(This)
         This.evaluateConfiguration()
         Release lcSys16, lnPosProg, lc_Foxbin2prg_EXE, laValues
@@ -667,13 +660,14 @@ Define Class c_foxbin2prg As Session
                 This.o_FSO  = .Null.
                 This.o_WSH  = .Null.
                 This.o_FNC  = .Null.
-*-- Funciones para changeFileAttributes
+                *-- Funciones para changeFileAttributes
                 Clear Dlls fb2p_SetFileAttributes, fb2p_GetFileAttributes
-*-- Funciones para escribir en StdOut
+                *-- Funciones para escribir en StdOut
                 Clear Dlls fb2p_GetStdHandle, fb2p_WriteFile
-*-- Funciones para changeFileTime
+                *-- Funciones para changeFileTime
                 Clear Dlls fb2p_SetFileTime, fb2p_GetFileAttributesEx, fb2p_LocalFileTimeToFileTime ;
                     , fb2p_FileTimeToSystemTime, fb2p_SystemTimeToFileTime, fb2p_lopen, fb2p_lclose
+
         Endtry
 
         Return
@@ -766,15 +760,15 @@ Define Class c_foxbin2prg As Session
 
 
     Procedure clearProcessedFiles
-*-- Limpia las estadísticas de archivos procesados que se usan para optimizar
-*-- el procesamiento y evitar el reproceso de los mismos archivos, por ejemplo,
-*-- de un mismo VCX compartido por 2 ó más proyectos.
+    *-- Limpia las estadísticas de archivos procesados que se usan para optimizar
+    *-- el procesamiento y evitar el reproceso de los mismos archivos, por ejemplo,
+    *-- de un mismo VCX compartido por 2 ó más proyectos.
         With This As c_foxbin2prg Of 'FOXBIN2PRG.PRG'
             .n_ProcessedFilesCount  = 0
             .n_ProcessedFiles       = 0
             Dimension .a_ProcessedFiles(1, 6)
             .a_ProcessedFiles       = ''
-*-- Los errores previos también se limpian.
+            *-- Los errores previos también se limpian.
             .l_Error                = .F.
             .l_Errors               = .F.
         Endwith
@@ -782,41 +776,43 @@ Define Class c_foxbin2prg As Session
 
 
     Procedure declareDLL
-*-- Funciones para escribir en StdOut
+
+        *-- Funciones para escribir en StdOut
         Declare Integer 'GetStdHandle' In WIN32API As fb2p_GetStdHandle Integer nHandleType
-        Declare Integer 'WriteFile'  In WIN32API As fb2p_WriteFile Integer hFile, String @ cBuffer, Integer nBytes, Integer @ nBytes2, Integer @ nBytes3
-*-- Funciones para changeFileTime
-        Declare Integer 'SetFileTime' In WIN32API As fb2p_SetFileTime Integer hFile, String  lpCreationTime, String  lpLastAccessTime, String  lpLastWriteTime
-        Declare Integer 'GetFileAttributesEx' In Win32API As fb2p_GetFileAttributesEx String  lpFileName, Integer fInfoLevelId, String  @ lpFileInformation
+        Declare Integer 'WriteFile'    In WIN32API As fb2p_WriteFile Integer hFile, String @ cBuffer, Integer nBytes, Integer @ nBytes2, Integer @ nBytes3
+        *-- Funciones para changeFileTime
+        Declare Integer 'SetFileTime'             In WIN32API As fb2p_SetFileTime Integer hFile, String  lpCreationTime, String  lpLastAccessTime, String  lpLastWriteTime
+        Declare Integer 'GetFileAttributesEx'     In Win32API As fb2p_GetFileAttributesEx String  lpFileName, Integer fInfoLevelId, String  @ lpFileInformation
+        Declare Integer 'SystemTimeToFileTime'    In Win32API As fb2p_SystemTimeToFileTime String  lpSYSTEMTIME, String  @ FILETIME
+        Declare Integer 'FileTimeToSystemTime'    In Win32API As fb2p_FileTimeToSystemTime String FILETIME, String @ SYSTEMTIME
         Declare Integer 'LocalFileTimeToFileTime' In Win32API As fb2p_LocalFileTimeToFileTime String LOCALFILETIME, String @ FILETIME
-        Declare Integer 'FileTimeToSystemTime' In Win32API As fb2p_FileTimeToSystemTime String FILETIME, String @ SYSTEMTIME
-        Declare Integer 'SystemTimeToFileTime' In Win32API As fb2p_SystemTimeToFileTime String  lpSYSTEMTIME, String  @ FILETIME
-        Declare Integer '_lopen' In Win32API As fb2p_lopen String lpFileName, Integer iReadWrite
+        Declare Integer '_lopen'  In Win32API As fb2p_lopen String lpFileName, Integer iReadWrite
         Declare Integer '_lclose' In Win32API As fb2p_lclose Integer hFile
-*-- Funciones para changeFileAttributes
-        Declare SHORT 'SetFileAttributes' In Win32API As fb2p_SetFileAttributes String tcFileName, Integer dwFileAttributes
+        *-- Funciones para changeFileAttributes
+        Declare SHORT   'SetFileAttributes' In Win32API As fb2p_SetFileAttributes String tcFileName, Integer dwFileAttributes
         Declare Integer 'GetFileAttributes' In Win32API As fb2p_GetFileAttributes String tcFileName
-*--
+
     Endproc
 
 
     Procedure get_AbsolutePath
         Lparameters tc_InputFile, tc_FullPath
 
-*-- Ajusto la ruta si no es absoluta
+        *-- Ajusto la ruta si no es absoluta
         tc_InputFile    = Evl(tc_InputFile,'')
         tc_FullPath     = Evl(tc_FullPath, This.c_Foxbin2prg_FullPath)
 
         If Not Empty( Justext(tc_FullPath) ) Then
-*-- Se indicó PATH+archivo.ext
+            *-- Se indicó PATH+archivo.ext
             tc_FullPath = Justpath(tc_FullPath)
         Endif
 
         tc_FullPath = Addbs( tc_FullPath )
 
-        If Len(tc_InputFile) > 1 ;
-                AND Left(Ltrim(tc_InputFile),2) <> '\\' ;
-                AND Substr(Ltrim(tc_InputFile),2,1) <> ':' Then
+        If     Len(tc_InputFile) > 1 ;
+           AND Left(Ltrim(tc_InputFile),2) <> '\\' ;
+           AND Substr(Ltrim(tc_InputFile),2,1) <> ':' Then
+
             tc_InputFile    = Fullpath(tc_InputFile, tc_FullPath)
         Endif
 
@@ -926,9 +922,8 @@ Define Class c_foxbin2prg As Session
     Endproc
 
 
-*!* Changed by: LScheffler 19.03.2023
-* additional options controlling
-* files in non subpath of the PJX
+    * additional options controlling
+    * files in non subpath of the PJX
     Procedure n_CheckFileInPath_ACCESS
         If This.n_CFG_Actual = 0 Or Isnull( This.o_Configuration( This.n_CFG_Actual ) )
             Return This.n_CheckFileInPath
@@ -936,13 +931,10 @@ Define Class c_foxbin2prg As Session
             Return Nvl( This.o_Configuration( This.n_CFG_Actual ).n_CheckFileInPath, This.n_CheckFileInPath )
         Endif
     Endproc
-*!* /Changed by: LScheffler 19.03.2023
 
-*!* Changed by: LScheffler 21.02.2021
-*!* change date="{^2021-02-21,10:57:00}"
-* additional options controlling
-* - splitt of DBC separated from VCX/SCX
-* - new operations of DBF
+    * additional options controlling
+    * - splitt of DBC separated from VCX/SCX
+    * - new operations of DBF
     Procedure l_OldFilesPerDBC_ACCESS
         If This.n_CFG_Actual = 0 Or Isnull( This.o_Configuration( This.n_CFG_Actual ) )
             Return This.l_OldFilesPerDBC
@@ -1004,7 +996,6 @@ Define Class c_foxbin2prg As Session
             Return Nvl( This.o_Configuration( This.n_CFG_Actual ).c_Language_In, This.c_Language_In )
         Endif
     Endproc
-*!* /Changed by: LScheffler 21.02.2021
 
 
     Procedure n_UseClassPerFile_ACCESS
@@ -1107,9 +1098,8 @@ Define Class c_foxbin2prg As Session
         Endif
     Endproc
 
-*!* LScheffler 30.08.2023
     Procedure n_InhibitInheritance_ACCESS
-*only from base config (and only if this is from parameter)
+        * only from base config (and only if this is from parameter)
         If This.n_CFG_Actual = 0 Or Isnull( This.o_Configuration( 1 ) )
             Return This.n_InhibitInheritance
         Else
@@ -1378,7 +1368,6 @@ Define Class c_foxbin2prg As Session
     Endproc
 
 
-*** DH 2021-03-04: added n_HomeDir_Access
     Procedure n_HomeDir_ACCESS
         If This.n_CFG_Actual = 0 Or Isnull( This.o_Configuration( This.n_CFG_Actual ) )
             Return This.n_HomeDir
@@ -1386,7 +1375,6 @@ Define Class c_foxbin2prg As Session
             Return Nvl( This.o_Configuration( This.n_CFG_Actual ).n_HomeDir, This.n_HomeDir )
         Endif
     Endproc
-*** DH 2021-03-04: end of new code
 
     Procedure l_AllowFolder_ACCESS
         If This.n_CFG_Actual = 0 Or Isnull( This.o_Configuration( This.n_CFG_Actual ) )
@@ -1397,9 +1385,9 @@ Define Class c_foxbin2prg As Session
     Endproc
 
     Procedure changeFileAttribute
-* Using Win32 Functions in Visual FoxPro
-* example=103
-* Changing file attributes
+        * Using Win32 Functions in Visual FoxPro
+        * example=103
+        * Changing file attributes
         Lparameters  tcFileName, tcAttrib
         tcAttrib    = Upper(tcAttrib)
 
@@ -1416,12 +1404,12 @@ Define Class c_foxbin2prg As Session
                 Local loEx As Exception, dwFileAttributes, dwFileAttributes_Orig, lnRet
                 lnRet   = 0
 
-* read current attributes for this file
+                * read current attributes for this file
                 dwFileAttributes        = fb2p_GetFileAttributes(tcFileName)
                 dwFileAttributes_Orig   = dwFileAttributes
 
                 If dwFileAttributes = -1
-* the file does not exist
+                   * the file does not exist
                     Exit
                 Endif
 
@@ -1476,7 +1464,7 @@ Define Class c_foxbin2prg As Session
                         dwFileAttributes = dwFileAttributes - FILE_ATTRIBUTE_COMPRESSED
                     Endif
 
-* setting selected attributes
+                    * setting selected attributes
                     lnRet   = fb2p_SetFileAttributes(tcFileName, dwFileAttributes)
                 Endif
 
@@ -1800,35 +1788,35 @@ Define Class c_foxbin2prg As Session
                     tcRecompile         = Evl(tcRecompile, .c_Recompile)
                     lo_Configuration    = .o_Configuration
 
-*!* LScheffler 30.08.2023, is a config file given by programm parameter
+                    *!* is a config file given by programm parameter
                     IF VARTYPE(tcCFG_File)='C' AND !EMPTY(tcCFG_File) THEN
-                     IF EMPTY(lo_Configuration.GetKey(tcCFG_File)) THEN
-                      This.writeLog( '> ' + loLang.C_USING_THIS_SETTINGS_LOC6+tcCFG_File )
+                        IF EMPTY(lo_Configuration.GetKey(tcCFG_File)) THEN
+                            This.writeLog( '> ' + loLang.C_USING_THIS_SETTINGS_LOC6+tcCFG_File )
 
 
-                      .l_Main_CFG_Loaded         = .F.
-                      *restore default
-                      .o_CFG.CopyFrom(.o_CFG,This)
+                            .l_Main_CFG_Loaded         = .F.
+                            *restore default
+                            .o_CFG.CopyFrom(.o_CFG,This)
 
-                      lc_Foxbin2prg_ConfigFile   = .c_Foxbin2prg_ConfigFile
-                      .c_Foxbin2prg_ConfigFile  = tcCFG_File
+                            lc_Foxbin2prg_ConfigFile   = .c_Foxbin2prg_ConfigFile
+                            .c_Foxbin2prg_ConfigFile  = tcCFG_File
 
-                      .o_Configuration.Remove(-1)
-                      .n_CFG_EvaluateFromParam  = 0
-                      .l_SingleConfig            = .F.
+                            .o_Configuration.Remove(-1)
+                            .n_CFG_EvaluateFromParam  = 0
+                            .l_SingleConfig            = .F.
 
-                      llSetSingleConfig         = .T.
-                      .writeLog( '> ' + Upper(loLang.C_USING_THIS_SETTINGS_LOC) + ': ' + .c_Foxbin2prg_ConfigFile + ;
-                       loLang.C_USING_THIS_SETTINGS_LOC1 )
+                            llSetSingleConfig         = .T.
+                            .writeLog( '> ' + Upper(loLang.C_USING_THIS_SETTINGS_LOC) + ': ' + .c_Foxbin2prg_ConfigFile + ;
+                             loLang.C_USING_THIS_SETTINGS_LOC1 )
 
-                     Else &&EMPTY(lo_Configuration.GetKey(tcCFG_File))
-                      This.writeLog( '> ' + loLang.C_USING_THIS_SETTINGS_LOC6+tcCFG_File + loLang.C_USING_THIS_SETTINGS_LOC7+;
-                       ICASE(This.n_InhibitInheritance=0, loLang.C_USING_THIS_SETTINGS_LOC2,;
-                        This.n_InhibitInheritance=1, loLang.C_USING_THIS_SETTINGS_LOC3,;
-                        This.n_InhibitInheritance=2, loLang.C_USING_THIS_SETTINGS_LOC4,;
-                        This.n_InhibitInheritance=3, loLang.C_USING_THIS_SETTINGS_LOC5," Failure."+CR_LF))
+                        Else &&EMPTY(lo_Configuration.GetKey(tcCFG_File))
+                             This.writeLog( '> ' + loLang.C_USING_THIS_SETTINGS_LOC6+tcCFG_File + loLang.C_USING_THIS_SETTINGS_LOC7+;
+                                             ICASE(This.n_InhibitInheritance=0, loLang.C_USING_THIS_SETTINGS_LOC2,;
+                                                   This.n_InhibitInheritance=1, loLang.C_USING_THIS_SETTINGS_LOC3,;
+                                                   This.n_InhibitInheritance=2, loLang.C_USING_THIS_SETTINGS_LOC4,;
+                                                   This.n_InhibitInheritance=3, loLang.C_USING_THIS_SETTINGS_LOC5," Failure."+CR_LF))
 
-                     ENDIF &&EMPTY(lo_Configuration.GetKey(tcCFG_File))
+                        ENDIF &&EMPTY(lo_Configuration.GetKey(tcCFG_File))
                     ENDIF &&VARTYPE(tcCFG_File)='C' AND !EMPTY(tcCFG_File)
 
 
@@ -1889,27 +1877,32 @@ Define Class c_foxbin2prg As Session
                         ENDIF &&Empty(tc_InputFile)
                     Endif
 
-*!* LScheffler 30.08.2023, just the single config from programm parameter, or sub dirs of the config file given by the parameter
-*!* LScheffler 31.08.2023 more sophisticated control of inheritance for para file
+                    *!* just the single config from programm parameter, or sub dirs of the config file given by the parameter
+                    *!* more sophisticated control of inheritance for para file
                     lc_InputPath = UPPER(lc_InputPath)
                     DO CASE
                      CASE !.l_SingleConfig
-*just go ahead
+                          * just go ahead
+
                      CASE .n_InhibitInheritance=0
-*read all
+                           * read all
+
                      CASE Empty(lc_InputPath)
-*whatever, just go ahead
+                           * whatever, just go ahead
+
                      CASE .n_InhibitInheritance=3
-*read nothing
-                      Exit
-*!*                      CASE INLIST(.n_InhibitInheritance,1,2)
-*!* *not a config file in FoxBinPrg's own folder
+                           * read nothing
+                           EXIT
+
                      CASE INLIST(.n_InhibitInheritance,1,2) AND lc_InputPath=.c_SingleConfig_Folder
-*just in the directory or subdirectory of the config file set by the parameter
+                          * just in the directory or subdirectory of the config file set by the parameter
+
                      CASE .n_InhibitInheritance=1 AND .c_SingleConfig_Folder=lc_InputPath
-*just above the config file set by the parameter
+                          * just above the config file set by the parameter
+
                      Otherwise
-                      Exit
+                          EXIT
+
                     ENDCASE
 
 
