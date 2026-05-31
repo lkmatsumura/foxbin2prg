@@ -38,6 +38,9 @@
 *
 *       DO FOXBIN2PRG.PRG WITH "-c", cOutputFile    && Generate a configuration (FoxBin2Prg.cfg) template
 *
+*  BIN TO PRG Conversion of all files of project (pjx include):
+*       DO FOXBIN2PRG.PRG WITH "<path>\FILE.PJX" , "*"  
+ 
 *---------------------------------------------------------------------------------------------------
 * TRAMIENTOS ESPECIALES DE ASIGNACIONES DE PROPIEDADES:
 *   PROPIEDAD               ARREGLO Y EJEMPLO
@@ -97,6 +100,7 @@ Lparameters   tc_InputFile      , tcType             , tcTextName      ;
 
 #INCLUDE foxbin2prg.h
 
+SET PROCEDURE TO foxbin2prg.prg
 
 *-- Predefine 64MB of RAM
 Sys(3050,1,64*1024*1024)
@@ -106,7 +110,7 @@ If _vfp.StartMode > 0 Then
     Sys(2450,1)     && Set Application Search Path Order to APP/EXE 1st when not in Dev-Mode
 Endif
 
-LOCAL loCnv AS c_foxbin2prg OF 'FOXBIN2PRG.PRG' ;
+LOCAL loCnv AS c_foxbin2prg OF 'c_foxbin2prg.PRG' ;
     . loEx  AS Exception
 
 LOCAL lnResp
@@ -193,7 +197,7 @@ ENDIF
 
 TRY
    loEx  = .Null.
-   loCnv = NewObject( "c_foxbin2prg", "foxbin2prg.prg", "foxbin2prg.exe" )
+   loCnv = NewObject( "c_foxbin2prg", "c_foxbin2prg.prg" )
 
    *** handle tcOutputFolder
    IF Not Empty(tcOutputFolder)
