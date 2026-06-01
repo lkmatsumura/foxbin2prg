@@ -2419,8 +2419,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          LOCAL loCFG             AS CL_CFG          OF 'FOXBIN2PRG.PRG' ;
              , loLang            AS CL_LANG         OF 'FOXBIN2PRG.PRG' ;
              , loDBF_CFG         AS CL_DBF_CFG      OF 'FOXBIN2PRG.PRG' ;
-             , loFrm_Interactive AS frm_interactive OF 'FOXBIN2PRG.PRG' ;
-             , loFrm_Main        AS frm_main        OF 'FOXBIN2PRG.PRG'
+             , loFrm_Interactive AS frm_interactive OF 'frm_interactive.PRG' ;
+             , loFrm_Main        AS frm_main        OF 'frm_main.PRG'
 
          WITH This AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
 
@@ -3007,8 +3007,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
             CASE EMPTY(tc_InputFile)
                *-- (Ejemplo de sintaxis y uso)
-               *MESSAGEBOX( loLang.C_FOXBIN2PRG_SYNTAX_INFO_EXAMPLE_LOC, 0+64+4096, 'FoxBin2Prg ' + This.c_FB2PRG_EXE_Version + ': ' + loLang.C_FOXBIN2PRG_SYNTAX_INFO_LOC + ' (' + .c_Language + ')', 60000 )
-               loFrm_Main  = CREATEOBJECT('frm_main', THIS)
+               loFrm_Main  = NewObject( 'frm_main', 'frm_main.prg' , null, This)
                loFrm_Main.SHOW()
                READ EVENTS
                lnCodError  = 0
@@ -3017,14 +3016,20 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                *-- EJECUCIÓN NORMAL
 
 
-               IF (ATC('-INTERACTIVE', ('-' + tcType)) > 0 OR ATC('-?', ('-' + tcType)) > 0 );
-                     AND ATC('-BIN2PRG', ('-' + tcType)) = 0 AND ATC('-PRG2BIN', ('-' + tcType)) = 0 ;
-                     AND ATC('-BIN2TEXT','-'+tcType) = 0 AND ATC('-TEXT2BIN','-'+tcType) = 0 ;
-                     AND lcInputFile_Type == C_FILETYPE_DIRECTORY THEN
+               IF      (    ATC('-INTERACTIVE', ('-' + tcType)) > 0 ;
+                         OR ATC('-?', ('-' + tcType)) > 0 );
+                     AND ATC('-BIN2PRG', ('-' + tcType)) = 0 ;
+                     AND ATC('-PRG2BIN', ('-' + tcType)) = 0 ;
+                     AND ATC('-BIN2TEXT','-'+tcType) = 0 ;
+                     AND ATC('-TEXT2BIN','-'+tcType) = 0 ;
+                     AND lcInputFile_Type == C_FILETYPE_DIRECTORY
+
                   *-- Se seleccionó un directorio y se puede elegir: Bin2Txt, Txt2Bin y Nada
                   .writeLog( loLang.C_INTERACTIVE_DIRECTORY_SELECTION_LOC )
-                  loFrm_Interactive   = CREATEOBJECT('frm_interactive', THIS)
-                  loFrm_Interactive.SHOW()
+
+                  loFrm_Interactive = NewObject('frm_interactive', 'frm_interactive.prg' , null , This)
+                  loFrm_Interactive.Show()
+
                   READ EVENTS
                   lnConversionOption  = loFrm_Interactive.n_ConversionType
 
@@ -3824,7 +3829,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          LOCAL lnCodError, lcErrorInfo, laDirFile(1,5), lcExtension, lnFileCount, laFiles(1,1), I ;
             , ltFilestamp, lcExtA, lcExtB, laEvents(1,1), lcForceAttribs, lnIDInputFile ;
             , loLang AS CL_LANG OF 'FOXBIN2PRG.PRG' ;
-            , loConversor AS c_conversor_base OF 'FOXBIN2PRG.PRG' ;
+            , loConversor AS c_conversor_base OF 'c_conversor_base.prg' ;
             , loFSO AS Scripting.FileSystemObject ;
             , loDBF_CFG AS CL_DBF_CFG OF 'FOXBIN2PRG.PRG'
          lnCodError          = 0
@@ -4663,7 +4668,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          LOCAL lnCodError, lcErrorInfo, laDirFile(1,5), lcExtension, lnFileCount, laFiles(1,1), I ;
             , ltFilestamp, lcExtA, lcExtB, laEvents(1,1), lnIDInputFile ;
             , loLang AS CL_LANG OF 'FOXBIN2PRG.PRG' ;
-            , loConversor AS c_conversor_base OF 'FOXBIN2PRG.PRG' ;
+            , loConversor AS c_conversor_base OF 'c_conversor_base.prg' ;
             , loFSO AS Scripting.FileSystemObject
          lnCodError          = 0
 
