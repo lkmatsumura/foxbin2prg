@@ -3562,7 +3562,7 @@ Enddefine   && CLASS c_conversor_prg_a_mnx AS c_conversor_prg_a_bin
 
 
 
-Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg
+Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg OF 'c_conversor_bin_a_prg.prg'
     #If .F.
         Local This As c_conversor_vcx_a_prg Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -3941,7 +3941,7 @@ Enddefine
 
 
 
-Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg
+Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg OF 'c_conversor_bin_a_prg.prg'
     #If .F.
         Local This As c_conversor_scx_a_prg Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -4310,7 +4310,7 @@ Enddefine
 
 
 
-Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg
+Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg OF 'c_conversor_bin_a_prg.prg'
     _MemberData = [<VFPData>] ;
         + [<memberdata name="loadfile" display="loadFile"/>] ;
         + [</VFPData>]
@@ -4886,7 +4886,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg
 Enddefine
 
 
-Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg
+Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg OF 'c_conversor_bin_a_prg.prg'
     _MemberData = [<VFPData>] ;
         + [<memberdata name="strextract_cr" display="strExtract_CR"/>] ;
         + [</VFPData>]
@@ -5304,7 +5304,7 @@ Enddefine
 
 
 
-Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg
+Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg OF 'c_conversor_bin_a_prg.prg'
     #If .F.
         Local This As c_conversor_frx_a_prg Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -5506,7 +5506,7 @@ Enddefine
 
 
 
-Define Class c_conversor_dbf_a_prg As c_conversor_bin_a_prg
+Define Class c_conversor_dbf_a_prg As c_conversor_bin_a_prg OF 'c_conversor_bin_a_prg.prg'
     #If .F.
         Local This As c_conversor_dbf_a_prg Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -5758,7 +5758,7 @@ Enddefine
 
 
 * LScheffler, Analyse, just locate
-Define Class c_conversor_dbc_a_prg As c_conversor_bin_a_prg
+Define Class c_conversor_dbc_a_prg As c_conversor_bin_a_prg OF 'c_conversor_bin_a_prg.prg'
     #If .F.
         Local This As c_conversor_dbc_a_prg Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -5960,7 +5960,7 @@ Enddefine
 
 
 
-Define Class c_conversor_mnx_a_prg As c_conversor_bin_a_prg
+Define Class c_conversor_mnx_a_prg As c_conversor_bin_a_prg OF 'c_conversor_bin_a_prg.prg'
     #If .F.
         Local This As c_conversor_mnx_a_prg Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -6067,7 +6067,7 @@ Enddefine
 
 
 
-Define Class c_conversor_fky_a_prg As c_conversor_bin_a_prg
+Define Class c_conversor_fky_a_prg As c_conversor_bin_a_prg OF 'c_conversor_bin_a_prg.prg'
     #If .F.
         Local This As c_conversor_fky_a_prg Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -6163,7 +6163,7 @@ Enddefine
 
 
 
-Define Class c_conversor_mem_a_prg As c_conversor_bin_a_prg
+Define Class c_conversor_mem_a_prg As c_conversor_bin_a_prg OF 'c_conversor_bin_a_prg.prg'
     #If .F.
         Local This As c_conversor_mem_a_prg Of 'FOXBIN2PRG.PRG'
     #Endif
