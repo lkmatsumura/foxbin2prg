@@ -265,7 +265,7 @@ Define Class c_conversor_base As Custom
       *-- Caso 2: Un método de un objeto heredado que no está definido en esta librería
       *--     findMethodsObjectByName( 'cnt_descripcion.Cntlista.cmgAceptarCancelar.cmdCancelar', loClase )
       #If .F.
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+         Local toClase As CL_CLASE Of 'cl_clase.prg'
       #Endif
 
       Try

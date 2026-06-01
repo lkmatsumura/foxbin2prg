@@ -1,6 +1,6 @@
 Define Class CL_CLASE As CL_CUS_BASE OF 'cl_cus_base.prg'
     #If .F.
-        Local This AS CL_CLASE Of  OF 'cl_clase.prg'
+        Local This As CL_CLASE Of 'cl_clase.prg'
     #Endif
 
     _MemberData = [<VFPData>] ;
@@ -118,7 +118,7 @@ Define Class CL_CLASE As CL_CUS_BASE OF 'cl_cus_base.prg'
     Procedure add_PathObjName
         Lparameters tcPathObjName, I
 
-        With This AS CL_CLASE Of  OF 'cl_clase.prg'
+        With This As CL_CLASE Of 'cl_clase.prg'
             ._aPathObjName_Count    = ._aPathObjName_Count + 1
             Dimension ._aPathObjNames(._aPathObjName_Count,2)
             ._aPathObjNames(._aPathObjName_Count,1) = tcPathObjName
@@ -136,7 +136,7 @@ Define Class CL_CLASE As CL_CUS_BASE OF 'cl_cus_base.prg'
             Local toProcedure As CL_PROCEDURE Of 'FOXBIN2PRG.PRG'
         #Endif
 
-        With This AS CL_CLASE Of  OF 'cl_clase.prg'
+        With This As CL_CLASE Of 'cl_clase.prg'
 *-- Verificación de Procedure repetido
             If ._Procedure_Count > 0 And Ascan( ._aProcNames, toProcedure._Nombre, 1, 0, 0, 1+2+4 ) > 0 Then
                 .writeErrorLog( '* Duplicated Method "' + toProcedure._Nombre + '" of class "' ;
@@ -155,7 +155,7 @@ Define Class CL_CLASE As CL_CUS_BASE OF 'cl_cus_base.prg'
     Procedure add_Property
         Lparameters tcProperty As String, tcValue As String, tcComment As String
 
-        With This AS CL_CLASE Of  OF 'cl_clase.prg'
+        With This As CL_CLASE Of 'cl_clase.prg'
             ._Prop_Count    = ._Prop_Count + 1
             Dimension ._Props( ._Prop_Count, 3 )
             ._Props( ._Prop_Count, 1 )  = tcProperty
@@ -172,7 +172,7 @@ Define Class CL_CLASE As CL_CUS_BASE OF 'cl_cus_base.prg'
             Local toObjeto As CL_OBJETO Of 'FOXBIN2PRG.PRG'
         #Endif
 
-        With This AS CL_CLASE Of  OF 'cl_clase.prg'
+        With This As CL_CLASE Of 'cl_clase.prg'
             ._AddObject_Count   = ._AddObject_Count + 1
             Dimension ._AddObjects( ._AddObject_Count )
             ._AddObjects( ._AddObject_Count )   = toObjeto

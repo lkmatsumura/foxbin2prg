@@ -29,7 +29,7 @@ Define Class c_conversor_prg_a_vcx As c_conversor_prg_a_bin OF 'c_conversor_prg_
         Try
                 Local lnCodError, laCodeLines(1), lnCodeLines, lcInputFile, lcInputFile_Class, lnFileCount, laFiles(1,5) ;
                     , laLineasExclusion(1), lnBloquesExclusion, I, lcClassName, lnIDInputFile, llReplaceClass, lnRow ;
-                    , loClaseAs CL_CLASE Of  OF 'cl_clase.prg' ;
+                    , loClase As CL_CLASE Of 'cl_clase.prg' ;
                     , loLang As CL_LANG Of 'FOXBIN2PRG.PRG'
 
                 Local;
@@ -323,7 +323,7 @@ Define Class c_conversor_prg_a_vcx As c_conversor_prg_a_bin OF 'c_conversor_prg_
 
         Try
                 Local lcObjName, lnCodError, I, X, llReplace, laUniqueID(1,1), loEx As Exception ;
-                    , loClaseAs CL_CLASE Of  OF 'cl_clase.prg' ;
+                    , loClase As CL_CLASE Of 'cl_clase.prg' ;
                     , loFSO As Scripting.FileSystemObject ;
                     , loLang As CL_LANG Of 'FOXBIN2PRG.PRG'
 
@@ -829,7 +829,7 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin OF 'c_conversor_prg_
 
         Try
                 Local lcObjName, lnCodError, I, X, loEx As Exception ;
-                    , loClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+                    , loClase As CL_CLASE Of 'cl_clase.prg'
 
                 With This As c_conversor_prg_a_scx Of 'FOXBIN2PRG.PRG'
 *-- addProcessedFile( tcFile, tcInOutType, tcProcessed, tcHasErrors, tcSupported, tcExpanded )
@@ -3181,7 +3181,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin OF 'c_conversor_prg_
                 Local I, loEx As Exception ;
                     , llFoxBin2Prg_Completed, llOLE_DEF_Completed, llINCLUDE_SCX_Completed, llLIBCOMMENT_Completed, llEXTERNAL_MEMBER_Completed ;
                     , lc_Comentario, lcProcedureAbierto, lcLine ;
-                    , loClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+                    , loClase As CL_CLASE Of 'cl_clase.prg'
 
                 With This As c_conversor_prg_a_bin Of 'c_conversor_prg_a_bin.prg'
                     Store '' To lcProcedureAbierto
@@ -6491,7 +6491,7 @@ Define Class CL_CLASSLIB As CL_CUS_BASE OF 'cl_cus_base.prg'
         Lparameters toClase
 
         #If .F.
-            Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+            Local toClase As CL_CLASE Of 'cl_clase.prg'
         #Endif
 
         With This As CL_CLASSLIB Of 'FOXBIN2PRG.PRG'
@@ -6574,7 +6574,7 @@ Define Class CL_PROCEDURE As CL_CUS_BASE OF 'cl_cus_base.prg'
     Procedure add_Line
         Lparameters tcLine As String
 
-        With This AS CL_CLASE Of  OF 'cl_clase.prg'
+        With This As CL_CLASE Of 'cl_clase.prg'
             ._ProcLine_Count    = ._ProcLine_Count + 1
             Dimension ._ProcLines( ._ProcLine_Count )
             ._ProcLines( ._ProcLine_Count ) = tcLine

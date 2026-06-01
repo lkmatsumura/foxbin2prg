@@ -559,7 +559,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       Lparameters toClase, toFoxBin2Prg
 
       #If .F.
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+         Local toClase As CL_CLASE Of 'cl_clase.prg'
          Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
       #Endif
 
@@ -630,7 +630,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       Lparameters toObjeto, toClase
 
       #If .F.
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg' ;
+         Local toClase As CL_CLASE Of 'cl_clase.prg' ;
             , toObjeto As CL_OBJETO Of 'FOXBIN2PRG.PRG'
       #Endif
 
@@ -665,7 +665,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       Lparameters toClase
 
       #If .F.
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+         Local toClase As CL_CLASE Of 'cl_clase.prg'
       #Endif
 
       Local lcMemo, I, X, lcNombreObjeto ;
@@ -732,7 +732,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       Lparameters toObjeto, toClase
 
       #If .F.
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg' ;
+         Local toClase As CL_CLASE Of 'cl_clase.prg' ;
             , toObjeto As CL_OBJETO Of 'FOXBIN2PRG.PRG'
       #Endif
 
@@ -774,7 +774,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       Lparameters tcPropName As String, toClase
 
       #If .F.
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+         Local toClase As CL_CLASE Of 'cl_clase.prg'
       #Endif
 
       Local I, lcComentario
@@ -802,7 +802,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       Lparameters tcLine As String, tcComment As String
 
       #If .F.
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+         Local toClase As CL_CLASE Of 'cl_clase.prg'
       #Endif
 
       Local lnATC
@@ -879,7 +879,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       Lparameters toClase
 
       #If .F.
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+         Local toClase As CL_CLASE Of 'cl_clase.prg'
       #Endif
 
       Local lcMemo, I, lcPAM, lcComentario
@@ -927,7 +927,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       Lparameters toClase, toObjeto, toFoxBin2Prg
 
       #If .F.
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+         Local toClase As CL_CLASE Of 'cl_clase.prg'
          Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
          Local toObjeto As CL_OBJETO Of 'FOXBIN2PRG.PRG'
       #Endif
@@ -1061,7 +1061,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       Lparameters toClase, toFoxBin2Prg
 
       #If .F.
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+         Local toClase As CL_CLASE Of 'cl_clase.prg'
          Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
       #Endif
 
@@ -1156,7 +1156,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
       #If .F.
          Local toObjeto As CL_OBJETO Of 'FOXBIN2PRG.PRG'
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+         Local toClase As CL_CLASE Of 'cl_clase.prg'
       #Endif
 
       Try
@@ -1251,7 +1251,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
       #If .F.
          Local toModulo As CL_CLASSLIB Of 'FOXBIN2PRG.PRG'
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+         Local toClase As CL_CLASE Of 'cl_clase.prg'
          Local toObjeto As CL_OBJETO Of 'FOXBIN2PRG.PRG'
          Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
       #Endif
@@ -1431,7 +1431,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       *</DefinedPropArrayMethod>
 
       #If .F.
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+         Local toClase As CL_CLASE Of 'cl_clase.prg'
       #Endif
 
       Try
@@ -1548,7 +1548,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       *</PropValue>
 
       #If .F.
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+         Local toClase As CL_CLASE Of 'cl_clase.prg'
       #Endif
 
       Try
@@ -1621,7 +1621,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
       #If .F.
          Local toModulo As CL_CLASSLIB Of 'FOXBIN2PRG.PRG'
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+         Local toClase As CL_CLASE Of 'cl_clase.prg'
          Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
       #Endif
 
@@ -1797,7 +1797,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       Lparameters toClase, tcLine, I, tcProcedureAbierto
 
       #If .F.
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+         Local toClase As CL_CLASE Of 'cl_clase.prg'
       #Endif
 
       Local llBloqueEncontrado
@@ -1830,7 +1830,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       Lparameters toClase, tcLine
 
       #If .F.
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+         Local toClase As CL_CLASE Of 'cl_clase.prg'
       #Endif
 
       Local llBloqueEncontrado
@@ -1860,7 +1860,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
       #If .F.
          Local toModulo As CL_CLASSLIB Of 'FOXBIN2PRG.PRG'
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+         Local toClase As CL_CLASE Of 'cl_clase.prg'
       #Endif
 
       If Upper(Left(tcLine, 9)) == '#INCLUDE '
@@ -1885,7 +1885,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       External Array taCodeLines
 
       #If .F.
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+         Local toClase As CL_CLASE Of 'cl_clase.prg'
       #Endif
 
       Try
@@ -1938,7 +1938,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       Lparameters toClase, tcLine
 
       #If .F.
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+         Local toClase As CL_CLASE Of 'cl_clase.prg'
       #Endif
 
       Local llBloqueEncontrado
@@ -2044,7 +2044,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       Lparameters toClase, tcLine
 
       #If .F.
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+         Local toClase As CL_CLASE Of 'cl_clase.prg'
       #Endif
 
       Local llBloqueEncontrado
@@ -2134,7 +2134,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       #If .F.
          Local toModulo As CL_CLASSLIB Of 'FOXBIN2PRG.PRG'
          Local toObjeto As CL_OBJETO Of 'FOXBIN2PRG.PRG'
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+         Local toClase As CL_CLASE Of 'cl_clase.prg'
       #Endif
 
       Local llBloqueEncontrado
@@ -2207,7 +2207,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       Lparameters toClase, tcLine
 
       #If .F.
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+         Local toClase As CL_CLASE Of 'cl_clase.prg'
       #Endif
 
       Local llBloqueEncontrado
@@ -2228,7 +2228,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       Lparameters toClase, I, tc_Comentario, tcProcName, tcProcType, toObjeto
       *--------------------------------------------------------------------------------------------------------------
       #If .F.
-         Local toClaseAs CL_CLASE Of  OF 'cl_clase.prg' ;
+         Local toClase As CL_CLASE Of 'cl_clase.prg' ;
             , toObjeto As CL_OBJETO Of 'FOXBIN2PRG.PRG'
       #Endif
 
@@ -2331,7 +2331,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
          Local I, loEx As Exception ;
             , llFoxBin2Prg_Completed, llOLE_DEF_Completed, llINCLUDE_SCX_Completed, llLIBCOMMENT_Completed, llEXTERNAL_CLASS_Completed ;
             , lc_Comentario, lcProcedureAbierto, lcLine ;
-            , loClaseAs CL_CLASE Of  OF 'cl_clase.prg'
+            , loClase As CL_CLASE Of 'cl_clase.prg'
 
          With This As c_conversor_prg_a_bin Of 'c_conversor_prg_a_bin.prg'
             Store '' To lcProcedureAbierto
@@ -2412,7 +2412,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
          Local I, loEx As Exception ;
             , llFoxBin2Prg_Completed, llOLE_DEF_Completed, llINCLUDE_SCX_Completed, llLIBCOMMENT_Completed, llEXTERNAL_CLASS_Completed ;
             , lc_Comentario, lcProcedureAbierto, lcLine, lcExtension ;
-            , loClaseAs CL_CLASE Of  OF 'cl_clase.prg',;
+            , loClase As CL_CLASE Of 'cl_clase.prg',;
             ln_UseXPerFile,;
             ll_RedirectXPerFileToMain
 
