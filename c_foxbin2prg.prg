@@ -2422,12 +2422,11 @@ DEFINE CLASS c_foxbin2prg AS SESSION
              , loFrm_Interactive AS frm_interactive OF 'FOXBIN2PRG.PRG' ;
              , loFrm_Main        AS frm_main        OF 'FOXBIN2PRG.PRG'
 
-
          WITH This AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
-            
+
             lc_OldSetNotify  = SET("Notify")
             SET NOTIFY OFF
-            
+
             lnCodError       = 0
             loLang           = _SCREEN.o_FoxBin2Prg_Lang
             loFSO            = .o_FSO
@@ -2525,7 +2524,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                CASE LEN(tc_InputFile) = 1
                   lcInputFile_Type    = C_FILETYPE_QUERYSUPPORT
 
-               CASE ADir(laDirInfo, tc_InputFile, "D") = 1 AND Substr( laDirInfo(1,5), 5, 1 ) = "D"
+               CASE ADir(laDirInfo, JustPath(tc_InputFile), "D") = 1 AND Substr( laDirInfo(1,5), 5, 1 ) = "D"
                   *-- Ejemplo: "c:\desa\"
                   lcInputFile_Type    = C_FILETYPE_DIRECTORY
 
