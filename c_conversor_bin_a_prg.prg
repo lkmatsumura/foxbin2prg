@@ -6,52 +6,52 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
    #Endif
 
    _MemberData = [<VFPData>] ;
-      + [<memberdata name="convert" display="convert"/>] ;
-      + [<memberdata name="classify_pam_hidden_protected" display="classify_PAM_Hidden_Protected"/>] ;
-      + [<memberdata name="exception2str" display="exception2Str"/>] ;
-      + [<memberdata name="get_add_object_methods" display="get_ADD_OBJECT_METHODS"/>] ;
-      + [<memberdata name="get_class_methods" display="get_CLASS_METHODS"/>] ;
-      + [<memberdata name="get_olepublicobjectname" display="get_OLEPublicObjectName"/>] ;
-      + [<memberdata name="get_propsfrom_protected" display="get_PropsFrom_PROTECTED"/>] ;
-      + [<memberdata name="get_propsandcommentsfrom_reserved3" display="get_PropsAndCommentsFrom_RESERVED3"/>] ;
-      + [<memberdata name="get_propsandvaluesfrom_properties" display="get_PropsAndValuesFrom_PROPERTIES"/>] ;
-      + [<memberdata name="ignoreincorrectdefinedobjects" display="ignoreIncorrectDefinedObjects"/>] ;
-      + [<memberdata name="indentmemo" display="indentMemo"/>] ;
-      + [<memberdata name="memoinoneline" display="memoInOneLine"/>] ;
-      + [<memberdata name="method2array" display="method2Array"/>] ;
-      + [<memberdata name="normalizeassignment" display="normalizeAssignment"/>] ;
-      + [<memberdata name="set_multilinememowithaddobjectproperties" display="set_MultilineMemoWithAddObjectProperties"/>] ;
-      + [<memberdata name="sortmethod" display="sortMethod"/>] ;
-      + [<memberdata name="write_add_objects_withproperties" display="write_ADD_OBJECTS_WithProperties"/>] ;
-      + [<memberdata name="write_all_object_methods" display="write_ALL_OBJECT_METHODS"/>] ;
-      + [<memberdata name="write_classmetadata" display="write_CLASSMETADATA"/>] ;
-      + [<memberdata name="write_class_properties" display="write_CLASS_PROPERTIES"/>] ;
-      + [<memberdata name="write_dbc_header" display="write_DBC_HEADER"/>] ;
-      + [<memberdata name="write_dbc_connections" display="write_DBC_CONNECTIONS"/>] ;
-      + [<memberdata name="write_dbc_tables" display="write_DBC_TABLES"/>] ;
-      + [<memberdata name="write_dbc_table_fields" display="write_DBC_TABLE_FIELDS"/>] ;
-      + [<memberdata name="write_dbc_table_indexes" display="write_DBC_TABLE_INDEXES"/>] ;
-      + [<memberdata name="write_dbc_views" display="write_DBC_VIEWS"/>] ;
-      + [<memberdata name="write_dbc_view_fields" display="write_DBC_VIEW_FIELDS"/>] ;
-      + [<memberdata name="write_dbc_view_indexes" display="write_DBC_VIEW_INDEXES"/>] ;
-      + [<memberdata name="write_dbc_relations" display="write_DBC_RELATIONS"/>] ;
-      + [<memberdata name="write_dbf_header" display="write_DBF_HEADER"/>] ;
-      + [<memberdata name="write_dbf_fields" display="write_DBF_FIELDS"/>] ;
-      + [<memberdata name="write_dbf_indexes" display="write_DBF_INDEXES"/>] ;
-      + [<memberdata name="write_defined_pam" display="write_DEFINED_PAM"/>] ;
-      + [<memberdata name="write_define_class" display="write_DEFINE_CLASS"/>] ;
-      + [<memberdata name="write_define_class_comments" display="write_Define_Class_COMMENTS"/>] ;
-      + [<memberdata name="write_oleobjectdefinitions" display="write_OLEObjectDefinitions"/>] ;
-      + [<memberdata name="write_enddefine_ifapplicable" display="write_ENDDEFINE_IfApplicable"/>] ;
-      + [<memberdata name="write_external_class_header" display="write_EXTERNAL_CLASS_HEADER"/>] ;
-      + [<memberdata name="write_external_member_header" display="write_EXTERNAL_MEMBER_HEADER"/>] ;
-      + [<memberdata name="write_hidden_properties" display="write_HIDDEN_Properties"/>] ;
-      + [<memberdata name="write_include" display="write_INCLUDE"/>] ;
-      + [<memberdata name="write_objectmetadata" display="write_OBJECTMETADATA"/>] ;
-      + [<memberdata name="write_outputfile" display="write_OutputFile"/>] ;
-      + [<memberdata name="write_protected_properties" display="write_PROTECTED_Properties"/>] ;
-      + [<memberdata name="write_txt_reporte" display="write_TXT_REPORTE"/>] ;
-      + [</VFPData>]
+               + [<memberdata name="convert" display="convert"/>] ;
+               + [<memberdata name="classify_pam_hidden_protected" display="classify_PAM_Hidden_Protected"/>] ;
+               + [<memberdata name="exception2str" display="exception2Str"/>] ;
+               + [<memberdata name="get_add_object_methods" display="get_ADD_OBJECT_METHODS"/>] ;
+               + [<memberdata name="get_class_methods" display="get_CLASS_METHODS"/>] ;
+               + [<memberdata name="get_olepublicobjectname" display="get_OLEPublicObjectName"/>] ;
+               + [<memberdata name="get_propsfrom_protected" display="get_PropsFrom_PROTECTED"/>] ;
+               + [<memberdata name="get_propsandcommentsfrom_reserved3" display="get_PropsAndCommentsFrom_RESERVED3"/>] ;
+               + [<memberdata name="get_propsandvaluesfrom_properties" display="get_PropsAndValuesFrom_PROPERTIES"/>] ;
+               + [<memberdata name="ignoreincorrectdefinedobjects" display="ignoreIncorrectDefinedObjects"/>] ;
+               + [<memberdata name="indentmemo" display="indentMemo"/>] ;
+               + [<memberdata name="memoinoneline" display="memoInOneLine"/>] ;
+               + [<memberdata name="method2array" display="method2Array"/>] ;
+               + [<memberdata name="normalizeassignment" display="normalizeAssignment"/>] ;
+               + [<memberdata name="set_multilinememowithaddobjectproperties" display="set_MultilineMemoWithAddObjectProperties"/>] ;
+               + [<memberdata name="sortmethod" display="sortMethod"/>] ;
+               + [<memberdata name="write_add_objects_withproperties" display="write_ADD_OBJECTS_WithProperties"/>] ;
+               + [<memberdata name="write_all_object_methods" display="write_ALL_OBJECT_METHODS"/>] ;
+               + [<memberdata name="write_classmetadata" display="write_CLASSMETADATA"/>] ;
+               + [<memberdata name="write_class_properties" display="write_CLASS_PROPERTIES"/>] ;
+               + [<memberdata name="write_dbc_header" display="write_DBC_HEADER"/>] ;
+               + [<memberdata name="write_dbc_connections" display="write_DBC_CONNECTIONS"/>] ;
+               + [<memberdata name="write_dbc_tables" display="write_DBC_TABLES"/>] ;
+               + [<memberdata name="write_dbc_table_fields" display="write_DBC_TABLE_FIELDS"/>] ;
+               + [<memberdata name="write_dbc_table_indexes" display="write_DBC_TABLE_INDEXES"/>] ;
+               + [<memberdata name="write_dbc_views" display="write_DBC_VIEWS"/>] ;
+               + [<memberdata name="write_dbc_view_fields" display="write_DBC_VIEW_FIELDS"/>] ;
+               + [<memberdata name="write_dbc_view_indexes" display="write_DBC_VIEW_INDEXES"/>] ;
+               + [<memberdata name="write_dbc_relations" display="write_DBC_RELATIONS"/>] ;
+               + [<memberdata name="write_dbf_header" display="write_DBF_HEADER"/>] ;
+               + [<memberdata name="write_dbf_fields" display="write_DBF_FIELDS"/>] ;
+               + [<memberdata name="write_dbf_indexes" display="write_DBF_INDEXES"/>] ;
+               + [<memberdata name="write_defined_pam" display="write_DEFINED_PAM"/>] ;
+               + [<memberdata name="write_define_class" display="write_DEFINE_CLASS"/>] ;
+               + [<memberdata name="write_define_class_comments" display="write_Define_Class_COMMENTS"/>] ;
+               + [<memberdata name="write_oleobjectdefinitions" display="write_OLEObjectDefinitions"/>] ;
+               + [<memberdata name="write_enddefine_ifapplicable" display="write_ENDDEFINE_IfApplicable"/>] ;
+               + [<memberdata name="write_external_class_header" display="write_EXTERNAL_CLASS_HEADER"/>] ;
+               + [<memberdata name="write_external_member_header" display="write_EXTERNAL_MEMBER_HEADER"/>] ;
+               + [<memberdata name="write_hidden_properties" display="write_HIDDEN_Properties"/>] ;
+               + [<memberdata name="write_include" display="write_INCLUDE"/>] ;
+               + [<memberdata name="write_objectmetadata" display="write_OBJECTMETADATA"/>] ;
+               + [<memberdata name="write_outputfile" display="write_OutputFile"/>] ;
+               + [<memberdata name="write_protected_properties" display="write_PROTECTED_Properties"/>] ;
+               + [<memberdata name="write_txt_reporte" display="write_TXT_REPORTE"/>] ;
+               + [</VFPData>]
 
 
    Procedure convert
@@ -204,11 +204,11 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
          If tnMethodCount > 0 Then
             With This As c_conversor_bin_a_prg Of 'c_conversor_bin_a_prg.prg'
                For I = 1 To tnMethodCount
-                  lcMethodName        = Chrtran( taMethods(m.I,1), '^', '' )
-                  lnProtectedItem     = Ascan( taProtected, taMethods(m.I,1), 1, 0, 0, 1+2+4)
+                  lcMethodName    = Chrtran( taMethods(m.I,1), '^', '' )
+                  lnProtectedItem = Ascan( taProtected, taMethods(m.I,1), 1, 0, 0, 1+2+4)
 
                   If lnProtectedItem = 0
-                     lnProtectedItem     = Ascan( taProtected, taMethods(m.I,1) + '^', 1, 0, 0, 1+2+4)
+                     lnProtectedItem = Ascan( taProtected, taMethods(m.I,1) + '^', 1, 0, 0, 1+2+4)
 
                      If lnProtectedItem = 0
                         *-- Método común
@@ -222,7 +222,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                      lcProcDef   = 'PROTECTED PROCEDURE'
                   Endif
 
-                  lnCommentRow        = Ascan( taPropsAndComments, '*' + lcMethodName, 1, 0, 1, 1+2+4+8)
+                  lnCommentRow   = Ascan( taPropsAndComments, '*' + lcMethodName, 1, 0, 1, 1+2+4+8)
 
                   *-- Nombre del método
                   lcMethod    = lcProcDef + ' ' + taMethods(m.I,1)
@@ -304,25 +304,25 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
 
       Try
          Local laLines(1), I, lnPos, loEx As Exception
-         tcSortedMemo    = ''
-         tnPropsAndComments_Count    = Alines(laLines, tcMemo, 1+4)
+         tcSortedMemo = ''
+         tnPropsAndComments_Count = Alines(laLines, tcMemo, 1+4)
 
          If tnPropsAndComments_Count <= 1 And Empty(laLines)
-            tnPropsAndComments_Count    = 0
+            tnPropsAndComments_Count = 0
             Exit
          Endif
 
          Dimension taPropsAndComments(tnPropsAndComments_Count,2)
 
          For I = 1 To tnPropsAndComments_Count
-            lnPos           = At(' ', laLines(m.I)) && Un espacio separa la propiedad de su comentario (si tiene)
+            lnPos = At(' ', laLines(m.I)) && Un espacio separa la propiedad de su comentario (si tiene)
 
             If lnPos = 0
-               taPropsAndComments(m.I,1)   = Lower( laLines(m.I) )
-               taPropsAndComments(m.I,2)   = ''
+               taPropsAndComments(m.I,1) = Lower( laLines(m.I) )
+               taPropsAndComments(m.I,2) = ''
             Else
-               taPropsAndComments(m.I,1)   = Lower( Left( laLines(m.I), lnPos - 1 ) )
-               taPropsAndComments(m.I,2)   = Substr( laLines(m.I), lnPos + 1 )
+               taPropsAndComments(m.I,1) = Lower( Left( laLines(m.I), lnPos - 1 ) )
+               taPropsAndComments(m.I,2) = Substr( laLines(m.I), lnPos + 1 )
             Endif
          Endfor
 
@@ -1193,47 +1193,47 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
             If '.' $ toRegObj.Parent
                *-- Este caso: clase.objeto.objeto ==> se quita clase
                TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<Chr(9)>>ADD OBJECT '<<SUBSTR(toRegObj.Parent, AT('.', toRegObj.Parent)+1)>>.<<toRegObj.objName>>' AS <<LOWER(ALLTRIM(toRegObj.Class))>> <<>>
+                  <<Chr(9)>>ADD OBJECT '<<SUBSTR(toRegObj.Parent, AT('.', toRegObj.Parent)+1)>>.<<toRegObj.objName>>' AS <<LOWER(ALLTRIM(toRegObj.Class))>> <<>>
                ENDTEXT
             Else
                *-- Este caso: objeto
                TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<Chr(9)>>ADD OBJECT '<<toRegObj.objName>>' AS <<LOWER(ALLTRIM(toRegObj.Class))>> <<>>
+                  <<Chr(9)>>ADD OBJECT '<<toRegObj.objName>>' AS <<LOWER(ALLTRIM(toRegObj.Class))>> <<>>
                ENDTEXT
             Endif
 
             If Not Empty(lcMemo)
                TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                        <<C_WITH>> ;
-                        <<lcMemo>>
+                  <<C_WITH>> ;
+                  <<lcMemo>>
                ENDTEXT
             Endif
 
             TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                    <<C_TAB + C_TAB>><<C_END_OBJECT_I>> <<>>
+               <<C_TAB + C_TAB>><<C_END_OBJECT_I>> <<>>
             ENDTEXT
 
             If Not Empty(toRegObj.CLASSLOC)
                TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                        ClassLib="<<toRegObj.ClassLoc>>" <<>>
+                  ClassLib="<<toRegObj.ClassLoc>>" <<>>
                ENDTEXT
             Endif
 
             TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2+4+8
-                    BaseClass="<<toRegObj.Baseclass>>" <<>>
+               BaseClass="<<toRegObj.Baseclass>>" <<>>
             ENDTEXT
 
             *-- Agrego metainformación para objetos OLE
             If toRegObj.BaseClass == 'olecontrol'
                TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2+4+8
-                        OLEObject="<<LOWER( STREXTRACT(toRegObj.ole2, 'OLEObject = ', CHR(13)+CHR(10), 1, 1+2) )>>"
-                        Value="<<STRCONV(toRegObj.ole,13)>>" <<>>
+                  OLEObject="<<LOWER( STREXTRACT(toRegObj.ole2, 'OLEObject = ', CHR(13)+CHR(10), 1, 1+2) )>>"
+                  Value="<<STRCONV(toRegObj.ole,13)>>" <<>>
                ENDTEXT
             Endif
 
             TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                    <<C_END_OBJECT_F>>
-                    <<>>
+               <<C_END_OBJECT_F>>
+               <<>>
             ENDTEXT
          Endwith
 
@@ -1305,8 +1305,10 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
          With This As c_conversor_bin_a_prg Of 'c_conversor_bin_a_prg.prg'
             *-- DEFINIR PROPIEDADES ( HIDDEN, PROTECTED, *DEFINED_PAM )
             Dimension taProtected(1)
+
             Store '' To lcHiddenProp, lcProtectedProp, lcPropsMethodsDefd
-            Store 0 To tnPropsAndValues_Count, tnPropsAndComments_Count, tnProtected_Count
+            Store 0  To tnPropsAndValues_Count, tnPropsAndComments_Count, tnProtected_Count
+
             .get_PropsAndValuesFrom_PROPERTIES( toRegClass.PROPERTIES, 1, @taPropsAndValues, @tnPropsAndValues_Count, '', @toFoxBin2Prg )
             .get_PropsAndCommentsFrom_RESERVED3( toRegClass.RESERVED3, .T., @taPropsAndComments, @tnPropsAndComments_Count, '' )
             .get_PropsFrom_PROTECTED( toRegClass.Protected, .T., @taProtected, @tnProtected_Count, '' )
@@ -1671,8 +1673,8 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
 
       Try
          Local lc_TAG_REPORTE_I, lc_TAG_REPORTE_F, loEx As Exception
-         lc_TAG_REPORTE_I    = '<' + C_TAG_REPORTE + ' '
-         lc_TAG_REPORTE_F    = '</' + C_TAG_REPORTE + '>'
+         lc_TAG_REPORTE_I = '<'  + C_TAG_REPORTE + ' '
+         lc_TAG_REPORTE_F = '</' + C_TAG_REPORTE + '>'
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                 <<lc_TAG_REPORTE_I>>
@@ -1850,7 +1852,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       *ELSE
 
       TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                *
+         *
       ENDTEXT
       *ENDIF
 

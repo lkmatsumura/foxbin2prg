@@ -3566,7 +3566,7 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg OF 'c_conversor_bin_
     #If .F.
         Local This As c_conversor_vcx_a_prg Of 'FOXBIN2PRG.PRG'
     #Endif
-    c_Type                  = 'VCX'
+    c_Type = 'VCX'
 
 
     Procedure convert
@@ -5340,17 +5340,15 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg OF 'c_conversor_bin_
 
                         Use (.c_InputFile) Shared Again Noupdate Alias _TABLAORIG
 
-*LScheffler 20.08.2023
-*issue #96, including issue #95, [KestasL] keep CodePage relavant information for binary sources
+                        *  keep CodePage relavant information for binary sources
                         toFoxBin2Prg.i_CPID = Cpdbf("_TABLAORIG")
                         SET NOCPTRANS TO NAME,EXPR,STYLE,PICTURE,ORDER,COMMENT,TAG,TAG2,FONTFACE,SUPEXPR,USER
-*/LScheffler 20.08.2023
 
                         This.updateProgressbar( 'Scanning FRX...', 1, 2, 1 )
 
-*-- Verificación de REPORTE VFP 9
+                        *-- Verificación de REPORTE VFP 9
                         If Fcount() < 75 Or Empty(Field("USER"))
-*ERROR 'Report [' + (.c_InputFile) + '] is NOT VFP 9 Format! - Please convert to VFP 9 with MODIFY REPORT ' + JUSTFNAME((.c_InputFile))
+                            * ERROR 'Report [' + (.c_InputFile) + '] is NOT VFP 9 Format! - Please convert to VFP 9 with MODIFY REPORT ' + JUSTFNAME((.c_InputFile))
                             Error (Textmerge(loLang.C_REPORT_NOT_IN_VFP9_FORMAT_LOC))
                         Endif
 
@@ -5362,8 +5360,8 @@ ORDER BY ObjType ASC ;
 INTO CURSOR TABLABIN_0 READWRITE
 *-- Arreglo bug agrupación de controles. 29/10/2015
                         Select * From _TABLAORIG ;
-                            WHERE ObjType In (1,25,26) ;
-                            INTO Cursor TABLABIN_0 Readwrite
+                        WHERE  ObjType In (1,25,26) ;
+                        INTO   CURSOR TABLABIN_0 Readwrite
 
 *-- Header
                         Select TABLABIN_0
