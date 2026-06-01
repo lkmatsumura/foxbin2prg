@@ -2,7 +2,7 @@
 
 Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
    #If .F.
-      Local This As c_conversor_bin_a_prg Of 'FOXBIN2PRG.PRG'
+      Local This As c_conversor_bin_a_prg Of 'c_conversor_bin_a_prg.prg'
    #Endif
 
    _MemberData = [<VFPData>] ;
@@ -132,7 +132,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       Try
          Local lcMethodName, lnMethodCount
 
-         With This As c_conversor_bin_a_prg Of 'FOXBIN2PRG.PRG'
+         With This As c_conversor_bin_a_prg Of 'c_conversor_bin_a_prg.prg'
             lnMethodCount   = tnMethodCount
             .method2Array( toRegObj.METHODS, @taMethods, @taCode, '', @tnMethodCount ;
                , @taPropsAndComments, tnPropsAndComments_Count, @taProtected, tnProtected_Count, @toFoxBin2Prg, @toRegObj )
@@ -202,7 +202,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
          Store '' To lcMethod, lcMethodName, lcProcDef, lcMethods
 
          If tnMethodCount > 0 Then
-            With This As c_conversor_bin_a_prg Of 'FOXBIN2PRG.PRG'
+            With This As c_conversor_bin_a_prg Of 'c_conversor_bin_a_prg.prg'
                For I = 1 To tnMethodCount
                   lcMethodName        = Chrtran( taMethods(m.I,1), '^', '' )
                   lnProtectedItem     = Ascan( taProtected, taMethods(m.I,1), 1, 0, 0, 1+2+4)
@@ -377,7 +377,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
          tnPropsAndValues_Count  = 0
 
          If Not Empty(m.tcMemo)
-            With This As c_conversor_bin_a_prg Of 'FOXBIN2PRG.PRG'
+            With This As c_conversor_bin_a_prg Of 'c_conversor_bin_a_prg.prg'
                lnItemCount = Alines(laItems, m.tcMemo, 0, CR_LF)   && Específicamente CR+LF para que no reconozca los CR o LF por separado
                X   = 0
 
@@ -795,7 +795,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       Store '' To lcMethods, lcLine, laCodeLines, lcMethod, lcLocation
       Store 0 To lnErrorLine, I
 
-      With This As c_conversor_bin_a_prg Of 'FOXBIN2PRG.PRG'
+      With This As c_conversor_bin_a_prg Of 'c_conversor_bin_a_prg.prg'
          toEx.UserValue = toEx.UserValue + CR_LF
 
          If Not Empty(Alias()) And Inlist(.c_Type, 'SCX', 'VCX') Then
@@ -956,7 +956,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
          Endif
 
          If Not Empty(m.tcMethod)
-            With This As c_conversor_bin_a_prg Of 'FOXBIN2PRG.PRG'
+            With This As c_conversor_bin_a_prg Of 'c_conversor_bin_a_prg.prg'
                Dimension laLine(1)
                Store '' To laLine, lcLine, lcLastLine
                Store 0 To lnTextNodes
@@ -1145,7 +1145,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                      Endif
                   Endif
                Endfor
-            Endwith && THIS AS c_conversor_bin_a_prg OF 'FOXBIN2PRG.PRG'
+            Endwith && THIS As c_conversor_bin_a_prg Of 'c_conversor_bin_a_prg.prg'
          Endif
 
       Catch To loEx
@@ -1185,7 +1185,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       Try
          Local lcMemo, laPropsAndValues(1,2), lnPropsAndValues_Count
 
-         With This As c_conversor_bin_a_prg Of 'FOXBIN2PRG.PRG'
+         With This As c_conversor_bin_a_prg Of 'c_conversor_bin_a_prg.prg'
             *-- Defino los objetos a cargar
             .get_PropsAndValuesFrom_PROPERTIES( toRegObj.PROPERTIES, 1, @laPropsAndValues, @lnPropsAndValues_Count, @lcMemo, @toFoxBin2Prg )
             lcMemo  = .set_MultilineMemoWithAddObjectProperties( @laPropsAndValues, @lnPropsAndValues_Count, C_TAB + C_TAB, .T. )
@@ -1264,7 +1264,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
          Store '' To lcMethods
          Dimension laMethods(1,3)
 
-         With This As c_conversor_bin_a_prg Of 'FOXBIN2PRG.PRG'
+         With This As c_conversor_bin_a_prg Of 'c_conversor_bin_a_prg.prg'
             .sortMethod( @tcMethods, @taMethods, @taCode, '', @tnMethodCount ;
                , @taPropsAndComments, tnPropsAndComments_Count, @taProtected, tnProtected_Count, @toFoxBin2Prg )
 
@@ -1302,7 +1302,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
             , lcPropName, lnProtectedItem, lcComentarios ;
             , loEx As Exception
 
-         With This As c_conversor_bin_a_prg Of 'FOXBIN2PRG.PRG'
+         With This As c_conversor_bin_a_prg Of 'c_conversor_bin_a_prg.prg'
             *-- DEFINIR PROPIEDADES ( HIDDEN, PROTECTED, *DEFINED_PAM )
             Dimension taProtected(1)
             Store '' To lcHiddenProp, lcProtectedProp, lcPropsMethodsDefd
