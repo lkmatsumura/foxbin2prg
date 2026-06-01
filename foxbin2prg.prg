@@ -11021,7 +11021,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg
 *!* </pdm>
 
                         toFoxBin2Prg.n_CheckFileInPath = 2
-                        
+
                         lcStr = ADDBS( Chrtran( loProject._HomeDir, ['], [] ))
                         IF toFoxBin2Prg.n_CheckFileInPath=1 THEN
                             * let's scan all files against pjx home dir

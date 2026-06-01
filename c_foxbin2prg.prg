@@ -1004,7 +1004,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       LOCAL lcConfigFile, lcLockFile, llExiste_CFG_EnDisco, llLockFileExists, llFirstRead, I, lcConfData, lcExt, lcValue, lc_CFG_Path, lcConfigLine
       LOCAL lnDirs, llMasterEval, lcProp, llSetSingleConfig, lc_Foxbin2prg_ConfigFile, lc_InputPath
       LOCAL laConfig(1), laDirInfo(1,5), laDirs(1)
-      
+
       LOCAL lo_CFG           AS CL_CFG OF 'FOXBIN2PRG.PRG' ;
           , loCFG_Manual     AS CL_CFG OF 'FOXBIN2PRG.PRG' ;
           , lo_Configuration AS COLLECTION ;
@@ -1033,7 +1033,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
             *!* is a config file given by programm parameter
             IF Vartype(tcCFG_File)='C' AND !Empty(tcCFG_File)
-               
+
                IF Empty(lo_Configuration.GetKey(tcCFG_File))
 
                   This.writeLog( '> ' + loLang.C_USING_THIS_SETTINGS_LOC6+tcCFG_File )
@@ -1047,10 +1047,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
                   .o_Configuration.REMOVE(-1)
                   .n_CFG_EvaluateFromParam = 0
-                  
+
                   .l_SingleConfig   = .F.
                   llSetSingleConfig = .T.
-                  
+
                   .writeLog( '> ' + UPPER(loLang.C_USING_THIS_SETTINGS_LOC) + ': ' + .c_Foxbin2prg_ConfigFile + ;
                      loLang.C_USING_THIS_SETTINGS_LOC1 )
 
@@ -2595,19 +2595,19 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
             CASE ( m.lcType=='-t' OR m.lcType=='t' )
                * not handled
- 
+
             CASE lcExt==This.c_VC2 OR lcExt=="VCX"
                *ClassLib
                DO CASE
                CASE .n_RedirectClassType # 2
                   * not handled
- 
+
                CASE !EMPTY(.c_ClassToConvert)
                   * not otherwise
- 
+
                CASE .n_UseClassPerFile = 0
                   * not handled
- 
+
                CASE OCCURS('.',m.tc_InputFile) > .n_UseClassPerFile
                   * we must have more dots then UseClassPerFile, because there is an extension
 
@@ -2625,7 +2625,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
                OTHERWISE
                   * not handled
- 
+
                ENDCASE
 
             CASE lcExt==This.c_SC2 OR lcExt=="SCX"
