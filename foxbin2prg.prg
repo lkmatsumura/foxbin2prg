@@ -2,7 +2,7 @@
 #INCLUDE foxbin2prg.h
 
 
-Define Class c_conversor_prg_a_vcx As c_conversor_prg_a_bin
+Define Class c_conversor_prg_a_vcx As c_conversor_prg_a_bin OF 'c_conversor_prg_a_bin.prg'
     #If .F.
         Local This As c_conversor_prg_a_vcx Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -590,7 +590,7 @@ Enddefine
 
 
 
-Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin
+Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin OF 'c_conversor_prg_a_bin.prg'
     #If .F.
         Local This As c_conversor_prg_a_scx Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -1003,7 +1003,7 @@ Enddefine
 
 
 
-Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin
+Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin OF 'c_conversor_prg_a_bin.prg'
     #If .F.
         Local This As c_conversor_prg_a_pjx Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -1854,7 +1854,7 @@ Enddefine
 
 
 
-Define Class c_conversor_prg_a_frx As c_conversor_prg_a_bin
+Define Class c_conversor_prg_a_frx As c_conversor_prg_a_bin OF 'c_conversor_prg_a_bin.prg'
     #If .F.
         Local This As c_conversor_prg_a_frx Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -2332,7 +2332,7 @@ Enddefine   && CLASS c_conversor_prg_a_frx AS c_conversor_prg_a_bin
 
 
 
-Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin
+Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin OF 'c_conversor_prg_a_bin.prg'
     #If .F.
         Local This As c_conversor_prg_a_dbf Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -2823,7 +2823,7 @@ Enddefine   && CLASS c_conversor_prg_a_dbf AS c_conversor_prg_a_bin
 
 
 * LScheffler, Analyse, just locate
-Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin
+Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin OF 'c_conversor_prg_a_bin.prg'
     #If .F.
         Local This As c_conversor_prg_a_dbc Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -3183,7 +3183,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin
                     , lc_Comentario, lcProcedureAbierto, lcLine ;
                     , loClase As CL_CLASE Of 'FOXBIN2PRG.PRG'
 
-                With This As c_conversor_prg_a_bin Of 'FOXBIN2PRG.PRG'
+                With This As c_conversor_prg_a_bin Of 'c_conversor_prg_a_bin.prg'
                     Store '' To lcProcedureAbierto
 
                     .c_Type = Upper(Justext(.c_OutputFile))
@@ -3351,7 +3351,7 @@ Enddefine   && CLASS c_conversor_prg_a_dbc AS c_conversor_prg_a_bin
 
 
 
-Define Class c_conversor_prg_a_mnx As c_conversor_prg_a_bin
+Define Class c_conversor_prg_a_mnx As c_conversor_prg_a_bin OF 'c_conversor_prg_a_bin.prg'
     #If .F.
         Local This As c_conversor_prg_a_mnx Of 'FOXBIN2PRG.PRG'
     #Endif

@@ -2,7 +2,7 @@
 
 Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
    #If .F.
-      Local This As c_conversor_prg_a_bin Of 'FOXBIN2PRG.PRG'
+      Local This As c_conversor_prg_a_bin Of 'c_conversor_prg_a_bin.prg'
    #Endif
 
    _MemberData = [<VFPData>] ;
@@ -116,7 +116,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       Local llBloqueEncontrado, laPropsAndValues(1,2), lnPropsAndValues_Count
 
       If Upper( Left( tcLine + ' ', Len(C_FB2PRG_META_I) + 1 ) ) == C_FB2PRG_META_I + ' '
-         With This As c_conversor_prg_a_bin Of foxbin2prg.prg
+         With This As c_conversor_prg_a_bin Of c_conversor_prg_a_bin.prg
             llBloqueEncontrado  = .T.
 
             *-- Metadatos del módulo
@@ -583,7 +583,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
          lcMemo  = ''
 
          If toClase._Prop_Count > 0
-            With This As c_conversor_prg_a_bin Of foxbin2prg.prg
+            With This As c_conversor_prg_a_bin Of c_conversor_prg_a_bin.prg
                .updateProgressbar( 'Generating Props for Class ' + toClase._Nombre + '...', 0, 1, 2 )
                .c_ClaseActual  = Lower(toClase._BaseClass)
                Dimension laPropsAndValues( toClase._Prop_Count, 3 )
@@ -636,7 +636,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       lcMemo  = ''
 
       If toObjeto._Prop_Count > 0
-         With This As c_conversor_prg_a_bin Of foxbin2prg.prg
+         With This As c_conversor_prg_a_bin Of c_conversor_prg_a_bin.prg
             .c_ClaseActual  = Lower(toObjeto._BaseClass)
             Dimension laPropsAndValues( toObjeto._Prop_Count, 2 )
             Acopy( toObjeto._Props, laPropsAndValues )
@@ -671,7 +671,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       lcMemo  = ''
 
       *-- Recorrer los métodos
-      With This As c_conversor_prg_a_bin Of foxbin2prg.prg
+      With This As c_conversor_prg_a_bin Of c_conversor_prg_a_bin.prg
          For I = 1 To toClase._Procedure_Count
             loProcedure = .Null.
             loProcedure = toClase._Procedures(m.I)
@@ -883,7 +883,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       Local lcMemo, I, lcPAM, lcComentario
       lcMemo  = ''
 
-      With This As c_conversor_prg_a_bin Of 'FOXBIN2PRG.PRG'
+      With This As c_conversor_prg_a_bin Of 'c_conversor_prg_a_bin.prg'
          .evaluate_PAM( @lcMemo, toClase._ProtectedProps, 'property', 'protected' )
          .evaluate_PAM( @lcMemo, toClase._HiddenProps, 'property', 'hidden' )
          .evaluate_PAM( @lcMemo, toClase._ProtectedMethods, 'method', 'protected' )
@@ -930,7 +930,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
          Local toObjeto As CL_OBJETO Of 'FOXBIN2PRG.PRG'
       #Endif
 
-      With This As c_conversor_prg_a_bin Of 'FOXBIN2PRG.PRG'
+      With This As c_conversor_prg_a_bin Of 'c_conversor_prg_a_bin.prg'
          If Not .l_Test
             Local lcPropsMemo, lcMethodsMemo
             lcPropsMemo     = .objectProps2Memo( toObjeto, toClase )
@@ -1067,7 +1067,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
          Local N, X, lcObjName, loObjeto As CL_OBJETO Of 'FOXBIN2PRG.PRG'
          loObjeto    = .Null.
 
-         With This As c_conversor_prg_a_bin Of 'FOXBIN2PRG.PRG'
+         With This As c_conversor_prg_a_bin Of 'c_conversor_prg_a_bin.prg'
             If toClase._AddObject_Count > 0
                N   = 0
 
@@ -1171,7 +1171,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
             loProcedure = toClase._Procedures(toClase._Procedure_Count)
          Endif
 
-         With This As c_conversor_prg_a_bin Of 'FOXBIN2PRG.PRG'
+         With This As c_conversor_prg_a_bin Of 'c_conversor_prg_a_bin.prg'
             For I = m.I + 1 To tnCodeLines
                .set_Line( @tcLine, @taCodeLines, m.I )
 
@@ -1259,7 +1259,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
          If Upper( Left( tcLine, 11 ) ) == 'ADD OBJECT '
             *-- Estructura a reconocer: ADD OBJECT 'frm_a.Check1' AS check [WITH]
-            With This As c_conversor_prg_a_bin Of foxbin2prg.prg
+            With This As c_conversor_prg_a_bin Of c_conversor_prg_a_bin.prg
                Local laPropsAndValues(1,2), lnPropsAndValues_Count, Z, lcProp, lcValue, lcNombre, lcObjName, lnPos ;
                   , loLang As CL_LANG Of 'FOXBIN2PRG.PRG'
 
@@ -1439,7 +1439,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
             llBloqueEncontrado  = .T.
             Store '' To lcDefinedPAM, lcItem, lcMethods
 
-            With This As c_conversor_prg_a_bin Of foxbin2prg.prg
+            With This As c_conversor_prg_a_bin Of c_conversor_prg_a_bin.prg
                For I = m.I + 1 To tnCodeLines
                   .set_Line( @tcLine, @taCodeLines, m.I )
 
@@ -1557,7 +1557,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
          If Left( tcLine, C_LEN_DEFINED_PROPVAL_I) == C_DEFINED_PROPVAL_I
             llBloqueEncontrado  = .T.
 
-            With This As c_conversor_prg_a_bin Of foxbin2prg.prg
+            With This As c_conversor_prg_a_bin Of c_conversor_prg_a_bin.prg
                For I = m.I + 1 To tnCodeLines
                   .set_Line( @tcLine, @taCodeLines, m.I )
 
@@ -1661,7 +1661,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
             Endif
 
             * Búsqueda del ID de fin de bloque (ENDDEFINE)
-            With This As c_conversor_prg_a_bin Of 'FOXBIN2PRG.PRG'
+            With This As c_conversor_prg_a_bin Of 'c_conversor_prg_a_bin.prg'
                For I = toClase._Ini_Cab To tnCodeLines
                   tc_Comentario   = ''
                   .set_Line( @tcLine, @taCodeLines, m.I )
@@ -1893,7 +1893,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
             llBloqueEncontrado  = .T.
             toClase._Comentario = ''
 
-            With This As c_conversor_prg_a_bin Of 'FOXBIN2PRG.PRG'
+            With This As c_conversor_prg_a_bin Of 'c_conversor_prg_a_bin.prg'
                For I = m.I + 1 To tnCodeLines
                   .set_Line( @tcLine, @taCodeLines, m.I )
 
@@ -1988,7 +1988,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
          Local laPropsAndValues(1,2), lnPropsAndValues_Count
          llBloqueEncontrado  = .T.
 
-         With This As c_conversor_prg_a_bin Of 'FOXBIN2PRG.PRG'
+         With This As c_conversor_prg_a_bin Of 'c_conversor_prg_a_bin.prg'
             .get_ListNamesWithValuesFrom_InLine_MetadataTag( @tcLine, @laPropsAndValues, @lnPropsAndValues_Count, C_EXTERNAL_CLASS_I, C_EXTERNAL_CLASS_F )
 
             toModulo._ExternalClasses_Count     = toModulo._ExternalClasses_Count + 1
@@ -2137,7 +2137,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
       Local llBloqueEncontrado
 
-      With This As c_conversor_prg_a_bin Of 'FOXBIN2PRG.PRG'
+      With This As c_conversor_prg_a_bin Of 'c_conversor_prg_a_bin.prg'
          Do Case
          Case Upper( Left( tcLine, 20 ) ) == 'PROTECTED PROCEDURE '
             *-- Estructura a reconocer: PROTECTED PROCEDURE nombre_del_procedimiento
@@ -2331,7 +2331,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
             , lc_Comentario, lcProcedureAbierto, lcLine ;
             , loClase As CL_CLASE Of 'FOXBIN2PRG.PRG'
 
-         With This As c_conversor_prg_a_bin Of 'FOXBIN2PRG.PRG'
+         With This As c_conversor_prg_a_bin Of 'c_conversor_prg_a_bin.prg'
             Store '' To lcProcedureAbierto
 
             .c_Type = Upper(Justext(.c_OutputFile))
@@ -2414,7 +2414,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
             ln_UseXPerFile,;
             ll_RedirectXPerFileToMain
 
-         With This As c_conversor_prg_a_bin Of 'FOXBIN2PRG.PRG'
+         With This As c_conversor_prg_a_bin Of 'c_conversor_prg_a_bin.prg'
             Store '' To lcProcedureAbierto
 
             .c_Type = Upper(Justext(.c_OutputFile))
@@ -2579,7 +2579,5 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
       Endcase
    Endproc
-
-
 
 Enddefine
