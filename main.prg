@@ -98,7 +98,7 @@ Lparameters   tc_InputFile      , tcType             , tcTextName      ;
             , tcDontShowProgress, tcOriginalFileName , tcRecompile     ;
             , tcNoTimestamps    , tcCFG_File         , tcOutputFolder
 
-#INCLUDE foxbin2prg.h
+* #INCLUDE foxbin2prg.h
 
 SET PROCEDURE TO foxbin2prg.prg
 

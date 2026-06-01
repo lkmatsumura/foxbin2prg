@@ -1,3 +1,4 @@
+#INCLUDE foxbin2prg.h
 
 Define Class CL_CUS_BASE As Custom
    *-- Propiedades (Se preservan: CONTROLCOUNT, CONTROLS, OBJECTS, PARENT, CLASS)
@@ -49,6 +50,7 @@ Define Class CL_CUS_BASE As Custom
       * I                         (v! IN    ) Número de línea en análisis
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I
+      EXTERNAL ARRAY taCodeLines
       tcLine  = Ltrim( taCodeLines(m.I), 0, Chr(9), ' ' )
    Endproc
 

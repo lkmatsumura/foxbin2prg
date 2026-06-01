@@ -8439,7 +8439,7 @@ Enddefine
 
 
 
-Define Class CL_CLASSLIB As CL_CUS_BASE
+Define Class CL_CLASSLIB As CL_CUS_BASE OF 'cl_cus_base.prg'
     #If .F.
         Local This As CL_CLASSLIB Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -8530,7 +8530,7 @@ Enddefine
 
 
 
-Define Class CL_OLE As CL_CUS_BASE
+Define Class CL_OLE As CL_CUS_BASE OF 'cl_cus_base.prg'
     #If .F.
         Local This As CL_OLE Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -8552,7 +8552,7 @@ Enddefine
 
 
 
-Define Class CL_CLASE As CL_CUS_BASE
+Define Class CL_CLASE As CL_CUS_BASE OF 'cl_cus_base.prg'
     #If .F.
         Local This As CL_CLASE Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -8738,7 +8738,7 @@ Enddefine
 
 
 
-Define Class CL_PROCEDURE As CL_CUS_BASE
+Define Class CL_PROCEDURE As CL_CUS_BASE OF 'cl_cus_base.prg'
     #If .F.
         Local This As CL_PROCEDURE Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -8777,7 +8777,7 @@ Enddefine
 
 
 
-Define Class CL_OBJETO As CL_CUS_BASE
+Define Class CL_OBJETO As CL_CUS_BASE OF 'cl_cus_base.prg'
     #If .F.
         Local This As CL_OBJETO Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -9307,7 +9307,7 @@ Enddefine
 
 
 
-Define Class CL_DBC_BASE As CL_CUS_BASE
+Define Class CL_DBC_BASE As CL_CUS_BASE OF 'cl_cus_base.prg'
     #If .F.
         Local This As CL_DBC_BASE Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -13944,7 +13944,7 @@ Enddefine
 
 
 
-Define Class CL_DBF_TABLE As CL_CUS_BASE
+Define Class CL_DBF_TABLE As CL_CUS_BASE OF 'cl_cus_base.prg'
     #If .F.
         Local This As CL_DBF_TABLE Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -14413,7 +14413,7 @@ Enddefine
 
 
 
-Define Class CL_DBF_FIELD As CL_CUS_BASE
+Define Class CL_DBF_FIELD As CL_CUS_BASE OF 'cl_cus_base.prg'
     #If .F.
         Local This As CL_DBF_FIELD Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -14921,7 +14921,7 @@ Enddefine
 
 
 
-Define Class CL_DBF_INDEX As CL_CUS_BASE
+Define Class CL_DBF_INDEX As CL_CUS_BASE OF 'cl_cus_base.prg'
     #If .F.
         Local This As CL_DBF_INDEX Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -15295,7 +15295,7 @@ Enddefine
 
 
 
-Define Class CL_DBF_RECORD As CL_CUS_BASE
+Define Class CL_DBF_RECORD As CL_CUS_BASE OF 'cl_cus_base.prg'
     #If .F.
         Local This As CL_DBF_RECORD Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -15687,7 +15687,7 @@ Enddefine
 
 
 
-Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE
+Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE OF 'cl_cus_base.prg'
     #If .F.
         Local This As CL_PROJ_SRV_HEAD Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -15972,7 +15972,7 @@ Enddefine
 
 
 
-Define Class CL_PROJ_SRV_DATA As CL_CUS_BASE
+Define Class CL_PROJ_SRV_DATA As CL_CUS_BASE OF 'cl_cus_base.prg'
     #If .F.
         Local This As CL_PROJ_SRV_DATA Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -16078,7 +16078,7 @@ Enddefine
 
 
 
-Define Class CL_PROJ_FILE As CL_CUS_BASE
+Define Class CL_PROJ_FILE As CL_CUS_BASE OF 'cl_cus_base.prg'
     #If .F.
         Local This As CL_PROJ_FILE Of 'FOXBIN2PRG.PRG'
     #Endif
@@ -20985,7 +20985,7 @@ Enddefine
 
 
 
-Define Class CL_MACRO_RECORD As CL_CUS_BASE
+Define Class CL_MACRO_RECORD As CL_CUS_BASE OF 'cl_cus_base.prg'
     _MemberData = [<VFPData>] ;
         + [<memberdata name="macro_name" display="Macro_Name"/>] ;
         + [<memberdata name="macro_length" display="Macro_Length"/>] ;
@@ -21890,7 +21890,7 @@ Enddefine
 
 
 
-Define Class CL_MEMVAR_RECORD As CL_CUS_BASE
+Define Class CL_MEMVAR_RECORD As CL_CUS_BASE OF 'cl_cus_base.prg'
     _MemberData = [<VFPData>] ;
         + [<memberdata name="memvar_name" display="MemVar_Name"/>] ;
         + [<memberdata name="memvar_namelength" display="MemVar_NameLength"/>] ;

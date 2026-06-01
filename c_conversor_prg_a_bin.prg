@@ -72,6 +72,8 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       Lparameters tcPropName, tcValueType, taPropsAndValues
       Local lnPos, luPropValue
 
+      EXTERNAL ARRAY taPropsAndValues
+
       lnPos   = Ascan( taPropsAndValues, tcPropName, 1, 0, 1, 1+2+4+8)
 
       If lnPos = 0 Or Empty( taPropsAndValues( lnPos, 2 ) )

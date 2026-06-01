@@ -357,8 +357,9 @@ Define Class c_conversor_base As Custom
 
    Procedure currentLineIsPreviousLineContinuation
       Lparameters taCodeLines, I
-
       Local lcPrevLine, llIsContinuation
+
+      EXTERNAL ARRAY taCodeLines
 
       *-- Analizo la línea anterior para saber si termina con ";" o "," y la actual es continuación
       If m.I > 1
@@ -893,6 +894,7 @@ Define Class c_conversor_base As Custom
       *--------------------------------------------------------------------------------------------------------------
       Lparameters tcAsignacion, tcPropName, tcValue, toClase, taCodeLines, tnCodeLines, I
       Local ln_AT_Cmt
+
       Store '' To tcPropName, tcValue
 
       *-- EVALUAR UNA ASIGNACIÓN ESPECÍFICA INLINE
