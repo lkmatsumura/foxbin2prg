@@ -11488,7 +11488,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg
                         loServerHead    = loProject._ServerHead
 
                         C_FB2PRG_CODE   = C_FB2PRG_CODE + toFoxBin2Prg.get_PROGRAM_HEADER()
-*!* Changed by: LScheffler 19.3.2023
+
 *!* <pdm>
 *!* <change date="{^2023-03-19,17:16:00}">Changed by: LScheffler<br />
 *!* Text2Bin on PJX errors out for projects with an attach icon that has a drive letter on its path. Issue 93<br />
@@ -11502,28 +11502,29 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg
 *!* </change>
 *!* </pdm>
 
-toFoxBin2Prg.n_CheckFileInPath=2
+                        toFoxBin2Prg.n_CheckFileInPath = 2
+                        
                         lcStr = ADDBS( Chrtran( loProject._HomeDir, ['], [] ))
                         IF toFoxBin2Prg.n_CheckFileInPath=1 THEN
-*let's scan all files against pjx home dir
+                            * let's scan all files against pjx home dir
                             IF !Empty(loProject._MainProg) AND !EMPTY( JUSTDRIVE( SYS( 2014, loProject._MainProg, m.lcStr))) THEN
                                 lcStr = loLang.C_PJXPATH_ERR_LOC1 + loProject._MainProg + loLang.C_PJXPATH_ERR_LOC4 + m.lcStr + loLang.C_PJXPATH_ERR_LOC5
                                 ERROR 1941
-                            ENDIF &&!Empty(loProject._MainProg) AND !EMPTY( JUSTDRIVE( SYS( 2014, loProject._MainProg, m.lcStr)))
+                            ENDIF
+
                             IF !Empty(loProject._Icon) AND !EMPTY( JUSTDRIVE( SYS( 2014, loProject._Icon, m.lcStr))) THEN
                                 lcStr = loLang.C_PJXPATH_ERR_LOC2 + loProject._Icon + loLang.C_PJXPATH_ERR_LOC4 + m.lcStr + loLang.C_PJXPATH_ERR_LOC5
                                 ERROR 1941
-                            ENDIF &&!Empty(loProject._Icon) AND !EMPTY( JUSTDRIVE( SYS( 2014, loProject._Icon, m.lcStr)))
+                            ENDIF
 
                             For Each loReg In loProject &&FOXOBJECT
-                            IF !EMPTY( JUSTDRIVE( SYS( 2014, loReg.Name,m.lcStr))) THEN
-                                lcStr = loLang.C_PJXPATH_ERR_LOC3 + loReg.Name + loLang.C_PJXPATH_ERR_LOC4 + m.lcStr + loLang.C_PJXPATH_ERR_LOC5
-                                ERROR 1941
-                                ENDIF &&!EMPTY( JUSTDRIVE( SYS( 2014, loReg.Name, m.lcStr)))
+                               IF !EMPTY( JUSTDRIVE( SYS( 2014, loReg.Name,m.lcStr))) THEN
+                                   lcStr = loLang.C_PJXPATH_ERR_LOC3 + loReg.Name + loLang.C_PJXPATH_ERR_LOC4 + m.lcStr + loLang.C_PJXPATH_ERR_LOC5
+                                   ERROR 1941
+                               ENDIF
                             Endfor
-                        ENDIF &&toFoxBin2Prg.n_CheckFileInPath=1
+                        ENDIF
 
-*!* /Changed by: LScheffler 19.3.2023
 
 *-- Directorio de inicio
                         TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
@@ -11534,10 +11535,8 @@ toFoxBin2Prg.n_CheckFileInPath=2
                         <<>>
                         ENDTEXT
 
-
 *-- Información del programa
                         C_FB2PRG_CODE   = C_FB2PRG_CODE + loProject.getFormattedDeviceInfoText() + CR_LF
-
 
 *-- Información de los Servidores definidos
                         If Not Empty(loProject._ServerInfo)
@@ -11546,8 +11545,8 @@ toFoxBin2Prg.n_CheckFileInPath=2
 
 
 *-- Generación del proyecto
-*** DH 2021-03-04: only output HomeDir if we're supposed to
                         If toFoxBin2Prg.n_HomeDir = 1
+                            * only output HomeDir if we're supposed to
                             TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                             <<C_BUILDPROJ_I>>
                             <<>>*<.HomeDir = <<loProject._HomeDir>> />
@@ -11557,7 +11556,7 @@ toFoxBin2Prg.n_CheckFileInPath=2
                             <<C_BUILDPROJ_I>>
                             ENDTEXT
                         Endif toFoxBin2Prg.n_HomeDir = 1
-*** DH 2021-03-04: end of updated code
+
                         TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                         <<>>
                         FOR EACH loProject IN _VFP.Projects FOXOBJECT
@@ -11583,7 +11582,7 @@ toFoxBin2Prg.n_CheckFileInPath=2
                         ENDTEXT
 
 
-*-- Definir archivos del proyecto y metadata: CPID, Timestamp, ID, etc.
+                        *-- Definir archivos del proyecto y metadata: CPID, Timestamp, ID, etc.
                         loProject.KeySort = 2
 
                         For Each loReg In loProject &&FOXOBJECT
@@ -11591,11 +11590,9 @@ toFoxBin2Prg.n_CheckFileInPath=2
                             <<Chr(9)>>.ADD('<<loReg.NAME>>')
                             ENDTEXT
 
-*** DH 2024-08-26: changed IF to CASE and added case for BodyDevInfo = 2 meaning omit DEVINFO and OBJREV
-*                           If toFoxBin2Prg.n_BodyDevInfo=1
                             do case
                                  case toFoxBin2Prg.n_BodyDevInfo=1
-* Generates an extra DevInfo tag for each body PJX record
+                                    * Generates an extra DevInfo tag for each body PJX record
                                     TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2+4+8
                                     <<Chr(9)+Chr(9)>><<'&'>><<'&'>> <<C_FILE_META_I>>
                                     Type="<<loReg.TYPE>>"
@@ -11607,8 +11604,9 @@ toFoxBin2Prg.n_CheckFileInPath=2
                                     DevInfo="<<STRCONV(loReg.DEVINFO,13)>>"
                                     <<C_FILE_META_F>>
                                     ENDTEXT
-*                           Else
+
                                 case toFoxBin2Prg.n_BodyDevInfo=2
+                                    * BodyDevInfo = 2 omit DEVINFO and OBJREV
                                     TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2+4+8
                                     <<Chr(9)+Chr(9)>><<'&'>><<'&'>> <<C_FILE_META_I>>
                                     Type="<<loReg.TYPE>>"
@@ -11618,6 +11616,7 @@ toFoxBin2Prg.n_CheckFileInPath=2
                                     User="<<STRCONV(loReg.USER,13)>>"
                                     <<C_FILE_META_F>>
                                     ENDTEXT
+
                                 otherwise
                                     TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2+4+8
                                     <<Chr(9)+Chr(9)>><<'&'>><<'&'>> <<C_FILE_META_I>>
@@ -11629,9 +11628,7 @@ toFoxBin2Prg.n_CheckFileInPath=2
                                     User="<<STRCONV(loReg.USER,13)>>"
                                     <<C_FILE_META_F>>
                                     ENDTEXT
-*                           Endif
                             endcase
-*** DH 2024-08-26: end of changes
 
                             loReg   = .Null.
                         Endfor
@@ -14352,15 +14349,15 @@ Define Class CL_PROJECT As CL_COL_BASE
         Try
                 lcCurDir    = Addbs(This._HomeDir)
                 If Left(tcInfoLine,1) == '.'
-                    lcAsignacion    = 'toObject' + tcInfoLine
+                    lcAsignacion = 'toObject' + tcInfoLine
                 Else
-                    lcAsignacion    = 'toObject.' + tcInfoLine
+                    lcAsignacion = 'toObject.' + tcInfoLine
                 Endif
 
                 lcValue = Getwordnum(lcAsignacion, 2, '=')
 
                 If Type(lcValue) = "C" Then
-                    lcAsignacion    = Getwordnum(lcAsignacion, 1, '=') + '= THIS.encode_SpecialCodes_CR_LF(' + lcValue + ')'
+                    lcAsignacion = Getwordnum(lcAsignacion, 1, '=') + '= THIS.encode_SpecialCodes_CR_LF(' + lcValue + ')'
                 Endif
 
                 &lcAsignacion.
@@ -14381,9 +14378,9 @@ Define Class CL_PROJECT As CL_COL_BASE
         lcStr       = Substr( tcDevInfo, tnPos, tnLen )
         lnNullPos   = At(Chr(0), lcStr )
         If lnNullPos = 0
-            lcValue     = Chrtran( Left( lcStr, tnLen ), ['], ["] )
+           lcValue = Chrtran( Left( lcStr, tnLen ), ['], ["] )
         Else
-            lcValue     = Chrtran( Left( lcStr, Min(tnLen, lnNullPos - 1 ) ), ['], ["] )
+           lcValue = Chrtran( Left( lcStr, Min(tnLen, lnNullPos - 1 ) ), ['], ["] )
         Endif
         lcValue = This.encode_SpecialCodes_CR_LF(lcValue)
         Return lcValue
