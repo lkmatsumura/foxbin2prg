@@ -135,16 +135,16 @@ IF ATC('-VERNO','-'+tc_InputFile) > 0
 ENDIF
 
 *-- En el caso de recibir "BIN2PRG" o "PRG2BIN" en el primer parámetro, los invierto.
-IF    Atc('-BIN2PRG'    , '-'+tc_InputFile) > 0 ;
-   OR Atc('-PRG2BIN'    , '-'+tc_InputFile) > 0 ;
-   OR Atc('-BIN2TEXT'   , '-'+tc_InputFile) > 0 ;
-   OR Atc('-TEXT2BIN'   , '-'+tc_InputFile) > 0 ;
-   OR Atc('-SHOWMSG'    , '-'+tc_InputFile) > 0 ;
-   OR Atc('-INTERACTIVE', '-'+tc_InputFile) > 0 ;
-   OR Atc('-?'          , '-'+tc_InputFile) > 0 ;
-   OR Atc('-SIMERR_I0'  , '-'+tc_InputFile) > 0 ;
-   OR Atc('-SIMERR_I1'  , '-'+tc_InputFile) > 0 ;
-   OR Atc('-SIMERR_O1'  , '-'+tc_InputFile) > 0 ;
+IF    Atc('-BIN2PRG'    , '-' + tc_InputFile) > 0 ;
+   OR Atc('-PRG2BIN'    , '-' + tc_InputFile) > 0 ;
+   OR Atc('-BIN2TEXT'   , '-' + tc_InputFile) > 0 ;
+   OR Atc('-TEXT2BIN'   , '-' + tc_InputFile) > 0 ;
+   OR Atc('-SHOWMSG'    , '-' + tc_InputFile) > 0 ;
+   OR Atc('-INTERACTIVE', '-' + tc_InputFile) > 0 ;
+   OR Atc('-?'          , '-' + tc_InputFile) > 0 ;
+   OR Atc('-SIMERR_I0'  , '-' + tc_InputFile) > 0 ;
+   OR Atc('-SIMERR_I1'  , '-' + tc_InputFile) > 0 ;
+   OR Atc('-SIMERR_O1'  , '-' + tc_InputFile) > 0 ;
    OR Upper(tc_InputFile) == '-C' ;
    OR Upper(tc_InputFile) ==  'C' ;
    OR tc_InputFile == '-t' ;
@@ -224,11 +224,13 @@ ENDTRY
 
 AddProperty(_screen, 'ExitCode', lnResp)
 
+
 IF _VFP.STARTMODE <> 4 OR NOT SYS(16) == SYS(16,0)
    && _vfp.StartMode 4 = Visual FoxPro was started as a distributable .app or .exe file.
    STORE .NULL. TO loEx, loCnv
    RELEASE loEx, loCnv
 
+   ? lnResp
    * lnResp contiene un código de error, pero invocado desde SourceSafe puede contener el tipo de soporte de archivo (0,1,2).
    RETURN lnResp
 ENDIF

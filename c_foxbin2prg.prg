@@ -955,7 +955,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE loadProgressbarForm
       IF VARTYPE(This.o_Frm_Avance) <> "O" THEN
-         This.o_Frm_Avance   = CREATEOBJECT("frm_avance", THIS)
+         This.o_Frm_Avance   = NewObject( "frm_avance" , "frm_avance.prg" , null , This )
          This.o_Frm_Avance.SHOW()
       ENDIF
    ENDPROC
