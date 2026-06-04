@@ -7,7 +7,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                + [</VFPData>]
 
    #If .F.
-      Local This As c_conversor_pjx_a_prg Of 'FOXBIN2PRG.PRG'
+      Local This As c_conversor_pjx_a_prg Of 'c_conversor_pjx_a_prg.prg'
    #Endif
    c_Type                  = 'PJX'
 
@@ -27,16 +27,17 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
       DoDefault( @toModulo, @toEx, @toFoxBin2Prg )
 
       Try
-         Local lnCodError, lcStr, lnPos, lnLen, lnServerCount, loReg, lnLen ;
-            , loEx As Exception ;
-            , loProject As CL_PROJECT Of 'FOXBIN2PRG.PRG' ;
-            , loServerHead As CL_PROJ_SRV_HEAD Of 'FOXBIN2PRG.PRG' ;
-            , loLang As CL_LANG Of 'FOXBIN2PRG.PRG'
+         Local lnCodError, lcStr, lnPos, lnLen, lnServerCount, loReg, lnLen
+         LOCAL loEx As Exception ;
+             , loProject    As CL_PROJECT       Of 'FOXBIN2PRG.PRG' ;
+             , loServerHead As CL_PROJ_SRV_HEAD Of 'FOXBIN2PRG.PRG' ;
+             , loLang       As CL_LANG          Of 'FOXBIN2PRG.PRG'
 
-         loLang          = _Screen.o_FoxBin2Prg_Lang
-         Store .Null. To loProject, loReg, loServerHead
+         loLang = _Screen.o_FoxBin2Prg_Lang
 
-         With This As c_conversor_pjx_a_prg Of 'FOXBIN2PRG.PRG'
+         STORE .Null. TO loProject, loReg, loServerHead
+
+         With This As c_conversor_pjx_a_prg Of 'c_conversor_pjx_a_prg.prg'
             If toFoxBin2Prg.l_ProcessFiles Then
                If Vartype(toModulo) = "O" And toModulo.Class == 'Cl_project' Then
                   *-- Ya esta cargado el objeto del Proyecto y se pasó por referencia
@@ -397,7 +398,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
          loLang          = _Screen.o_FoxBin2Prg_Lang
          Store .Null. To loProject, loReg, loServerHead, loServerData
 
-         With This As c_conversor_pjx_a_prg Of 'FOXBIN2PRG.PRG'
+         With This As c_conversor_pjx_a_prg Of 'c_conversor_pjx_a_prg.prg'
             Use (.c_InputFile) Shared Again Noupdate Alias _TABLAORIG
 
             *!* LScheffler 20.08.2023

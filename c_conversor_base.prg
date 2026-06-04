@@ -348,7 +348,7 @@ Define Class c_conversor_base As Custom
       #Endif
       Local loLang As CL_LANG Of 'FOXBIN2PRG.PRG'
       loLang          = _Screen.o_FoxBin2Prg_Lang
-      *THIS.writeLog( '' )
+
       This.writeLog( C_TAB + loLang.C_CONVERTING_FILE_LOC + ' ' + This.c_OutputFile + '...' )
       Release toModulo, toEx, toFoxBin2Prg, loLang
       Return
