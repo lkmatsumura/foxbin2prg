@@ -4117,7 +4117,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, 'PJX' )
-               loConversor     = CREATEOBJECT( 'c_conversor_prg_a_pjx' )
+               loConversor     = NewObject( 'c_conversor_prg_a_pjx' , 'c_conversor_prg_a_pjx.prg' )
                .changeFileAttribute( FORCEEXT( .c_InputFile, 'PJX' ), lcForceAttribs )
                .changeFileAttribute( FORCEEXT( .c_InputFile, 'PJT' ), lcForceAttribs )
 
@@ -4752,7 +4752,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                loConversor     = CREATEOBJECT( 'c_conversor_prg_a_scx' )
 
             CASE lcExtension = .c_PJ2
-               loConversor     = CREATEOBJECT( 'c_conversor_prg_a_pjx' )
+               loConversor     = NewObject( 'c_conversor_prg_a_pjx' , 'c_conversor_prg_a_pjx.prg' )
 
             CASE lcExtension = .c_FR2
                loConversor     = CREATEOBJECT( 'c_conversor_prg_a_frx' )
