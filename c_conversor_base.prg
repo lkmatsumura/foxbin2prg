@@ -62,15 +62,15 @@ Define Class c_conversor_base As Custom
       + [</VFPData>]
 
 
-   Dimension a_SpecialProps(1), a_SpecialProps_Chk(1), a_SpecialProps_Coll(1) ;
-      , a_SpecialProps_Cbo(1), a_SpecialProps_Cmg(1), a_SpecialProps_Cmd(1), a_SpecialProps_Cur(1) ;
-      , a_SpecialProps_CA(1), a_SpecialProps_DE(1), a_SpecialProps_Edt(1), a_SpecialProps_Frs(1) ;
-      , a_SpecialProps_Grd(1), a_SpecialProps_Grc(1), a_SpecialProps_Grh(1), a_SpecialProps_Hlk(1) ;
-      , a_SpecialProps_Img(1), a_SpecialProps_Lbl(1), a_SpecialProps_Lin(1), a_SpecialProps_Lst(1) ;
-      , a_SpecialProps_Ole(1), a_SpecialProps_Opg(1), a_SpecialProps_Opb(1), a_SpecialProps_Phk(1) ;
-      , a_SpecialProps_Rel(1), a_SpecialProps_Rls(1), a_SpecialProps_Sep(1), a_SpecialProps_Shp(1) ;
-      , a_SpecialProps_Spn(1), a_SpecialProps_Txt(1), a_SpecialProps_Tmr(1), a_SpecialProps_Tbr(1) ;
-      , a_SpecialProps_XMLAda(1), a_SpecialProps_XMLFld(1), a_SpecialProps_XMLTbl(1)
+   Dimension a_SpecialProps(1)    , a_SpecialProps_Chk(1), a_SpecialProps_Coll(1) ;
+           , a_SpecialProps_Cbo(1), a_SpecialProps_Cmg(1), a_SpecialProps_Cmd(1), a_SpecialProps_Cur(1) ;
+           , a_SpecialProps_CA(1) , a_SpecialProps_DE(1) , a_SpecialProps_Edt(1), a_SpecialProps_Frs(1) ;
+           , a_SpecialProps_Grd(1), a_SpecialProps_Grc(1), a_SpecialProps_Grh(1), a_SpecialProps_Hlk(1) ;
+           , a_SpecialProps_Img(1), a_SpecialProps_Lbl(1), a_SpecialProps_Lin(1), a_SpecialProps_Lst(1) ;
+           , a_SpecialProps_Ole(1), a_SpecialProps_Opg(1), a_SpecialProps_Opb(1), a_SpecialProps_Phk(1) ;
+           , a_SpecialProps_Rel(1), a_SpecialProps_Rls(1), a_SpecialProps_Sep(1), a_SpecialProps_Shp(1) ;
+           , a_SpecialProps_Spn(1), a_SpecialProps_Txt(1), a_SpecialProps_Tmr(1), a_SpecialProps_Tbr(1) ;
+           , a_SpecialProps_XMLAda(1), a_SpecialProps_XMLFld(1), a_SpecialProps_XMLTbl(1)
 
    n_Debug                 = 0
    l_Error                 = .F.
@@ -93,7 +93,6 @@ Define Class c_conversor_base As Custom
    c_ClaseActual           = ''
    oFSO                    = .Null.
    n_Methods_LineNo        = 0         && Número de línea del error dentro de "Methods"
-   *** DH 2021-03-04: added cOutputFolder property
    cOutputFolder           = ''
 
 
@@ -108,15 +107,11 @@ Define Class c_conversor_base As Custom
       Set Safety Off
       Set Multilocks On
       Set TablePrompt Off
-      *!* Changed by: LScheffler 21.02.2021
-      *!* change date="{^2021-02-21,10:57:00}"
+
       * Operation set to standard value
       * anywhere else it will respect this to,
       * so it's in the general settings or not
-
       Set Blocksize To 0
-
-      *!* /Changed by: LScheffler 21.02.2021
 
       Set Exact On
       If Not Empty( On("ESCAPE") ) Then
@@ -347,7 +342,8 @@ Define Class c_conversor_base As Custom
          Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
       #Endif
       Local loLang As CL_LANG Of 'FOXBIN2PRG.PRG'
-      loLang          = _Screen.o_FoxBin2Prg_Lang
+
+      loLang = _Screen.o_FoxBin2Prg_Lang
 
       This.writeLog( C_TAB + loLang.C_CONVERTING_FILE_LOC + ' ' + This.c_OutputFile + '...' )
       Release toModulo, toEx, toFoxBin2Prg, loLang
@@ -480,9 +476,10 @@ Define Class c_conversor_base As Custom
 
       With This As c_conversor_base Of 'c_conversor_base.prg'
          .get_SeparatedPropAndValue( @tcAsignacion, @lcPropName, @lcValor )
-         lcComentario    = ''
+
+         lcComentario = ''
          .denormalizePropertyValue( @lcPropName, @lcValor, @lcComentario )
-         tcAsignacion    = lcPropName + ' = ' + lcValor
+         tcAsignacion = lcPropName + ' = ' + lcValor
       Endwith
 
       Release lcPropName, lcValor, lnCodError, lcExpNormalizada, lnPos, lcComentario
@@ -627,7 +624,7 @@ Define Class c_conversor_base As Custom
          , tcExtension = 'MNX', 'M' ;
          , tcExtension = 'TXT', 'T' ;
          , tcExtension = 'FPW', 'T' ;
-         , tcExtension = 'H', 'T' ;
+         , tcExtension = 'H'  , 'T' ;
          , tcExtension = 'SPR', 'E' ;
          , tcExtension = 'MPR', 'P' ;
          , Evl(tcOriginalType, 'x') )

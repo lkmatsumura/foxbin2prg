@@ -9,7 +9,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
    #If .F.
       Local This As c_conversor_pjx_a_prg Of 'c_conversor_pjx_a_prg.prg'
    #Endif
-   c_Type                  = 'PJX'
+   c_Type = 'PJX'
 
 
    Procedure convert
