@@ -238,6 +238,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    n_Order_View_Fields             = 1
    n_ProcessedFiles                = 0             && Contador usado para los archivos file.class.ext
    n_ProcessedFilesCount           = 0             && Contador genérico de procesados
+
    o_Conversor                     = .NULL.
    o_Frm_Avance                    = .NULL.
    o_WSH                           = .NULL.
@@ -245,6 +246,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    o_TextStream                    = .NULL.            && Scripting.TextStream
    o_FNC                           = .NULL.            && Filename_caps object
    o_Configuration                 = .NULL.
+
    run_AfterCreateTable            = ''
    run_AfterCreate_DB2             = ''
    c_PJ2                           = 'PJ2'         && PJX
@@ -380,7 +382,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.o_FSO           = CREATEOBJECT("Scripting.FileSystemObject")
       This.o_Configuration = CREATEOBJECT("COLLECTION")
 
-      This.o_CFG           = CREATEOBJECT('CL_CFG')
+      This.o_CFG           = NewObject('CL_CFG','cl_cfg.prg')
       This.o_CFG.CopyFrom(THIS)
       This.evaluateConfiguration()
       RELEASE lcSys16, lnPosProg, lc_Foxbin2prg_EXE, laValues
@@ -998,15 +1000,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                 , toParentCFG         , tl_ForceLog     , tcCFG_File
 
       #IF .F.
-         LOCAL toParentCFG AS CL_CFG OF 'FOXBIN2PRG.PRG'
+         LOCAL toParentCFG As CL_CFG Of 'cl_cfg.prg'
       #ENDIF
 
       LOCAL lcConfigFile, lcLockFile, llExiste_CFG_EnDisco, llLockFileExists, llFirstRead, I, lcConfData, lcExt, lcValue, lc_CFG_Path, lcConfigLine
       LOCAL lnDirs, llMasterEval, lcProp, llSetSingleConfig, lc_Foxbin2prg_ConfigFile, lc_InputPath
       LOCAL laConfig(1), laDirInfo(1,5), laDirs(1)
 
-      LOCAL lo_CFG           AS CL_CFG OF 'FOXBIN2PRG.PRG' ;
-          , loCFG_Manual     AS CL_CFG OF 'FOXBIN2PRG.PRG' ;
+      LOCAL lo_CFG           As CL_CFG Of 'cl_cfg.prg' ;
+          , loCFG_Manual     As CL_CFG Of 'cl_cfg.prg' ;
           , lo_Configuration AS COLLECTION ;
           , loLang           AS CL_LANG OF 'FOXBIN2PRG.PRG' ;
           , loEx             AS EXCEPTION
@@ -1273,7 +1275,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   .writeLog( '> ' + UPPER(loLang.C_USING_THIS_SETTINGS_LOC) + ': ' + lo_CFG.c_Foxbin2prg_ConfigFile + '  => ' + tc_InputFile + ;
                      ' CFG_Actual:' + TRANSFORM(.n_CFG_Actual) + ICASE(.n_CFG_Actual=1, ' [MASTER]', ' [SECONDARY]')  )
                ELSE
-                  lo_CFG  = CREATEOBJECT('CL_CFG')
+                  lo_CFG  = NewObject('CL_CFG','cl_cfg.prg')
                   lo_Configuration.ADD( lo_CFG, lcConfigFile )
                   .n_CFG_Actual   = lo_Configuration.COUNT
 
@@ -2416,7 +2418,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
              , loFSO  AS Scripting.FileSystemObject ;
              , loWSH  AS WScript.SHELL
 
-         LOCAL loCFG             AS CL_CFG          OF 'FOXBIN2PRG.PRG' ;
+         LOCAL loCFG             AS CL_CFG          OF 'cl_cfg.prg' ;
              , loLang            AS CL_LANG         OF 'FOXBIN2PRG.PRG' ;
              , loDBF_CFG         AS CL_DBF_CFG      OF 'FOXBIN2PRG.PRG' ;
              , loFrm_Interactive AS frm_interactive OF 'frm_interactive.PRG' ;
@@ -4360,7 +4362,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       ENDIF
 
       IF ISNULL(loCFG) THEN
-         loCFG   = CREATEOBJECT('CL_CFG')
+         loCFG   = NewObject('CL_CFG','cl_cfg.prg')
          loCFG.CopyFrom(THIS)
       ENDIF
 
