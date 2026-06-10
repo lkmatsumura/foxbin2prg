@@ -62,15 +62,23 @@ Define Class c_conversor_base As Custom
       + [</VFPData>]
 
 
-   Dimension a_SpecialProps(1)    , a_SpecialProps_Chk(1), a_SpecialProps_Coll(1) ;
-           , a_SpecialProps_Cbo(1), a_SpecialProps_Cmg(1), a_SpecialProps_Cmd(1), a_SpecialProps_Cur(1) ;
-           , a_SpecialProps_CA(1) , a_SpecialProps_DE(1) , a_SpecialProps_Edt(1), a_SpecialProps_Frs(1) ;
-           , a_SpecialProps_Grd(1), a_SpecialProps_Grc(1), a_SpecialProps_Grh(1), a_SpecialProps_Hlk(1) ;
-           , a_SpecialProps_Img(1), a_SpecialProps_Lbl(1), a_SpecialProps_Lin(1), a_SpecialProps_Lst(1) ;
-           , a_SpecialProps_Ole(1), a_SpecialProps_Opg(1), a_SpecialProps_Opb(1), a_SpecialProps_Phk(1) ;
-           , a_SpecialProps_Rel(1), a_SpecialProps_Rls(1), a_SpecialProps_Sep(1), a_SpecialProps_Shp(1) ;
-           , a_SpecialProps_Spn(1), a_SpecialProps_Txt(1), a_SpecialProps_Tmr(1), a_SpecialProps_Tbr(1) ;
-           , a_SpecialProps_XMLAda(1), a_SpecialProps_XMLFld(1), a_SpecialProps_XMLTbl(1)
+   DIMENSION a_SpecialProps(1)     , a_SpecialProps_Chk(1) , a_SpecialProps_Coll(1) ;
+           , a_SpecialProps_Cbo(1) , a_SpecialProps_Cmg(1) , a_SpecialProps_Cmd(1)  ;
+           , a_SpecialProps_Cur(1) , a_SpecialProps_CA(1)  , a_SpecialProps_DE(1)   ;
+           , a_SpecialProps_Edt(1) , a_SpecialProps_Frs(1) , a_SpecialProps_Grd(1)  ;
+           , a_SpecialProps_Grc(1) , a_SpecialProps_Grh(1) , a_SpecialProps_Hlk(1)  ;
+           , a_SpecialProps_Img(1) , a_SpecialProps_Lbl(1) , a_SpecialProps_Lin(1)  ;
+           , a_SpecialProps_Lst(1) , a_SpecialProps_Ole(1) , a_SpecialProps_Opg(1)  ;
+           , a_SpecialProps_Opb(1) , a_SpecialProps_Phk(1) , a_SpecialProps_Rel(1)  ;
+           , a_SpecialProps_Rls(1) , a_SpecialProps_Sep(1) , a_SpecialProps_Shp(1)  ;
+           , a_SpecialProps_Spn(1) , a_SpecialProps_Txt(1) , a_SpecialProps_Tmr(1)  ;
+           , a_SpecialProps_Tbr(1)
+
+   DIMENSION a_SpecialProps_XMLAda(1) ;
+           , a_SpecialProps_XMLFld(1) ;
+           , a_SpecialProps_XMLTbl(1)
+
+   DIMENSION a_SpecialPropsFiles(1)
 
    n_Debug                 = 0
    l_Error                 = .F.
@@ -131,7 +139,7 @@ Define Class c_conversor_base As Custom
       Endif
 
       This.c_Foxbin2prg_FullPath      = Substr( lcSys16, lnPosProg )
-      This.sortSpecialProps()
+      This.SpecialProps_init()
       Release lcSys16, lnPosProg
       Return
    Endproc
@@ -1275,186 +1283,56 @@ Define Class c_conversor_base As Custom
       * tcPropName                (v! IN    ) Nombre de la propiedad
       *--------------------------------------------------------------------------------------------------------------
       Lparameters tcOperation, tcPropName
-
       Try
          Local lcPropName, lcClass, lnPos ;
             , loEx As Exception ;
             , loLang As CL_LANG Of 'FOXBIN2PRG.PRG'
+
          loLang      = _Screen.o_FoxBin2Prg_Lang
          lcPropName  = tcPropName
          tcOperation = Upper(Evl(tcOperation,''))
 
          Do Case
-         Case tcOperation == 'GETNAME'
-            lcPropName  = Substr(tcPropName,5)
+          Case tcOperation == 'GETNAME'
+               lcPropName  = Substr(tcPropName,5)
 
-         Case Not tcOperation == 'SETNAME'
-            Error loLang.C_ONLY_SETNAME_AND_GETNAME_RECOGNIZED_LOC
+          Case Not tcOperation == 'SETNAME'
+               Error loLang.C_ONLY_SETNAME_AND_GETNAME_RECOGNIZED_LOC
 
-         Case lcPropName == 'Name'   && System "Name" property
-            lcPropName  = 'A999' + lcPropName
+          Case lcPropName == 'Name'   && System "Name" property
+               lcPropName  = 'A999' + lcPropName
 
-         Otherwise
-            *-- Soporte de evaluación de propiedades por clase evaluada
-            With This
-               #If .F. &&USED("foxbin2prg_keywords") THEN
-                  lcClass = Icase( .c_ClaseActual == 'grid', 'all' ;
-                     , .c_ClaseActual == 'form', 'all' ;
-                     , .c_ClaseActual == 'pageframe', 'all' ;
-                     , .c_ClaseActual == 'control', 'all' ;
-                     , .c_ClaseActual == 'container', 'all' ;
-                     , .c_ClaseActual == 'toolbar', 'all' ;
-                     , .c_ClaseActual )
+          Otherwise
+               *-- Soporte de evaluación de propiedades por clase evaluada
+               LOCAL lnArray, lcPropsArray
+               WITH This
+                  lnArray = Ascan( This.a_specialpropsfiles ,Lower( Alltrim(.c_ClaseActual) ) , 1 , 0 , 3 , 2+4+8 )
+                  IF lnArray = 0
+                     lnArray = Ascan( This.a_specialpropsfiles , 'all' , 1 , 0 , 3 , 2+4+8 )
+                  ENDIF
+                  lcPropsArray = This.a_specialpropsfiles[ lnArray , 2 ]
 
-                  lnPos   = Iif( Seek( Padr(lcClass,15) + Padr(lcPropName,30), 'foxbin2prg_keywords' ), foxbin2prg_keywords.i_order, 0 )
+                  lnPos = Ascan( .&lcPropsArray, lcPropName, 1, 0, 1, 1+2+4 )
 
-               #Else
-                  Do Case
-                  Case .c_ClaseActual == 'checkbox'
-                     lnPos   = Ascan( .a_SpecialProps_Chk, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'collection'
-                     lnPos   = Ascan( .a_SpecialProps_Coll, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'combobox'
-                     lnPos   = Ascan( .a_SpecialProps_Cbo, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'commandgroup'
-                     lnPos   = Ascan( .a_SpecialProps_Cmg, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'commandbutton'
-                     lnPos   = Ascan( .a_SpecialProps_Cmd, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'cursor'
-                     lnPos   = Ascan( .a_SpecialProps_Cur, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'cursoradapter'
-                     lnPos   = Ascan( .a_SpecialProps_CA, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'dataenvironment'
-                     lnPos   = Ascan( .a_SpecialProps_DE, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'editbox'
-                     lnPos   = Ascan( .a_SpecialProps_Edt, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'formset'
-                     lnPos   = Ascan( .a_SpecialProps_Frs, lcPropName, 1, 0, 1, 1+2+4 )
-
-                     *-- Comento la clase grid, porque puede contener a todos los controles, como un form
-                     *CASE .c_ClaseActual == 'grid'
-                     *    lnPos   = ASCAN( .a_SpecialProps_Grd, lcPropName, 1, 0, 1, 1+2+4 )
-
-                     *-- Comento la clase form, porque puede contener a todos los controles, como un form
-                     *CASE .c_ClaseActual == 'form'
-                     *    lnPos   = ASCAN( .a_SpecialProps_Frm, lcPropName, 1, 0, 1, 1+2+4 )
-
-                     *-- Comento la clase pageframe, porque puede contener a todos los controles, como un form
-                     *CASE .c_ClaseActual == 'pageframe'
-                     *    lnPos   = ASCAN( .a_SpecialProps_Pgf, lcPropName, 1, 0, 1, 1+2+4 )
-
-                     *-- Comento la clase control, porque puede contener a todos los controles, como un form
-                     *CASE .c_ClaseActual == 'control'
-                     *    lnPos   = ASCAN( .a_SpecialProps_Ctl, lcPropName, 1, 0, 1, 1+2+4 )
-
-                     *-- Comento la clase container, porque puede contener a todos los controles, como un form
-                     *CASE .c_ClaseActual == 'container'
-                     *    lnPos   = ASCAN( .a_SpecialProps_Cnt, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'column'
-                     lnPos   = Ascan( .a_SpecialProps_Grc, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'header'
-                     lnPos   = Ascan( .a_SpecialProps_Grh, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'hyperlink'
-                     lnPos   = Ascan( .a_SpecialProps_Hlk, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'image'
-                     lnPos   = Ascan( .a_SpecialProps_Img, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'label'
-                     lnPos   = Ascan( .a_SpecialProps_Lbl, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'line'
-                     lnPos   = Ascan( .a_SpecialProps_Lin, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'listbox'
-                     lnPos   = Ascan( .a_SpecialProps_Lst, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'olebound'
-                     lnPos   = Ascan( .a_SpecialProps_Ole, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'optiongroup'
-                     lnPos   = Ascan( .a_SpecialProps_Opg, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'optionbutton'
-                     lnPos   = Ascan( .a_SpecialProps_Opb, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'projecthook'
-                     lnPos   = Ascan( .a_SpecialProps_Phk, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'relation'
-                     lnPos   = Ascan( .a_SpecialProps_Rel, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'reportlistener'
-                     lnPos   = Ascan( .a_SpecialProps_Rls, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'separator'
-                     lnPos   = Ascan( .a_SpecialProps_Sep, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'shape'
-                     lnPos   = Ascan( .a_SpecialProps_Shp, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'spinner'
-                     lnPos   = Ascan( .a_SpecialProps_Spn, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'textbox'
-                     lnPos   = Ascan( .a_SpecialProps_Txt, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'timer'
-                     lnPos   = Ascan( .a_SpecialProps_Tmr, lcPropName, 1, 0, 1, 1+2+4 )
-
-                     *-- Comento la clase toolbar, porque puede contener a todos los controles, como un form
-                     *CASE .c_ClaseActual == 'toolbar'
-                     *   lnPos   = ASCAN( .a_SpecialProps_Tbr, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'xmladapter'
-                     lnPos   = Ascan( .a_SpecialProps_XMLAda, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'xmlfield'
-                     lnPos   = Ascan( .a_SpecialProps_XMLFld, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Case .c_ClaseActual == 'xmltable'
-                     lnPos   = Ascan( .a_SpecialProps_XMLTbl, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  Otherwise
-                     lnPos   = Ascan( .a_SpecialProps, lcPropName, 1, 0, 1, 1+2+4 )
-                  Endcase
-               #Endif
-
-               *IF lnPos2 <> lnPos
-               *   ERROR 'lnPos y lnPos2 no coinciden para "' + .c_ClaseActual + '.' + lcPropName + '"!  lnPos=' + TRANSFORM(lnPos) + ', lnPos2=' + TRANSFORM(lnPos2)
-               *ENDIF
-
-               *-- Genera una propiedad con el formato "A nnn Propiedad", donde los valores más altos quedan al final,
-               *-- de modo que primero van las props nativas, luego las del usuario y al final "name", que es especial.
-               *-- Ej: "A004ScaleMode", ..., "A998UserProp", "A999Name"
-               lcPropName  = 'A' + Padl( Evl(lnPos,998), 3, '0' ) + lcPropName
-            Endwith && THIS
-         Endcase
+                  *-- Genera una propiedad con el formato "A nnn Propiedad", donde los valores más altos quedan al final,
+                  *-- de modo que primero van las props nativas, luego las del usuario y al final "name", que es especial.
+                  *-- Ej: "A004ScaleMode", ..., "A998UserProp", "A999Name"
+                  lcPropName  = 'A' + Padl( Evl(lnPos,998), 3, '0' ) + lcPropName
+               ENDWITH
+         ENDCASE
 
       Catch To loEx
-         If This.n_Debug > 0 And _vfp.StartMode = 0
-            Set Step On
-         Endif
-
-         Throw
+            If This.n_Debug > 0 And _vfp.StartMode = 0
+               Set Step On
+            Endif
+            Throw
 
       Finally
-         Release tcOperation, tcPropName, lnPos, loEx
-      Endtry
+            Release tcOperation, tcPropName, lnPos, loEx
 
+      Endtry
       Return lcPropName
+
    Endproc
 
 
@@ -1637,128 +1515,55 @@ Define Class c_conversor_base As Custom
 
 
 
-   Procedure sortSpecialProps
+   Procedure SpecialProps_Init
       Try
          Local loEx As Exception
-         Local I, lcPropsFile
+         Local lcPropsFile, lcPropsDir, lnI , lnLen
 
          lcPropsFile = ''
 
          With This As conversor_base Of "FOXBIN2PRG.PRG"
-            *-- (TODAS) => Antes era solo FORM
-            #If .F.
-               *-- 03/04/2015 FDBOZZO
-               *-- Quise comparar la velocidad de los ASCAN(array) contra un SEEK a una tabla de propiedades con índice, y resulta que para
-               *-- unas 1500 propiedades casi no hay diferencias (10 segundos en unos 1600 archivos) :(
-               Use (Fullpath( 'foxbin2prg_keywords', .c_Foxbin2prg_FullPath )) Shared Noupdate Again In 0 Order PK  && C_CLASS+C_KEYWORD
-            #Else
-               Local lcPropsDir
-               lcPropsDir  = .c_Foxbin2prg_FullPath + '\props'
+            .SpecialPropsFiles_Add( "props_all.txt"                , "a_SpecialProps"        , "all"             )
+            .SpecialPropsFiles_Add( "props_checkbox.txt"           , "a_SpecialProps_Chk"    , "checkbox"        )
+            .SpecialPropsFiles_Add( "props_collection.txt"         , "a_SpecialProps_Coll"   , "collection"      )
+            .SpecialPropsFiles_Add( "props_combobox.txt"           , "a_SpecialProps_Cbo"    , "combobox"        )
+            .SpecialPropsFiles_Add( "props_commandgroup.txt"       , "a_SpecialProps_Cmg"    , "commandgroup"    )
+            .SpecialPropsFiles_Add( "props_commandbutton.txt"      , "a_SpecialProps_Cmd"    , "commandbutton"   )
+            .SpecialPropsFiles_Add( "props_cursor.txt"             , "a_SpecialProps_Cur"    , "cursor"          )
+            .SpecialPropsFiles_Add( "props_cursoradapter.txt"      , "a_SpecialProps_CA"     , "cursoradapter"   )
+            .SpecialPropsFiles_Add( "props_dataenvironment.txt"    , "a_SpecialProps_DE"     , "dataenvironment" )
+            .SpecialPropsFiles_Add( "props_editbox.txt"            , "a_SpecialProps_Edt"    , "editbox"         )
+            .SpecialPropsFiles_Add( "props_formset.txt"            , "a_SpecialProps_Frs"    , "formset"         )
+            .SpecialPropsFiles_Add( "props_grid_column.txt"        , "a_SpecialProps_Grc"    , "column"          )
+            .SpecialPropsFiles_Add( "props_grid_header.txt"        , "a_SpecialProps_Grh"    , "header"          )
+            .SpecialPropsFiles_Add( "props_hyperlink.txt"          , "a_SpecialProps_Hlk"    , "hyperlink"       )
+            .SpecialPropsFiles_Add( "props_image.txt"              , "a_SpecialProps_Img"    , "image"           )
+            .SpecialPropsFiles_Add( "props_label.txt"              , "a_SpecialProps_Lbl"    , "label"           )
+            .SpecialPropsFiles_Add( "props_line.txt"               , "a_SpecialProps_Lin"    , "line"            )
+            .SpecialPropsFiles_Add( "props_listbox.txt"            , "a_SpecialProps_Lst"    , "listbox"         )
+            .SpecialPropsFiles_Add( "props_olebound.txt"           , "a_SpecialProps_Ole"    , "olebound"        )
+            .SpecialPropsFiles_Add( "props_optiongroup.txt"        , "a_SpecialProps_Opg"    , "optiongroup"     )
+            .SpecialPropsFiles_Add( "props_optiongroup_option.txt" , "a_SpecialProps_Opb"    , "optionbutton"    )
+            .SpecialPropsFiles_Add( "props_projecthook.txt"        , "a_SpecialProps_Phk"    , "projecthook"     )
+            .SpecialPropsFiles_Add( "props_relation.txt"           , "a_SpecialProps_Rel"    , "relation"        )
+            .SpecialPropsFiles_Add( "props_reportlistener.txt"     , "a_SpecialProps_Rls"    , "reportlistener"  )
+            .SpecialPropsFiles_Add( "props_separator.txt"          , "a_SpecialProps_Sep"    , "separator"       )
+            .SpecialPropsFiles_Add( "props_shape.txt"              , "a_SpecialProps_Shp"    , "shape"           )
+            .SpecialPropsFiles_Add( "props_spinner.txt"            , "a_SpecialProps_Spn"    , "spinner"         )
+            .SpecialPropsFiles_Add( "props_textbox.txt"            , "a_SpecialProps_Txt"    , "textbox"         )
+            .SpecialPropsFiles_Add( "props_timer.txt"              , "a_SpecialProps_Tmr"    , "timer"           )
+            .SpecialPropsFiles_Add( "props_xmladapter.txt"         , "a_SpecialProps_XMLAda" , "xmladapter"      )
+            .SpecialPropsFiles_Add( "props_xmlfield.txt"           , "a_SpecialProps_XMLFld" , "xmlfield"        )
+            .SpecialPropsFiles_Add( "props_xmltable.txt"           , "a_SpecialProps_XMLTbl" , "xmltable"        )
 
-               I = 0
+            * lcPropsDir = Justpath( .c_Foxbin2prg_FullPath ) + '\props\'
+            lcPropsDir = 'props\'
 
-               lcPropsFile = Forcepath( "props_all.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_checkbox.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Chk, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_collection.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Coll, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_combobox.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Cbo, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_commandgroup.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Cmg, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_commandbutton.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Cmd, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_cursor.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Cur, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_cursoradapter.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_CA, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_dataenvironment.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_DE, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_editbox.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Edt, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_formset.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Frs, Filetostr( lcPropsFile ), 1+4 )
-
-               *lcPropsFile    = FORCEPATH( "props_grid.txt", JUSTPATH( lcPropsDir ) )
-               *I   = ALINES( .a_SpecialProps_Grd, FILETOSTR( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_grid_column.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Grc, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_grid_header.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Grh, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_hyperlink.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Hlk, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_image.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Img, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_label.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Lbl, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_line.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Lin, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_listbox.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Lst, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_olebound.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Ole, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_optiongroup.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Opg, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_optiongroup_option.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Opb, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_projecthook.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Phk, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_relation.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Rel, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_reportlistener.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Rls, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_separator.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Sep, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_shape.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Shp, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_spinner.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Spn, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_textbox.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Txt, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_timer.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_Tmr, Filetostr( lcPropsFile ), 1+4 )
-
-               *lcPropsFile    = FORCEPATH( "props_toolbar.txt", JUSTPATH( lcPropsDir ) )
-               *I   = ALINES( .a_SpecialProps_Tbr, FILETOSTR( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_xmladapter.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_XMLAda, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_xmlfield.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_XMLFld, Filetostr( lcPropsFile ), 1+4 )
-
-               lcPropsFile = Forcepath( "props_xmltable.txt", Justpath( lcPropsDir ) )
-               I   = Alines( .a_SpecialProps_XMLTbl, Filetostr( lcPropsFile ), 1+4 )
-            #Endif
+            FOR lnI = 1 TO Alen( .a_SpecialPropsFiles , 1 )
+               lcPropsFile = lcPropsDir + .a_SpecialPropsFiles( lnI, 1 )
+               lcProperty  = .a_SpecialPropsFiles( lnI , 2 )
+               =Alines( .&lcProperty, Filetostr( lcPropsFile ), 1+4 )
+            ENDFOR
 
          Endwith
 
@@ -1775,6 +1580,28 @@ Define Class c_conversor_base As Custom
 
       Return
    Endproc
+
+
+   PROCEDURE SpecialPropsFiles_Add
+   LPARAMETERS pcFile , pcPropArrayName, pcBaseClass
+   LOCAL lnI
+
+   IF Alen( This.a_SpecialPropsFiles ) = 1
+      lnI = 1
+   ELSE
+      lnI = Alen( This.a_SpecialPropsFiles , 1 ) + 1
+   ENDIF
+
+   DIMENSION This.a_SpecialPropsFiles[ lnI ,3 ]
+
+   This.a_SpecialPropsFiles[ lnI ,1 ] = pcFile
+   This.a_SpecialPropsFiles[ lnI ,2 ] = pcPropArrayName
+   This.a_SpecialPropsFiles[ lnI ,3 ] = Lower( pcBaseClass )
+
+   RETURN lnI
+
+   ENDPROC
+
 
 
    Procedure writeLog
