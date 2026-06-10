@@ -4005,7 +4005,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, .c_VC2 )
-               loConversor     = CREATEOBJECT( 'c_conversor_vcx_a_prg' )
+               loConversor     = NewObject( 'c_conversor_vcx_a_prg' , 'c_conversor_vcx_a_prg.prg' )
                .changeFileAttribute( FORCEEXT( .c_InputFile, .c_VC2 ), lcForceAttribs )
 
             CASE lcExtension = 'SCX'
@@ -4013,7 +4013,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, .c_SC2 )
-               loConversor     = CREATEOBJECT( 'c_conversor_scx_a_prg' )
+               loConversor     = NewObject( 'c_conversor_scx_a_prg' , 'c_conversor_scx_a_prg.prg' )
                .changeFileAttribute( FORCEEXT( .c_InputFile, .c_SC2 ), lcForceAttribs )
 
             CASE lcExtension = 'PJX'
@@ -4038,7 +4038,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, .c_FR2 )
-               loConversor     = CREATEOBJECT( 'c_conversor_frx_a_prg' )
+               loConversor     = NewObject( 'c_conversor_frx_a_prg' , 'c_conversor_frx_a_prg.prg' )
                .changeFileAttribute( FORCEEXT( .c_InputFile, .c_FR2 ), lcForceAttribs )
 
             CASE lcExtension = 'LBX'
@@ -4046,7 +4046,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, .c_LB2 )
-               loConversor     = CREATEOBJECT( 'c_conversor_frx_a_prg' )
+               loConversor     = NewObject( 'c_conversor_frx_a_prg' , 'c_conversor_frx_a_prg.prg' )
                .changeFileAttribute( FORCEEXT( .c_InputFile, .c_LB2 ), lcForceAttribs )
 
             CASE lcExtension = 'DBF'
@@ -4071,7 +4071,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, .c_MN2 )
-               loConversor     = CREATEOBJECT( 'c_conversor_mnx_a_prg' )
+               loConversor     = NewObject( 'c_conversor_mnx_a_prg' , 'c_conversor_mnx_a_prg.prg' )
                .changeFileAttribute( FORCEEXT( .c_InputFile, .c_MN2 ), lcForceAttribs )
 
             CASE lcExtension = 'FKY'
@@ -4721,10 +4721,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
             DO CASE
             CASE lcExtension = 'VCX'
-               loConversor     = CREATEOBJECT( 'c_conversor_vcx_a_prg' )
+               loConversor     = NewObject( 'c_conversor_vcx_a_prg' , 'c_conversor_vcx_a_prg.prg' )
 
             CASE lcExtension = 'SCX'
-               loConversor     = CREATEOBJECT( 'c_conversor_scx_a_prg' )
+               loConversor     = NewObject( 'c_conversor_scx_a_prg' , 'c_conversor_scx_a_prg.prg' )
 
             CASE lcExtension = 'PJX'
                loConversor     = NewObject( 'c_conversor_pjx_a_prg' , 'c_conversor_pjx_a_prg.prg' )
@@ -4733,10 +4733,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                loConversor     = CREATEOBJECT( 'c_conversor_pjm_a_prg' )
 
             CASE lcExtension = 'FRX'
-               loConversor     = CREATEOBJECT( 'c_conversor_frx_a_prg' )
+               loConversor     = NewObject( 'c_conversor_frx_a_prg' , 'c_conversor_frx_a_prg.prg' )
 
             CASE lcExtension = 'LBX'
-               loConversor     = CREATEOBJECT( 'c_conversor_frx_a_prg' )
+               loConversor     = NewObject( 'c_conversor_frx_a_prg' , 'c_conversor_frx_a_prg.prg' )
 
             CASE lcExtension = 'DBF'
                loConversor     = CREATEOBJECT( 'c_conversor_dbf_a_prg' )
@@ -4745,7 +4745,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                loConversor     = CREATEOBJECT( 'c_conversor_dbc_a_prg' )
 
             CASE lcExtension = 'MNX'
-               loConversor     = CREATEOBJECT( 'c_conversor_mnx_a_prg' )
+               loConversor     = NewObject( 'c_conversor_mnx_a_prg' , 'c_conversor_mnx_a_prg.prg' )
 
             CASE lcExtension = .c_VC2
                loConversor     = CREATEOBJECT( 'c_conversor_prg_a_vcx' )
