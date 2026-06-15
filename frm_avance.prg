@@ -428,11 +428,11 @@ Define Class frm_avance As Form
         Lparameters toFoxBin2Prg
 
         #If .F.
-            Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+            Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
             Local Thisform As frm_avance Of foxbin2prg.prg
         #Endif
 
-        Local laDirInfo(1,5), loLang As CL_LANG Of 'FOXBIN2PRG.PRG'
+        Local laDirInfo(1,5), loLang As CL_LANG Of 'cl_lang.prg', lcBackgroundImage As String
 
         If Vartype(toFoxBin2Prg) = "O" Then
             If Type("_SCREEN.o_FoxBin2Prg_Lang") = "O" Then
@@ -440,15 +440,14 @@ Define Class frm_avance As Form
                 Thisform.Caption        = 'FoxBin2Prg ' + _Screen.c_FB2PRG_EXE_Version + ' > - ' + loLang.C_PROCESS_PROGRESS_LOC + '  (' + loLang.C_PRESS_ESC_TO_CANCEL + ')'
             Endif
 
-*IF ADIR( laDirInfo, FORCEEXT( toFoxBin2Prg.c_Foxbin2prg_FullPath, 'ICO' ) ) > 0 THEN
             If File( Forceext( toFoxBin2Prg.c_Foxbin2prg_FullPath, 'ICO' ) ) Then
                 Thisform.Icon = Forceext( toFoxBin2Prg.c_Foxbin2prg_FullPath, 'ICO' )
             Endif
 
-*IF ADIR( laDirInfo, toFoxBin2Prg.c_BackgroundImage ) > 0 THEN
-            If File( toFoxBin2Prg.c_BackgroundImage ) Then
+            lcBackgroundImage = toFoxBin2Prg.getCfgValue('c_BackgroundImage')
+            If File( m.lcBackgroundImage ) Then
                 Clear Resources
-                Thisform.Picture = toFoxBin2Prg.c_BackgroundImage
+                Thisform.Picture = m.lcBackgroundImage
             Endif
         Endif
 

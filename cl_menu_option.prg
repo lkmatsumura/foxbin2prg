@@ -1,4 +1,4 @@
-#INCLUDE 'foxbin2prg.h'
+#INCLUDE foxbin2prg.h
 
 Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
    _MemberData = [<VFPData>] ;
@@ -31,9 +31,10 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
       * toConversor               (v! IN    ) Referencia al conversor para poder usar sus métodos
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, toConversor
+      External Array taCodeLines
 
       #If .F.
-         Local toConversor As c_conversor_prg_a_mnx Of 'FOXBIN2PRG.PRG'
+         Local toConversor As c_conversor_prg_a_mnx Of 'c_conversor_prg_a_mnx.prg'
       #Endif
 
       Try
@@ -210,9 +211,10 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
       * toConversor               (v! IN    ) Referencia al conversor para poder usar sus métodos
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, toConversor
+      External Array taCodeLines
 
       #If .F.
-         Local toConversor As c_conversor_prg_a_mnx Of 'FOXBIN2PRG.PRG'
+         Local toConversor As c_conversor_prg_a_mnx Of 'c_conversor_prg_a_mnx.prg'
       #Endif
 
       Try
@@ -513,9 +515,10 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
       * toConversor               (v! IN    ) Referencia al conversor para poder usar sus métodos
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, toConversor
+      External Array taCodeLines
 
       #If .F.
-         Local toConversor As c_conversor_prg_a_mnx Of 'FOXBIN2PRG.PRG'
+         Local toConversor As c_conversor_prg_a_mnx Of 'c_conversor_prg_a_mnx.prg'
       #Endif
 
       Try

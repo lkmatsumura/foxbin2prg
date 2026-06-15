@@ -19,17 +19,17 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
       DoDefault( @toModulo, @toEx, @toFoxBin2Prg )
 
       #If .F.
-         Local toModulo As CL_CLASSLIB Of 'FOXBIN2PRG.PRG'
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+         Local toModulo As CL_CLASSLIB Of 'cl_classlib.prg'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
 
       Try
          Local lnCodError, loRegClass, loRegObj  , lnMethodCount, lnLen, lnObjCount, lnLastClass, lnRecno ;
              , lcMethods, lcObjName, I, lnPropsAndValues_Count, lnPropsAndComments_Count, lnProtected_Count ;
              , lcCodigo , lnClassCount, lcOutputFile, lcExternalHeader, lnClassTotal, lnStepCount, lnStep ;
-             , lcObjPathInsideClass, lnPos
+             , lcObjPathInsideClass, lnPos, lcSc2Ext, llUseFormsPerDir, lnUseFormPerFile
 
-         LOCAL loLang As CL_LANG Of 'FOXBIN2PRG.PRG'
+         LOCAL loLang As CL_LANG Of 'cl_lang.prg'
 
          LOCAL laMethods(1), laCode(1), laProtected(1), laPropsAndValues(1), laPropsAndComments(1), la_NombresObjsOle(1) ;
              , laObjs(1,4), laClasses(1,3)
@@ -123,10 +123,10 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                loRegClass.Class        = Lower( loRegClass.Class )
                loRegClass.OBJNAME      = Lower( loRegClass.OBJNAME )
 
-               If toFoxBin2Prg.l_NoTimestamps
+               If toFoxBin2Prg.getCfgValue('l_NoTimestamps')
                   loRegClass.Timestamp    = 0
                Endif
-               If toFoxBin2Prg.l_ClearUniqueID
+               If toFoxBin2Prg.getCfgValue('l_ClearUniqueID')
                   loRegClass.UNIQUEID = ''
                Else
                   loRegClass.UNIQUEID = Alltrim(loRegClass.UNIQUEID)
@@ -150,7 +150,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
                .write_CLASSMETADATA( @loRegClass, @lcCodigo )
 
-               If toFoxBin2Prg.n_UseFormPerFile > 0 Then
+               If toFoxBin2Prg.getCfgValue('n_UseFormPerFile') > 0 Then
                   .write_EXTERNAL_CLASS_HEADER( @loRegClass, @toFoxBin2Prg, @lcExternalHeader )
                Endif
 
@@ -188,10 +188,10 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                   laObjs(lnObjCount,3)    = lnObjCount            && Alphabetic order
                   laObjs(lnObjCount,4)    = lcObjPathInsideClass  && To check duplicates
 
-                  If toFoxBin2Prg.l_NoTimestamps
+                  If toFoxBin2Prg.getCfgValue('l_NoTimestamps')
                      loRegObj.Timestamp  = 0
                   Endif
-                  If toFoxBin2Prg.l_ClearUniqueID
+                  If toFoxBin2Prg.getCfgValue('l_ClearUniqueID')
                      loRegObj.UNIQUEID   = ''
                   Else
                      loRegObj.UNIQUEID   = Alltrim(loRegObj.UNIQUEID)
@@ -268,10 +268,10 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                   loRegObj.CLASSLOC   = Lower( loRegObj.CLASSLOC )
                   loRegObj.Class      = Lower( loRegObj.Class )
 
-                  If toFoxBin2Prg.l_NoTimestamps
+                  If toFoxBin2Prg.getCfgValue('l_NoTimestamps')
                      loRegObj.Timestamp  = 0
                   Endif
-                  If toFoxBin2Prg.l_ClearUniqueID
+                  If toFoxBin2Prg.getCfgValue('l_ClearUniqueID')
                      loRegObj.UNIQUEID   = ''
                   Else
                      loRegObj.UNIQUEID   = Alltrim(loRegObj.UNIQUEID)
@@ -292,7 +292,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                laClasses(lnClassCount,2)   = lcCodigo
             Endscan
 
-            If toFoxBin2Prg.n_UseFormPerFile > 0 Then
+            If toFoxBin2Prg.getCfgValue('n_UseFormPerFile') > 0 Then
                lcExternalHeader    = lcExternalHeader + CR_LF
             Endif
 
@@ -317,7 +317,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
             lnStep          = lnStep + 1
             lcOutputFile    = .c_OutputFile
 
-            .updateProgressbar( 'Writing ' + toFoxBin2Prg.c_SC2 + '...', lnStep, lnClassTotal*lnStepCount, 1 )
+            .updateProgressbar( 'Writing ' + toFoxBin2Prg.getCfgValue('c_SC2') + '...', lnStep, lnClassTotal*lnStepCount, 1 )
             lcCodigo        = toFoxBin2Prg.get_PROGRAM_HEADER() + lcExternalHeader + C_FB2PRG_CODE
 
             If .l_Test
@@ -326,21 +326,32 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                *ENDFOR
                *toModulo   = lcCodigo
             Else
+               lcSc2Ext            = toFoxBin2Prg.getCfgValue('c_SC2')
+               llUseFormsPerDir    = toFoxBin2Prg.getCfgFlag('l_UseFormsPerDir')
+               lnUseFormPerFile    = toFoxBin2Prg.getCfgInt('n_UseFormPerFile')
+
+               *-- En árbol espejo, ensurePerFileDir se aplica en destino dentro de write_OutputFile/get_MirroredOutputFile
+               If lnUseFormPerFile > 0 And Empty(.cOutputFolder) Then
+                  toFoxBin2Prg.ensurePerFileDir( .c_InputFile, lcSc2Ext, llUseFormsPerDir, lnUseFormPerFile )
+               Endif
+
                Do Case
-               Case toFoxBin2Prg.n_UseFormPerFile = 1  && LibName.ClassName.SC2
+               Case toFoxBin2Prg.getCfgValue('n_UseFormPerFile') = 1  && LibName.ClassName.SC2
+                  lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, '', lcSc2Ext, llUseFormsPerDir, lnUseFormPerFile )
                   .write_OutputFile( @lcCodigo, lcOutputFile, @toFoxBin2Prg )
 
                   For I = 1 To lnClassCount
-                     lcOutputFile    = Addbs( Justpath( .c_OutputFile ) ) + Juststem( .c_OutputFile ) + '.' + laClasses(m.I,1) + '.' + Justext( .c_OutputFile )
+                     lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, laClasses(m.I,1), lcSc2Ext, llUseFormsPerDir, lnUseFormPerFile )
                      lcCodigo        = toFoxBin2Prg.get_PROGRAM_HEADER() + laClasses(m.I,2)
                      .write_OutputFile( @lcCodigo, lcOutputFile, @toFoxBin2Prg )
                   Endfor
 
-               Case toFoxBin2Prg.n_UseFormPerFile = 2  && LibName.BaseClass.ClassName.SC2
+               Case toFoxBin2Prg.getCfgValue('n_UseFormPerFile') = 2  && LibName.BaseClass.ClassName.SC2
+                  lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, '', lcSc2Ext, llUseFormsPerDir, lnUseFormPerFile )
                   .write_OutputFile( @lcCodigo, lcOutputFile, @toFoxBin2Prg )
 
                   For I = 1 To lnClassCount
-                     lcOutputFile    = Addbs( Justpath( .c_OutputFile ) ) + Juststem( .c_OutputFile ) + '.' + laClasses(m.I,3) + '.' + laClasses(m.I,1) + '.' + Justext( .c_OutputFile )
+                     lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, laClasses(m.I,3) + '.' + laClasses(m.I,1), lcSc2Ext, llUseFormsPerDir, lnUseFormPerFile )
                      lcCodigo        = toFoxBin2Prg.get_PROGRAM_HEADER() + laClasses(m.I,2)
                      .write_OutputFile( @lcCodigo, lcOutputFile, @toFoxBin2Prg )
                   Endfor

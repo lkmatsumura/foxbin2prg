@@ -8,7 +8,8 @@ Define Class c_conversor_base As Custom
    _MemberData = [<VFPData>] ;
       + [<memberdata name="analyzeassignmentof_tag" display="analyzeAssignmentOf_TAG"/>] ;
       + [<memberdata name="updateprogressbar" display="updateProgressbar"/>] ;
-      + [<memberdata name="a_specialprops" display="a_SpecialProps"/>] ;
+      + [<memberdata name="o_specialprops" display="o_SpecialProps"/>] ;
+      + [<memberdata name="ensurespecialprops" display="ensureSpecialProps"/>] ;
       + [<memberdata name="findmethodsobjectbyname" display="findMethodsObjectByName"/>] ;
       + [<memberdata name="verifyvalidexpression" display="verifyValidExpression"/>] ;
       + [<memberdata name="convert" display="convert"/>] ;
@@ -59,26 +60,11 @@ Define Class c_conversor_base As Custom
       + [<memberdata name="n_fb2prg_version" display="n_FB2PRG_Version"/>] ;
       + [<memberdata name="n_methods_lineno" display="n_Methods_LineNo"/>] ;
       + [<memberdata name="ofso" display="oFSO"/>] ;
+      + [<memberdata name="makedirtree" display="makeDirTree"/>] ;
+      + [<memberdata name="get_mirroredoutputfile" display="get_MirroredOutputFile"/>] ;
+      + [<memberdata name="cinputroot" display="cInputRoot"/>] ;
       + [</VFPData>]
 
-
-   DIMENSION a_SpecialProps(1)     , a_SpecialProps_Chk(1) , a_SpecialProps_Coll(1) ;
-           , a_SpecialProps_Cbo(1) , a_SpecialProps_Cmg(1) , a_SpecialProps_Cmd(1)  ;
-           , a_SpecialProps_Cur(1) , a_SpecialProps_CA(1)  , a_SpecialProps_DE(1)   ;
-           , a_SpecialProps_Edt(1) , a_SpecialProps_Frs(1) , a_SpecialProps_Grd(1)  ;
-           , a_SpecialProps_Grc(1) , a_SpecialProps_Grh(1) , a_SpecialProps_Hlk(1)  ;
-           , a_SpecialProps_Img(1) , a_SpecialProps_Lbl(1) , a_SpecialProps_Lin(1)  ;
-           , a_SpecialProps_Lst(1) , a_SpecialProps_Ole(1) , a_SpecialProps_Opg(1)  ;
-           , a_SpecialProps_Opb(1) , a_SpecialProps_Phk(1) , a_SpecialProps_Rel(1)  ;
-           , a_SpecialProps_Rls(1) , a_SpecialProps_Sep(1) , a_SpecialProps_Shp(1)  ;
-           , a_SpecialProps_Spn(1) , a_SpecialProps_Txt(1) , a_SpecialProps_Tmr(1)  ;
-           , a_SpecialProps_Tbr(1)
-
-   DIMENSION a_SpecialProps_XMLAda(1) ;
-           , a_SpecialProps_XMLFld(1) ;
-           , a_SpecialProps_XMLTbl(1)
-
-   DIMENSION a_SpecialPropsFiles(1)
 
    n_Debug                 = 0
    l_Error                 = .F.
@@ -99,9 +85,11 @@ Define Class c_conversor_base As Custom
    l_ReportSort_Enabled    = .T.
    c_OriginalFileName      = ''
    c_ClaseActual           = ''
+   o_SpecialProps          = .Null.
    oFSO                    = .Null.
    n_Methods_LineNo        = 0         && Número de línea del error dentro de "Methods"
    cOutputFolder           = ''
+   cInputRoot              = ''        && Raíz del árbol de origen (proyecto). Si se indica junto a cOutputFolder, se replica la estructura de carpetas
 
 
 
@@ -139,7 +127,6 @@ Define Class c_conversor_base As Custom
       Endif
 
       This.c_Foxbin2prg_FullPath      = Substr( lcSys16, lnPosProg )
-      This.SpecialProps_init()
       Release lcSys16, lnPosProg
       Return
    Endproc
@@ -147,7 +134,7 @@ Define Class c_conversor_base As Custom
 
 
    Procedure Destroy
-      Local loLang As CL_LANG Of 'FOXBIN2PRG.PRG'
+      Local loLang As CL_LANG Of 'cl_lang.prg'
       C_FB2PRG_CODE   = ''
       Use In (Select("TABLABIN"))
       Use In (Select("foxbin2prg_keywords"))
@@ -273,7 +260,7 @@ Define Class c_conversor_base As Custom
 
       Try
          Local lnObjeto, I, X, N, lcRutaDelNombre ;
-            , loObjeto As CL_OBJETO Of 'FOXBIN2PRG.PRG'
+            , loObjeto As CL_OBJETO Of 'cl_objeto.prg'
          Store 0 To N, lnObjeto
 
          *--   El método puede pertenecer a esta clase, a un objeto de esta clase,
@@ -347,9 +334,9 @@ Define Class c_conversor_base As Custom
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
       #If .F.
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
-      Local loLang As CL_LANG Of 'FOXBIN2PRG.PRG'
+      Local loLang As CL_LANG Of 'cl_lang.prg'
 
       loLang = _Screen.o_FoxBin2Prg_Lang
 
@@ -732,7 +719,7 @@ Define Class c_conversor_base As Custom
       External Array taPropsAndValues
 
       Local lcMetadatos, I, lcVirtualMeta, lnPos1, lnPos2, lnLastPos, lnCantComillas ;
-         , loLang As CL_LANG Of 'FOXBIN2PRG.PRG' ;
+         , loLang As CL_LANG Of 'cl_lang.prg' ;
          , loEx As Exception
 
       Try
@@ -898,6 +885,7 @@ Define Class c_conversor_base As Custom
       * I                         (@! IN/OUT) Línea actual
       *--------------------------------------------------------------------------------------------------------------
       Lparameters tcAsignacion, tcPropName, tcValue, toClase, taCodeLines, tnCodeLines, I
+      External Array taCodeLines
       Local ln_AT_Cmt
 
       Store '' To tcPropName, tcValue
@@ -966,6 +954,7 @@ Define Class c_conversor_base As Custom
 
    Procedure identifyCodeBlocks
       Lparameters taCodeLines, tnCodeLines, taLineasExclusion, tnBloquesExclusion, toModulo
+      External Array taCodeLines
    Endproc
 
 
@@ -985,7 +974,7 @@ Define Class c_conversor_base As Custom
 
       Try
          Local lnBloques, I, X, lnPrimerID, lnLen_IDFinBQ, lnID_Bloques_Count, lcWord, lnAnidamientos, lcLine, lcPrevLine ;
-            , loLang As CL_LANG Of 'FOXBIN2PRG.PRG'
+            , loLang As CL_LANG Of 'cl_lang.prg'
          loLang          = _Screen.o_FoxBin2Prg_Lang
          Dimension taLineasExclusion(tnCodeLines), taBloquesExclusion(1,2)
          Store 0 To tnBloquesExclusion, lnPrimerID, I, X
@@ -1154,9 +1143,9 @@ Define Class c_conversor_base As Custom
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
       #If .F.
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
-      *LOCAL loLang as CL_LANG OF 'FOXBIN2PRG.PRG'
+      *LOCAL loLang as CL_LANG OF 'cl_lang.prg'
       *loLang         = _SCREEN.o_FoxBin2Prg_Lang
       *THIS.writeLog( C_TAB + loLang.C_CONVERTING_FILE_LOC + ' ' + THIS.c_OutputFile + '...' )
       *RELEASE loLang
@@ -1286,7 +1275,7 @@ Define Class c_conversor_base As Custom
       Try
          Local lcPropName, lcClass, lnPos ;
             , loEx As Exception ;
-            , loLang As CL_LANG Of 'FOXBIN2PRG.PRG'
+            , loLang As CL_LANG Of 'cl_lang.prg'
 
          loLang      = _Screen.o_FoxBin2Prg_Lang
          lcPropName  = tcPropName
@@ -1304,21 +1293,13 @@ Define Class c_conversor_base As Custom
 
           Otherwise
                *-- Soporte de evaluación de propiedades por clase evaluada
-               LOCAL lnArray, lcPropsArray
-               WITH This
-                  lnArray = Ascan( This.a_specialpropsfiles ,Lower( Alltrim(.c_ClaseActual) ) , 1 , 0 , 3 , 2+4+8 )
-                  IF lnArray = 0
-                     lnArray = Ascan( This.a_specialpropsfiles , 'all' , 1 , 0 , 3 , 2+4+8 )
-                  ENDIF
-                  lcPropsArray = This.a_specialpropsfiles[ lnArray , 2 ]
+               This.ensureSpecialProps()
+               lnPos = This.o_SpecialProps.getPropSortIndex( This.c_ClaseActual, lcPropName )
 
-                  lnPos = Ascan( .&lcPropsArray, lcPropName, 1, 0, 1, 1+2+4 )
-
-                  *-- Genera una propiedad con el formato "A nnn Propiedad", donde los valores más altos quedan al final,
-                  *-- de modo que primero van las props nativas, luego las del usuario y al final "name", que es especial.
-                  *-- Ej: "A004ScaleMode", ..., "A998UserProp", "A999Name"
-                  lcPropName  = 'A' + Padl( Evl(lnPos,998), 3, '0' ) + lcPropName
-               ENDWITH
+               *-- Genera una propiedad con el formato "A nnn Propiedad", donde los valores más altos quedan al final,
+               *-- de modo que primero van las props nativas, luego las del usuario y al final "name", que es especial.
+               *-- Ej: "A004ScaleMode", ..., "A998UserProp", "A999Name"
+               lcPropName  = 'A' + Padl( Evl(lnPos,998), 3, '0' ) + lcPropName
          ENDCASE
 
       Catch To loEx
@@ -1515,92 +1496,20 @@ Define Class c_conversor_base As Custom
 
 
 
-   Procedure SpecialProps_Init
-      Try
-         Local loEx As Exception
-         Local lcPropsFile, lcPropsDir, lnI , lnLen
+   Procedure ensureSpecialProps
+      IF VARTYPE(This.o_SpecialProps) = 'O' AND !ISNULL(This.o_SpecialProps)
+         RETURN
+      ENDIF
 
-         lcPropsFile = ''
+      IF PEMSTATUS(This, 'o_Host', 5) AND VARTYPE(This.o_Host) = 'O' ;
+            AND PEMSTATUS(This.o_Host, 'ensureSpecialProps', 5)
+         This.o_Host.ensureSpecialProps()
+         This.o_SpecialProps = This.o_Host.o_SpecialProps
+         RETURN
+      ENDIF
 
-         With This As conversor_base Of "FOXBIN2PRG.PRG"
-            .SpecialPropsFiles_Add( "props_all.txt"                , "a_SpecialProps"        , "all"             )
-            .SpecialPropsFiles_Add( "props_checkbox.txt"           , "a_SpecialProps_Chk"    , "checkbox"        )
-            .SpecialPropsFiles_Add( "props_collection.txt"         , "a_SpecialProps_Coll"   , "collection"      )
-            .SpecialPropsFiles_Add( "props_combobox.txt"           , "a_SpecialProps_Cbo"    , "combobox"        )
-            .SpecialPropsFiles_Add( "props_commandgroup.txt"       , "a_SpecialProps_Cmg"    , "commandgroup"    )
-            .SpecialPropsFiles_Add( "props_commandbutton.txt"      , "a_SpecialProps_Cmd"    , "commandbutton"   )
-            .SpecialPropsFiles_Add( "props_cursor.txt"             , "a_SpecialProps_Cur"    , "cursor"          )
-            .SpecialPropsFiles_Add( "props_cursoradapter.txt"      , "a_SpecialProps_CA"     , "cursoradapter"   )
-            .SpecialPropsFiles_Add( "props_dataenvironment.txt"    , "a_SpecialProps_DE"     , "dataenvironment" )
-            .SpecialPropsFiles_Add( "props_editbox.txt"            , "a_SpecialProps_Edt"    , "editbox"         )
-            .SpecialPropsFiles_Add( "props_formset.txt"            , "a_SpecialProps_Frs"    , "formset"         )
-            .SpecialPropsFiles_Add( "props_grid_column.txt"        , "a_SpecialProps_Grc"    , "column"          )
-            .SpecialPropsFiles_Add( "props_grid_header.txt"        , "a_SpecialProps_Grh"    , "header"          )
-            .SpecialPropsFiles_Add( "props_hyperlink.txt"          , "a_SpecialProps_Hlk"    , "hyperlink"       )
-            .SpecialPropsFiles_Add( "props_image.txt"              , "a_SpecialProps_Img"    , "image"           )
-            .SpecialPropsFiles_Add( "props_label.txt"              , "a_SpecialProps_Lbl"    , "label"           )
-            .SpecialPropsFiles_Add( "props_line.txt"               , "a_SpecialProps_Lin"    , "line"            )
-            .SpecialPropsFiles_Add( "props_listbox.txt"            , "a_SpecialProps_Lst"    , "listbox"         )
-            .SpecialPropsFiles_Add( "props_olebound.txt"           , "a_SpecialProps_Ole"    , "olebound"        )
-            .SpecialPropsFiles_Add( "props_optiongroup.txt"        , "a_SpecialProps_Opg"    , "optiongroup"     )
-            .SpecialPropsFiles_Add( "props_optiongroup_option.txt" , "a_SpecialProps_Opb"    , "optionbutton"    )
-            .SpecialPropsFiles_Add( "props_projecthook.txt"        , "a_SpecialProps_Phk"    , "projecthook"     )
-            .SpecialPropsFiles_Add( "props_relation.txt"           , "a_SpecialProps_Rel"    , "relation"        )
-            .SpecialPropsFiles_Add( "props_reportlistener.txt"     , "a_SpecialProps_Rls"    , "reportlistener"  )
-            .SpecialPropsFiles_Add( "props_separator.txt"          , "a_SpecialProps_Sep"    , "separator"       )
-            .SpecialPropsFiles_Add( "props_shape.txt"              , "a_SpecialProps_Shp"    , "shape"           )
-            .SpecialPropsFiles_Add( "props_spinner.txt"            , "a_SpecialProps_Spn"    , "spinner"         )
-            .SpecialPropsFiles_Add( "props_textbox.txt"            , "a_SpecialProps_Txt"    , "textbox"         )
-            .SpecialPropsFiles_Add( "props_timer.txt"              , "a_SpecialProps_Tmr"    , "timer"           )
-            .SpecialPropsFiles_Add( "props_xmladapter.txt"         , "a_SpecialProps_XMLAda" , "xmladapter"      )
-            .SpecialPropsFiles_Add( "props_xmlfield.txt"           , "a_SpecialProps_XMLFld" , "xmlfield"        )
-            .SpecialPropsFiles_Add( "props_xmltable.txt"           , "a_SpecialProps_XMLTbl" , "xmltable"        )
-
-            * lcPropsDir = Justpath( .c_Foxbin2prg_FullPath ) + '\props\'
-            lcPropsDir = 'props\'
-
-            FOR lnI = 1 TO Alen( .a_SpecialPropsFiles , 1 )
-               lcPropsFile = lcPropsDir + .a_SpecialPropsFiles( lnI, 1 )
-               lcProperty  = .a_SpecialPropsFiles( lnI , 2 )
-               =Alines( .&lcProperty, Filetostr( lcPropsFile ), 1+4 )
-            ENDFOR
-
-         Endwith
-
-      Catch To loEx
-         loEx.UserValue  = 'lcPropsFile = ' + lcPropsFile
-
-         If This.n_Debug > 0 And _vfp.StartMode = 0
-            Set Step On
-         Endif
-
-         Throw
-
-      Endtry
-
-      Return
+      This.o_SpecialProps = NewObject('cl_fb2prg_special_props', 'cl_fb2prg_special_props.prg')
    Endproc
-
-
-   PROCEDURE SpecialPropsFiles_Add
-   LPARAMETERS pcFile , pcPropArrayName, pcBaseClass
-   LOCAL lnI
-
-   IF Alen( This.a_SpecialPropsFiles ) = 1
-      lnI = 1
-   ELSE
-      lnI = Alen( This.a_SpecialPropsFiles , 1 ) + 1
-   ENDIF
-
-   DIMENSION This.a_SpecialPropsFiles[ lnI ,3 ]
-
-   This.a_SpecialPropsFiles[ lnI ,1 ] = pcFile
-   This.a_SpecialPropsFiles[ lnI ,2 ] = pcPropArrayName
-   This.a_SpecialPropsFiles[ lnI ,3 ] = Lower( pcBaseClass )
-
-   RETURN lnI
-
-   ENDPROC
 
 
 
@@ -1628,12 +1537,118 @@ Define Class c_conversor_base As Custom
       Lparameters tcText
 
       Try
-         With This As conversor_base Of "FOXBIN2PRG.PRG"
+         With This As conversor_base Of 'conversor_base.prg'
             .c_TextErr  = .c_TextErr + Evl(tcText,'') + CR_LF
             .l_Error    = .T.
          Endwith
       Catch
       Endtry
+   Endproc
+
+
+
+   Procedure makeDirTree
+      *---------------------------------------------------------------------------------------------------
+      * Crea recursivamente el árbol de directorios indicado (si no existe).
+      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcDir                     (v! IN    ) Carpeta a crear (puede incluir varios niveles inexistentes)
+      *---------------------------------------------------------------------------------------------------
+      Lparameters tcDir
+      Local lcDir, lnLevels, I, lcPartial, laParts(1)
+
+      lcDir   = Rtrim( Evl(tcDir,''), 0, ' ', '\', '/' )
+
+      If Empty(lcDir)
+         Return .F.
+      Endif
+
+      *-- Si ya existe, no hago nada
+      If Directory(lcDir) Or ( Vartype(This.oFSO) = 'O' And This.oFSO.FolderExists(lcDir) )
+         Return .T.
+      Endif
+
+      *-- Construyo nivel a nivel. Mantengo intacto el prefijo de unidad/UNC del primer segmento.
+      lnLevels    = Alines( laParts, Chrtran( lcDir, '/', '\' ), 1, '\' )
+      lcPartial   = ''
+
+      For I = 1 To lnLevels
+         If I = 1
+            lcPartial   = laParts(1)             && unidad (C:) o primer segmento UNC
+         Else
+            lcPartial   = lcPartial + '\' + laParts(m.I)
+         Endif
+
+         *-- Salto el prefijo de unidad ("C:") y los segmentos vacíos de rutas UNC (\\server)
+         If Right(lcPartial,1) == ':' Or Empty(laParts(m.I))
+            Loop
+         Endif
+
+         If Not Directory(lcPartial)
+            *-- Un archivo plano con el mismo nombre bloquea MD/CreateFolder (p.ej. library.vc2 -> library.vc2\)
+            If File(lcPartial)
+               Erase (lcPartial)
+            Endif
+            Try
+               If Vartype(This.oFSO) = 'O' And Not This.oFSO.FolderExists(lcPartial)
+                  This.oFSO.CreateFolder( Lower(lcPartial) )
+               Else
+                  Md (Lower(lcPartial))
+               Endif
+            Catch
+               *-- Ignoro errores de "ya existe" producidos por concurrencia
+            Endtry
+         Endif
+      Endfor
+
+      Release lcDir, lnLevels, I, lcPartial, laParts
+      Return Directory( Rtrim(tcDir,0,' ','\','/') )
+   Endproc
+
+
+
+   Procedure get_MirroredOutputFile
+      *---------------------------------------------------------------------------------------------------
+      * Devuelve la ruta de salida final aplicando cOutputFolder.
+      *   - Si cInputRoot está indicado y el archivo cuelga de esa raíz, se REPLICA la subestructura
+      *     de carpetas bajo cOutputFolder (árbol espejo).
+      *   - Si no, se usa el comportamiento histórico: aplanar con FORCEPATH.
+      * Además crea el árbol de directorios destino si no existe.
+      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcOutputFile              (v! IN    ) Ruta de salida original (misma carpeta que el origen)
+      *---------------------------------------------------------------------------------------------------
+      Lparameters tcOutputFile
+      Local lcResult, lcRoot, lcDir, lcRel, lcOutDir
+
+      lcResult    = tcOutputFile
+
+      If Empty(This.cOutputFolder)
+         Return lcResult
+      Endif
+
+      lcRoot      = Addbs( Upper( Fullpath( Evl(This.cInputRoot,'') ) ) )
+      lcDir       = Addbs( Upper( Fullpath( Justpath(tcOutputFile) ) ) )
+
+      Do Case
+      Case Not Empty(This.cInputRoot) And Left( lcDir, Len(lcRoot) ) == lcRoot
+         *-- El archivo cuelga de la raíz del proyecto: conservo su subruta relativa
+         lcRel       = Substr( lcDir, Len(lcRoot) )
+         lcResult    = Addbs( This.cOutputFolder ) + Iif( Empty(lcRel), '', lcRel ) + Justfname(tcOutputFile)
+
+      Otherwise
+         *-- Sin raíz, o el archivo está fuera de ella: comportamiento histórico (aplanado)
+         lcResult    = Forcepath( tcOutputFile, This.cOutputFolder )
+
+      Endcase
+
+      *-- Aseguro que exista la carpeta destino (y que no quede bloqueada por un archivo plano previo)
+      lcOutDir    = Justpath(lcResult)
+      If File(lcOutDir) And Not Directory(lcOutDir)
+         Erase (lcOutDir)
+      Endif
+      This.makeDirTree( lcOutDir )
+
+      Release lcRoot, lcDir, lcRel
+      Return lcResult
    Endproc
 
 

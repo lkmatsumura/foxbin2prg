@@ -1,3 +1,4 @@
+#INCLUDE foxbin2prg.h
 
 Define Class frm_main As Form
    AllowOutput = .F.
@@ -49,10 +50,10 @@ Define Class frm_main As Form
       Lparameters toFoxBin2Prg
 
       #If .F.
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
 
-      Local laDirInfo(1,5), loLang As CL_LANG Of 'FOXBIN2PRG.PRG'
+      Local laDirInfo(1,5), loLang As CL_LANG Of 'cl_lang.prg'
 
       If Vartype(toFoxBin2Prg) = "O" Then
          If Vartype(_Screen.o_FoxBin2Prg_Lang) = "O" Then

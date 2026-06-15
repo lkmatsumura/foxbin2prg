@@ -6,6 +6,7 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
    #Endif
 
    c_Type = 'FRX'
+   l_Fox2x = .F.
 
 
    Procedure convert
@@ -17,7 +18,7 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
       #If .F.
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
 
       DoDefault( @toModulo, @toEx, @toFoxBin2Prg )
@@ -27,7 +28,7 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
             If toFoxBin2Prg.l_ProcessFiles Then
                Local lnCodError, loRegCab, loRegDataEnv, loRegCur, loRegObj, lnMethodCount, laMethods(1), laCode(1), laProtected(1), lnLen ;
                   , laPropsAndValues(1), laPropsAndComments(1), lnLastClass, lnRecno, lcMethods, lcObjName, la_NombresObjsOle(1) ;
-                  , loLang As CL_LANG Of 'FOXBIN2PRG.PRG'
+                  , loLang As CL_LANG Of 'cl_lang.prg'
 
                loLang          = _Screen.o_FoxBin2Prg_Lang
                Store 0 To lnCodError, lnLastClass
@@ -38,15 +39,20 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
                *  keep CodePage relavant information for binary sources
                toFoxBin2Prg.i_CPID = Cpdbf("_TABLAORIG")
-               Set NoCPTrans To Name,Expr,Style,Picture,Order,Comment,Tag,TAG2,FONTFACE,SUPEXPR,User
 
-               This.updateProgressbar( 'Scanning FRX...', 1, 2, 1 )
-
-               *-- Verificación de REPORTE VFP 9
-               If Fcount() < 75 Or Empty(Field("USER"))
-                  * ERROR 'Report [' + (.c_InputFile) + '] is NOT VFP 9 Format! - Please convert to VFP 9 with MODIFY REPORT ' + JUSTFNAME((.c_InputFile))
-                  Error (Textmerge(loLang.C_REPORT_NOT_IN_VFP9_FORMAT_LOC))
+               If This.l_Fox2x
+                  If Fcount() <> 74 Or Not Empty(Field("USER"))
+                     Error (Textmerge(loLang.C_REPORT_NOT_IN_VFP9_FORMAT_LOC))
+                  Endif
+                  Set NoCPTrans To Name,Expr,Style,Picture,Order,Comment,Tag,TAG2,FONTFACE,SUPEXPR
+               Else
+                  If Fcount() < 75 Or Empty(Field("USER"))
+                     Error (Textmerge(loLang.C_REPORT_NOT_IN_VFP9_FORMAT_LOC))
+                  Endif
+                  Set NoCPTrans To Name,Expr,Style,Picture,Order,Comment,Tag,TAG2,FONTFACE,SUPEXPR,User
                Endif
+
+               This.updateProgressbar( 'Scanning ' + Upper(Justext(.c_InputFile)) + '...', 1, 2, 1 )
 
                C_FB2PRG_CODE = C_FB2PRG_CODE + toFoxBin2Prg.get_PROGRAM_HEADER()
 
@@ -67,10 +73,10 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                   loRegCab    = .Null.
                   Scatter Memo Name loRegCab
 
-                  If toFoxBin2Prg.l_NoTimestamps
+                  If toFoxBin2Prg.getCfgValue('l_NoTimestamps')
                      loRegCab.Timestamp  = 0
                   Endif
-                  If toFoxBin2Prg.l_ClearUniqueID
+                  If toFoxBin2Prg.getCfgValue('l_ClearUniqueID')
                      loRegCab.UNIQUEID   = ''
                   Endif
                Endif
@@ -102,10 +108,10 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                   loRegObj    = .Null.
                   Scatter Memo Name loRegObj
 
-                  If toFoxBin2Prg.l_NoTimestamps
+                  If toFoxBin2Prg.getCfgValue('l_NoTimestamps')
                      loRegObj.Timestamp  = 0
                   Endif
-                  If toFoxBin2Prg.l_ClearUniqueID
+                  If toFoxBin2Prg.getCfgValue('l_ClearUniqueID')
                      loRegObj.UNIQUEID   = ''
                   Endif
 
@@ -120,10 +126,10 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                   loRegDataEnv    = .Null.
                   Scatter Memo Name loRegDataEnv
 
-                  If toFoxBin2Prg.l_NoTimestamps
+                  If toFoxBin2Prg.getCfgValue('l_NoTimestamps')
                      loRegDataEnv.Timestamp  = 0
                   Endif
-                  If toFoxBin2Prg.l_ClearUniqueID
+                  If toFoxBin2Prg.getCfgValue('l_ClearUniqueID')
                      loRegDataEnv.UNIQUEID   = ''
                   Endif
 
@@ -137,10 +143,10 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                   loRegCur    = .Null.
                   Scatter Memo Name loRegCur
 
-                  If toFoxBin2Prg.l_NoTimestamps
+                  If toFoxBin2Prg.getCfgValue('l_NoTimestamps')
                      loRegCur.Timestamp  = 0
                   Endif
-                  If toFoxBin2Prg.l_ClearUniqueID
+                  If toFoxBin2Prg.getCfgValue('l_ClearUniqueID')
                      loRegCur.UNIQUEID   = ''
                   Endif
 
@@ -163,8 +169,8 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
             toFoxBin2Prg.updateProcessedFile()
 
 
-            *-- Genero el FR2
-            .updateProgressbar( 'Writing ' + toFoxBin2Prg.c_FR2 + '...', 2, 2, 1 )
+            *-- Genero el FR2 / FR2D / LB2 / LB2D
+            .updateProgressbar( 'Writing ' + Upper(Justext(.c_OutputFile)) + '...', 2, 2, 1 )
 
             If .l_Test
                toModulo    = C_FB2PRG_CODE
@@ -304,7 +310,9 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
          C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + Chr(9) + "<supexpr><![CDATA[" + toReg.supexpr + "]]>"
          C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + Chr(9) + "<comment><![CDATA[" + toReg.Comment + "]]>"
 
-         C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + Chr(9) + "<user><![CDATA[" + toReg.User + "]]>"
+         If Not This.l_Fox2x
+            C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + Chr(9) + "<user><![CDATA[" + toReg.User + "]]>"
+         Endif
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                 <<lc_TAG_REPORTE_F>>

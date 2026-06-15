@@ -20,14 +20,14 @@ Define Class c_conversor_mnx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
       #If .F.
          Local toMenu As CL_MENU Of 'cl_menu.prg'
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
 
       Try
          With This As c_conversor_mnx_a_prg Of 'c_conversor_mnx_a_prg.prg'
             If toFoxBin2Prg.l_ProcessFiles Then
                Local lnCodError, lnLen ;
-                  , loLang As CL_LANG Of 'FOXBIN2PRG.PRG'
+                  , loLang As CL_LANG Of 'cl_lang.prg'
 
                loLang          = _Screen.o_FoxBin2Prg_Lang
                Store 0 To lnCodError
@@ -75,7 +75,7 @@ Define Class c_conversor_mnx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
             *-- Genero el MN2
             If toFoxBin2Prg.l_ProcessFiles Then
-               .updateProgressbar( 'Writing ' + toFoxBin2Prg.c_MN2 + '...', 2, 2, 1 )
+               .updateProgressbar( 'Writing ' + toFoxBin2Prg.getCfgValue('c_MN2') + '...', 2, 2, 1 )
             Endif
 
             If .l_Test

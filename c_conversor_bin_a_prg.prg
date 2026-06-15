@@ -62,7 +62,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
       #If .F.
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
       DoDefault( @toModulo, @toEx, @toFoxBin2Prg )
    Endproc
@@ -125,7 +125,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       External Array taPropsAndComments, taProtected
 
       #If .F.
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
 
       Try
@@ -193,7 +193,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       External Array taMethods, taCode, taProtected, taPropsAndComments
 
       #If .F.
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
 
       Try
@@ -229,7 +229,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                   *-- Comentarios del método (si tiene)
                   If lnCommentRow > 0 And Not Empty(taPropsAndComments(lnCommentRow,2))
                      * PRG_Compat_Level >= 1
-                     If Bitand(toFoxBin2Prg.n_PRG_Compat_Level, 1) > 0
+                     If Bitand(toFoxBin2Prg.getCfgValue('n_PRG_Compat_Level'), 1) > 0
                         lcMethod    = lcMethod + C_TAB + C_TAB + 'HELPSTRING "' + taPropsAndComments(lnCommentRow,2) + '"'
                      Else
                         * PRG_Compat_Level = 0 (Default old setting)
@@ -367,7 +367,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       External Array taPropsAndValues
 
       #If .F.
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
 
       Try
@@ -442,7 +442,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                      Endif
 
                      * Skip ZOrderSet property if configured to
-                     If toFoxBin2Prg.l_RemoveZOrderSetFromProps And Atc( '.ZOrderSet.', '.' + lcLastIncompletePropName + Left( laItems(m.I), lnPosEQ - 2 ) + '.' ) > 0 Then
+                     If toFoxBin2Prg.getCfgValue('l_RemoveZOrderSetFromProps') And Atc( '.ZOrderSet.', '.' + lcLastIncompletePropName + Left( laItems(m.I), lnPosEQ - 2 ) + '.' ) > 0 Then
                         lcLastIncompletePropName    = ''
                         Loop
                      Endif
@@ -645,7 +645,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       *-- INDENTA EL CÓDIGO DE UN MÉTODO DADO Y QUITA LA CABECERA DE MÉTODO (PROCEDURE/ENDPROC) SI LA ENCUENTRA
       Try
          Local I, X, lcMethod, llProcedure, lnInicio, lnFin, laLineas(1), lnOffset ;
-            , loLang As CL_LANG Of 'FOXBIN2PRG.PRG'
+            , loLang As CL_LANG Of 'cl_lang.prg'
 
          loLang          = _Screen.o_FoxBin2Prg_Lang
          lcMethod        = ''
@@ -864,7 +864,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       External Array taMethods, taCode, taPropsAndComments, taProtected
 
       #If .F.
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
 
       Try
@@ -935,7 +935,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       External Array taMethods, taCode, taPropsAndComments, taProtected
 
       #If .F.
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
 
       *-- ESTRUCTURA DE LOS ARRAYS CREADOS:
@@ -996,7 +996,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
 
                *-- Analyze and count line methods, get method names and consolidate block code
                For I = 1 To lnLineCount
-                  If toFoxBin2Prg.l_RemoveNullCharsFromCode
+                  If toFoxBin2Prg.getCfgValue('l_RemoveNullCharsFromCode')
                      laLine(m.I) = Chrtran( laLine(m.I), C_NULL_CHAR, '' )
                   Endif
 
@@ -1177,8 +1177,8 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       Lparameters toRegObj, tcCodigo, toFoxBin2Prg
 
       #If .F.
-         Local toRegObj As CL_OBJETO Of 'FOXBIN2PRG.PRG'
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+         Local toRegObj As CL_OBJETO Of 'cl_objeto.prg'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
 
       Try
@@ -1499,7 +1499,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       Lparameters toRegClass, toFoxBin2Prg, tcCodigo
       *-- < EXTERNAL_CLASS Name = "class-name" Baseclass="base-class" />
       #If .F.
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
 
       If Empty(tcCodigo) Then
@@ -1521,7 +1521,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       Lparameters toFoxBin2Prg, tcMemberName, tcMemberType, tcCodigo
       *-- < EXTERNAL_MEMBER Name = "member-name" Type="member-type" />
       #If .F.
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
 
       If Empty(tcCodigo) Then
@@ -1674,7 +1674,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       *!*         LOCAL lnOLECount, lcOLEChecksum, llOleExistente, loReg
 
       *!*         #IF .F.
-      *!*             LOCAL toFoxBin2Prg AS c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+      *!*             LOCAL toFoxBin2Prg AS c_foxbin2prg Of 'c_foxbin2prg.prg'
       *!*         #ENDIF
 
       *!*         TRY
@@ -1686,10 +1686,10 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       *!*                 loReg   = .Null.
       *!*                 SCATTER MEMO NAME loReg
 
-      *!*                 IF toFoxBin2Prg.l_NoTimestamps
+      *!*                 IF toFoxBin2Prg.getCfgValue('l_NoTimestamps')
       *!*                     loReg.TIMESTAMP = 0
       *!*                 ENDIF
-      *!*                 IF toFoxBin2Prg.l_ClearUniqueID
+      *!*                 IF toFoxBin2Prg.getCfgValue('l_ClearUniqueID')
       *!*                     loReg.UNIQUEID  = ''
       *!*                 ENDIF
 
@@ -1751,18 +1751,20 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       Lparameters tcCodigo, tcOutputFile, toFoxBin2Prg
 
       #If .F.
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
 
       Try
          Local lcExpanded, llFileExists, lnBytes, lcOutputFile, laDirFile(1,5) ;
-            , loLang As CL_LANG Of 'FOXBIN2PRG.PRG'
+            , loLang As CL_LANG Of 'cl_lang.prg'
 
-         *** DH 2021-03-04: handle cOutputFolder
+         * Default in lowercase
+         tcOutputFile = Lower(tcOutputFile)
+
+         *** + árbol espejo: si cInputRoot está indicado, se replica la estructura de carpetas
          If Not Empty(This.cOutputFolder)
-            tcOutputFile = Forcepath(tcOutputFile, This.cOutputFolder)
+            tcOutputFile = This.get_MirroredOutputFile(tcOutputFile)
          Endif Not Empty(This.cOutputFolder)
-         *** DH 2021-03-04: end of new code
 
          lcExpanded  = Iif( '.' $ Juststem(tcOutputFile), 'X1', 'X0' )
 

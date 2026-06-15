@@ -85,6 +85,8 @@
 *                               && 1 Check file[.baseclass].class.tx2 inclusion
 *                               &&   Only used if import file is in file[.baseclass].class.tx2 syntax
 *                               &&   Ignored for RedirectClassType: 2
+*UseClassPerDir: 0              && 0=flat file.class.ext layout (default)
+*                               && 1=store under file.ext/ subdirectory (requires UseClassPerFile>0)
 *- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 *-- FORM options
@@ -111,6 +113,8 @@
 *                               && 1 Check Form[.baseclass].Obj.sc2 inclusion
 *                               &&   Only used if import file is in Form[.baseclass].Obj.sc2 syntax
 *                               &&   Ignored for RedirectFormType: 2
+*UseFormsPerDir: 0              && 0=flat Form.Obj.ext layout (default)
+*                               && 1=store under Form.ext/ subdirectory (requires UseFormPerFile>0)
 *- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 *-- DBC options
@@ -138,6 +142,13 @@
 
 *-- PJX special
 *BodyDevInfo: 0                 && 0=Don't keep DevInfo for body pjx records, 1=Keep DevInfo, 2 = Don't keep DevInfo or ObjRev
+*----------------------------------------------------------------------------------------------------------------
+
+*-- Mirrored tree (exportProjectTree / importProjectTree only)
+*CopyNonConvertible: 0          && 0=Skip non-convertible PJX/PJ2 members, 1=Copy them into the mirrored tree as-is
+*CopyExcludedPjxFiles: 0        && 0=Skip PJX/PJ2 members marked Exclude (default), 1=Include them in export/import
+*ExcludedSubdirs:               && Semicolon-separated subpaths under project root to skip (not converted or copied)
+*                               && Example: tmp;backup;forms\old
 *----------------------------------------------------------------------------------------------------------------
 
 *-- DBF special

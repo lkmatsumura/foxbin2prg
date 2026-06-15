@@ -21,17 +21,17 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
       #If .F.
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
-         Local toModulo As CL_PROJECT Of 'FOXBIN2PRG.PRG'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
+         Local toModulo As CL_PROJECT Of 'cl_project.prg'
       #Endif
       DoDefault( @toModulo, @toEx, @toFoxBin2Prg )
 
       Try
          Local lnCodError, lcStr, lnPos, lnLen, lnServerCount, loReg, lnLen
          LOCAL loEx As Exception ;
-             , loProject    As CL_PROJECT       Of 'FOXBIN2PRG.PRG' ;
-             , loServerHead As CL_PROJ_SRV_HEAD Of 'FOXBIN2PRG.PRG' ;
-             , loLang       As CL_LANG          Of 'FOXBIN2PRG.PRG'
+             , loProject    As CL_PROJECT       Of 'cl_project.prg' ;
+             , loServerHead As CL_PROJ_SRV_HEAD Of 'cl_proj_srv_head.prg' ;
+             , loLang       As CL_LANG          Of 'cl_lang.prg'
 
          loLang = _Screen.o_FoxBin2Prg_Lang
 
@@ -64,10 +64,10 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                *!* </change>
                *!* </pdm>
 
-               toFoxBin2Prg.n_CheckFileInPath = 2
+               toFoxBin2Prg.setCfgValue('n_CheckFileInPath', 2)
 
                lcStr = Addbs( Chrtran( loProject._HomeDir, ['], [] ))
-               If toFoxBin2Prg.n_CheckFileInPath=1 Then
+               If toFoxBin2Prg.getCfgValue('n_CheckFileInPath')=1 Then
                   * let's scan all files against pjx home dir
                   If !Empty(loProject._MainProg) And !Empty( Justdrive( Sys( 2014, loProject._MainProg, m.lcStr))) Then
                      lcStr = loLang.C_PJXPATH_ERR_LOC1 + loProject._MainProg + loLang.C_PJXPATH_ERR_LOC4 + m.lcStr + loLang.C_PJXPATH_ERR_LOC5
@@ -107,7 +107,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
 
                *-- Generación del proyecto
-               If toFoxBin2Prg.n_HomeDir = 1
+               If toFoxBin2Prg.getCfgValue('n_HomeDir') = 1
                   * only output HomeDir if we're supposed to
                   TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                             <<C_BUILDPROJ_I>>
@@ -117,7 +117,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                   TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                             <<C_BUILDPROJ_I>>
                   ENDTEXT
-               Endif toFoxBin2Prg.n_HomeDir = 1
+               Endif toFoxBin2Prg.getCfgValue('n_HomeDir') = 1
 
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                         <<>>
@@ -153,7 +153,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                   ENDTEXT
 
                   Do Case
-                  Case toFoxBin2Prg.n_BodyDevInfo=1
+                  Case toFoxBin2Prg.getCfgValue('n_BodyDevInfo')=1
                      * Generates an extra DevInfo tag for each body PJX record
                      TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2+4+8
                                     <<Chr(9)+Chr(9)>><<'&'>><<'&'>> <<C_FILE_META_I>>
@@ -167,7 +167,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                                     <<C_FILE_META_F>>
                      ENDTEXT
 
-                  Case toFoxBin2Prg.n_BodyDevInfo=2
+                  Case toFoxBin2Prg.getCfgValue('n_BodyDevInfo')=2
                      * BodyDevInfo = 2 omit DEVINFO and OBJREV
                      TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2+4+8
                                     <<Chr(9)+Chr(9)>><<'&'>><<'&'>> <<C_FILE_META_I>>
@@ -331,7 +331,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
 
             *-- Genero el PJ2
-            .updateProgressbar( 'Writing ' + toFoxBin2Prg.c_PJ2 + '...', 3, 3, 1 )
+            .updateProgressbar( 'Writing ' + toFoxBin2Prg.getCfgValue('c_PJ2') + '...', 3, 3, 1 )
 
             If .l_Test
                toModulo    = C_FB2PRG_CODE
@@ -382,18 +382,18 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
       #If .F.
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
-         Local toModulo As CL_PROJECT Of 'FOXBIN2PRG.PRG'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
+         Local toModulo As CL_PROJECT Of 'cl_project.prg'
       #Endif
       DoDefault( @toModulo, @toEx, @toFoxBin2Prg )
 
       Try
          Local lnCodError, lcStr, lnPos, lnLen, lnServerCount, loReg, lnLen ;
             , loEx As Exception ;
-            , loProject As CL_PROJECT Of 'FOXBIN2PRG.PRG' ;
-            , loServerHead As CL_PROJ_SRV_HEAD Of 'FOXBIN2PRG.PRG' ;
-            , loServerData As CL_PROJ_SRV_DATA Of 'FOXBIN2PRG.PRG' ;
-            , loLang As CL_LANG Of 'FOXBIN2PRG.PRG'
+            , loProject As CL_PROJECT Of 'cl_project.prg' ;
+            , loServerHead As CL_PROJ_SRV_HEAD Of 'cl_proj_srv_head.prg' ;
+            , loServerData As CL_PROJ_SRV_DATA Of 'cl_proj_srv_data.prg' ;
+            , loLang As CL_LANG Of 'cl_lang.prg'
 
          loLang          = _Screen.o_FoxBin2Prg_Lang
          Store .Null. To loProject, loReg, loServerHead, loServerData
@@ -414,17 +414,17 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
 
             *-- Obtengo los archivos del proyecto
-            loProject       = Createobject('CL_PROJECT')
+            loProject       = NewObject('CL_PROJECT', 'cl_project.prg')
             toModulo        = loProject
             loServerHead    = loProject._ServerHead
 
             loProject.c_InputFile   = .c_InputFile
             Scatter Memo Name loReg
 
-            If toFoxBin2Prg.l_NoTimestamps
+            If toFoxBin2Prg.getCfgValue('l_NoTimestamps')
                loReg.Timestamp = 0
             Endif
-            If toFoxBin2Prg.l_ClearUniqueID
+            If toFoxBin2Prg.getCfgValue('l_ClearUniqueID')
                loReg.Id    = 0
             Endif
 
@@ -472,10 +472,10 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                loReg   = .Null.
                Scatter Fields Name,Type,EXCLUDE,COMMENTS,CPID,Timestamp,Id,OBJREV,User,DEVINFO Memo Name loReg
 
-               If toFoxBin2Prg.l_NoTimestamps
+               If toFoxBin2Prg.getCfgValue('l_NoTimestamps')
                   loReg.Timestamp = 0
                Endif
-               If toFoxBin2Prg.l_ClearUniqueID
+               If toFoxBin2Prg.getCfgValue('l_ClearUniqueID')
                   loReg.Id    = 0
                Endif
 
@@ -557,11 +557,11 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
       lcReturn = Sys( 2014, m.tcFilePath, m.tcProjPath)
       Do Case
-      Case m.toFoxBin2Prg.n_CheckFileInPath=2 And !Empty( Justdrive( m.lcReturn))
+      Case m.toFoxBin2Prg.getCfgValue('n_CheckFileInPath')=2 And !Empty( Justdrive( m.lcReturn))
          *!* 2 Create absolute path if file is on different drive.<br />
          lcReturn = '"' + m.tcFilePath + '"'
 
-      Case m.toFoxBin2Prg.n_CheckFileInPath=3 And (!Empty( Justdrive( m.lcReturn)) Or Left(m.lcReturn, 2) = "..")
+      Case m.toFoxBin2Prg.getCfgValue('n_CheckFileInPath')=3 And (!Empty( Justdrive( m.lcReturn)) Or Left(m.lcReturn, 2) = "..")
          *!* 3 Create absolute path if file is not in structure<br />
          lcReturn = '"' + m.tcFilePath + '"'
 

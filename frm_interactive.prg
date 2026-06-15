@@ -84,10 +84,10 @@ Define Class frm_interactive As Form
       Lparameters toFoxBin2Prg
 
       #If .F.
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
 
-      Local laDirInfo(1,5), loLang As CL_LANG Of 'FOXBIN2PRG.PRG'
+      Local laDirInfo(1,5), loLang As CL_LANG Of 'cl_lang.prg'
 
       If Vartype(toFoxBin2Prg) = "O" Then
          If Vartype(_Screen.o_FoxBin2Prg_Lang) = "O" Then
@@ -104,7 +104,7 @@ Define Class frm_interactive As Form
             Thisform.cmd_None.Caption                       = loLang.C_CONVERT_FOLDER_NONE_LOC
          Endif
 
-         Thisform.l_FileTimeStampOptimization = (toFoxBin2Prg.n_OptimizeByFilestamp <> 0)
+         Thisform.l_FileTimeStampOptimization = (toFoxBin2Prg.getCfgValue('n_OptimizeByFilestamp') <> 0)
 
          If Adir( laDirInfo, Forceext( toFoxBin2Prg.c_Foxbin2prg_FullPath, 'ICO' ) ) > 0 Then
             Thisform.Icon = Forceext( toFoxBin2Prg.c_Foxbin2prg_FullPath, 'ICO' )

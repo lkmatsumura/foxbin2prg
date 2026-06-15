@@ -29,8 +29,8 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
       DoDefault( @toProject, @toEx, @toFoxBin2Prg )
 
       #If .F.
-         Local toProject As CL_PROJECT Of 'FOXBIN2PRG.PRG'
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+         Local toProject As CL_PROJECT Of 'cl_project.prg'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
 
       Try
@@ -101,14 +101,14 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
       Lparameters toProject, toFoxBin2Prg
       *-- -----------------------------------------------------------------------------------------------------------
       #If .F.
-         Local toProject As CL_PROJECT Of 'FOXBIN2PRG.PRG'
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+         Local toProject As CL_PROJECT Of 'cl_project.prg'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
 
       Try
          Local lnCodError, lcMainProg, loEx As Exception ;
-            , loServerHead As CL_PROJ_SRV_HEAD Of 'FOXBIN2PRG.PRG' ;
-            , loFile As CL_PROJ_FILE Of 'FOXBIN2PRG.PRG'
+            , loServerHead As CL_PROJ_SRV_HEAD Of 'cl_proj_srv_head.prg' ;
+            , loFile As CL_PROJ_FILE Of 'cl_proj_file.prg'
 
          With This As c_conversor_prg_a_pjx Of 'c_conversor_prg_a_pjx.prg'
             Store .Null. To loFile, loServerHead
@@ -253,8 +253,8 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
       External Array taCodeLines, taLineasExclusion
 
       #If .F.
-         Local toProject As CL_PROJECT Of 'FOXBIN2PRG.PRG'
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+         Local toProject As CL_PROJECT Of 'cl_project.prg'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
 
       Try
@@ -267,7 +267,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
             .c_Type = Upper(Justext(.c_OutputFile))
 
             If tnCodeLines > 1
-               toProject           = Createobject('CL_PROJECT')
+               toProject           = NewObject('CL_PROJECT', 'cl_project.prg')
                *toProject._HomeDir = ADDBS(JUSTPATH(.c_OutputFile))
 
                For I = 1 To tnCodeLines
@@ -341,16 +341,17 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *--------------------------------------------------------------------------------------------------------------
       Lparameters toProject, tcLine, taCodeLines, I, tnCodeLines, toFoxBin2Prg
+      External Array taCodeLines
 
       #If .F.
-         Local toProject As CL_PROJECT Of 'FOXBIN2PRG.PRG'
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+         Local toProject As CL_PROJECT Of 'cl_project.prg'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
 
       Try
          Local llBloqueEncontrado, lcComment, lcMetadatos, luValor ;
             , laPropsAndValues(1,2), lnPropsAndValues_Count ;
-            , loFile As CL_PROJ_FILE Of 'FOXBIN2PRG.PRG'
+            , loFile As CL_PROJ_FILE Of 'cl_proj_file.prg'
 
          If Left( tcLine, Len(C_BUILDPROJ_I) ) == C_BUILDPROJ_I
             llBloqueEncontrado  = .T.
@@ -375,7 +376,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
                      * loFile: NAME,TYPE,EXCLUDE,COMMENTS
                      tcLine          = Chrtran( tcLine, ["] + '[]', "'''" )  && Convierto "[] en '
                      Store .Null. To loFile
-                     loFile          = Createobject('CL_PROJ_FILE')
+                     loFile          = NewObject('CL_PROJ_FILE', 'cl_proj_file.prg')
                      loFile._Name    = Alltrim( Strextract( tcLine, ['], ['] ) )
 
                      *-- Obtengo metadatos de los comentarios de FileMetadata:
@@ -390,7 +391,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
                      loFile._ObjRev      = .get_ValueByName_FromListNamesWithValues( 'ObjRev', 'I', @laPropsAndValues )
                      loFile._User        = .get_ValueByName_FromListNamesWithValues( 'User', 'C', @laPropsAndValues )
 
-                     If toFoxBin2Prg.n_BodyDevInfo = 1
+                     If toFoxBin2Prg.getCfgValue('n_BodyDevInfo') = 1
                         loFile._DevInfo     = .get_ValueByName_FromListNamesWithValues( 'DevInfo', 'C', @laPropsAndValues )
                      Endif
 
@@ -429,9 +430,10 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
       *-- Analiza el bloque <DevInfo>
       *------------------------------------------------------
       Lparameters toProject, tcLine, taCodeLines, I, tnCodeLines
+      External Array taCodeLines
 
       #If .F.
-         Local toProject As CL_PROJECT Of 'FOXBIN2PRG.PRG'
+         Local toProject As CL_PROJECT Of 'cl_project.prg'
       #Endif
 
       Try
@@ -480,14 +482,15 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
       *-- Analiza el bloque <ServerHead>
       *------------------------------------------------------
       Lparameters toProject, tcLine, taCodeLines, I, tnCodeLines
+      External Array taCodeLines
 
       #If .F.
-         Local toProject As CL_PROJECT Of 'FOXBIN2PRG.PRG'
+         Local toProject As CL_PROJECT Of 'cl_project.prg'
       #Endif
 
       Try
          Local llBloqueEncontrado ;
-            , loServerHead As CL_PROJ_SRV_HEAD Of 'FOXBIN2PRG.PRG'
+            , loServerHead As CL_PROJ_SRV_HEAD Of 'cl_proj_srv_head.prg'
 
          If Left( tcLine, Len(C_SRV_HEAD_I) ) == C_SRV_HEAD_I
             llBloqueEncontrado  = .T.
@@ -539,15 +542,16 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
       *-- Analiza el bloque <ServerData>
       *------------------------------------------------------
       Lparameters toProject, tcLine, taCodeLines, I, tnCodeLines
+      External Array taCodeLines
 
       #If .F.
-         Local toProject As CL_PROJECT Of 'FOXBIN2PRG.PRG'
+         Local toProject As CL_PROJECT Of 'cl_project.prg'
       #Endif
 
       Try
          Local llBloqueEncontrado ;
-            , loServerHead As CL_PROJ_SRV_HEAD Of 'FOXBIN2PRG.PRG' ;
-            , loServerData As CL_PROJ_SRV_DATA Of 'FOXBIN2PRG.PRG'
+            , loServerHead As CL_PROJ_SRV_HEAD Of 'cl_proj_srv_head.prg' ;
+            , loServerData As CL_PROJ_SRV_DATA Of 'cl_proj_srv_data.prg'
 
          If Left( tcLine, Len(C_SRV_DATA_I) ) == C_SRV_DATA_I
             llBloqueEncontrado  = .T.
@@ -601,16 +605,17 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
       *-- Analiza el bloque <FileComments>
       *------------------------------------------------------
       Lparameters toProject, tcLine, taCodeLines, I, tnCodeLines
+      External Array taCodeLines
 
       External Array toProject
 
       #If .F.
-         Local toProject As CL_PROJECT Of 'FOXBIN2PRG.PRG'
+         Local toProject As CL_PROJECT Of 'cl_project.prg'
       #Endif
 
       Try
          Local llBloqueEncontrado, lcFile, lcComment ;
-            , loFile As CL_PROJ_FILE Of 'FOXBIN2PRG.PRG'
+            , loFile As CL_PROJ_FILE Of 'cl_proj_file.prg'
 
          If Left( tcLine, Len(C_FILE_CMTS_I) ) == C_FILE_CMTS_I
             llBloqueEncontrado  = .T.
@@ -664,16 +669,17 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
       *-- Analiza el bloque <ExcludedFiles>
       *------------------------------------------------------
       Lparameters toProject, tcLine, taCodeLines, I, tnCodeLines
+      External Array taCodeLines
 
       External Array toProject
 
       #If .F.
-         Local toProject As CL_PROJECT Of 'FOXBIN2PRG.PRG'
+         Local toProject As CL_PROJECT Of 'cl_project.prg'
       #Endif
 
       Try
          Local llBloqueEncontrado, lcFile, llExclude ;
-            , loFile As CL_PROJ_FILE Of 'FOXBIN2PRG.PRG'
+            , loFile As CL_PROJ_FILE Of 'cl_proj_file.prg'
 
          If Left( tcLine, Len(C_FILE_EXCL_I) ) == C_FILE_EXCL_I
             llBloqueEncontrado  = .T.
@@ -727,16 +733,17 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
       *-- Analiza el bloque <TextFiles>
       *------------------------------------------------------
       Lparameters toProject, tcLine, taCodeLines, I, tnCodeLines
+      External Array taCodeLines
 
       External Array toProject
 
       #If .F.
-         Local toProject As CL_PROJECT Of 'FOXBIN2PRG.PRG'
+         Local toProject As CL_PROJECT Of 'cl_project.prg'
       #Endif
 
       Try
          Local llBloqueEncontrado, lcFile, lcType ;
-            , loFile As CL_PROJ_FILE Of 'FOXBIN2PRG.PRG'
+            , loFile As CL_PROJ_FILE Of 'cl_proj_file.prg'
 
          If Left( tcLine, Len(C_FILE_TXT_I) ) == C_FILE_TXT_I
             llBloqueEncontrado  = .T.
@@ -790,9 +797,10 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
       *-- Analiza el bloque <ProjectProperties>
       *------------------------------------------------------
       Lparameters toProject, tcLine, taCodeLines, I, tnCodeLines
+      External Array taCodeLines
 
       #If .F.
-         Local toProject As CL_PROJECT Of 'FOXBIN2PRG.PRG'
+         Local toProject As CL_PROJECT Of 'cl_project.prg'
       #Endif
 
       Try

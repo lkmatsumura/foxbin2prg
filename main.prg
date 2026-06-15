@@ -8,99 +8,141 @@
 * This work is licensed under the Creative Commons Attribution 4.0 International License.
 * To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/.
 *
-* LICENCIA:
+* LICENCIA (ES):
 * Esta obra está sujeta a la licencia Reconocimiento-CompartirIgual 4.0 Internacional de Creative Commons.
 * Para ver una copia de esta licencia, visite http://creativecommons.org/licenses/by-sa/4.0/deed.es_ES.
 *
 *---------------------------------------------------------------------------------------------------
-* DESCRIPCIÓN....: CONVIERTE EL ARCHIVO VCX/SCX/PJX INDICADO A UN "PRG HÍBRIDO" PARA POSTERIOR RECONVERSIÓN.
-*                  * EL PRG HÍBRIDO ES UN PRG CON ALGUNAS SECCIONES BINARIAS (OLE DATA, ETC)
-*                  * EL OBJETIVO ES PODER USARLO COMO REEMPLAZO DEL SCCTEXT.PRG, PODER HACER MERGE
-*                  DEL CÓDIGO DIRECTAMENTE SOBRE ESTE NUEVO PRG Y GUARDARLO EN UNA HERRAMIENTA DE SCM
-*                  COMO CVS O SIMILAR SIN NECESIDAD DE GUARDAR LOS BINARIOS ORIGINALES.
-*                  * EXTENSIONES GENERADAS: VC2, SC2, PJ2   (...o VCA, SCA, PJA con archivo conf.)
-*                  * CONFIGURACIÓN: SI SE CREA UN ARCHIVO FOXBIN2PRG.CFG, SE PUEDEN CAMBIAR LAS EXTENSIONES
-*                    PARA PODER USARLO CON SOURCESAFE PONIENDO LAS EQUIVALENCIAS ASÍ:
+* DESCRIPTION....: Converts the given VCX/SCX/PJX file to a "hybrid PRG" for later reconversion.
+*                  * The hybrid PRG is a PRG with some binary sections (OLE data, etc.)
+*                  * The goal is to use it as a replacement for SCCTEXT.PRG, merge code directly on
+*                  this new PRG, and store it in an SCM tool such as CVS without keeping the original binaries.
+*                  * Generated extensions: VC2, SC2, PJ2   (...or VCA, SCA, PJA with a config file)
+*                  * CONFIGURATION: If a FOXBIN2PRG.CFG file is created, extensions can be changed
+*                    for SourceSafe by setting equivalences such as:
 *
 *                        extension: VC2=VCA
 *                        extension: SC2=SCA
 *                        extension: PJ2=PJA
 *
-*   USO/USE:
-*       DO FOXBIN2PRG.PRG WITH "<path>\FILE.VCX"    && Genera "<path>\FILE.VC2" (BIN TO PRG CONVERSION)
-*       DO FOXBIN2PRG.PRG WITH "<path>\FILE.VC2"    && Genera "<path>\FILE.VCX" (PRG TO BIN CONVERSION)
+*   USAGE:
+*       DO MAIN.PRG WITH "<path>\FILE.VCX"    && Generates "<path>\FILE.VC2" (BIN TO PRG CONVERSION)
+*       DO MAIN.PRG WITH "<path>\FILE.VC2"    && Generates "<path>\FILE.VCX" (PRG TO BIN CONVERSION)
 *
-*       DO FOXBIN2PRG.PRG WITH "<path>\FILE.SCX"    && Genera "<path>\FILE.SC2" (BIN TO PRG CONVERSION)
-*       DO FOXBIN2PRG.PRG WITH "<path>\FILE.SC2"    && Genera "<path>\FILE.SCX" (PRG TO BIN CONVERSION)
+*       DO MAIN.PRG WITH "<path>\FILE.SCX"    && Generates "<path>\FILE.SC2" (BIN TO PRG CONVERSION)
+*       DO MAIN.PRG WITH "<path>\FILE.SC2"    && Generates "<path>\FILE.SCX" (PRG TO BIN CONVERSION)
 *
-*       DO FOXBIN2PRG.PRG WITH "<path>\FILE.PJX"    && Genera "<path>\FILE.PJ2" (BIN TO PRG CONVERSION)
-*       DO FOXBIN2PRG.PRG WITH "<path>\FILE.PJ2"    && Genera "<path>\FILE.PJX" (PRG TO BIN CONVERSION)
+*       DO MAIN.PRG WITH "<path>\FILE.PJX"    && Generates "<path>\FILE.PJ2" (BIN TO PRG CONVERSION)
+*       DO MAIN.PRG WITH "<path>\FILE.PJ2"    && Generates "<path>\FILE.PJX" (PRG TO BIN CONVERSION)
 *
-*       DO FOXBIN2PRG.PRG WITH "-c", cOutputFile    && Generate a configuration (FoxBin2Prg.cfg) template
+*       DO MAIN.PRG WITH "-c", cOutputFile    && Generate a configuration (FoxBin2Prg.cfg) template
+*       DO MAIN.PRG WITH "-t", cOutputFile    && Generate a configuration (FoxBin2Prg.dbf.cfg) template
 *
-*  BIN TO PRG Conversion of all files of project (pjx include):
-*       DO FOXBIN2PRG.PRG WITH "<path>\FILE.PJX" , "*"
-
+*  BIN TO PRG conversion of all project files (PJX included):
+*       DO MAIN.PRG WITH "<path>\FILE.PJX" , "*"
+*
+*  BIN TO PRG conversion of all project files (PJX included) - Mirrored tree (Bin3Prg) example:
+*       DO MAIN.PRG WITH "<path>\FILE.PJX" , "Bin3Prg"  , "d:\export\project\path"
+*  PRG TO BIN conversion of all project files (PJX included) - Mirrored tree (Prg3Bin) example:
+*       DO MAIN.PRG WITH "<path>\FILE.PJ2" , "Prg3Bin" , "d:\import\project\path"
+*
 *---------------------------------------------------------------------------------------------------
-* TRAMIENTOS ESPECIALES DE ASIGNACIONES DE PROPIEDADES:
-*   PROPIEDAD               ARREGLO Y EJEMPLO
-*-------------------------  --------------------------------------------------------------------------------------
-*   _memberdata             Se separan las definiciones en lineas para evitar una sola muy larga
-*
-*---------------------------------------------------------------------------------------------------
-*** LScheffler 2021-03-08: added optional set of parameters, config file
 * Usage 1
-* PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-* tc_InputFile              (v! IN    ) Nombre completo (fullpath) del archivo a convertir o nombre del directorio a procesar
-*                                       - En modo compatibilidad con Visual SourceSafe, se usa para preguntar el tipo de soporte de conversión para el tipo de archivo indicado
-* tcType                    (v? IN    ) Tipo de archivo de entrada
-*                                       - Si se indica "BIN2PRG", se procesa el directorio indicado para generar los TX2
-*                                       - Si se indica "PRG2BIN", se procesa el directorio indicado para generar los BIN
-*                                       - Si se indica "SIMERR_I0", se simula un error de validación en el archivo de entrada
-*                                       - Si se indica "SIMERR_I1", se simula un error de programa en el archivo de entrada
-*                                       - Si se indica "SIMERR_O1", se simula un error de programa en el archivo de salida
-*                                       - Si se indica "*" y tc_InputFile es un PJX, se procesa todo el proyecto
-*                                       - En modo compatibilidad con Visual SourceSafe, indica el tipo de archivo a convertir
-* tcTextName                (v? IN    ) Nombre del archivo texto. (Solo para compatibilidad con Visual SourceSafe)
-* tlGenText                 (v? IN    ) .T.=Genera Texto, .F.=Genera Binario. (Solo para compatibilidad con Visual SourceSafe)
-* tcDontShowErrors          (v? IN    ) '1' para NO mostrar errores con MESSAGEBOX
-* tcDebug                   (v? IN    ) '1' para depurar en el sitio donde ocurre el error (solo modo desarrollo)
-* tcDontShowProgress        (v? IN    ) '1' para NO mostrar la ventana de progreso
-* tcOriginalFileName        (v? IN    ) Sirve para los casos en los que inputFile es un nombre temporal y se quiere generar
-*                                       el nombre correcto dentro de la versión texto (por ej: en los PJ2 y las cabeceras)
-* tcRecompile               (v? IN    ) Indica recompilar ('1') el binario una vez regenerado. [Cambio de funcionamiento por defecto]
-*                                       Este cambio es para ganar tiempo, velocidad y seguridad. Además la recompilación que hace FoxBin2Prg
-*                                       se hace desde el directorio del archivo, con lo que las referencias relativas pueden
-*                                       generar errores de compilación, típicamente los #include.
-*                                       NOTA: Si en vez de '1' se indica un Path (p.ej, el del proyecto, se usará como base para recompilar
-* tcNoTimestamps            (v? IN    ) Indica si se debe anular el timestamp ('1') o no ('0' ó vacío)
+* PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+* tc_InputFile              (v! IN    ) Full path of the file to convert or directory name to process
+*                                       - In Visual SourceSafe compatibility mode, used to query conversion support for the given file type
+* tcType                    (v? IN    ) Input file type
+*                                       - If "BIN2PRG" is given, the directory in tc_InputFile is processed to generate TX2 files
+*                                       - If "PRG2BIN" is given, the directory in tc_InputFile is processed to generate BIN files
+*                                       - If "SIMERR_I0" is given, simulates a validation error on the input file
+*                                       - If "SIMERR_I1" is given, simulates a program error on the input file
+*                                       - If "SIMERR_O1" is given, simulates a program error on the output file
+*                                       - If "*" is given and tc_InputFile is a PJX, the entire project is processed
+*                                       - If "Bin3Prg" is given and tc_InputFile is a PJX, exports the project to a mirrored tree
+*                                         (requires tcTextName or tcOutputFolder as the destination folder)
+*                                       - If "Prg3Bin" is given and tc_InputFile is a PJ2, imports the project from a mirrored tree
+*                                         (requires tcTextName or tcOutputFolder as the destination folder)
+*                                       - In Visual SourceSafe compatibility mode, indicates the file type to convert
+* tcTextName                (v? IN    ) Text file name (Visual SourceSafe compatibility only)
+*                                       - With "Bin3Prg" or "Prg3Bin": mirrored destination root folder
+* tlGenText                 (v? IN    ) .T.=Generate text, .F.=Generate binary (Visual SourceSafe compatibility only)
+* tcDontShowErrors          (v? IN    ) '1' to suppress error MESSAGEBOXes
+* tcDebug                   (v? IN    ) '1' to debug at the error site (development mode only)
+* tcDontShowProgress        (v? IN    ) '1' to hide the progress window
+* tcOriginalFileName        (v? IN    ) For cases where inputFile is a temporary name and the correct name should be generated
+*                                       in the text version (e.g. in PJ2 files and headers)
+* tcRecompile               (v? IN    ) Recompile ('1') the binary once regenerated [default behavior change]
+*                                       This change saves time, speed, and safety. Also, recompilation by FoxBin2Prg
+*                                       runs from the file directory, so relative references may
+*                                       cause compilation errors, typically #include directives.
+*                                       NOTE: If a path is given instead of '1' (e.g. the project path), it is used as the recompile base
+* tcNoTimestamps            (v? IN    ) Whether to clear the timestamp ('1') or not ('0' or empty)
 * tcCFG_File                (v? IN    ) Config file. If a config file is set, the normal chain of inheritance is reset and this file is read atop of the defaults
 *                                       Normal inheritance may or may not run, see setting AllowInheritance
 * tcOutputFolder            (v? IN    ) The output folder to write to (optional: if it isn't specified, the same folder as the source is used)
+*                                       - With "Bin3Prg" or "Prg3Bin": mirrored destination root folder (typical with cfg as param 11)
+*
+* Example:
+*
+* Convert files from prg to scm (directory batch)
+*       DO Main.prg WITH JUSTPATH(FULLPATH("","")),"Bin2Prg",,,,,,,,FULLPATH("example.cfg","")
+*
+* Convert files from scm to prg (directory batch)
+*       DO Main.prg WITH JUSTPATH(FULLPATH("","")),"Prg2Bin",,,,,,,,FULLPATH("example.cfg","")
+*
+* Convert full project in-place to scm (with cfg)
+*       DO Main.prg WITH "<path>\FILE.PJX","*",,,,,,,,FULLPATH("example.cfg","path\to\scm\")
+*
+* Convert full project in-place from scm (with cfg)
+*       DO Main.prg WITH "<path>\FILE.PJ2","*",,,,,,,,FULLPATH("example.cfg","path\to\bin")
+*
+* Convert full project to scm in a mirrored tree (with cfg)
+*       DO Main.prg WITH "<path>\FILE.PJX","Bin3Prg",,,,,,,,,FULLPATH("example.cfg"),"path\to\scm\"
+*
+* Convert full project from scm in a mirrored tree (with cfg)
+*       DO Main.prg WITH "<path>\FILE.PJ2","Prg3Bin",,,,,,,,,FULLPATH("example.cfg"),"path\to\bin"
+*
+* Mirrored export/import (destination in tcTextName, cfg optional)
+*       DO MAIN.PRG WITH "<path>\FILE.PJX","Bin3Prg","d:\export\project\path",,,,,,,,FULLPATH("example.cfg")
+*       DO MAIN.PRG WITH "<path>\FILE.PJ2","Prg3Bin","d:\import\project\path",,,,,,,,FULLPATH("example.cfg")
+*
+* Create config templates
+*       DO Main.prg WITH "-c","example.cfg.txt"     , FULLPATH("example.cfg","")
+*       DO Main.prg WITH "-t","example.dbf.cfg.txt" , FULLPATH("example.dbf.cfg","")
+*
 *---------------------------------------------------------------------------------------------------
 * Usage 2 : Create Config
-* PARAMETERS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-* tcType            (c! IN    ) Modus (case sensitive)
+* PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+* tcType            (c! IN    ) Mode (case sensitive)
 *                               -c Create config template "tcType" with default values
 *                               -C Create config "tcType" with values of directory named by outputfile
 *                               -t Create config template "tcType" for config-per-table file
-* tc_OutputFile     (v? IN    ) file to create
+* tc_OutputFile     (v? IN    ) File to create
 * tcCFG_File        (v? IN    ) Config file. If a config file is set, the normal chain of inheritance is reset and this file is read atop of the defaults
 *                               Normal inheritance may or may not run, see setting AllowInheritance
-* tcDebug           (v? IN    ) '1' write debug log (posiibly to GETENV("TEMP") )
+* tcDebug           (v? IN    ) '1' write debug log (possibly to GETENV("TEMP"))
+*
+* Example:
+* Create config templates
+*       DO Main.prg WITH "-c","example.cfg.txt"     , FULLPATH("example.cfg","")
+*       DO Main.prg WITH "-t","example.dbf.cfg.txt" , FULLPATH("example.dbf.cfg","")
+*
 *---------------------------------------------------------------------------------------------------
 * Usage 3 : output version number
-* PARAMETERS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+* PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
 * tc_InputFile              (@! OUT   ) -VERNO Return version number (DC_FB2PRG_VERSION_REAL)
+*
+* Example:
+*       lcVersion = DO Main.prg WITH "-VERNO"
+*       MESSAGEBOX(lcVersion)
 *---------------------------------------------------------------------------------------------------
 Lparameters   tc_InputFile      , tcType             , tcTextName      ;
             , tlGenText         , tcDontShowErrors   , tcDebug         ;
             , tcDontShowProgress, tcOriginalFileName , tcRecompile     ;
             , tcNoTimestamps    , tcCFG_File         , tcOutputFolder
 
-* #INCLUDE foxbin2prg.h
-
-SET PROCEDURE TO foxbin2prg.prg
+*{place_f2b_header}*
+#INCLUDE foxbin2prg.h
 
 *-- Predefine 64MB of RAM
 SYS(3050, 1, 64*1024*1024)
@@ -117,8 +159,8 @@ LOCAL lnResp
 
 *SET COVERAGE TO c:\desa\foxbin2prg\foxbin2prg_coverage.log
 *SYS(2030,1)    && Enable system component debugging
-*SYS(2335,0)    && Unnatended server mode
-*IF PCOUNT() > 1 && Saltear las querys de SourceSafe sobre soporte de archivos
+*SYS(2335,0)    && Unattended server mode
+*IF PCOUNT() > 1 && Skip SourceSafe queries about file conversion support
 *   SET STEP ON
 *   MESSAGEBOX( SYS(5)+CURDIR(),64+4096,PROGRAM(),5000)
 *ENDIF
@@ -134,7 +176,7 @@ IF ATC('-VERNO','-'+tc_InputFile) > 0
    RETURN DC_FB2PRG_VERSION_REAL
 ENDIF
 
-*-- En el caso de recibir "BIN2PRG" o "PRG2BIN" en el primer parámetro, los invierto.
+*-- If "BIN2PRG" or "PRG2BIN" is received in the first parameter, swap them.
 IF    Atc('-BIN2PRG'    , '-' + tc_InputFile) > 0 ;
    OR Atc('-PRG2BIN'    , '-' + tc_InputFile) > 0 ;
    OR Atc('-BIN2TEXT'   , '-' + tc_InputFile) > 0 ;
@@ -194,11 +236,9 @@ IF    Upper(tcType) == '-C' ;
    ENDCASE
 
 ENDIF
-
 TRY
    loEx  = .NULL.
-   loCnv = NewObject( "c_foxbin2prg", "c_foxbin2prg.prg" )
-
+   loCnv = GetObj_F2b()
    *** handle tcOutputFolder
    IF NOT Empty(tcOutputFolder)
       loCnv.cOutputFolder = tcOutputFolder
@@ -211,7 +251,7 @@ TRY
                           , tcCFG_File       )
 
 CATCH TO loEx
-   *-- Esto solo es para errores en el INIT, ya que los demás se deben capturar y tratar antes.
+   *-- This is only for INIT errors; all others should be caught and handled earlier.
    lnResp      = loEx.ErrorNo
    MessageBox( 'Error ' + Transform(loEx.ErrorNo) + ', ' + loEx.Message + C_CR ;
              + loEx.Procedure+ ', Line ' + Transform(loEx.LineNo) + C_CR ;
@@ -231,7 +271,7 @@ IF _VFP.STARTMODE <> 4 OR NOT SYS(16) == SYS(16,0)
    RELEASE loEx, loCnv
 
    ? lnResp
-   * lnResp contiene un código de error, pero invocado desde SourceSafe puede contener el tipo de soporte de archivo (0,1,2).
+   * lnResp contains an error code, but when invoked from SourceSafe it may contain the file support type (0,1,2).
    RETURN lnResp
 ENDIF
 
@@ -244,10 +284,10 @@ ENDIF
 STORE .NULL. TO loEx, loCnv
 RELEASE loEx, loCnv
 
-*-- Muy útil para procesos batch que capturan el código de error
+*-- Very useful for batch processes that capture the error code
 *KillMode 1
 *DECLARE ExitProcess IN Win32API INTEGER ExitCode && To read returned error code with ERRORLEVEL from Windows
-*ExitProcess(1) && Esta debe ser de las últimas instrucciones
+*ExitProcess(1) && This should be among the last instructions
 
 *KillMode 2 - This one works better.
 DECLARE INTEGER OpenProcess      IN Win32API INTEGER dwDesiredAccess, INTEGER bInheritHandle, INTEGER dwProcessID
@@ -262,3 +302,25 @@ lnHandle = OpenProcess(1, 1, _vfp.ProcessId)
 *loProcCols = loCIMV2.ExecQuery( [select * from Win32_Process where processid=] + TRANSFORM(_VFP.PROCESSID) + [] )
 *loCIMV2 = .Null.
 *loProcCols.ItemIndex(0).TERMINATE(1)
+
+
+* *------------------------*
+* GetObj_F2b
+* Requires:
+* Modifies:
+* Effects : Returns a c_foxbin2prg instance, use the parameter passed by reference if done by a external program
+*
+* PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+* poObj                     ( @! IN ) c_foxbin2prg object instance
+* *------------------------*
+* Ex:
+* LOCAL loObj
+* loObj = .f.
+* Do GetObj_F2b IN foxbin2prg.exe WITH loObj
+* *-*
+PROCEDURE GetObj_F2b
+LPARAMETERS poObj
+
+poObj = NewObject( "c_foxbin2prg", "c_foxbin2prg.prg" )
+
+RETURN poObj

@@ -16,7 +16,7 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
       #If .F.
-         Local toFoxBin2Prg As c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
       DoDefault( @toModulo, @toEx, @toFoxBin2Prg )
 
@@ -25,7 +25,8 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
             , laPropsAndValues(1), laPropsAndComments(1), lnLastClass, lnRecno, lcMethods, lcObjName, la_NombresObjsOle(1) ;
             , laObjs(1,4), I, lnPropsAndValues_Count, lnPropsAndComments_Count, lnProtected_Count, lcCodigo, laClasses(1,3) ;
             , lnClassCount, lcOutputFile, lcExternalHeader, lnClassTotal, lnStepCount, lnStep, lcObjPathInsideClass, lnPos ;
-            , loLang As CL_LANG Of 'FOXBIN2PRG.PRG'
+            , lcVc2Ext, llUseClassPerDir, lnUseClassPerFile ;
+            , loLang As CL_LANG Of 'cl_lang.prg'
          Store 0 To lnCodError, lnLastClass, lnObjCount, lnPropsAndValues_Count, lnPropsAndComments_Count, lnProtected_Count ;
             , lnMethodCount, lnClassCount, lnStepCount, lnStep
          Store '' To laMethods, laCode, laProtected, laPropsAndComments, laObjs, lcCodigo, laClasses, lcOutputFile ;
@@ -43,7 +44,7 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                RESERVED1,RESERVED2,RESERVED3,RESERVED4,RESERVED5,RESERVED6,RESERVED7,RESERVED8,User
             */LScheffler 20.08.2023
 
-            If toFoxBin2Prg.n_UseClassPerFile = 0 Or Empty(toFoxBin2Prg.c_ClassToConvert) Then
+            If toFoxBin2Prg.getCfgValue('n_UseClassPerFile') = 0 Or Empty(toFoxBin2Prg.c_ClassToConvert) Then
                *-- Exportar la librería entera a texto
                Select _TABLAORIG.*,Recno() regnum From _TABLAORIG Into Cursor TABLABIN Readwrite
             Else
@@ -80,7 +81,7 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
             Select TABLABIN
             Set Order To PARENT_OBJ
 
-            If toFoxBin2Prg.n_UseClassPerFile = 0 Or Empty(toFoxBin2Prg.c_ClassToConvert) Then
+            If toFoxBin2Prg.getCfgValue('n_UseClassPerFile') = 0 Or Empty(toFoxBin2Prg.c_ClassToConvert) Then
                Goto Record 1   && Class Library Header/Form Header
                Scatter Fields RESERVED7 Memo Name loRegClass
 
@@ -109,10 +110,10 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                loRegClass.Class        = Lower( loRegClass.Class )
                loRegClass.OBJNAME      = Lower( loRegClass.OBJNAME )
 
-               If toFoxBin2Prg.l_NoTimestamps
+               If toFoxBin2Prg.getCfgValue('l_NoTimestamps')
                   loRegClass.Timestamp    = 0
                Endif
-               If toFoxBin2Prg.l_ClearUniqueID
+               If toFoxBin2Prg.getCfgValue('l_ClearUniqueID')
                   loRegClass.UNIQUEID = ''
                Else
                   loRegClass.UNIQUEID = Alltrim(loRegClass.UNIQUEID)
@@ -136,7 +137,7 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
                .write_CLASSMETADATA( @loRegClass, @lcCodigo )
 
-               If toFoxBin2Prg.n_UseClassPerFile > 0 Or Not Empty(toFoxBin2Prg.c_ClassToConvert) Then
+               If toFoxBin2Prg.getCfgValue('n_UseClassPerFile') > 0 Or Not Empty(toFoxBin2Prg.c_ClassToConvert) Then
                   .write_EXTERNAL_CLASS_HEADER( @loRegClass, @toFoxBin2Prg, @lcExternalHeader )
                Endif
 
@@ -177,10 +178,10 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                   laObjs(lnObjCount,3)    = lnObjCount            && Alphabetic order
                   laObjs(lnObjCount,4)    = lcObjPathInsideClass  && To check duplicates
 
-                  If toFoxBin2Prg.l_NoTimestamps
+                  If toFoxBin2Prg.getCfgValue('l_NoTimestamps')
                      loRegObj.Timestamp  = 0
                   Endif
-                  If toFoxBin2Prg.l_ClearUniqueID
+                  If toFoxBin2Prg.getCfgValue('l_ClearUniqueID')
                      loRegObj.UNIQUEID   = ''
                   Else
                      loRegObj.UNIQUEID   = Alltrim(loRegObj.UNIQUEID)
@@ -255,10 +256,10 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                   loRegObj.CLASSLOC   = Lower( loRegObj.CLASSLOC )
                   loRegObj.Class      = Lower( loRegObj.Class )
 
-                  If toFoxBin2Prg.l_NoTimestamps
+                  If toFoxBin2Prg.getCfgValue('l_NoTimestamps')
                      loRegObj.Timestamp  = 0
                   Endif
-                  If toFoxBin2Prg.l_ClearUniqueID
+                  If toFoxBin2Prg.getCfgValue('l_ClearUniqueID')
                      loRegObj.UNIQUEID   = ''
                   Else
                      loRegObj.UNIQUEID   = Alltrim(loRegObj.UNIQUEID)
@@ -279,7 +280,7 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                laClasses(lnClassCount,2)   = lcCodigo
             Endscan
 
-            If toFoxBin2Prg.n_UseClassPerFile > 0 Then
+            If toFoxBin2Prg.getCfgValue('n_UseClassPerFile') > 0 Then
                lcExternalHeader    = lcExternalHeader + CR_LF
             Endif
 
@@ -302,7 +303,7 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
             lnStep          = lnStep + 1
             lcOutputFile    = .c_OutputFile
 
-            .updateProgressbar( 'Writing ' + toFoxBin2Prg.c_VC2 + '...', lnStep, lnClassTotal*lnStepCount, 1 )
+            .updateProgressbar( 'Writing ' + toFoxBin2Prg.getCfgValue('c_VC2') + '...', lnStep, lnClassTotal*lnStepCount, 1 )
             lcCodigo        = toFoxBin2Prg.get_PROGRAM_HEADER() + lcExternalHeader + C_FB2PRG_CODE
 
             If .l_Test
@@ -311,32 +312,43 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                *ENDFOR
                *toModulo   = lcCodigo
             Else
+               lcVc2Ext            = toFoxBin2Prg.getCfgValue('c_VC2')
+               llUseClassPerDir    = toFoxBin2Prg.getCfgFlag('l_UseClassPerDir')
+               lnUseClassPerFile   = toFoxBin2Prg.getCfgInt('n_UseClassPerFile')
+
+               *-- En árbol espejo, ensurePerFileDir se aplica en destino dentro de write_OutputFile/get_MirroredOutputFile
+               If lnUseClassPerFile > 0 And Empty(.cOutputFolder) Then
+                  toFoxBin2Prg.ensurePerFileDir( .c_InputFile, lcVc2Ext, llUseClassPerDir, lnUseClassPerFile )
+               Endif
+
                Do Case
-               Case (toFoxBin2Prg.n_UseClassPerFile = 0 And Not Empty(toFoxBin2Prg.c_ClassToConvert))  && LibName.ClassName.SC2
+               Case (toFoxBin2Prg.getCfgValue('n_UseClassPerFile') = 0 And Not Empty(toFoxBin2Prg.c_ClassToConvert))  && LibName.ClassName.SC2
                   For I = 1 To lnClassCount
-                     lcOutputFile    = Addbs( Justpath( .c_OutputFile ) ) + Juststem( .c_OutputFile ) + '.' + laClasses(m.I,1) + '.' + Justext( .c_OutputFile )
+                     lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, laClasses(m.I,1), lcVc2Ext, llUseClassPerDir, lnUseClassPerFile )
                      lcCodigo        = toFoxBin2Prg.get_PROGRAM_HEADER() + laClasses(m.I,2)
                      .write_OutputFile( @lcCodigo, lcOutputFile, @toFoxBin2Prg )
                   Endfor
 
-               Case toFoxBin2Prg.n_UseClassPerFile = 1 && LibName.ClassName.SC2
+               Case toFoxBin2Prg.getCfgValue('n_UseClassPerFile') = 1 && LibName.ClassName.SC2
                   If Empty(toFoxBin2Prg.c_ClassToConvert) Then
+                     lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, '', lcVc2Ext, llUseClassPerDir, lnUseClassPerFile )
                      .write_OutputFile( @lcCodigo, lcOutputFile, @toFoxBin2Prg )
                   Endif
 
                   For I = 1 To lnClassCount
-                     lcOutputFile    = Addbs( Justpath( .c_OutputFile ) ) + Juststem( .c_OutputFile ) + '.' + laClasses(m.I,1) + '.' + Justext( .c_OutputFile )
+                     lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, laClasses(m.I,1), lcVc2Ext, llUseClassPerDir, lnUseClassPerFile )
                      lcCodigo        = toFoxBin2Prg.get_PROGRAM_HEADER() + laClasses(m.I,2)
                      .write_OutputFile( @lcCodigo, lcOutputFile, @toFoxBin2Prg )
                   Endfor
 
-               Case toFoxBin2Prg.n_UseClassPerFile = 2 && LibName.BaseClass.ClassName.SC2
+               Case toFoxBin2Prg.getCfgValue('n_UseClassPerFile') = 2 && LibName.BaseClass.ClassName.SC2
                   If Empty(toFoxBin2Prg.c_ClassToConvert) Then
+                     lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, '', lcVc2Ext, llUseClassPerDir, lnUseClassPerFile )
                      .write_OutputFile( @lcCodigo, lcOutputFile, @toFoxBin2Prg )
                   Endif
 
                   For I = 1 To lnClassCount
-                     lcOutputFile    = Addbs( Justpath( .c_OutputFile ) ) + Juststem( .c_OutputFile ) + '.' + laClasses(m.I,3) + '.' + laClasses(m.I,1) + '.' + Justext( .c_OutputFile )
+                     lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, laClasses(m.I,3) + '.' + laClasses(m.I,1), lcVc2Ext, llUseClassPerDir, lnUseClassPerFile )
                      lcCodigo        = toFoxBin2Prg.get_PROGRAM_HEADER() + laClasses(m.I,2)
                      .write_OutputFile( @lcCodigo, lcOutputFile, @toFoxBin2Prg )
                   Endfor

@@ -1,6 +1,6 @@
 #INCLUDE foxbin2prg.h
 
-Define Class CL_MENU_COL_BASE As CL_COL_BASE OF 'FOXBIN2PRG.PRG'
+Define Class CL_MENU_COL_BASE As CL_COL_BASE Of 'cl_col_base.prg'
    _MemberData = [<VFPData>] ;
       + [<memberdata name="oreg" display="oReg"/>] ;
       + [<memberdata name="analizarsiexpresionescomandooprocedimiento" display="AnalizarSiExpresionEsComandoOProcedimiento"/>] ;

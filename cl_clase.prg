@@ -133,7 +133,7 @@ Define Class CL_CLASE As CL_CUS_BASE OF 'cl_cus_base.prg'
         Lparameters toProcedure
 
         #If .F.
-            Local toProcedure As CL_PROCEDURE Of 'FOXBIN2PRG.PRG'
+            Local toProcedure As CL_PROCEDURE Of 'cl_procedure.prg'
         #Endif
 
         With This As CL_CLASE Of 'cl_clase.prg'
@@ -169,7 +169,7 @@ Define Class CL_CLASE As CL_CUS_BASE OF 'cl_cus_base.prg'
         Lparameters toObjeto
 
         #If .F.
-            Local toObjeto As CL_OBJETO Of 'FOXBIN2PRG.PRG'
+            Local toObjeto As CL_OBJETO Of 'cl_objeto.prg'
         #Endif
 
         With This As CL_CLASE Of 'cl_clase.prg'
