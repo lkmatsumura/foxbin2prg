@@ -87,19 +87,20 @@ extension: DC2=DCA
 
 ### Use FoxBin2Prg
 ```
-DO FOXBIN2PRG.PRG WITH "<path>\archivo.scx"     ==> Generates the TEXT version sc2 extension
-DO FOXBIN2PRG.PRG WITH "<path>\archivo.sc2"     ==> Regenerates the binary version with scx extension
+DO FOXBIN2PRG.EXE WITH "<path>\archivo.scx"     ==> Generates the TEXT version sc2 extension
+DO FOXBIN2PRG.EXE WITH "<path>\archivo.sc2"     ==> Regenerates the binary version with scx extension
 
-DO FOXBIN2PRG.PRG WITH "<path>","Prg2Bin"     ==> Generates the TEXT of the path, that is directory or file
-DO FOXBIN2PRG.PRG WITH "<path>","Bin2Prg"     ==> Regenerates the binary version of the path, that is directory or file
+DO FOXBIN2PRG.EXE WITH "<path>","Prg2Bin"     ==> Generates the TEXT of the path, that is directory or file
+DO FOXBIN2PRG.EXE WITH "<path>","Bin2Prg"     ==> Regenerates the binary version of the path, that is directory or file
 
-DO FOXBIN2PRG.PRG WITH "-c","template.cfg"      ==> Generates a template for FoxBin2Prg.cfg config file with newest settings
-DO FOXBIN2PRG.PRG WITH "-t","template.dbf.cfg"  ==> Generates a template for table.dbf.cfg per table config file with newest settings
+DO FOXBIN2PRG.EXE WITH "-c","template.cfg"      ==> Generates a template for FoxBin2Prg.cfg config file with newest settings
+DO FOXBIN2PRG.EXE WITH "-t","template.dbf.cfg"  ==> Generates a template for table.dbf.cfg per table config file with newest settings
 ```
+Or substitue `DO FOXBIN2PRG.EXE`  with `DO MAIN.PRG` if you prefer to run without building the exe file.
 
 ### Interactive list of options
 ```
-DO FOXBIN2PRG.PRG WITH "?"
+DO FOXBIN2PRG.EXE WITH "?"
 ```
 
 ### Use with MS Windows SendTo
@@ -143,9 +144,9 @@ See [Changes](./docs/ChangeLog.md)
 To get the new settings in config file, use the new create-a-template function:
 
 ```
-DO FOXBIN2PRG.PRG WITH "-c","template.cfg"      ==> Generates a template for FoxBin2Prg.cfg config file with newest default settings
-DO FOXBIN2PRG.PRG WITH "-C","template.cfg"      ==> Generates a template for FoxBin2Prg.cfg config file with active settings
-DO FOXBIN2PRG.PRG WITH "-t","template.dbf.cfg"  ==> Generates a template for table.dbf.cfg per table config file with newest settings
+DO FOXBIN2PRG.EXE WITH "-c","template.cfg"      ==> Generates a template for FoxBin2Prg.cfg config file with newest default settings
+DO FOXBIN2PRG.EXE WITH "-C","template.cfg"      ==> Generates a template for FoxBin2Prg.cfg config file with active settings
+DO FOXBIN2PRG.EXE WITH "-t","template.dbf.cfg"  ==> Generates a template for table.dbf.cfg per table config file with newest settings
 ```
 
 ----
