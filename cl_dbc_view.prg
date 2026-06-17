@@ -73,9 +73,9 @@ Define Class CL_DBC_VIEW As CL_DBC_BASE Of 'cl_dbc_base.prg'
       DoDefault()
       *--
       With This As CL_DBC_VIEW Of 'cl_dbc_view.prg'
-         .AddObject("_Fields", "CL_DBC_FIELDS_VW")
-         .AddObject("_Indexes", "CL_DBC_INDEXES_VW")
-         .AddObject("_Relations", "CL_DBC_RELATIONS")
+         .NewObject("_Fields", "CL_DBC_FIELDS_VW", "cl_dbc_fields_vw.prg")
+         .NewObject("_Indexes", "CL_DBC_INDEXES_VW", "cl_dbc_indexes_vw.prg")
+         .NewObject("_Relations", "CL_DBC_RELATIONS", "cl_dbc_relations.prg")
       Endwith && THIS
    Endproc
 

@@ -51,10 +51,10 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE Of 'cl_cus_base.prg'
    Procedure Init
       DoDefault()
       *--
-      This.AddObject("_Fields", "CL_DBF_FIELDS")
-      This.AddObject("_Indexes", "CL_DBF_INDEXES")
+      This.NewObject("_Fields", "CL_DBF_FIELDS", "cl_dbf_fields.prg")
+      This.NewObject("_Indexes", "CL_DBF_INDEXES", "cl_dbf_indexes.prg")
       *** DH 06/02/2014: added _Records
-      This.AddObject("_Records", "CL_DBF_RECORDS")
+      This.NewObject("_Records", "CL_DBF_RECORDS", "cl_dbf_records.prg")
    Endproc
 
 

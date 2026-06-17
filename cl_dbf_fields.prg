@@ -104,7 +104,7 @@ Define Class CL_DBF_FIELDS As CL_COL_BASE Of 'cl_col_base.prg'
          loField         = NewObject('CL_DBF_FIELD', 'cl_dbf_field.prg')
 
          For I = 1 To tnField_Count
-            If taFields(m.I,17) > 0 And toFoxBin2Prg.n_ExcludeDBFAutoincNextval = 1
+            If taFields(m.I,17) > 0 And toFoxBin2Prg.getCfgValue('n_ExcludeDBFAutoincNextval') = 1
                *-- If AutoIncNextVal is excluded from text, then assign 1 for allowing regeneration
                *-- of DBF with this field.
                taFields(m.I,17)    = 1

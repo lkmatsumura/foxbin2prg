@@ -36,9 +36,9 @@ Define Class CL_DBC_TABLE As CL_DBC_BASE Of 'cl_dbc_base.prg'
       DoDefault()
       *--
       With This As CL_DBC_TABLE Of 'cl_dbc_table.prg'
-         .AddObject("_Fields", "CL_DBC_FIELDS_DB")
-         .AddObject("_Indexes", "CL_DBC_INDEXES_DB")
-         .AddObject("_Relations", "CL_DBC_RELATIONS")
+         .NewObject("_Fields", "CL_DBC_FIELDS_DB", "cl_dbc_fields_db.prg")
+         .NewObject("_Indexes", "CL_DBC_INDEXES_DB", "cl_dbc_indexes_db.prg")
+         .NewObject("_Relations", "CL_DBC_RELATIONS", "cl_dbc_relations.prg")
       Endwith && THIS
    Endproc
 

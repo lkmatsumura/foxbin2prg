@@ -51,9 +51,9 @@ Define Class CL_DBC As CL_DBC_BASE Of 'cl_dbc_base.prg'
       DoDefault()
       *--
       With This As CL_DBC Of 'cl_dbc.prg'
-         .AddObject("_Connections", "CL_DBC_CONNECTIONS")
-         .AddObject("_Tables", "CL_DBC_TABLES")
-         .AddObject("_Views", "CL_DBC_VIEWS")
+         .NewObject("_Connections", "CL_DBC_CONNECTIONS", "cl_dbc_connections.prg")
+         .NewObject("_Tables", "CL_DBC_TABLES", "cl_dbc_tables.prg")
+         .NewObject("_Views", "CL_DBC_VIEWS", "cl_dbc_views.prg")
       Endwith && THIS
    Endproc
 
