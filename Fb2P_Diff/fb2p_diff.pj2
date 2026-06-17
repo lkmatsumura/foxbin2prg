@@ -32,7 +32,6 @@ _AutoIncrement = "0"
 
 
 *<BuildProj>
-*<.HomeDir = 'e:\se\vfpx\foxbin2prg\fb2p_diff' />
 
 FOR EACH loProject IN _VFP.Projects FOXOBJECT
 	loProject.Close()

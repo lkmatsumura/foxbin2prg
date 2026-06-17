@@ -32,7 +32,6 @@ _AutoIncrement = "0"
 
 
 *<BuildProj>
-*<.HomeDir = 'g:\desa\foxbin2prg\filename_caps' />
 
 FOR EACH loProject IN _VFP.Projects FOXOBJECT
 	loProject.Close()
@@ -68,6 +67,8 @@ ENDWITH
 
 WITH loProject
 	*<ProjectProperties>
+	.SetMain("filename_caps.prg")
+
 	.Debug = .T.
 	.Encrypted = .F.
 	*<.CmntStyle = 1 />
