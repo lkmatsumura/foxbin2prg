@@ -732,10 +732,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
 
-   PROCEDURE get_DBF_Configuration(tc_InputFile AS STRING, to_out_DBF_CFG AS OBJECT, tlGenerateLog AS Boolean) AS INTEGER
-      LPARAMETERS tc_InputFile, to_out_DBF_CFG, tlGenerateLog
+   PROCEDURE get_DBF_Configuration
+      LPARAMETERS tc_InputFile AS STRING, to_out_DBF_CFG AS OBJECT, tlGenerateLog AS Boolean
+
       to_out_DBF_CFG = NewObject('CL_DBF_CFG', 'cl_dbf_cfg.prg')
+
       to_out_DBF_CFG = to_out_DBF_CFG.FromFile(tc_InputFile, tlGenerateLog, This)
+
       RETURN IIF(VARTYPE(to_out_DBF_CFG) = 'O' AND !ISNULL(to_out_DBF_CFG), 1, 0)
    ENDPROC
 
