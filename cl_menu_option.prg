@@ -23,12 +23,12 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
-      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
-      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÈtodos
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
+      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
+      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus m√©todos
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, toConversor
       External Array taCodeLines
@@ -70,7 +70,7 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
                Case .analyzeCodeBlock_DefinePAD( @tcLine, @taCodeLines, @m.I, tnCodeLines, toConversor )
                   If loReg.Prompt == ''
-                     *-- Esta opciÛn no corresponde a este nivel. Debe subir.
+                     *-- Esta opci√≥n no corresponde a este nivel. Debe subir.
                      llBloqueEncontrado = .F.
                      Exit
                   Endif
@@ -80,7 +80,7 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
                Case .analyzeCodeBlock_DefineBAR( @tcLine, @taCodeLines, @m.I, tnCodeLines, toConversor )
                   If loReg.Prompt == ''
-                     *-- Esta opciÛn no corresponde a este nivel. Debe subir.
+                     *-- Esta opci√≥n no corresponde a este nivel. Debe subir.
                      llBloqueEncontrado = .F.
                      Exit
                   Endif
@@ -140,8 +140,8 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
    Procedure remove_strings
       *---------------------------------------------------------------------------------------------------
       * Remove all things between quotes
-      * PAR¡METROS:
-      * tcLine                         Contenido de la lÌnea en an·lisis
+      * PAR√ÅMETROS:
+      * tcLine                         Contenido de la l√≠nea en an√°lisis
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine
       * m.p_format_class      = parameter object
@@ -203,12 +203,12 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure analyzeCodeBlock_DefineBAR
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
-      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
-      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÈtodos
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
+      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
+      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus m√©todos
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, toConversor
       External Array taCodeLines
@@ -224,21 +224,21 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
          * Estructura ejemplo a analizar:
          *--------------------------------
-         *       DEFINE BAR _3YM1DR90Z OF _MSYSMENU PROMPT "OpciÛn A con submen˙" COLOR SCHEME 3 ;
+         *       DEFINE BAR _3YM1DR90Z OF _MSYSMENU PROMPT "Opci√≥n A con submen√∫" COLOR SCHEME 3 ;
          *           NEGOTIATE NONE, LEFT ;
          *           KEY DEL, "Pulsar <DEL>" ;
          *           SKIP FOR SKIP_FOR() ;
-         *           MESSAGE "Mensaje para OpciÛn A con submen˙" && Comentario
+         *           MESSAGE "Mensaje para Opci√≥n A con submen√∫" && Comentario
          *
-         *       ON BAR _3YM1DR90Z OF _MSYSMENU ACTIVATE POPUP OpciÛnA_CS
+         *       ON BAR _3YM1DR90Z OF _MSYSMENU ACTIVATE POPUP Opci√≥nA_CS
          *
-         *       DEFINE BAR 1 OF _MSYSMENU PROMPT "OpciÛn A con submen˙" ;
+         *       DEFINE BAR 1 OF _MSYSMENU PROMPT "Opci√≥n A con submen√∫" ;
          *           NEGOTIATE NONE, LEFT ;
          *           KEY DEL, "Pulsar <DEL>" ;
          *           SKIP FOR SKIP_FOR() ;
-         *           MESSAGE "Mensaje para OpciÛn A con submen˙" && Comentario
+         *           MESSAGE "Mensaje para Opci√≥n A con submen√∫" && Comentario
          *
-         *       ON BAR 1 OF _MSYSMENU ACTIVATE POPUP OpciÛnA_CS
+         *       ON BAR 1 OF _MSYSMENU ACTIVATE POPUP Opci√≥nA_CS
          *--------------------------------
          If Left( tcLine, 11 ) == 'DEFINE BAR '
             llBloqueEncontrado  = .T.
@@ -399,7 +399,7 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
                   Endfor
 
                Case .set_Line( @tcLine, @taCodeLines, m.I ) And .get_SeparatedLineAndComment( @tcLine, @lcComment )
-                  *-- Es un Bar de una sola lÌnea y con comentarios
+                  *-- Es un Bar de una sola l√≠nea y con comentarios
                   loReg.Comment   = Strtran( Strtran( lcComment, '<CR>', Chr(13) ), '<LF>', Chr(10) )
 
                Endcase
@@ -412,7 +412,7 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
                *!* </pdm>
 
                *!*                         If Left(lcBarName,1) == '_'
-               *!* *-- Es un BAR del Sistema, asÌ que no tiene ON BAR ni nada m·s.
+               *!* *-- Es un BAR del Sistema, as√≠ que no tiene ON BAR ni nada m√°s.
                *!*                             loReg.OBJCODE   = C_OBJCODE_MENUOPTION_BARNUM   && Bar#
                *!*                             I = m.I + 1
                *!*                             Exit
@@ -423,9 +423,9 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
                * Estructuras ejemplo a analizar:
                *--------------------------------
-               *   ON BAR _3YM1DR90Z OF _MSYSMENU ACTIVATE POPUP OpciÛnA_CS
+               *   ON BAR _3YM1DR90Z OF _MSYSMENU ACTIVATE POPUP Opci√≥nA_CS
                *   ON BAR _3YM1DR90Z OF _MSYSMENU wait window "algo"
-               *   ON BAR _3YM1DR90Z OF _MSYSMENU DO Menu1_OpciÛn_A_2_Sub_SNIPPET
+               *   ON BAR _3YM1DR90Z OF _MSYSMENU DO Menu1_Opci√≥n_A_2_Sub_SNIPPET
                *   ON SELECTION BAR 1 OF Contracts DO BAR_1_OF_Contracts_FB2P
                *--------------------------------
 
@@ -438,8 +438,8 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
                      Loop
 
                   Case Inlist( Left( tcLine, 11 ), 'DEFINE BAR ', 'DEFINE PAD ' )
-                     *-- Se encontrÛ el siguiente DEFINE BAR/PAD, por lo que el analizado es de tipo #BAR vacÌo
-                     *-- y no tiene ON BAR ni nada m·s.
+                     *-- Se encontr√≥ el siguiente DEFINE BAR/PAD, por lo que el analizado es de tipo #BAR vac√≠o
+                     *-- y no tiene ON BAR ni nada m√°s.
                      loReg.OBJCODE   = C_OBJCODE_MENUOPTION_BARNUM   && Bar#
                      Exit
 
@@ -507,12 +507,12 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure analyzeCodeBlock_DefinePAD
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
-      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
-      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÈtodos
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
+      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
+      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus m√©todos
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, toConversor
       External Array taCodeLines
@@ -529,13 +529,13 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
          * Estructura ejemplo a analizar:
          *--------------------------------
-         *       DEFINE PAD _3YM1DR90Z OF _MSYSMENU PROMPT "OpciÛn A con submen˙" COLOR SCHEME 3 ;
+         *       DEFINE PAD _3YM1DR90Z OF _MSYSMENU PROMPT "Opci√≥n A con submen√∫" COLOR SCHEME 3 ;
          *           NEGOTIATE NONE, LEFT ;
          *           KEY DEL, "Pulsar <DEL>" ;
          *           SKIP FOR SKIP_FOR() ;
-         *           MESSAGE "Mensaje para OpciÛn A con submen˙" && Comentario
+         *           MESSAGE "Mensaje para Opci√≥n A con submen√∫" && Comentario
          *
-         *       ON PAD _3YM1DR90Z OF _MSYSMENU ACTIVATE POPUP OpciÛnA_CS
+         *       ON PAD _3YM1DR90Z OF _MSYSMENU ACTIVATE POPUP Opci√≥nA_CS
          *--------------------------------
          If Left( tcLine, 11 ) == 'DEFINE PAD '
             llBloqueEncontrado  = .T.
@@ -632,7 +632,7 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
                   Endfor
 
                Case .set_Line( @tcLine, @taCodeLines, m.I ) And .get_SeparatedLineAndComment( @tcLine, @lcComment )
-                  *-- Es un Bar de una sola lÌnea y con comentarios
+                  *-- Es un Bar de una sola l√≠nea y con comentarios
                   loReg.Comment   = Strtran( Strtran( lcComment, '<CR>', Chr(13) ), '<LF>', Chr(10) )
 
                Endcase
@@ -640,9 +640,9 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
                * Estructuras ejemplo a analizar:
                *--------------------------------
-               *   ON PAD _3YM1DR90Z OF _MSYSMENU ACTIVATE POPUP OpciÛnA_CS
+               *   ON PAD _3YM1DR90Z OF _MSYSMENU ACTIVATE POPUP Opci√≥nA_CS
                *   ON PAD _3YM1DR90Z OF _MSYSMENU wait window "algo"
-               *   ON PAD _3YM1DR90Z OF _MSYSMENU DO Menu1_OpciÛn_A_2_Sub_SNIPPET
+               *   ON PAD _3YM1DR90Z OF _MSYSMENU DO Menu1_Opci√≥n_A_2_Sub_SNIPPET
                *--------------------------------
 
                *-- ANALISIS DEL "ON PAD" u "ON SELECTION PAD"
@@ -719,10 +719,10 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toParentReg               (v? IN    ) Objeto registro Padre
       * tnNivel                   (v? IN    ) Nivel para indentar
-      * tcEndProcedures           (!@    OUT) Agregar aquÌ los procedimientos que ir·n al final
+      * tcEndProcedures           (!@    OUT) Agregar aqu√≠ los procedimientos que ir√°n al final
       * toHeader                  (v! IN    ) Objeto Registro de cabecera del menu
       *---------------------------------------------------------------------------------------------------
       Lparameters toParentReg, tnNivel, tcEndProcedures, toHeader
@@ -782,7 +782,7 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
             Endif
 
 
-            *-- Menu Bar or Popup (ObjType:2 [C_OBJTYPE_MENUTYPE_BARorPOPUP], ObjCode:0 Û 1 [C_OBJCODE_MENUBARPOPUP_MENUPAD o C_OBJCODE_MENUBARPOPUP_MENUBAR])
+            *-- Menu Bar or Popup (ObjType:2 [C_OBJTYPE_MENUTYPE_BARorPOPUP], ObjCode:0 √≥ 1 [C_OBJCODE_MENUBARPOPUP_MENUPAD o C_OBJCODE_MENUBARPOPUP_MENUBAR])
             If .Count > 0
                For Each loBarPop In This FoxObject
                   If toParentReg.ObjType = C_OBJTYPE_MENUTYPE_BARorPOPUP ;
@@ -818,7 +818,7 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure get_DefineBarText
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toReg                     (v? IN    ) Objeto registro
       * toBarPop                  (v? IN    ) Bar o Popup hijo
       * tnNivel                   (v? IN    ) Nivel para indentar
@@ -928,7 +928,7 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure get_DefinePadText
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toReg                     (v? IN    ) Objeto registro
       * toBarPop                  (v? IN    ) Bar o Popup hijo
       * tnNivel                   (v? IN    ) Nivel para indentar

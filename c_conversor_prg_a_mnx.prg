@@ -16,9 +16,9 @@ Define Class c_conversor_prg_a_mnx As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toMenu                    (!@    OUT) Objeto generado de clase CL_DBC con la informaciÛn leida del texto
-      * toEx                      (!@    OUT) Objeto con informaciÛn del error
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toMenu                    (!@    OUT) Objeto generado de clase CL_DBC con la informaci√≥n leida del texto
+      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toMenu, toEx As Exception, toFoxBin2Prg
@@ -45,7 +45,7 @@ Define Class c_conversor_prg_a_mnx As c_conversor_prg_a_bin Of 'c_conversor_prg_
                   toFoxBin2Prg.updateProcessedFile()
                Endif
 
-               Exit    && Si se indicÛ no procesar, se sale aquÌ. (Modo de simulaciÛn)
+               Exit    && Si se indic√≥ no procesar, se sale aqu√≠. (Modo de simulaci√≥n)
             Endif
 
             C_FB2PRG_CODE       = Filetostr( .c_InputFile )
@@ -53,7 +53,7 @@ Define Class c_conversor_prg_a_mnx As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
             .createMenu('CURSOR',toMenu )
 
-            *-- Identifico el inicio/fin de bloque, definiciÛn, cabecera y cuerpo del reporte
+            *-- Identifico el inicio/fin de bloque, definici√≥n, cabecera y cuerpo del reporte
             .updateProgressbar( 'Identifying Code Blocks...', 1, 2, 1 )
             .identifyCodeBlocks( @laCodeLines, lnCodeLines, @laLineasExclusion, lnBloquesExclusion, @toMenu )
             Use In (Select('TABLABIN'))
@@ -97,15 +97,15 @@ Define Class c_conversor_prg_a_mnx As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
    Procedure identifyCodeBlocks
       *--------------------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * taCodeLines               (!@ IN    ) El array con las lÌneas del cÛdigo donde buscar
-      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas de cÛdigo
-      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg˙n la lÌnea sea de exclusiÛn o no
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taCodeLines               (!@ IN    ) El array con las l√≠neas del c√≥digo donde buscar
+      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas de c√≥digo
+      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg√∫n la l√≠nea sea de exclusi√≥n o no
       * tnBloquesExclusion        (@? IN    ) Sin uso
-      * toMenu                    (@?    OUT) Objeto con toda la informaciÛn del men˙ analizado
+      * toMenu                    (@?    OUT) Objeto con toda la informaci√≥n del men√∫ analizado
       *
       * NOTA:
-      * Como identificador se usa el nombre de clase o de procedimiento, seg˙n corresponda.
+      * Como identificador se usa el nombre de clase o de procedimiento, seg√∫n corresponda.
       *--------------------------------------------------------------------------------------------------------------
       Lparameters taCodeLines, tnCodeLines, taLineasExclusion, tnBloquesExclusion, toMenu
 
@@ -130,7 +130,7 @@ Define Class c_conversor_prg_a_mnx As c_conversor_prg_a_bin Of 'c_conversor_prg_
                   .set_Line( @lcLine, @taCodeLines, m.I )
 
                   Do Case
-                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && VacÌa o solo Comentarios
+                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && Vac√≠a o solo Comentarios
                      Loop
 
                   Case Not llFoxBin2Prg_Completed And .analyzeCodeBlock_FoxBin2Prg( toMenu, @lcLine, @taCodeLines, @m.I, tnCodeLines )
@@ -162,8 +162,8 @@ Define Class c_conversor_prg_a_mnx As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
    Procedure writeBinaryFile
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toMenu                    (!@    OUT) Objeto generado de clase CL_DBC con la informaciÛn leida del texto
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toMenu                    (!@    OUT) Objeto generado de clase CL_DBC con la informaci√≥n leida del texto
       *---------------------------------------------------------------------------------------------------
       Lparameters toMenu, toFoxBin2Prg
 
@@ -207,4 +207,4 @@ Define Class c_conversor_prg_a_mnx As c_conversor_prg_a_bin Of 'c_conversor_prg_
    Endproc
 
 
-Enddefine   && CLASS c_conversor_prg_a_mnx AS c_conversor_prg_a_bin
+Enddefine

@@ -72,5 +72,4 @@ Define Class CL_DBF_UTILS_FIELD As Custom
       Return lcText
    Endproc
 
-
 Enddefine

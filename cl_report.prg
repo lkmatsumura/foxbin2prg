@@ -20,5 +20,4 @@ Define Class CL_REPORT As CL_COL_BASE Of 'cl_col_base.prg'
    *issue #96, [KestasL] keep CodePage relavant information for binary sources
    _cpid =      Cpcurrent()
 
-
 Enddefine

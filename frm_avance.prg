@@ -366,7 +366,7 @@ Define Class frm_avance As Form
                 .nLastSecCount  = lnSecs
             Endif
 
-*-- Habilita el botón de cancelar una vez que se comienzan a pasar valores
+*-- Habilita el botÃ³n de cancelar una vez que se comienzan a pasar valores
             If Not Empty(tnValor) Then
                 If Not .cmdCancel.Enabled Then
                     .cmdCancel.Enabled = .T.

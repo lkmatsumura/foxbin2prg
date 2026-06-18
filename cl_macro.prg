@@ -21,7 +21,7 @@ Define Class CL_MACRO As CL_COL_BASE Of 'cl_col_base.prg'
    _Signature          = ''
    _Debug              = .F.
    _NumberOfMacros     = ''
-   _Macros             = .Null.        && ColecciÛn de macros
+   _Macros             = .Null.        && Colecci√≥n de macros
 
 
 
@@ -33,7 +33,7 @@ Define Class CL_MACRO As CL_COL_BASE Of 'cl_col_base.prg'
 
    Procedure get_DataFromMacroFKY(tcInputFile As String, toFoxBin2Prg)
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcInputFile               (!v IN    ) Archivo de entrada
       * toFoxBin2Prg              (!@ IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ Define Class CL_MACRO As CL_COL_BASE Of 'cl_col_base.prg'
             lnNumberOfMacros    = CToBin(._NumberOfMacros,'2RS')
 
             If lnFileLen < 17 + 25 * lnNumberOfMacros
-               * 25 caracteres es el tamaÒo mÌnimo de una macro sin teclas guardadas (solo la estructura)
+               * 25 caracteres es el tama√±o m√≠nimo de una macro sin teclas guardadas (solo la estructura)
                Error 'Invalid FKY Macro File size'
             Endif
 
@@ -93,7 +93,7 @@ Define Class CL_MACRO As CL_COL_BASE Of 'cl_col_base.prg'
                loMRec  = .Null.
             Endfor
 
-            * Ordenar alfabÈticamente por keystroke
+            * Ordenar alfab√©ticamente por keystroke
             loColl.KeySort = 2
 
          Endwith
@@ -119,7 +119,7 @@ Define Class CL_MACRO As CL_COL_BASE Of 'cl_col_base.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       *---------------------------------------------------------------------------------------------------
       Local lcText, loMRec As CL_MACRO_RECORD Of 'cl_macro_record.prg'
       lcText  = ''

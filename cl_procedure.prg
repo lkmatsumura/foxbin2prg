@@ -34,5 +34,4 @@ Define Class CL_PROCEDURE As CL_CUS_BASE Of 'cl_cus_base.prg'
       Endwith && THIS
    Endproc
 
-
 Enddefine

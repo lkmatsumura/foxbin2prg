@@ -13,9 +13,9 @@ Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (!@    OUT) Objeto generado de clase CL_PROJECT con la informaciÛn leida del texto
-      * toEx                      (!@    OUT) Objeto con informaciÛn del error
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (!@    OUT) Objeto generado de clase CL_PROJECT con la informaci√≥n leida del texto
+      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -133,7 +133,7 @@ Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                AddProperty( loReg, 'TIMESTAMP', 0 )
                AddProperty( loReg, 'OBJREV', 0 )
 
-               *-- TIP: Si el "Name" del objeto est· vacÌo, lo salteo
+               *-- TIP: Si el "Name" del objeto est√° vac√≠o, lo salteo
                If Empty(loReg.Name)
                   Loop
                Endif
@@ -172,11 +172,11 @@ Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
             ENDTEXT
 
 
-            *-- InformaciÛn del programa
+            *-- Informaci√≥n del programa
             C_FB2PRG_CODE   = C_FB2PRG_CODE + loProject.getFormattedDeviceInfoText() + CR_LF
 
 
-            *-- InformaciÛn de los Servidores definidos
+            *-- Informaci√≥n de los Servidores definidos
             If Not Empty(loProject._ServerInfo)
                C_FB2PRG_CODE   = C_FB2PRG_CODE + loServerHead.getFormattedServerText() + CR_LF
                loServerHead    = .Null.
@@ -184,7 +184,7 @@ Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
             With This As c_conversor_pjm_a_prg Of 'c_conversor_pjm_a_prg.prg'
 
-               *-- GeneraciÛn del proyecto
+               *-- Generaci√≥n del proyecto
                *** DH 2021-03-04: only output HomeDir if we're supposed to
                If toFoxBin2Prg.getCfgValue('n_HomeDir') = 1
                   TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
@@ -412,6 +412,5 @@ Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
       tcText  = This.decode_SpecialCodes_CR_LF( Strextract( tcText, 'Comments=', CR_LF ) )
       Return tcText
    Endproc
-
 
 Enddefine

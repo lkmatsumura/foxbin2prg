@@ -18,7 +18,7 @@ Define Class CL_MENU_COL_BASE As CL_COL_BASE Of 'cl_col_base.prg'
 
    Procedure get_DataFromTablabin
       *---------------------------------------------------------------------------------------------------
-      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PARÃMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toReg                     (v! IN    ) Objeto de datos del registro
       * toCol_LastLevelName       (v! IN    ) Objeto collection con la pila de niveles analizados
       *---------------------------------------------------------------------------------------------------
@@ -59,8 +59,8 @@ Define Class CL_MENU_COL_BASE As CL_COL_BASE Of 'cl_col_base.prg'
                   Exit
 
                Case lnLastKey > 0 And lnLastKey < toCol_LastLevelName.Count
-                  *-- El nombre del analizado actual ya existe y no es el último,
-                  *-- así que corresponde a un nivel superior.
+                  *-- El nombre del analizado actual ya existe y no es el Ãºltimo,
+                  *-- asÃ­ que corresponde a un nivel superior.
                   Skip -1
                   llRetorno   = .F.
                   Exit
@@ -128,8 +128,8 @@ Define Class CL_MENU_COL_BASE As CL_COL_BASE Of 'cl_col_base.prg'
 
    Procedure updateMENU
       *---------------------------------------------------------------------------------------------------
-      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus métodos
+      * PARÃMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÃ©todos
       *---------------------------------------------------------------------------------------------------
       Lparameters toConversor
    Endproc
@@ -137,17 +137,17 @@ Define Class CL_MENU_COL_BASE As CL_COL_BASE Of 'cl_col_base.prg'
 
    Procedure AnalizarSiExpresionEsComandoOProcedimiento
       *---------------------------------------------------------------------------------------------------
-      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcExpr                    (v! IN    ) Expresión a analizar (puede ser una línea o un Procedure)
+      * PARÃMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcExpr                    (v! IN    ) ExpresiÃ³n a analizar (puede ser una lÃ­nea o un Procedure)
       * tcProcName                (!@    OUT) Nombre del Procedimiento, si se encuentra uno
-      * tcProcCode                (!@    OUT) Código del Procedimiento, si se encuentra uno
-      * tcSourceCode              (@? IN    ) Si se indica, se buscará el nombre de Procedure para obtener su código
-      * tnIndentation             (v? IN    ) En caso de devolver código, indica si se debe indentar o quitar indentación
-      * tlAddProcEndproc          (v? IN    ) En caso de devolver código, indica si se debe encerrar con PROCEDURE/ENDPROC
-      * tlForceProcedure          (v? IN    ) Indica que se evalúe como Procedure, no como Command
+      * tcProcCode                (!@    OUT) CÃ³digo del Procedimiento, si se encuentra uno
+      * tcSourceCode              (@? IN    ) Si se indica, se buscarÃ¡ el nombre de Procedure para obtener su cÃ³digo
+      * tnIndentation             (v? IN    ) En caso de devolver cÃ³digo, indica si se debe indentar o quitar indentaciÃ³n
+      * tlAddProcEndproc          (v? IN    ) En caso de devolver cÃ³digo, indica si se debe encerrar con PROCEDURE/ENDPROC
+      * tlForceProcedure          (v? IN    ) Indica que se evalÃºe como Procedure, no como Command
       *---------------------------------------------------------------------------------------------------
       * DETALLE: Los menus guardan en los primeros registros los Comandos o Procedimientos en el campo PROCEDURE,
-      *       y luego al generar el código lo muestran como Comando si es una sola línea, y si no como Procedure.
+      *       y luego al generar el cÃ³digo lo muestran como Comando si es una sola lÃ­nea, y si no como Procedure.
       *---------------------------------------------------------------------------------------------------
       Lparameters tcExpr, tcProcName, tcProcCode, tcSourceCode, tnIndentation, tlAddProcEndproc, tlForceProcedure
 
@@ -169,7 +169,7 @@ Define Class CL_MENU_COL_BASE As CL_COL_BASE Of 'cl_col_base.prg'
             Endif
          Endfor
       Else
-         *-- ES UN COMANDO, PERO PODRÍA REFERENCIAR A UN PROCEDURE DEL MENU, SE VERIFICA.
+         *-- ES UN COMANDO, PERO PODRÃA REFERENCIAR A UN PROCEDURE DEL MENU, SE VERIFICA.
          If Not Empty(tcSourceCode)
             If Left( tcExpr, 3 ) == 'DO '
                *-- Parece un Procedimiento, vamos a confirmarlo.
@@ -184,7 +184,7 @@ Define Class CL_MENU_COL_BASE As CL_COL_BASE Of 'cl_col_base.prg'
          Endif
       Endif
 
-      *-- Si se indicó indentación, se reprocesa el código del procedimiento
+      *-- Si se indicÃ³ indentaciÃ³n, se reprocesa el cÃ³digo del procedimiento
       If Not Empty(tcProcCode) And (tnIndentation <> 0 Or tlAddProcEndproc)
          lnLine_Count    = Alines( laProcLines, tcProcCode )
          tcProcCode      = ''
@@ -209,7 +209,7 @@ Define Class CL_MENU_COL_BASE As CL_COL_BASE Of 'cl_col_base.prg'
 
          Otherwise
             For I = 1 To lnLine_Count
-               *-- Quitar indentación
+               *-- Quitar indentaciÃ³n
                If Inlist( Left(laProcLines(m.I),1), Space(1), C_TAB )
                   tcProcCode  = tcProcCode + Substr( laProcLines(m.I), 2 ) + CR_LF
                Else

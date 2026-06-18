@@ -19,9 +19,9 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toDatabase                (!@    OUT) Objeto generado de clase CL_DBC con la informaciÛn leida del texto
-      * toEx                      (!@    OUT) Objeto con informaciÛn del error
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toDatabase                (!@    OUT) Objeto generado de clase CL_DBC con la informaci√≥n leida del texto
+      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toDatabase, toEx As Exception, toFoxBin2Prg
@@ -51,7 +51,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'c_conversor_prg_
                lnCodeLines         = Alines( laCodeLines, C_FB2PRG_CODE )
                C_FB2PRG_CODE       = ''
 
-               *-- Quito la ˙ltima parte del cierre de </DATABASE> para anexar lo intermedio
+               *-- Quito la √∫ltima parte del cierre de </DATABASE> para anexar lo intermedio
                For X = 1 To lnCodeLines
                   If C_DATABASE_F $ laCodeLines(m.X) Then
                      Exit
@@ -64,7 +64,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
                .updateProgressbar( 'Loading Code...', 2, lnCodeLines, 1 )
 
-               *-- Esto crea la m·scara de b˙squeda "<path>Database.*.*.ext" para encontrar las partes
+               *-- Esto crea la m√°scara de b√∫squeda "<path>Database.*.*.ext" para encontrar las partes
                *-- con la sintaxis "<path>Database.MemberType.MemberName.ext"
                lcBaseFilename      = Juststem( Juststem( Juststem(.c_InputFile) ) )
                lcInputFile         = Addbs( Justpath(.c_InputFile) ) + lcBaseFilename + '.*.*.' + Justext(.c_InputFile)
@@ -78,7 +78,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'c_conversor_prg_
                   Endif
                Endfor
 
-               Asort( laFiles, 1, -1, 0, 1)    && "zstoredprocedures" quedar· al final
+               Asort( laFiles, 1, -1, 0, 1)    && "zstoredprocedures" quedar√° al final
 
                *-- Busco "zstoredprocedures" y le quito la "z" del inicio
                For I = 1 To lnFileCount
@@ -125,7 +125,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'c_conversor_prg_
                      Endif
                   Endif
 
-                  *-- VerificaciÛn de los Miembros, si son Externos y se indicÛ chequearlos
+                  *-- Verificaci√≥n de los Miembros, si son Externos y se indic√≥ chequearlos
                   If toFoxBin2Prg.getCfgValue('l_ItemPerDBCCheck') And Empty(toFoxBin2Prg.c_ClassOperationType) ;
                         AND Ascan( toDatabase._ExternalClasses, lcMemberType + '.' + lcMemberName, 1, 0, 1, 1+2+4 ) = 0
                      .writeLog( C_TAB + '- ' + loLang.C_OUTER_MEMBER_DOES_NOT_MATCH_INNER_MEMBERS_LOC + ' [' + lcInputFile_Class + ']' )
@@ -179,7 +179,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'c_conversor_prg_
                      toFoxBin2Prg.updateProcessedFile()
                   Endif
 
-                  Exit    && Si se indicÛ no procesar, se sale aquÌ. (Modo de simulaciÛn)
+                  Exit    && Si se indic√≥ no procesar, se sale aqu√≠. (Modo de simulaci√≥n)
                Endif
 
                If Not Empty(lcLastMemberType) Then
@@ -196,7 +196,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'c_conversor_prg_
                   Endcase
                Endif
 
-               *-- Agrego la ˙ltima parte con el cierre de </DATABASE>
+               *-- Agrego la √∫ltima parte con el cierre de </DATABASE>
                For X = m.X To lnCodeLines
                   C_FB2PRG_CODE   = C_FB2PRG_CODE + laCodeLines(m.X) + CR_LF
                Endfor
@@ -210,7 +210,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'c_conversor_prg_
                      toFoxBin2Prg.updateProcessedFile()
                   Endif
 
-                  Exit    && Si se indicÛ no procesar, se sale aquÌ. (Modo de simulaciÛn)
+                  Exit    && Si se indic√≥ no procesar, se sale aqu√≠. (Modo de simulaci√≥n)
                Endif
 
                C_FB2PRG_CODE       = Filetostr( .c_InputFile )
@@ -222,7 +222,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
             Endif
 
-            *-- Identifico el inicio/fin de bloque, definiciÛn, cabecera y cuerpo del reporte
+            *-- Identifico el inicio/fin de bloque, definici√≥n, cabecera y cuerpo del reporte
             .updateProgressbar( 'Identifying Code Blocks...', 1, 2, 1 )
             .identifyCodeBlocks( @laCodeLines, lnCodeLines, @laLineasExclusion, lnBloquesExclusion, @toDatabase, @toFoxBin2Prg )
 
@@ -296,7 +296,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'c_conversor_prg_
                Strtofile( '', lcEventsFile )
             Endif
 
-            *-- Si no recompilo el EventFilename.prg, el EXE dar· un error (aunque el PRG no)
+            *-- Si no recompilo el EventFilename.prg, el EXE dar√° un error (aunque el PRG no)
             Compile ( Addbs( Justpath( This.c_OutputFile ) ) + toDatabase._DBCEventFilename )
          Endif
 
@@ -334,16 +334,16 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
    Procedure identifyHeaderBlocks
       *--------------------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * taCodeLines               (@! IN    ) El array con las lÌneas del cÛdigo donde buscar
-      * tnCodeLines               (@! IN    ) Cantidad de lÌneas de cÛdigo
-      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg˙n la lÌnea sea de exclusiÛn o no
-      * tnBloquesExclusion        (@! IN    ) Cantidad de bloques de exclusiÛn
-      * toDatabase                    (@?    OUT) Objeto con toda la informaciÛn del mÛdulo analizado
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taCodeLines               (@! IN    ) El array con las l√≠neas del c√≥digo donde buscar
+      * tnCodeLines               (@! IN    ) Cantidad de l√≠neas de c√≥digo
+      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg√∫n la l√≠nea sea de exclusi√≥n o no
+      * tnBloquesExclusion        (@! IN    ) Cantidad de bloques de exclusi√≥n
+      * toDatabase                    (@?    OUT) Objeto con toda la informaci√≥n del m√≥dulo analizado
       * toFoxBin2Prg              (@? IN    ) Referencia al objeto principal
       *--------------------------------------------------------------------------------------------------------------
       * NOTA:
-      * Como identificador se usa el nombre de clase o de procedimiento, seg˙n corresponda.
+      * Como identificador se usa el nombre de clase o de procedimiento, seg√∫n corresponda.
       *--------------------------------------------------------------------------------------------------------------
       Lparameters taCodeLines, tnCodeLines, taLineasExclusion, tnBloquesExclusion, toDatabase, toFoxBin2Prg
 
@@ -372,13 +372,13 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'c_conversor_prg_
                   llEXTERNAL_MEMBER_Completed = .T.
                Endif
 
-               *-- B˙squeda del ID de inicio de bloque (DEFINE CLASS / PROCEDURE)
+               *-- B√∫squeda del ID de inicio de bloque (DEFINE CLASS / PROCEDURE)
                For I = 1 To tnCodeLines
                   Store '' To lc_Comentario
                   .set_Line( @lcLine, @taCodeLines, m.I )
 
                   Do Case
-                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && Excluida, vacÌa o solo Comentarios
+                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && Excluida, vac√≠a o solo Comentarios
                      Loop
 
                   Case Not llFoxBin2Prg_Completed And .analyzeCodeBlock_FoxBin2Prg( @toDatabase, @lcLine, @taCodeLines, @m.I, tnCodeLines )
@@ -415,16 +415,16 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
    Procedure identifyCodeBlocks
       *--------------------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * taCodeLines               (!@ IN    ) El array con las lÌneas del cÛdigo donde buscar
-      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas de cÛdigo
-      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg˙n la lÌnea sea de exclusiÛn o no
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taCodeLines               (!@ IN    ) El array con las l√≠neas del c√≥digo donde buscar
+      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas de c√≥digo
+      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg√∫n la l√≠nea sea de exclusi√≥n o no
       * tnBloquesExclusion        (@? IN    ) Sin uso
-      * toDatabase                (@! IN    ) Objeto con toda la informaciÛn de la base de datos analizada
+      * toDatabase                (@! IN    ) Objeto con toda la informaci√≥n de la base de datos analizada
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *--------------------------------------------------------------------------------------------------------------
       * NOTA:
-      * Como identificador se usa el nombre de clase o de procedimiento, seg˙n corresponda.
+      * Como identificador se usa el nombre de clase o de procedimiento, seg√∫n corresponda.
       *--------------------------------------------------------------------------------------------------------------
       Lparameters taCodeLines, tnCodeLines, taLineasExclusion, tnBloquesExclusion, toDatabase, toFoxBin2Prg
 
@@ -448,7 +448,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'c_conversor_prg_
                   .set_Line( @lcLine, @taCodeLines, m.I )
 
                   Do Case
-                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && VacÌa o solo Comentarios
+                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && Vac√≠a o solo Comentarios
                      Loop
 
                   Case Not llFoxBin2Prg_Completed And .analyzeCodeBlock_FoxBin2Prg( toDatabase, @lcLine, @taCodeLines, @m.I, tnCodeLines )
@@ -484,8 +484,8 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'c_conversor_prg_
       *--------------------------------------------------------------------------------
       * Compara los miembros definidos en la cabecera con los miembros encontrados luego
       *--------------------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toDatabase                (@! IN    ) Objeto con toda la informaciÛn del mÛdulo analizado
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toDatabase                (@! IN    ) Objeto con toda la informaci√≥n del m√≥dulo analizado
       * toFoxBin2Prg              (@! IN    ) Referencia al objeto principal
       *--------------------------------------------------------------------------------------------------------------
       Lparameters toDatabase, toFoxBin2Prg
@@ -500,7 +500,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
       loLang          = _Screen.o_FoxBin2Prg_Lang
 
-      *-- VerificaciÛn de los Miembros, si son Externos y se indicÛ chequearlos
+      *-- Verificaci√≥n de los Miembros, si son Externos y se indic√≥ chequearlos
       If toFoxBin2Prg.getCfgValue('n_UseFilesPerDBC') > 0 And toFoxBin2Prg.getCfgValue('l_ItemPerDBCCheck') And Empty(toFoxBin2Prg.c_ClassOperationType)
          For I = 1 To toDatabase._ExternalClasses_Count
             lnItem  = 0
@@ -523,5 +523,4 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'c_conversor_prg_
       Endif
    Endproc
 
-
-Enddefine   && CLASS c_conversor_prg_a_dbc AS c_conversor_prg_a_bin
+Enddefine

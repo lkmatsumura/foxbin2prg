@@ -4496,4 +4496,5 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureFileUtils()
       RETURN This.o_FileUtils.getLocaleInfo(tnSetting, tcLocale)
    ENDFUNC
+
 ENDDEFINE

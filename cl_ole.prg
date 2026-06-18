@@ -18,4 +18,5 @@ Define Class CL_OLE As CL_CUS_BASE Of 'cl_cus_base.prg'
    _ObjName    = ''
    _CheckSum   = ''
    _Value      = ''
+
 Enddefine

@@ -1504,4 +1504,5 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       RELEASE loCfg
       RETURN .T.
    ENDPROC
+
 ENDDEFINE

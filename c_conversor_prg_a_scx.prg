@@ -12,9 +12,9 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (@!    OUT) Objeto generado de clase CL_CLASSLIB con la informaciÛn leida del texto
-      * toEx                      (@!    OUT) Objeto con informaciÛn del error
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (@!    OUT) Objeto generado de clase CL_CLASSLIB con la informaci√≥n leida del texto
+      * toEx                      (@!    OUT) Objeto con informaci√≥n del error
       * toFoxBin2Prg              (@! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -54,16 +54,16 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
                .updateProgressbar( 'Loading Code...', 2, lnCodeLines, 1 )
 
-               *-- M¡SCARA DE B⁄SQUEDA
+               *-- M√ÅSCARA DE B√öSQUEDA
                lcSearchDir         = toFoxBin2Prg.getPerFileSearchDir( .c_InputFile, Justext(.c_InputFile), ;
                   toFoxBin2Prg.getCfgFlag('l_UseFormsPerDir'), toFoxBin2Prg.getCfgInt('n_UseFormPerFile') )
 
                If toFoxBin2Prg.getCfgValue('n_UseFormPerFile') = 1 Then
-                  *-- Esto crea la m·scara de b˙squeda "filename.*.ext" para encontrar las partes
+                  *-- Esto crea la m√°scara de b√∫squeda "filename.*.ext" para encontrar las partes
                   lcBaseFilename      = Juststem( Juststem(.c_InputFile) )
                   lcInputFile         = Addbs( lcSearchDir ) + lcBaseFilename + '.*.' + Justext(.c_InputFile)
                Else && toFoxBin2Prg.getCfgValue('n_UseFormPerFile') = 2
-                  *-- Esto crea la m·scara de b˙squeda "<path>Database.*.*.ext" para encontrar las partes
+                  *-- Esto crea la m√°scara de b√∫squeda "<path>Database.*.*.ext" para encontrar las partes
                   *-- con la sintaxis "<path>Database.MemberType.MemberName.ext"
                   lcBaseFilename      = Juststem( Juststem( Juststem(.c_InputFile) ) )
                   lcInputFile         = Addbs( lcSearchDir ) + lcBaseFilename + '.*.*.' + Justext(.c_InputFile)
@@ -77,7 +77,7 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'c_conversor_prg_
                      lcInputFile_Form    = Forcepath( Juststem( laFiles(m.I,1) ), lcSearchDir ) + '.' + Justext( .c_InputFile )
                      lcFormName          = Lower( Getwordnum( Justfname( lcInputFile_Form ), 2, '.' ) )
 
-                     *-- VerificaciÛn de las Clases, si son Externas y se indicÛ chequearlas
+                     *-- Verificaci√≥n de las Clases, si son Externas y se indic√≥ chequearlas
                      If toFoxBin2Prg.getCfgValue('l_FormPerFileCheck') And Empty(toFoxBin2Prg.c_ClassOperationType) ;
                            AND Ascan( toModulo._ExternalClasses , lcFormName, 1, 0, 1, 1+2+4 ) = 0
                         .writeLog( C_TAB + '- ' + loLang.C_OUTER_CLASS_DOES_NOT_MATCH_INNER_CLASSES_LOC + ' [' + lcInputFile_Form + ']' )
@@ -88,7 +88,7 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'c_conversor_prg_
                      lcInputFile_Form    = Forcepath( Juststem( laFiles(m.I,1) ), lcSearchDir ) + '.' + Justext( .c_InputFile )
                      lcFormName          = Lower( Getwordnum( Justfname( lcInputFile_Form ), 2, '.' ) + '.' + Getwordnum( Justfname( lcInputFile_Form ), 3, '.' ) )
 
-                     *-- VerificaciÛn de las Clases, si son Externas y se indicÛ chequearlas
+                     *-- Verificaci√≥n de las Clases, si son Externas y se indic√≥ chequearlas
                      If toFoxBin2Prg.getCfgValue('l_FormPerFileCheck') And Empty(toFoxBin2Prg.c_ClassOperationType) ;
                            AND Ascan( toModulo._ExternalClasses , lcFormName, 1, 0, 2, 1+2+4 ) = 0
                         .writeLog( C_TAB + '- ' + loLang.C_OUTER_CLASS_DOES_NOT_MATCH_INNER_CLASSES_LOC + ' [' + lcInputFile_Form + ']' )
@@ -125,14 +125,14 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'c_conversor_prg_
                   toFoxBin2Prg.updateProcessedFile()
                Endif
 
-               Exit    && Si se indicÛ no procesar, se sale aquÌ. (Modo de simulaciÛn)
+               Exit    && Si se indic√≥ no procesar, se sale aqu√≠. (Modo de simulaci√≥n)
             Endif
 
             *-- Identifico los TEXT/ENDTEXT, #IF .F./#ENDIF
             .updateProgressbar( 'Identifying Excluded Blocks...', 3, lnCodeLines, 1 )
             .identifyExclusionBlocks( @laCodeLines, lnCodeLines, .F., @laLineasExclusion, @lnBloquesExclusion )
 
-            *-- Identifico el inicio/fin de bloque, definiciÛn, cabecera y cuerpo de cada clase
+            *-- Identifico el inicio/fin de bloque, definici√≥n, cabecera y cuerpo de cada clase
             .identifyCodeBlocks( @laCodeLines, lnCodeLines, @laLineasExclusion, lnBloquesExclusion, @toModulo, @toFoxBin2Prg )
 
             Do Case
@@ -178,38 +178,38 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'c_conversor_prg_
       Lparameters toModulo, toFoxBin2Prg
       *-- Estructura del objeto toModulo generado:
       *-- -----------------------------------------------------------------------------------------------------------
-      *-- Version                 VersiÛn usada para generar la versiÛn PRG analizada
-      *-- SourceFile              Nombre original del archivo fuente de la conversiÛn
+      *-- Version                 Versi√≥n usada para generar la versi√≥n PRG analizada
+      *-- SourceFile              Nombre original del archivo fuente de la conversi√≥n
       *-- Ole_Obj_Count           Cantidad de objetos definidos en el array ole_objs[]
       *-- Ole_Objs[1]             Array de objetos OLE definidos como clases
       *--     ObjName                 Nombre del objeto OLE (OLE2)
       *--     Parent                  Nombre del objeto Padre
-      *--     CheckSum                Suma de verificaciÛn
+      *--     CheckSum                Suma de verificaci√≥n
       *--     Value                   Valor del campo OLE
       *-- Clases_Count                Array con las posiciones de los addobjects, definicion y propiedades
-      *-- Clases[1]               Array con los datos de las clases, definicion, propiedades y mÈtodos
+      *-- Clases[1]               Array con los datos de las clases, definicion, propiedades y m√©todos
       *--     Nombre                  El nombre de la clase (ej: "miClase")
       *--     ObjName                 Nombre del objeto
       *--     Parent                  Nombre del objeto Padre
-      *--     Class                   Clase de la que hereda la definiciÛn
-      *--     Classloc                LibrerÌa donde est· la definiciÛn de la clase
-      *--     Ole                     InformaciÛn campo ole
-      *--     Ole2                    InformaciÛn campo ole2
+      *--     Class                   Clase de la que hereda la definici√≥n
+      *--     Classloc                Librer√≠a donde est√° la definici√≥n de la clase
+      *--     Ole                     Informaci√≥n campo ole
+      *--     Ole2                    Informaci√≥n campo ole2
       *--     OlePublic               Indica si la clase es OLEPublic o no (.T. / .F.)
-      *--     Uniqueid                ID ˙nico
+      *--     Uniqueid                ID √∫nico
       *--     Comentario              El comentario de la clase (ej: "&& Mis comentarios")
-      *--     MetaData                InformaciÛn de metadata de la clase (baseclass, timestamp, scale)
+      *--     MetaData                Informaci√≥n de metadata de la clase (baseclass, timestamp, scale)
       *--     BaseClass               Clase de base de la clase
       *--     TimeStamp               Timestamp de la clase
       *--     Scale                   Scale de la clase (pixels, foxels)
-      *--     Definicion              La definiciÛn de la clase (ej: "AS Custom OF LIBRERIA.VCX")
-      *--     Inicio/Fin              LÌnea de inicio/fin de la clase (DEFINE CLASS/ENDDEFINE)
-      *--     Ini_Cab/Fin_Cab         LÌnea de inicio/fin de la cabecera (def.propiedades, Hidden, Protected, #Include, CLASSDATA, DEFINED_PAM)
-      *--     Ini_Cuerpo/Fin_Cuerpo   LÌnea de inicio/fin del cuerpo (ADD OBJECTs y PROCEDURES)
+      *--     Definicion              La definici√≥n de la clase (ej: "AS Custom OF LIBRERIA.VCX")
+      *--     Inicio/Fin              L√≠nea de inicio/fin de la clase (DEFINE CLASS/ENDDEFINE)
+      *--     Ini_Cab/Fin_Cab         L√≠nea de inicio/fin de la cabecera (def.propiedades, Hidden, Protected, #Include, CLASSDATA, DEFINED_PAM)
+      *--     Ini_Cuerpo/Fin_Cuerpo   L√≠nea de inicio/fin del cuerpo (ADD OBJECTs y PROCEDURES)
       *--     HiddenProps             Propiedades definidas como HIDDEN (ocultas)
       *--     ProtectedProps          Propiedades definidas como PROTECTED (protegidas)
-      *--     Defined_PAM             Propiedades, eventos o mÈtodos definidos por el usuario
-      *--     IncludeFile             Nombre del archivo de inclusiÛn
+      *--     Defined_PAM             Propiedades, eventos o m√©todos definidos por el usuario
+      *--     IncludeFile             Nombre del archivo de inclusi√≥n
       *--     Props_Count             Cantidad de propiedades de la clase definicas en el array props[]
       *--     Props[1,2]              Array con todas las propiedades de la clase y sus valores. (col.1=Nombre, col.2=Comentario)
       *--     AddObject_Count         Cantidad de objetos definidos en el array addobjects[]
@@ -218,11 +218,11 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'c_conversor_prg_
       *--         ObjName                 Nombre del objeto
       *--         Parent                  Nombre del objeto Padre
       *--         Clase                   Clase del objeto
-      *--         ClassLib                LibrerÌa de clases de la que deriva la clase
+      *--         ClassLib                Librer√≠a de clases de la que deriva la clase
       *--         Baseclass               Clase de base del objeto
-      *--         Uniqueid                ID ˙nico
-      *--         Ole                     InformaciÛn campo ole
-      *--         Ole2                    InformaciÛn campo ole2
+      *--         Uniqueid                ID √∫nico
+      *--         Ole                     Informaci√≥n campo ole
+      *--         Ole2                    Informaci√≥n campo ole2
       *--         ZOrder                  Orden Z del objeto
       *--         Props_Count             Cantidad de propiedades del objeto
       *--         Props[1]                Array con todas las propiedades del objeto y sus valores
@@ -231,15 +231,15 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'c_conversor_prg_
       *--             Nombre                  Nombre del procedure
       *--             ProcType                Tipo de procedimiento (normal, hidden, protected)
       *--             Comentario              Comentario el procedure
-      *--             ProcLine_Count          Cantidad de lÌneas del procedimiento
-      *--             ProcLines[1]            LÌneas del procedimiento
+      *--             ProcLine_Count          Cantidad de l√≠neas del procedimiento
+      *--             ProcLines[1]            L√≠neas del procedimiento
       *--     Procedure_count         Cantidad de procedimientos definidos en el array procedures[]
       *--     Procedures[1]           Array con las posiciones de los procedures, definicion y comentarios
       *--         Nombre                  Nombre del procedure
       *--         ProcType                Tipo de procedimiento (normal, hidden, protected)
       *--         Comentario              Comentario el procedure
-      *--         ProcLine_Count          Cantidad de lÌneas del procedimiento
-      *--         ProcLines[1]            LÌneas del procedimiento
+      *--         ProcLine_Count          Cantidad de l√≠neas del procedimiento
+      *--         ProcLines[1]            L√≠neas del procedimiento
       *-- -----------------------------------------------------------------------------------------------------------
       #If .F.
          Local toModulo As CL_CLASSLIB Of 'cl_classlib.prg'
@@ -274,7 +274,7 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'c_conversor_prg_
                   loClase = .Null.
                   loClase = toModulo._Clases(m.I)
 
-                  *-- El dataenvironment debe estar primero, luego lo dem·s.
+                  *-- El dataenvironment debe estar primero, luego lo dem√°s.
                   If m.X = 1 And Not loClase._BaseClass == 'dataenvironment' ;
                         OR m.X = 2 And loClase._BaseClass == 'dataenvironment'
                      Loop
@@ -417,4 +417,5 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'c_conversor_prg_
       Return
 
    Endproc
+
 Enddefine

@@ -87,4 +87,4 @@ Define Class CL_CLASSLIB As CL_CUS_BASE Of 'cl_cus_base.prg'
    Endproc
 
 
-Enddefine
+ENDDEFINE
