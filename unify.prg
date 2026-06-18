@@ -29,6 +29,7 @@ IF lnI > 0
 
       IF Occurs( "*{place_f2b_header}*" , lcPrg ) > 0
          lcF2bHeader = FileToStr( 'foxbin2prg.h' )
+         lcF2bHeader = "#DEFINE MONO_FOXBIN2PRG     1" + Chr(13)+Chr(10) + lcF2bHeader
          lcPrg = Strtran( lcPrg , "*{place_f2b_header}*" , lcF2bHeader ,1, -1 , 1)
          lcF2bHeader = null
       ENDIF

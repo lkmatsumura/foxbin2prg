@@ -58,8 +58,6 @@ DEFINE CLASS cl_fb2prg_special_props AS Custom
          LOCAL loEx AS Exception
          LOCAL lcPropsFile, lcPropsDir, lnI, lcProperty
 
-         lcPropsFile = ''
-
          WITH This AS cl_fb2prg_special_props OF 'cl_fb2prg_special_props.prg'
             .SpecialPropsFiles_Add( "props_all.txt"                , "a_SpecialProps"        , "all"             )
             .SpecialPropsFiles_Add( "props_checkbox.txt"           , "a_SpecialProps_Chk"    , "checkbox"        )
@@ -94,7 +92,13 @@ DEFINE CLASS cl_fb2prg_special_props AS Custom
             .SpecialPropsFiles_Add( "props_xmlfield.txt"           , "a_SpecialProps_XMLFld" , "xmlfield"        )
             .SpecialPropsFiles_Add( "props_xmltable.txt"           , "a_SpecialProps_XMLTbl" , "xmltable"        )
 
-            lcPropsDir = .c_PropsDir
+            #IFDEF MONO_FOXBIN2PRG
+               lcPropsDir = Addbs( Justpath( .c_Foxbin2prg_FullPath ) ) + .c_PropsDir
+            #ELSE
+               lcPropsDir = .c_PropsDir
+            #ENDDEF
+
+            lcPropsFile = ''
 
             FOR lnI = 1 TO Alen( .a_SpecialPropsFiles, 1 )
                lcPropsFile = lcPropsDir + .a_SpecialPropsFiles( lnI, 1 )
