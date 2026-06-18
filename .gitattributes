@@ -1,3 +1,17 @@
 #.gitattributes
 # disable newline conversion on checkout with no conversion on check-in for all files
 * -text
+
+*.pj2 text eol=crlf working-tree-encoding=CP1252
+*.vc2 text eol=crlf working-tree-encoding=CP1252
+*.sc2 text eol=crlf working-tree-encoding=CP1252
+*.fr2 text eol=crlf working-tree-encoding=CP1252
+*.fr2d text eol=crlf working-tree-encoding=CP1252
+*.mn2 text eol=crlf working-tree-encoding=CP1252
+*.lb2 text eol=crlf working-tree-encoding=CP1252
+*.lb2d text eol=crlf working-tree-encoding=CP1252
+
+*.prg text eol=crlf working-tree-encoding=CP1252
+*.h   text eol=crlf working-tree-encoding=CP1252
+*.ini text eol=crlf working-tree-encoding=CP1252
+*.xml text eol=crlf working-tree-encoding=CP1252
