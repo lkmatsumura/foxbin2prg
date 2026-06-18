@@ -91,6 +91,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
 
       TRY
          WITH This
+            tcDontShowProgress = Transform(tcDontShowProgress)
 
             IF INLIST( TRANSFORM(tcDebug), '0', '1', '2' )
                This.o_Host.writeLog( C_TAB + ' > Parameter tcDebug: ' + tcDebug +;
@@ -188,8 +189,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
             ELSE
                IF EMPTY(tc_InputFile) THEN
                   lc_InputPath        = ""
-
-               ELSE  &&Empty(tc_InputFile)
+               ELSE
                   DO CASE
                   CASE tcInputFile_Type==C_FILETYPE_QUERYSUPPORT
                      lc_InputPath        = ""
@@ -198,11 +198,10 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
                      lc_InputPath        = tc_InputFile
 
                   OTHERWISE
-                     *                               tcInputFile_Type    = C_FILETYPE_FILE
                      lc_InputPath        = JUSTPATH(tc_InputFile)
 
                   ENDCASE
-               ENDIF &&Empty(tc_InputFile)
+               ENDIF
             ENDIF
 
             *!* just the single config from programm parameter, or sub dirs of the config file given by the parameter
@@ -253,664 +252,636 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
                llMasterEval        = .T.   && allow settings log (convert re-entry)
             ENDIF
 
-            IF !llMasterLocked
-
-            IF .l_Main_CFG_Loaded AND NOT EMPTY(tc_InputFile) AND NOT tcInputFile_Type == C_FILETYPE_QUERYSUPPORT THEN
-               IF tcInputFile_Type == C_FILETYPE_DIRECTORY THEN
+            If ! llMasterLocked
+               If .l_Main_CFG_Loaded And Not Empty(tc_InputFile) And Not tcInputFile_Type == C_FILETYPE_QUERYSUPPORT Then
+                  If tcInputFile_Type == C_FILETYPE_DIRECTORY Then
                      * DIRECTORY SPECIFIED
-                     IF ISNULL(loCFG_Manual)
+                     If Isnull(loCFG_Manual)
                         *lcConfigFile   = FULLPATH( 'foxbin2prg.cfg', ADDBS(tc_InputFile) )
-                        lcConfigFile = FULLPATH( JUSTFNAME(lcConfigFile), ADDBS(tc_InputFile) )
-                     ENDIF
-                  ELSE
+                        lcConfigFile = Fullpath( Justfname(lcConfigFile), Addbs(tc_InputFile) )
+                     Endif
+                  Else
                      * FILE SPECIFIED
-                     IF ISNULL(loCFG_Manual)
+                     If Isnull(loCFG_Manual)
                         *lcConfigFile   = FULLPATH( 'foxbin2prg.cfg', tc_InputFile )
-                        lcConfigFile = FULLPATH( JUSTFNAME(lcConfigFile), tc_InputFile )
-                     ENDIF
-                  ENDIF
-            ENDIF
+                        lcConfigFile = Fullpath( Justfname(lcConfigFile), tc_InputFile )
+                     Endif
+                  Endif
+               Endif
+               lo_Configuration    = .o_Configuration
+               .n_CFG_Actual       = 0
+               .l_CFG_CachedAccess = .F.
+               lc_CFG_Path         = Upper( Justpath( lcConfigFile ) )
+               lcLockFile          = Forcepath(".FoxBin2Prg_Ignore",lc_CFG_Path)
+               lo_CFG              = .o_MasterCFG
+               *-- Search for the CFG of the given PATH in the cache
+               If .l_Main_CFG_Loaded
+                  If lo_Configuration.Count > 0 Then
+                     If .n_CFG_EvaluateFromParam > 1
+                        * Special: If there is a lock configuration (manual CFG), use it
+                        .n_CFG_Actual = .n_CFG_EvaluateFromParam
+                     Else
+                        * Normally the CFG of the analyzed directory will be searched
+                        .n_CFG_Actual       = lo_Configuration.GetKey( lcConfigFile )   && 0 = No cached CFG, >0 = Cached CFG exists
+                     Endif
+                     If .n_CFG_Actual > 0 Then
+                        lo_CFG          = lo_Configuration.Item(.n_CFG_Actual)
+                        .l_CFG_CachedAccess = .T.
+                        If Not Isnull(loCFG_Manual)
+                           * If a CFG object is passed, it overrides the stored one
+                           .cfgCopyFrom( loCFG_Manual, lo_CFG )
+                        Endif
+                     Endif
+                  Endif
+                  *-- If no parent CFG was passed and there are no CFGs or the one for the given PATH is not found, walk the hierarchy
+                  *!* LScheffler 30.08.2023 only read path if no config by parameter
+                  If Isnull(llSetSingleConfig);
+                        AND Isnull(loCFG_Manual);
+                        AND Isnull(toParentCFG);
+                        AND (lo_Configuration.Count = 0 Or .n_CFG_Actual = 0);
+                        AND !This.o_Host.c_Foxbin2prg_ConfigFile==tc_InputFile Then
+                     llMasterEval    = .T.
+                     toParentCFG     = .o_MasterCFG
+                     If Left( lc_CFG_Path, 2 ) == '\\' Then
+                        *lnDirs = OCCURS( '\', lc_CFG_Path ) - 3
+                        lnDirs  = Occurs( '\', lc_CFG_Path ) - 2
+                     Else
+                        lnDirs  = Occurs( '\', lc_CFG_Path )
+                     Endif
+                     If lnDirs > 0 Then
+                        Dimension laDirs(lnDirs)
+                        *-- Build the array with intermediate PATHs
+                        For I = lnDirs To 1 Step -1
+                           If m.I = lnDirs Then
+                              laDirs(m.I) = Justpath(lc_CFG_Path)
+                           Else
+                              laDirs(m.I) = Justpath(laDirs(m.I+1))
+                           Endif
+                        Endfor
+                        If lnDirs = 1 And laDirs(1) = lc_CFG_Path
+                           *-- When there are no intermediate PATHs, skip this part so it is added below. 04/02/2016. FDBOZZO
+                           *-- Example: Can happen when converting a file on C:\ or another root drive.
+                        Else
+                           *-- Now evaluate intermediate PATH configurations from the root onward
+                           *-- and keep the last parent CFG configuration in toParentCFG to use as the base.
+                           For I = 1 To lnDirs
+                              .evaluateConfiguration( '', '', '', '', '', '', '', '', laDirs(m.I), C_FILETYPE_DIRECTORY, @toParentCFG)
+                           Endfor
+                        Endif
+                        .l_CFG_CachedAccess = .F.
+                        .n_CFG_Actual       = 0
+                     Endif
+                  Endif
+               Endif
 
-            lo_Configuration    = .o_Configuration
-            .n_CFG_Actual       = 0
-            .l_CFG_CachedAccess = .F.
-            lc_CFG_Path         = UPPER( JUSTPATH( lcConfigFile ) )
-            lcLockFile          = FORCEPATH(".FoxBin2Prg_Ignore",lc_CFG_Path)
-            lo_CFG              = .o_MasterCFG
+               Do Case
+               Case .n_CFG_Actual = 0
+                  *-- If no cached CFG was found, check whether a CFG file exists on disk
+                  llExiste_CFG_EnDisco    = ( Adir( laDirInfo, lcConfigFile ) = 1 )
+                  llLockFileExists        = ( Adir( laDirInfo, lcLockFile ) = 1 )
 
-            *-- Search for the CFG of the given PATH in the cache
-            IF .l_Main_CFG_Loaded
+                  If Not llExiste_CFG_EnDisco
+                     .l_CFG_CachedAccess = .T.   && Cached because without a CFG file it uses internal config
+                  Endif
 
-               IF lo_Configuration.COUNT > 0 THEN
-                  IF .n_CFG_EvaluateFromParam > 1
-                     * Special: If there is a lock configuration (manual CFG), use it
-                     .n_CFG_Actual = .n_CFG_EvaluateFromParam
-                  ELSE
-                     * Normally the CFG of the analyzed directory will be searched
-                     .n_CFG_Actual       = lo_Configuration.GETKEY( lcConfigFile )   && 0 = No cached CFG, >0 = Cached CFG exists
-                  ENDIF
-
-                  IF .n_CFG_Actual > 0 THEN
-                     lo_CFG          = lo_Configuration.ITEM(.n_CFG_Actual)
-                     .l_CFG_CachedAccess = .T.
-
-                     IF NOT ISNULL(loCFG_Manual)
-                        * If a CFG object is passed, it overrides the stored one
-                        .cfgCopyFrom( loCFG_Manual, lo_CFG )
-                     ENDIF
-                  ENDIF
-               ENDIF
-
-               *-- If no parent CFG was passed and there are no CFGs or the one for the given PATH is not found, walk the hierarchy
-               *!* LScheffler 30.08.2023 only read path if no config by parameter
-               IF ISNULL(llSetSingleConfig);
-                     AND ISNULL(loCFG_Manual);
-                     AND ISNULL(toParentCFG);
-                     AND (lo_Configuration.COUNT = 0 OR .n_CFG_Actual = 0);
-                     AND !This.o_Host.c_Foxbin2prg_ConfigFile==tc_InputFile THEN
-                  llMasterEval    = .T.
-                  toParentCFG     = .o_MasterCFG
-
-                  IF LEFT( lc_CFG_Path, 2 ) == '\\' THEN
-                     *lnDirs = OCCURS( '\', lc_CFG_Path ) - 3
-                     lnDirs  = OCCURS( '\', lc_CFG_Path ) - 2
-                  ELSE
-                     lnDirs  = OCCURS( '\', lc_CFG_Path )
-                  ENDIF
-
-                  IF lnDirs > 0 THEN
-                     DIMENSION laDirs(lnDirs)
-
-                     *-- Build the array with intermediate PATHs
-                     FOR I = lnDirs TO 1 STEP -1
-                        IF m.I = lnDirs THEN
-                           laDirs(m.I) = JUSTPATH(lc_CFG_Path)
-                        ELSE
-                           laDirs(m.I) = JUSTPATH(laDirs(m.I+1))
-                        ENDIF
-                     ENDFOR
-
-                     IF lnDirs = 1 AND laDirs(1) = lc_CFG_Path
-                        *-- When there are no intermediate PATHs, skip this part so it is added below. 04/02/2016. FDBOZZO
-                        *-- Example: Can happen when converting a file on C:\ or another root drive.
-                     ELSE
-                        *-- Now evaluate intermediate PATH configurations from the root onward
-                        *-- and keep the last parent CFG configuration in toParentCFG to use as the base.
-                        FOR I = 1 TO lnDirs
-                           .evaluateConfiguration( '', '', '', '', '', '', '', '', laDirs(m.I), C_FILETYPE_DIRECTORY, @toParentCFG)
-                        ENDFOR
-                     ENDIF
-
-                     .l_CFG_CachedAccess = .F.
-                     .n_CFG_Actual       = 0
-                  ENDIF
-               ENDIF
-            ENDIF
-
-            DO CASE
-            CASE .n_CFG_Actual = 0
-               *-- If no cached CFG was found, check whether a CFG file exists on disk
-               llExiste_CFG_EnDisco    = ( ADIR( laDirInfo, lcConfigFile ) = 1 )
-               llLockFileExists        = ( ADIR( laDirInfo, lcLockFile ) = 1 )
-
-               IF NOT llExiste_CFG_EnDisco
-                  .l_CFG_CachedAccess = .T.   && Cached because without a CFG file it uses internal config
-               ENDIF
-
-            CASE ISNULL( .o_Configuration( .n_CFG_Actual ) )
-               *-- Inherited entry (NULL in cache): use the master CFG
-               lo_CFG          = .o_MasterCFG
-
-            ENDCASE
-
-            IF .l_Main_CFG_Loaded
-               IF .l_CFG_CachedAccess AND .n_CFG_Actual > 0 THEN
-                  toParentCFG = lo_CFG
-                  This.o_Host.writeLog( '> ' + UPPER(loLang.C_USING_THIS_SETTINGS_LOC) + ': ' + lo_CFG.c_Foxbin2prg_ConfigFile + '  => ' + tc_InputFile + ;
-                     ' CFG_Actual:' + TRANSFORM(.n_CFG_Actual) + ICASE(.n_CFG_Actual=1, ' [MASTER]', ' [SECONDARY]')  )
-               ELSE
-                  lo_CFG  = .newConfig()
-                  lo_Configuration.ADD( lo_CFG, lcConfigFile )
-                  .n_CFG_Actual   = lo_Configuration.COUNT
-
-                  This.o_Host.writeLog( '> ' + UPPER(loLang.C_CACHING_CONFIG_FOR_DIRECTORY_LOC) + ': ' + lcConfigFile + ;
-                     ' CFG_Actual:' + TRANSFORM(.n_CFG_Actual) + ICASE(.n_CFG_Actual=1, ' [MASTER]', ' [SECONDARY]')  )
-
-                  IF NOT ISNULL(toParentCFG)
-                     .cfgCopyFrom( toParentCFG, lo_CFG )
-                     toParentCFG = lo_CFG
-                     *                               This.o_Host.writeLog( C_TAB + '- ' + loLang.C_INHERITING_FROM_LOC + ': ' + lo_CFG.c_Foxbin2prg_ConfigFile )
-                     This.o_Host.writeLog( C_TAB + '- ' + loLang.C_INHERITING_FROM_LOC + ': ' + lo_Configuration.GETKEY(lo_Configuration.COUNT-1) )
-                  ENDIF
-                  llFirstRead = .T.
-               ENDIF
-
-            ELSE
-               *-- First evaluation: seed the master CFG from a programmatic object (exportProjectTree, applyConfig, etc.)
-               IF NOT ISNULL(loCFG_Manual)
-                  .cfgCopyFrom( loCFG_Manual, .o_MasterCFG )
+               Case Isnull( .o_Configuration( .n_CFG_Actual ) )
+                  *-- Inherited entry (NULL in cache): use the master CFG
                   lo_CFG          = .o_MasterCFG
-               ENDIF
-               lo_Configuration.ADD( .o_MasterCFG, lcConfigFile )
-               .n_CFG_Actual   = lo_Configuration.COUNT
-            ENDIF
-
-            *check for lockfile
-            IF .l_Main_CFG_Loaded AND llFirstRead AND llLockFileExists THEN
-               lo_CFG.l_AllowFolder = .F.
-               This.o_Host.writeLog( C_TAB + JUSTFNAME(lcLockFile) + loLang.C_LOCKINGFOLDER_LOC )
-            ENDIF &&.l_Main_CFG_Loaded And llFirstRead AND llLockFileExists
-
-            *-- NOTE: ONLY VALUES NOT COMING FROM EXTERNAL PARAMETERS SHOULD BE ASSIGNED TO lo_CFG HERE.
-            IF llExiste_CFG_EnDisco AND NOT .l_CFG_CachedAccess AND lo_CFG.l_AllowFolder THEN
-               This.o_Host.writeLog()
-               This.o_Host.writeLog( '> ' + loLang.C_READING_CFG_VALUES_FROM_DISK_LOC + ':' )
-               This.o_Host.writeLog( C_TAB + loLang.C_CONFIGFILE_LOC + ' ' + lcConfigFile )
-
-               lo_CFG.c_Foxbin2prg_ConfigFile      = lcConfigFile
-
-               FOR I = 1 TO ALINES( laConfig, FILETOSTR( lcConfigFile ), 1+4 )
-                  This.o_Host.set_Line( @lcConfigLine, @laConfig, m.I )
-                  This.o_Host.get_SeparatedLineAndComment( @lcConfigLine )
-                  laConfig(m.I)       = LOWER( lcConfigLine )
-
-                  DO CASE
-                  CASE EMPTY( laConfig(m.I) ) OR INLIST( LEFT( laConfig(m.I), 1 ), '*', '#', '/', "'" )
-                     LOOP
-
-                     *settings for internal work, not processing
-                     * Depricated:
-                  CASE LEFT( laConfig(m.I), 17 ) == LOWER('DontShowProgress:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 18 ) )
-                     IF NOT INLIST( TRANSFORM(tcDontShowProgress), '0', '1', '2' ) AND INLIST( lcValue, '0', '1', '2' ) THEN
-                        tcDontShowProgress  = lcValue
-                        lo_CFG.n_ShowProgressbar    = ICASE(lcValue=='0',1, lcValue=='1',0, 2)
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > tcDontShowProgress:         ' + TRANSFORM(tcDontShowProgress) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 9 ) == LOWER('Language:')
-                     *-- SPECIAL CASE: Language is not stored in lo_CFG because it is a global setting.
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 10 , IIF('&'+'&'$laConfig(m.I), AT('&'+'&', laConfig(m.I)) - 10, LEN(laConfig(m.I) ) ) ) )
-                     This.o_Host.changeLanguage(lcValue)
-                     lo_CFG.c_Language_In = m.lcValue
-                     This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > Language:                   ' + TRANSFORM(lcValue) + ' (' + This.o_Host.c_Language + ')' )
-
-                  CASE LEFT( laConfig(m.I), 16 ) == LOWER('ShowProgressbar:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 17 ) )
-                     IF INLIST( lcValue, '0', '1', '2' ) THEN
-                        lo_CFG.n_ShowProgressbar    = INT( VAL(lcValue) )
-                        tcDontShowProgress  = ''
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > ShowProgressbar:            ' + lcValue )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 15 ) == LOWER('DontShowErrors:')
-                     *-- Prefer when tcDontShowErrors is NOT passed as "0", because VBS scripts
-                     *-- use it to override the default foxbin2prg.cfg configuration
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 16 ) )
-                     IF NOT INLIST( TRANSFORM(tcDontShowErrors), '0', '1' ) AND INLIST( lcValue, '0', '1' ) THEN
-                        tcDontShowErrors    = lcValue
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > tcDontShowErrors:           ' + TRANSFORM(tcDontShowErrors) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 18 ) == LOWER('ExtraBackupLevels:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 19 ) )
-                     IF NOT ISDIGIT( TRANSFORM(tcExtraBackupLevels) ) AND ISDIGIT( lcValue ) THEN
-                        tcExtraBackupLevels = lcValue
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > tcExtraBackupLevels:        ' + TRANSFORM(tcExtraBackupLevels) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 16 ) == LOWER('BackgroundImage:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 17 ) )
-                     DO CASE
-                     CASE EMPTY(lcValue)
-                        lo_CFG.c_BackgroundImage    = lcValue
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > BackgroundImage:            (Empty)' )
-
-                     CASE ADIR( laDirInfo, lcValue ) > 0
-                        lo_CFG.c_BackgroundImage    = lcValue
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > BackgroundImage:            ' + TRANSFORM(lo_CFG.c_BackgroundImage) )
-
-                     OTHERWISE
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > BackgroundImage:            File not found:  ' + TRANSFORM(lo_CFG.c_BackgroundImage) )
-
-                     ENDCASE
-                  CASE LEFT( laConfig(m.I), 6 ) == LOWER('Debug:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 7 ) )
-                     IF NOT INLIST( TRANSFORM(tcDebug), '0', '1' ) AND INLIST( lcValue, '0', '1' ) THEN
-                        IF ISNULL(This.o_Host.n_DebugP) THEN
-                           lo_CFG.n_Debug = INT(VAL(lcValue))
-                        ENDIF &&ISNULL(This.o_Host.n_DebugP)
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > Debug:                      ' + lcValue +;
-                           IIF(ISNULL(This.o_Host.n_DebugP), "", ", will be ignored, debug set via parameter. Using: " + TRANSFORM(This.o_Host.n_DebugP) ) )
-                     ENDIF
-
-                     *** DH 2021-03-04: handle n_HomeDir configuration setting
-                  CASE LEFT( laConfig(m.I), 8 ) == LOWER('HomeDir:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 9 ) )
-                     IF INLIST( lcValue, '0', '1' ) THEN
-                        lo_CFG.n_HomeDir    = INT( VAL( lcValue ) )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > HomeDir:                    ' + TRANSFORM(lo_CFG.n_HomeDir) )
-                     ENDIF
-                     *** DH 2021-03-04: end of new code
-                     **************
-                     *Conversion operation by type
-                  CASE LEFT( laConfig(m.I), 23 ) == LOWER('PJX_Conversion_Support:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 24 ) )
-                     IF INLIST( lcValue, '0', '1', '2' ) THEN
-                        lo_CFG.n_PJX_Conversion_Support = INT( VAL( lcValue ) )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > PJX_Conversion_Support:     ' + TRANSFORM(lo_CFG.n_PJX_Conversion_Support) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 23 ) == LOWER('VCX_Conversion_Support:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 24 ) )
-                     IF INLIST( lcValue, '0', '1', '2' ) THEN
-                        lo_CFG.n_VCX_Conversion_Support = INT( VAL( lcValue ) )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > VCX_Conversion_Support:     ' + TRANSFORM(lo_CFG.n_VCX_Conversion_Support) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 23 ) == LOWER('SCX_Conversion_Support:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 24 ) )
-                     IF INLIST( lcValue, '0', '1', '2' ) THEN
-                        lo_CFG.n_SCX_Conversion_Support = INT( VAL( lcValue ) )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > SCX_Conversion_Support:     ' + TRANSFORM(lo_CFG.n_SCX_Conversion_Support) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 23 ) == LOWER('FRX_Conversion_Support:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 24 ) )
-                     IF INLIST( lcValue, '0', '1', '2' ) THEN
-                        lo_CFG.n_FRX_Conversion_Support = INT( VAL( lcValue ) )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > FRX_Conversion_Support:     ' + TRANSFORM(lo_CFG.n_FRX_Conversion_Support) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 23 ) == LOWER('LBX_Conversion_Support:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 24 ) )
-                     IF INLIST( lcValue, '0', '1', '2' ) THEN
-                        lo_CFG.n_LBX_Conversion_Support = INT( VAL( lcValue ) )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > LBX_Conversion_Support:     ' + TRANSFORM(lo_CFG.n_LBX_Conversion_Support) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 23 ) == LOWER('MNX_Conversion_Support:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 24 ) )
-                     IF INLIST( lcValue, '0', '1', '2' ) THEN
-                        lo_CFG.n_MNX_Conversion_Support = INT( VAL( lcValue ) )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > MNX_Conversion_Support:     ' + TRANSFORM(lo_CFG.n_MNX_Conversion_Support) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 23 ) == LOWER('DBF_Conversion_Support:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 24 ) )
-                     IF INLIST( lcValue, '0', '1', '2', '4', '8' ) THEN
-                        lo_CFG.n_DBF_Conversion_Support = INT( VAL( lcValue ) )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > DBF_Conversion_Support:     ' + TRANSFORM(lo_CFG.n_DBF_Conversion_Support) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 23 ) == LOWER('DBC_Conversion_Support:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 24 ) )
-                     IF INLIST( lcValue, '0', '1', '2' ) THEN
-                        lo_CFG.n_DBC_Conversion_Support = INT( VAL( lcValue ) )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > DBC_Conversion_Support:     ' + TRANSFORM(lo_CFG.n_DBC_Conversion_Support) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 23 ) == LOWER('FKY_Conversion_Support:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 24 ) )
-                     IF INLIST( lcValue, '0', '1' ) THEN
-                        lo_CFG.n_FKY_Conversion_Support = INT( VAL( lcValue ) )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > FKY_Conversion_Support:     ' + TRANSFORM(lo_CFG.n_FKY_Conversion_Support) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 23 ) == LOWER('MEM_Conversion_Support:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 24 ) )
-                     IF INLIST( lcValue, '0', '1' ) THEN
-                        lo_CFG.n_MEM_Conversion_Support = INT( VAL( lcValue ) )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > MEM_Conversion_Support:     ' + TRANSFORM(lo_CFG.n_MEM_Conversion_Support) )
-                     ENDIF
-
-
-                     *-------- setting for container files (not pjx) --------
-                     *Classes and forms ( vcx / scx)
-
-                     *!* Changed by: LScheffler 19.03.2023
-                     * additional options controlling
-                     * files in non subpath of the PJX
-                  CASE LEFT( laConfig(m.I), 16 ) == LOWER('CheckFileInPath:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 17 ) )
-                     IF INLIST( lcValue, '0', '1', '2', '3' ) THEN
-                        lo_CFG.n_CheckFileInPath    = INT( VAL(lcValue) )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > CheckFileInPath:            ' + TRANSFORM(lcValue) )
-                     ENDIF
-                     *!* /Changed by: LScheffler 19.03.2023
-
-                     *!* Changed by: LScheffler 21.02.2021
-                     *!* change date="{^2021-02-21,10:57:00}"
-                     * additional options controlling
-                     * - splitt of DBC separated from VCX/SCX
-                     * - new operations of DBF
-                     *VCX
-                  CASE LEFT( laConfig(m.I), 16 ) == LOWER('UseClassPerFile:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 17 ) )
-                     IF INLIST( lcValue, '0', '1', '2' ) THEN
-                        lo_CFG.n_UseClassPerFile    = INT( VAL(lcValue) )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > UseClassPerFile:            ' + TRANSFORM(lcValue) )
-                        IF !lo_CFG.l_OldFilesPerDBC THEN
-                           lo_CFG.n_UseFilesPerDBC             = lo_CFG.n_UseClassPerFile
-                           This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + '  => UseFilesPerDBC:           ' + TRANSFORM(lcValue) )
-                        ENDIF
-                        IF !lo_CFG.l_UseFormSettings THEN
-                           lo_CFG.n_UseFormPerFile             = lo_CFG.n_UseClassPerFile
-                           This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + '  => UseFormPerFile:           ' + TRANSFORM(lcValue) )
-                        ENDIF
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 27 ) == LOWER('RedirectClassPerFileToMain:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 28 ) )
-                     IF INLIST( lcValue, '0', '1' ) THEN
-                        lo_CFG.l_RedirectClassPerFileToMain = ( TRANSFORM(lcValue) == '1' )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > RedirectClassPerFileToMain: ' + TRANSFORM(lcValue) )
-                        IF !lo_CFG.l_OldFilesPerDBC THEN
-                           lo_CFG.l_RedirectFilePerDBCToMain   = lo_CFG.l_RedirectClassPerFileToMain
-                           This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + '  => RedirectFilePerDBCToMain: ' + TRANSFORM(lcValue) )
-                        ENDIF
-                        IF !lo_CFG.l_UseFormSettings THEN
-                           lo_CFG.l_RedirectFormPerFileToMain  = lo_CFG.l_RedirectClassPerFileToMain
-                           This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + '  => RedirectFormPerFileToMain ' + TRANSFORM(lcValue) )
-                        ENDIF
-                     ENDIF
-
-                     *!* Changed by: LScheffler 04.3.2021
-                     *!* change date="{^2021-03-04,13:12:00}"
-                     * new value 2, just add one class
-                  CASE LEFT( laConfig(m.I), 18 ) == LOWER('RedirectClassType:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 19 ) )
-                     IF INLIST( lcValue, '0', '1', '2' ) THEN
-                        lo_CFG.n_RedirectClassType  = INT( VAL( lcValue ) )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > RedirectClassType:          ' + TRANSFORM(lcValue) )
-                        IF !lo_CFG.l_UseFormSettings THEN
-                           lo_CFG.n_RedirectFormType           = lo_CFG.n_RedirectClassType
-                           This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + '  => RedirectFormType          ' + TRANSFORM(lcValue) )
-                        ENDIF
-                     ENDIF
-                     *!* /Changed by: LScheffler 04.3.2021
-
-                  CASE LEFT( laConfig(m.I), 18 ) == LOWER('ClassPerFileCheck:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 19 ) )
-                     IF INLIST( lcValue, '0', '1' ) THEN
-                        lo_CFG.l_ClassPerFileCheck  = ( TRANSFORM(lcValue) == '1' )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > ClassPerFileCheck:          ' + TRANSFORM(lcValue) )
-                        IF !lo_CFG.l_OldFilesPerDBC THEN
-                           lo_CFG.l_ItemPerDBCCheck            = lo_CFG.l_ClassPerFileCheck
-                           This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + '  => ItemPerDBCCheck:          ' + TRANSFORM(lcValue) )
-                        ENDIF
-                        IF !lo_CFG.l_UseFormSettings THEN
-                           lo_CFG.l_FormPerFileCheck           = lo_CFG.l_ClassPerFileCheck
-                           This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + '  => FormPerFileCheck          ' + TRANSFORM(lcValue) )
-                        ENDIF
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 15 ) == LOWER('UseClassPerDir:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 16 ) )
-                     IF INLIST( lcValue, '0', '1' ) THEN
-                        lo_CFG.l_UseClassPerDir  = ( TRANSFORM(lcValue) == '1' )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > UseClassPerDir:             ' + TRANSFORM(lcValue) )
-                     ENDIF
-                     *!* /Changed by: LScheffler 21.02.2021
-                     */VCX
-
-                     *Forms
-                  CASE LEFT( laConfig(m.I), 16 ) == LOWER('UseFormSettings:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 17 ) )
-                     IF INLIST( lcValue, '0', '1' ) THEN
-                        lo_CFG.l_UseFormSettings    = ( TRANSFORM(lcValue) == '1' )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > UseFormSettings:            ' + TRANSFORM(lcValue) )
-                        IF !lo_CFG.l_UseFormSettings THEN
-                           lo_CFG.n_UseFormPerFile             = lo_CFG.n_UseClassPerFile
-                           lo_CFG.l_RedirectFormPerFileToMain  = lo_CFG.l_RedirectClassPerFileToMain
-                           lo_CFG.n_RedirectFormType           = lo_CFG.n_RedirectClassType
-                           lo_CFG.l_FormPerFileCheck           = lo_CFG.l_ClassPerFileCheck
-                           This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' ==> UseFormPerFile:            ' + TRANSFORM(lo_CFG.n_UseFormPerFile) )
-                           This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' ==> RedirectFormPerFileToMain: ' + TRANSFORM(lo_CFG.l_RedirectFormPerFileToMain) )
-                           This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' ==> n_RedirectFormType:        ' + TRANSFORM(lo_CFG.n_RedirectFormType) )
-                           This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' ==> FormPerFileCheck:          ' + TRANSFORM(lo_CFG.l_FormPerFileCheck) )
-                        ENDIF
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 15 ) == LOWER('UseFormPerFile:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 16 ) )
-                     IF lo_CFG.l_UseFormSettings AND INLIST( lcValue, '0', '1', '2' ) THEN
-                        lo_CFG.n_UseFormPerFile = INT( VAL(lcValue) )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > UseFormPerFile:             ' + TRANSFORM(lcValue) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 26 ) == LOWER('RedirectFormPerFileToMain:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 27 ) )
-                     IF lo_CFG.l_UseFormSettings AND INLIST( lcValue, '0', '1' ) THEN
-                        lo_CFG.l_RedirectFormPerFileToMain  = ( TRANSFORM(lcValue) == '1' )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > RedirectFormPerFileToMain:  ' + TRANSFORM(lcValue) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 17 ) == LOWER('RedirectFormType:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 18 ) )
-                     IF lo_CFG.l_UseFormSettings AND INLIST( lcValue, '0', '1', '2' ) THEN
-                        lo_CFG.n_RedirectFormType   = INT( VAL( lcValue ) )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > RedirectFormType:           ' + TRANSFORM(lcValue) )
-                     ENDIF
-                     *!* /Changed by: LScheffler 04.3.2021
-
-                  CASE LEFT( laConfig(m.I), 17 ) == LOWER('FormPerFileCheck:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 18 ) )
-                     IF lo_CFG.l_UseFormSettings AND INLIST( lcValue, '0', '1' ) THEN
-                        lo_CFG.l_FormPerFileCheck   = ( TRANSFORM(lcValue) == '1' )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > FormPerFileCheck:           ' + TRANSFORM(lcValue) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 15 ) == LOWER('UseFormsPerDir:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 16 ) )
-                     IF lo_CFG.l_UseFormSettings AND INLIST( lcValue, '0', '1' ) THEN
-                        lo_CFG.l_UseFormsPerDir  = ( TRANSFORM(lcValue) == '1' )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > UseFormsPerDir:             ' + TRANSFORM(lcValue) )
-                     ENDIF
-                     */Forms
-
-                     *Databases
-                  CASE LEFT( laConfig(m.I), 15 ) == LOWER('OldFilesPerDBC:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 16 ) )
-                     IF INLIST( lcValue, '0', '1' ) THEN
-                        lo_CFG.l_OldFilesPerDBC = ( TRANSFORM(lcValue) == '1' )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > OldFilesPerDBC:             ' + TRANSFORM(lcValue) )
-                        IF !lo_CFG.l_OldFilesPerDBC THEN
-                           lo_CFG.n_UseFilesPerDBC             = lo_CFG.n_UseClassPerFile
-                           lo_CFG.l_RedirectFilePerDBCToMain   = lo_CFG.l_RedirectClassPerFileToMain
-                           lo_CFG.l_ItemPerDBCCheck            = lo_CFG.l_ClassPerFileCheck
-                           This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' ==> UseFilesPerDBC:           ' + TRANSFORM(lo_CFG.n_UseFilesPerDBC) )
-                           This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' ==> RedirectFilePerDBCToMain: ' + TRANSFORM(lo_CFG.l_RedirectFilePerDBCToMain) )
-                           This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' ==> ItemPerDBCCheck:          ' + TRANSFORM(lo_CFG.l_ItemPerDBCCheck) )
-                        ENDIF
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 15 ) == LOWER('UseFilesPerDBC:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 16 ) )
-                     IF lo_CFG.l_OldFilesPerDBC AND INLIST( lcValue, '0', '1' ) THEN
-                        lo_CFG.n_UseFilesPerDBC = INT( VAL(lcValue) )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > UseFilesPerDBC:             ' + TRANSFORM(lcValue) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 25 ) == LOWER('RedirectFilePerDBCToMain:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 26 ) )
-                     IF lo_CFG.l_OldFilesPerDBC AND INLIST( lcValue, '0', '1' ) THEN
-                        lo_CFG.l_RedirectFilePerDBCToMain   = ( TRANSFORM(lcValue) == '1' )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > RedirectFilePerDBCToMain:   ' + TRANSFORM(lcValue) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 16 ) == LOWER('ItemPerDBCCheck:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 17 ) )
-                     IF lo_CFG.l_OldFilesPerDBC AND INLIST( lcValue, '0', '1' ) THEN
-                        lo_CFG.l_ItemPerDBCCheck    = ( TRANSFORM(lcValue) == '1' )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > ItemPerDBCCheck:            ' + TRANSFORM(lcValue) )
-                     ENDIF
-                     */Databases
-                     */-------- setting for container files (not pjx) --------
-
-                     *!* LScheffler 30.08.2023
-                  CASE LEFT( laConfig(m.I), 19 ) == LOWER('InhibitInheritance:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 20 ) )
-                     IF INLIST( lcValue, '0', '1' , '2' , '3' ) THEN
-                        IF llSetSingleConfig THEN
-                           lo_CFG.n_InhibitInheritance    =  INT( VAL( lcValue ) )
-                        ENDIF &&llSetSingleConfig
-
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > InhibitInheritance:         ' + TRANSFORM(lcValue) +;
-                           IIF(m.llSetSingleConfig, "", ", will be ignored, standard configuration file." ) )
-                     ENDIF
-
-                     *general files
-                  CASE LEFT( laConfig(m.I), 13 ) == LOWER('NoTimestamps:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 14 ) )
-                     IF NOT INLIST( TRANSFORM(tcNoTimestamps), '0', '1' ) AND INLIST( lcValue, '0', '1' ) THEN
-                        tcNoTimestamps  = lcValue
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > tcNoTimestamps:             ' + TRANSFORM(tcNoTimestamps) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 14 ) == LOWER('ClearUniqueID:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 15 ) )
-                     IF NOT INLIST( TRANSFORM(tcClearUniqueID), '0', '1' ) AND INLIST( lcValue, '0', '1' ) THEN
-                        tcClearUniqueID = lcValue
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > ClearUniqueID:              ' + TRANSFORM(lcValue) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 20 ) == LOWER('OptimizeByFilestamp:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 21 ) )
-                     IF NOT INLIST( TRANSFORM(tcOptimizeByFilestamp), '0', '1', '2' ) AND INLIST( lcValue, '0', '1', '2' ) THEN
-                        tcOptimizeByFilestamp   = lcValue
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > OptimizeByFilestamp:        ' + TRANSFORM(lcValue) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 24 ) == LOWER('RemoveNullCharsFromCode:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 25 ) )
-                     IF INLIST( lcValue, '0', '1' ) THEN
-                        lo_CFG.l_RemoveNullCharsFromCode    = ( TRANSFORM(lcValue) == '1' )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > RemoveNullCharsFromCode:    ' + TRANSFORM(lcValue) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 25 ) == LOWER('RemoveZOrderSetFromProps:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 26 ) )
-                     IF INLIST( lcValue, '0', '1' ) THEN
-                        lo_CFG.l_RemoveZOrderSetFromProps   = ( TRANSFORM(lcValue) == '1' )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > RemoveZOrderSetFromProps:   ' + TRANSFORM(lcValue) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(I), 17 ) == LOWER('PRG_Compat_Level:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(I), 18 ) )
-                     lo_CFG.n_PRG_Compat_Level   = INT( VAL( lcValue ) )
-                     This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > PRG_Compat_Level:           ' + TRANSFORM(lo_CFG.n_PRG_Compat_Level) )
-
-                     *pjx special
-                  CASE LEFT( laConfig(m.I), 12 ) == LOWER('BodyDevInfo:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 13 ) )
-                     *** DH 2024-08-26: support 2 as a value
-                     *                                   If Inlist( lcValue, '0', '1' ) Then
-                     IF INLIST( lcValue, '0', '1', '2' ) THEN
-                        lo_CFG.n_BodyDevInfo    = INT( VAL( lcValue ) )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > BodyDevInfo:                ' + TRANSFORM(lo_CFG.n_BodyDevInfo) )
-                     ENDIF
-
-
-
-                     *dbf special
-                  CASE LEFT( laConfig(m.I), 19 ) == LOWER('ClearDBFLastUpdate:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 20 ) )
-                     IF INLIST( lcValue, '0', '1' ) THEN
-                        lo_CFG.l_ClearDBFLastUpdate = ( TRANSFORM(lcValue) == '1' )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > ClearDBFLastUpdate:         ' + TRANSFORM(lcValue) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 25 ) == LOWER('ExcludeDBFAutoincNextval:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 26 ) )
-                     IF INLIST( lcValue, '0', '1' ) THEN
-                        lo_CFG.n_ExcludeDBFAutoincNextval   = INT( VAL( lcValue ) )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > ExcludeDBFAutoincNextval:   ' + TRANSFORM(lo_CFG.n_ExcludeDBFAutoincNextval) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 24 ) == LOWER('DBF_Conversion_Included:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 25 , IIF('&'+'&'$laConfig(m.I), AT('&'+'&', laConfig(m.I)) - 25, LEN(laConfig(m.I) ) ) ) )
-                     IF NOT EMPTY(lcValue) THEN
-                        lo_CFG.c_DBF_Conversion_Included    = lcValue
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > DBF_Conversion_Included:    ' + TRANSFORM(lo_CFG.c_DBF_Conversion_Included) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 24 ) == LOWER('DBF_Conversion_Excluded:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 25 , IIF('&'+'&'$laConfig(m.I), AT('&'+'&', laConfig(m.I)) - 25, LEN(laConfig(m.I) ) ) ) )
-                     IF NOT EMPTY(lcValue) THEN
-                        lo_CFG.c_DBF_Conversion_Excluded    = lcValue
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > DBF_Conversion_Excluded:    ' + TRANSFORM(lo_CFG.c_DBF_Conversion_Excluded) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 19 ) == LOWER('CopyNonConvertible:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 20 ) )
-                     IF INLIST( lcValue, '0', '1' ) THEN
-                        lo_CFG.l_CopyNonConvertible = ( TRANSFORM(lcValue) == '1' )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > CopyNonConvertible:         ' + TRANSFORM(lcValue) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 22 ) == LOWER('CopyExcludedPjxFiles:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 23 ) )
-                     IF INLIST( lcValue, '0', '1' ) THEN
-                        lo_CFG.l_CopyExcludedPjxFiles = ( TRANSFORM(lcValue) == '1' )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > CopyExcludedPjxFiles:       ' + TRANSFORM(lcValue) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 19 ) == LOWER('CopyLowercaseNames:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 20 ) )
-                     IF INLIST( lcValue, '0', '1' ) THEN
-                        lo_CFG.l_CopyLowercaseNames = ( TRANSFORM(lcValue) == '1' )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > CopyLowercaseNames:         ' + TRANSFORM(lcValue) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 16 ) == LOWER('ExcludedSubdirs:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 17 , IIF('&'+'&'$laConfig(m.I), AT('&'+'&', laConfig(m.I)) - 17, LEN(laConfig(m.I) ) ) ) )
-                     IF NOT EMPTY(lcValue) THEN
-                        lo_CFG.c_ExcludedSubdirs    = lcValue
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > ExcludedSubdirs:            ' + TRANSFORM(lo_CFG.c_ExcludedSubdirs) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 19 ) == LOWER('DBF_BinChar_Base64:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 20 ) )
-                     IF INLIST( lcValue, '0', '1' ) THEN
-                        lo_CFG.l_DBF_BinChar_Base64 = ( TRANSFORM(lcValue) == '1' )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > DBF_BinChar_Base64:         ' + TRANSFORM(lcValue) )
-                     ENDIF
-
-                  CASE LEFT( laConfig(m.I), 19 ) == LOWER('DBF_IncludeDeleted:')
-                     lcValue = ALLTRIM( SUBSTR( laConfig(m.I), 20 ) )
-                     IF INLIST( lcValue, '0', '1' ) THEN
-                        lo_CFG.l_DBF_IncludeDeleted = ( TRANSFORM(lcValue) == '1' )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > DBF_IncludeDeleted:         ' + TRANSFORM(lcValue) )
-                     ENDIF
-
-                     * Text file extensions
-                  CASE LEFT( laConfig(m.I), 10 ) == LOWER('Extension:')
-                     lcConfData  = ALLTRIM( SUBSTR( laConfig(m.I), 11 ) )
-                     lcExt       = ALLTRIM( GETWORDNUM( lcConfData, 1, '=' ) )
-                     lcProp      = 'c_' + lcExt
-                     IF PEMSTATUS( lo_CFG, lcProp, 5 )
-                        lcValue = UPPER( ALLTRIM( GETWORDNUM( lcConfData, 2, '=' ) ) )
-                        AddProperty( lo_CFG, lcProp, lcValue )
-                        *This.o_Host.writeLog( 'Extension reconfiguration:' + ' ' + lcExt + ' to ' + lcValue )
-                        This.o_Host.writeLog( C_TAB + JUSTFNAME(lcConfigFile) + ' > ' + loLang.C_EXTENSION_RECONFIGURATION_LOC + ' ' + lcExt + ' -> ' + lcValue )
-                     ENDIF
-
-
-                  ENDCASE
-               ENDFOR
-
-               This.o_Host.writeLog( )
-
-            ENDIF   && llExiste_CFG_EnDisco AND NOT .l_CFG_CachedAccess ...
-
-            ENDIF   && !llMasterLocked (modes A/B disk inheritance)
+
+               Endcase
+
+               If .l_Main_CFG_Loaded
+                  If .l_CFG_CachedAccess And .n_CFG_Actual > 0 Then
+                     toParentCFG = lo_CFG
+                     This.o_Host.writeLog( '> ' + Upper(loLang.C_USING_THIS_SETTINGS_LOC) + ': ' + lo_CFG.c_Foxbin2prg_ConfigFile + '  => ' + tc_InputFile + ;
+                        ' CFG_Actual:' + Transform(.n_CFG_Actual) + Icase(.n_CFG_Actual=1, ' [MASTER]', ' [SECONDARY]')  )
+                  Else
+                     lo_CFG  = .newConfig()
+                     lo_Configuration.Add( lo_CFG, lcConfigFile )
+                     .n_CFG_Actual   = lo_Configuration.Count
+
+                     This.o_Host.writeLog( '> ' + Upper(loLang.C_CACHING_CONFIG_FOR_DIRECTORY_LOC) + ': ' + lcConfigFile + ;
+                        ' CFG_Actual:' + Transform(.n_CFG_Actual) + Icase(.n_CFG_Actual=1, ' [MASTER]', ' [SECONDARY]')  )
+
+                     If Not Isnull(toParentCFG)
+                        .cfgCopyFrom( toParentCFG, lo_CFG )
+                        toParentCFG = lo_CFG
+                        *                               This.o_Host.writeLog( C_TAB + '- ' + loLang.C_INHERITING_FROM_LOC + ': ' + lo_CFG.c_Foxbin2prg_ConfigFile )
+                        This.o_Host.writeLog( C_TAB + '- ' + loLang.C_INHERITING_FROM_LOC + ': ' + lo_Configuration.GetKey(lo_Configuration.Count-1) )
+                     Endif
+                     llFirstRead = .T.
+                  Endif
+
+               Else
+                  *-- First evaluation: seed the master CFG from a programmatic object (exportProjectTree, applyConfig, etc.)
+                  If Not Isnull(loCFG_Manual)
+                     .cfgCopyFrom( loCFG_Manual, .o_MasterCFG )
+                     lo_CFG          = .o_MasterCFG
+                  Endif
+                  lo_Configuration.Add( .o_MasterCFG, lcConfigFile )
+                  .n_CFG_Actual   = lo_Configuration.Count
+               Endif
+
+               *check for lockfile
+               If .l_Main_CFG_Loaded And llFirstRead And llLockFileExists Then
+                  lo_CFG.l_AllowFolder = .F.
+                  This.o_Host.writeLog( C_TAB + Justfname(lcLockFile) + loLang.C_LOCKINGFOLDER_LOC )
+               Endif &&.l_Main_CFG_Loaded And llFirstRead AND llLockFileExists
+
+               *-- NOTE: ONLY VALUES NOT COMING FROM EXTERNAL PARAMETERS SHOULD BE ASSIGNED TO lo_CFG HERE.
+               If llExiste_CFG_EnDisco And Not .l_CFG_CachedAccess And lo_CFG.l_AllowFolder Then
+                  This.o_Host.writeLog()
+                  This.o_Host.writeLog( '> ' + loLang.C_READING_CFG_VALUES_FROM_DISK_LOC + ':' )
+                  This.o_Host.writeLog( C_TAB + loLang.C_CONFIGFILE_LOC + ' ' + lcConfigFile )
+
+                  lo_CFG.c_Foxbin2prg_ConfigFile      = lcConfigFile
+
+                  For I = 1 To Alines( laConfig, Filetostr( lcConfigFile ), 1+4 )
+                     This.o_Host.set_Line( @lcConfigLine, @laConfig, m.I )
+                     This.o_Host.get_SeparatedLineAndComment( @lcConfigLine )
+                     laConfig(m.I)       = Lower( lcConfigLine )
+
+                     Do Case
+                     Case Empty( laConfig(m.I) ) Or Inlist( Left( laConfig(m.I), 1 ), '*', '#', '/', "'" )
+                        Loop
+
+                        * settings for internal work, not processing
+                        * Deprecated:
+                     Case Left( laConfig(m.I), 17 ) == Lower('DontShowProgress:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 18 ) )
+                        If Not Inlist( tcDontShowProgress, '0', '1', '2' ) And Inlist( lcValue, '0', '1', '2' ) Then
+                           lo_CFG.n_ShowProgressbar = Icase(lcValue=='0',1, lcValue=='1',0, 2)
+                           tcDontShowProgress = ''
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > tcDontShowProgress:         ' + tcDontShowProgress )
+                        Endif
+
+                     Case Left( laConfig(m.I), 16 ) == Lower('ShowProgressbar:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 17 ) )
+                        If Inlist( lcValue, '0', '1', '2' ) Then
+                           lo_CFG.n_ShowProgressbar  = Int( Val(lcValue) )
+                           tcDontShowProgress = ''
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > ShowProgressbar:            ' + lcValue )
+                        Endif
+                     Case Left( laConfig(m.I), 9 ) == Lower('Language:')
+                        *-- SPECIAL CASE: Language is not stored in lo_CFG because it is a global setting.
+                        lcValue = Alltrim( Substr( laConfig(m.I), 10 , Iif('&'+'&'$laConfig(m.I), At('&'+'&', laConfig(m.I)) - 10, Len(laConfig(m.I) ) ) ) )
+                        This.o_Host.changeLanguage(lcValue)
+                        lo_CFG.c_Language_In = m.lcValue
+                        This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > Language:                   ' + Transform(lcValue) + ' (' + This.o_Host.c_Language + ')' )
+
+
+                     Case Left( laConfig(m.I), 15 ) == Lower('DontShowErrors:')
+                        *-- Prefer when tcDontShowErrors is NOT passed as "0", because VBS scripts
+                        *-- use it to override the default foxbin2prg.cfg configuration
+                        lcValue = Alltrim( Substr( laConfig(m.I), 16 ) )
+                        If Not Inlist( Transform(tcDontShowErrors), '0', '1' ) And Inlist( lcValue, '0', '1' ) Then
+                           tcDontShowErrors    = lcValue
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > tcDontShowErrors:           ' + Transform(tcDontShowErrors) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 18 ) == Lower('ExtraBackupLevels:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 19 ) )
+                        If Not Isdigit( Transform(tcExtraBackupLevels) ) And Isdigit( lcValue ) Then
+                           tcExtraBackupLevels = lcValue
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > tcExtraBackupLevels:        ' + Transform(tcExtraBackupLevels) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 16 ) == Lower('BackgroundImage:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 17 ) )
+                        Do Case
+                        Case Empty(lcValue)
+                           lo_CFG.c_BackgroundImage    = lcValue
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > BackgroundImage:            (Empty)' )
+
+                        Case Adir( laDirInfo, lcValue ) > 0
+                           lo_CFG.c_BackgroundImage    = lcValue
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > BackgroundImage:            ' + Transform(lo_CFG.c_BackgroundImage) )
+
+                        Otherwise
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > BackgroundImage:            File not found:  ' + Transform(lo_CFG.c_BackgroundImage) )
+
+                        Endcase
+                     Case Left( laConfig(m.I), 6 ) == Lower('Debug:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 7 ) )
+                        If Not Inlist( Transform(tcDebug), '0', '1' ) And Inlist( lcValue, '0', '1' ) Then
+                           If Isnull(This.o_Host.n_DebugP) Then
+                              lo_CFG.n_Debug = Int(Val(lcValue))
+                           Endif
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > Debug:                      ' + lcValue +;
+                              IIF(Isnull(This.o_Host.n_DebugP), "", ", will be ignored, debug set via parameter. Using: " + Transform(This.o_Host.n_DebugP) ) )
+                        Endif
+
+                        * handle n_HomeDir configuration setting
+                     Case Left( laConfig(m.I), 8 ) == Lower('HomeDir:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 9 ) )
+                        If Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.n_HomeDir    = Int( Val( lcValue ) )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > HomeDir:                    ' + Transform(lo_CFG.n_HomeDir) )
+                        Endif
+
+                        * Conversion operation by type
+                     Case Left( laConfig(m.I), 23 ) == Lower('PJX_Conversion_Support:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 24 ) )
+                        If Inlist( lcValue, '0', '1', '2' ) Then
+                           lo_CFG.n_PJX_Conversion_Support = Int( Val( lcValue ) )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > PJX_Conversion_Support:     ' + Transform(lo_CFG.n_PJX_Conversion_Support) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 23 ) == Lower('VCX_Conversion_Support:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 24 ) )
+                        If Inlist( lcValue, '0', '1', '2' ) Then
+                           lo_CFG.n_VCX_Conversion_Support = Int( Val( lcValue ) )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > VCX_Conversion_Support:     ' + Transform(lo_CFG.n_VCX_Conversion_Support) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 23 ) == Lower('SCX_Conversion_Support:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 24 ) )
+                        If Inlist( lcValue, '0', '1', '2' ) Then
+                           lo_CFG.n_SCX_Conversion_Support = Int( Val( lcValue ) )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > SCX_Conversion_Support:     ' + Transform(lo_CFG.n_SCX_Conversion_Support) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 23 ) == Lower('FRX_Conversion_Support:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 24 ) )
+                        If Inlist( lcValue, '0', '1', '2' ) Then
+                           lo_CFG.n_FRX_Conversion_Support = Int( Val( lcValue ) )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > FRX_Conversion_Support:     ' + Transform(lo_CFG.n_FRX_Conversion_Support) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 23 ) == Lower('LBX_Conversion_Support:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 24 ) )
+                        If Inlist( lcValue, '0', '1', '2' ) Then
+                           lo_CFG.n_LBX_Conversion_Support = Int( Val( lcValue ) )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > LBX_Conversion_Support:     ' + Transform(lo_CFG.n_LBX_Conversion_Support) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 23 ) == Lower('MNX_Conversion_Support:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 24 ) )
+                        If Inlist( lcValue, '0', '1', '2' ) Then
+                           lo_CFG.n_MNX_Conversion_Support = Int( Val( lcValue ) )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > MNX_Conversion_Support:     ' + Transform(lo_CFG.n_MNX_Conversion_Support) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 23 ) == Lower('DBF_Conversion_Support:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 24 ) )
+                        If Inlist( lcValue, '0', '1', '2', '4', '8' ) Then
+                           lo_CFG.n_DBF_Conversion_Support = Int( Val( lcValue ) )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > DBF_Conversion_Support:     ' + Transform(lo_CFG.n_DBF_Conversion_Support) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 23 ) == Lower('DBC_Conversion_Support:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 24 ) )
+                        If Inlist( lcValue, '0', '1', '2' ) Then
+                           lo_CFG.n_DBC_Conversion_Support = Int( Val( lcValue ) )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > DBC_Conversion_Support:     ' + Transform(lo_CFG.n_DBC_Conversion_Support) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 23 ) == Lower('FKY_Conversion_Support:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 24 ) )
+                        If Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.n_FKY_Conversion_Support = Int( Val( lcValue ) )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > FKY_Conversion_Support:     ' + Transform(lo_CFG.n_FKY_Conversion_Support) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 23 ) == Lower('MEM_Conversion_Support:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 24 ) )
+                        If Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.n_MEM_Conversion_Support = Int( Val( lcValue ) )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > MEM_Conversion_Support:     ' + Transform(lo_CFG.n_MEM_Conversion_Support) )
+                        Endif
+
+
+                        *-------- setting for container files (not pjx) --------
+                        *Classes and forms ( vcx / scx)
+                        * additional options controlling
+                        * files in non subpath of the PJX
+                     Case Left( laConfig(m.I), 16 ) == Lower('CheckFileInPath:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 17 ) )
+                        If Inlist( lcValue, '0', '1', '2', '3' ) Then
+                           lo_CFG.n_CheckFileInPath    = Int( Val(lcValue) )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > CheckFileInPath:            ' + Transform(lcValue) )
+                        Endif
+
+                        * additional options controlling
+                        * - splitt of DBC separated from VCX/SCX
+                        * - new operations of DBF
+                        *VCX
+                     Case Left( laConfig(m.I), 16 ) == Lower('UseClassPerFile:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 17 ) )
+                        If Inlist( lcValue, '0', '1', '2' ) Then
+                           lo_CFG.n_UseClassPerFile    = Int( Val(lcValue) )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > UseClassPerFile:            ' + Transform(lcValue) )
+                           If !lo_CFG.l_OldFilesPerDBC Then
+                              lo_CFG.n_UseFilesPerDBC             = lo_CFG.n_UseClassPerFile
+                              This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + '  => UseFilesPerDBC:           ' + Transform(lcValue) )
+                           Endif
+                           If !lo_CFG.l_UseFormSettings Then
+                              lo_CFG.n_UseFormPerFile             = lo_CFG.n_UseClassPerFile
+                              This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + '  => UseFormPerFile:           ' + Transform(lcValue) )
+                           Endif
+                        Endif
+
+                     Case Left( laConfig(m.I), 27 ) == Lower('RedirectClassPerFileToMain:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 28 ) )
+                        If Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.l_RedirectClassPerFileToMain = ( Transform(lcValue) == '1' )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > RedirectClassPerFileToMain: ' + Transform(lcValue) )
+                           If !lo_CFG.l_OldFilesPerDBC Then
+                              lo_CFG.l_RedirectFilePerDBCToMain   = lo_CFG.l_RedirectClassPerFileToMain
+                              This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + '  => RedirectFilePerDBCToMain: ' + Transform(lcValue) )
+                           Endif
+                           If !lo_CFG.l_UseFormSettings Then
+                              lo_CFG.l_RedirectFormPerFileToMain  = lo_CFG.l_RedirectClassPerFileToMain
+                              This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + '  => RedirectFormPerFileToMain ' + Transform(lcValue) )
+                           Endif
+                        Endif
+
+                        * new value 2, just add one class
+                     Case Left( laConfig(m.I), 18 ) == Lower('RedirectClassType:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 19 ) )
+                        If Inlist( lcValue, '0', '1', '2' ) Then
+                           lo_CFG.n_RedirectClassType  = Int( Val( lcValue ) )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > RedirectClassType:          ' + Transform(lcValue) )
+                           If !lo_CFG.l_UseFormSettings Then
+                              lo_CFG.n_RedirectFormType           = lo_CFG.n_RedirectClassType
+                              This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + '  => RedirectFormType          ' + Transform(lcValue) )
+                           Endif
+                        Endif
+
+                     Case Left( laConfig(m.I), 18 ) == Lower('ClassPerFileCheck:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 19 ) )
+                        If Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.l_ClassPerFileCheck  = ( Transform(lcValue) == '1' )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > ClassPerFileCheck:          ' + Transform(lcValue) )
+                           If !lo_CFG.l_OldFilesPerDBC Then
+                              lo_CFG.l_ItemPerDBCCheck            = lo_CFG.l_ClassPerFileCheck
+                              This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + '  => ItemPerDBCCheck:          ' + Transform(lcValue) )
+                           Endif
+                           If !lo_CFG.l_UseFormSettings Then
+                              lo_CFG.l_FormPerFileCheck           = lo_CFG.l_ClassPerFileCheck
+                              This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + '  => FormPerFileCheck          ' + Transform(lcValue) )
+                           Endif
+                        Endif
+
+                     Case Left( laConfig(m.I), 15 ) == Lower('UseClassPerDir:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 16 ) )
+                        If Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.l_UseClassPerDir  = ( Transform(lcValue) == '1' )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > UseClassPerDir:             ' + Transform(lcValue) )
+                        Endif
+
+                        *Forms
+                     Case Left( laConfig(m.I), 16 ) == Lower('UseFormSettings:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 17 ) )
+                        If Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.l_UseFormSettings    = ( Transform(lcValue) == '1' )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > UseFormSettings:            ' + Transform(lcValue) )
+                           If !lo_CFG.l_UseFormSettings Then
+                              lo_CFG.n_UseFormPerFile             = lo_CFG.n_UseClassPerFile
+                              lo_CFG.l_RedirectFormPerFileToMain  = lo_CFG.l_RedirectClassPerFileToMain
+                              lo_CFG.n_RedirectFormType           = lo_CFG.n_RedirectClassType
+                              lo_CFG.l_FormPerFileCheck           = lo_CFG.l_ClassPerFileCheck
+                              This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' ==> UseFormPerFile:            ' + Transform(lo_CFG.n_UseFormPerFile) )
+                              This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' ==> RedirectFormPerFileToMain: ' + Transform(lo_CFG.l_RedirectFormPerFileToMain) )
+                              This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' ==> n_RedirectFormType:        ' + Transform(lo_CFG.n_RedirectFormType) )
+                              This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' ==> FormPerFileCheck:          ' + Transform(lo_CFG.l_FormPerFileCheck) )
+                           Endif
+                        Endif
+
+                     Case Left( laConfig(m.I), 15 ) == Lower('UseFormPerFile:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 16 ) )
+                        If lo_CFG.l_UseFormSettings And Inlist( lcValue, '0', '1', '2' ) Then
+                           lo_CFG.n_UseFormPerFile = Int( Val(lcValue) )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > UseFormPerFile:             ' + Transform(lcValue) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 26 ) == Lower('RedirectFormPerFileToMain:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 27 ) )
+                        If lo_CFG.l_UseFormSettings And Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.l_RedirectFormPerFileToMain  = ( Transform(lcValue) == '1' )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > RedirectFormPerFileToMain:  ' + Transform(lcValue) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 17 ) == Lower('RedirectFormType:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 18 ) )
+                        If lo_CFG.l_UseFormSettings And Inlist( lcValue, '0', '1', '2' ) Then
+                           lo_CFG.n_RedirectFormType   = Int( Val( lcValue ) )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > RedirectFormType:           ' + Transform(lcValue) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 17 ) == Lower('FormPerFileCheck:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 18 ) )
+                        If lo_CFG.l_UseFormSettings And Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.l_FormPerFileCheck   = ( Transform(lcValue) == '1' )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > FormPerFileCheck:           ' + Transform(lcValue) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 15 ) == Lower('UseFormsPerDir:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 16 ) )
+                        If lo_CFG.l_UseFormSettings And Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.l_UseFormsPerDir  = ( Transform(lcValue) == '1' )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > UseFormsPerDir:             ' + Transform(lcValue) )
+                        Endif
+                        */Forms
+
+                        *Databases
+                     Case Left( laConfig(m.I), 15 ) == Lower('OldFilesPerDBC:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 16 ) )
+                        If Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.l_OldFilesPerDBC = ( Transform(lcValue) == '1' )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > OldFilesPerDBC:             ' + Transform(lcValue) )
+                           If !lo_CFG.l_OldFilesPerDBC Then
+                              lo_CFG.n_UseFilesPerDBC             = lo_CFG.n_UseClassPerFile
+                              lo_CFG.l_RedirectFilePerDBCToMain   = lo_CFG.l_RedirectClassPerFileToMain
+                              lo_CFG.l_ItemPerDBCCheck            = lo_CFG.l_ClassPerFileCheck
+                              This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' ==> UseFilesPerDBC:           ' + Transform(lo_CFG.n_UseFilesPerDBC) )
+                              This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' ==> RedirectFilePerDBCToMain: ' + Transform(lo_CFG.l_RedirectFilePerDBCToMain) )
+                              This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' ==> ItemPerDBCCheck:          ' + Transform(lo_CFG.l_ItemPerDBCCheck) )
+                           Endif
+                        Endif
+
+                     Case Left( laConfig(m.I), 15 ) == Lower('UseFilesPerDBC:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 16 ) )
+                        If lo_CFG.l_OldFilesPerDBC And Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.n_UseFilesPerDBC = Int( Val(lcValue) )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > UseFilesPerDBC:             ' + Transform(lcValue) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 25 ) == Lower('RedirectFilePerDBCToMain:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 26 ) )
+                        If lo_CFG.l_OldFilesPerDBC And Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.l_RedirectFilePerDBCToMain   = ( Transform(lcValue) == '1' )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > RedirectFilePerDBCToMain:   ' + Transform(lcValue) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 16 ) == Lower('ItemPerDBCCheck:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 17 ) )
+                        If lo_CFG.l_OldFilesPerDBC And Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.l_ItemPerDBCCheck    = ( Transform(lcValue) == '1' )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > ItemPerDBCCheck:            ' + Transform(lcValue) )
+                        Endif
+                        */Databases
+                        */-------- setting for container files (not pjx) --------
+
+                     Case Left( laConfig(m.I), 19 ) == Lower('InhibitInheritance:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 20 ) )
+                        If Inlist( lcValue, '0', '1' , '2' , '3' ) Then
+                           If llSetSingleConfig Then
+                              lo_CFG.n_InhibitInheritance    =  Int( Val( lcValue ) )
+                           Endif
+
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > InhibitInheritance:         ' + Transform(lcValue) +;
+                              IIF(m.llSetSingleConfig, "", ", will be ignored, standard configuration file." ) )
+                        Endif
+
+                        *general files
+                     Case Left( laConfig(m.I), 13 ) == Lower('NoTimestamps:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 14 ) )
+                        If Not Inlist( Transform(tcNoTimestamps), '0', '1' ) And Inlist( lcValue, '0', '1' ) Then
+                           tcNoTimestamps  = lcValue
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > tcNoTimestamps:             ' + Transform(tcNoTimestamps) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 14 ) == Lower('ClearUniqueID:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 15 ) )
+                        If Not Inlist( Transform(tcClearUniqueID), '0', '1' ) And Inlist( lcValue, '0', '1' ) Then
+                           tcClearUniqueID = lcValue
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > ClearUniqueID:              ' + Transform(lcValue) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 20 ) == Lower('OptimizeByFilestamp:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 21 ) )
+                        If Not Inlist( Transform(tcOptimizeByFilestamp), '0', '1', '2' ) And Inlist( lcValue, '0', '1', '2' ) Then
+                           tcOptimizeByFilestamp   = lcValue
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > OptimizeByFilestamp:        ' + Transform(lcValue) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 24 ) == Lower('RemoveNullCharsFromCode:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 25 ) )
+                        If Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.l_RemoveNullCharsFromCode    = ( Transform(lcValue) == '1' )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > RemoveNullCharsFromCode:    ' + Transform(lcValue) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 25 ) == Lower('RemoveZOrderSetFromProps:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 26 ) )
+                        If Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.l_RemoveZOrderSetFromProps   = ( Transform(lcValue) == '1' )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > RemoveZOrderSetFromProps:   ' + Transform(lcValue) )
+                        Endif
+
+                     Case Left( laConfig(I), 17 ) == Lower('PRG_Compat_Level:')
+                        lcValue = Alltrim( Substr( laConfig(I), 18 ) )
+                        lo_CFG.n_PRG_Compat_Level   = Int( Val( lcValue ) )
+                        This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > PRG_Compat_Level:           ' + Transform(lo_CFG.n_PRG_Compat_Level) )
+
+                        *pjx special
+                     Case Left( laConfig(m.I), 12 ) == Lower('BodyDevInfo:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 13 ) )
+                        * support 2 as a value
+                        If Inlist( lcValue, '0', '1', '2' ) Then
+                           lo_CFG.n_BodyDevInfo    = Int( Val( lcValue ) )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > BodyDevInfo:                ' + Transform(lo_CFG.n_BodyDevInfo) )
+                        Endif
+
+
+                        *dbf special
+                     Case Left( laConfig(m.I), 19 ) == Lower('ClearDBFLastUpdate:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 20 ) )
+                        If Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.l_ClearDBFLastUpdate = ( Transform(lcValue) == '1' )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > ClearDBFLastUpdate:         ' + Transform(lcValue) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 25 ) == Lower('ExcludeDBFAutoincNextval:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 26 ) )
+                        If Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.n_ExcludeDBFAutoincNextval   = Int( Val( lcValue ) )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > ExcludeDBFAutoincNextval:   ' + Transform(lo_CFG.n_ExcludeDBFAutoincNextval) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 24 ) == Lower('DBF_Conversion_Included:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 25 , Iif('&'+'&'$laConfig(m.I), At('&'+'&', laConfig(m.I)) - 25, Len(laConfig(m.I) ) ) ) )
+                        If Not Empty(lcValue) Then
+                           lo_CFG.c_DBF_Conversion_Included    = lcValue
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > DBF_Conversion_Included:    ' + Transform(lo_CFG.c_DBF_Conversion_Included) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 24 ) == Lower('DBF_Conversion_Excluded:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 25 , Iif('&'+'&'$laConfig(m.I), At('&'+'&', laConfig(m.I)) - 25, Len(laConfig(m.I) ) ) ) )
+                        If Not Empty(lcValue) Then
+                           lo_CFG.c_DBF_Conversion_Excluded    = lcValue
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > DBF_Conversion_Excluded:    ' + Transform(lo_CFG.c_DBF_Conversion_Excluded) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 19 ) == Lower('CopyNonConvertible:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 20 ) )
+                        If Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.l_CopyNonConvertible = ( Transform(lcValue) == '1' )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > CopyNonConvertible:         ' + Transform(lcValue) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 22 ) == Lower('CopyExcludedPjxFiles:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 23 ) )
+                        If Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.l_CopyExcludedPjxFiles = ( Transform(lcValue) == '1' )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > CopyExcludedPjxFiles:       ' + Transform(lcValue) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 19 ) == Lower('CopyLowercaseNames:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 20 ) )
+                        If Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.l_CopyLowercaseNames = ( Transform(lcValue) == '1' )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > CopyLowercaseNames:         ' + Transform(lcValue) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 16 ) == Lower('ExcludedSubdirs:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 17 , Iif('&'+'&'$laConfig(m.I), At('&'+'&', laConfig(m.I)) - 17, Len(laConfig(m.I) ) ) ) )
+                        If Not Empty(lcValue) Then
+                           lo_CFG.c_ExcludedSubdirs    = lcValue
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > ExcludedSubdirs:            ' + Transform(lo_CFG.c_ExcludedSubdirs) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 19 ) == Lower('DBF_BinChar_Base64:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 20 ) )
+                        If Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.l_DBF_BinChar_Base64 = ( Transform(lcValue) == '1' )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > DBF_BinChar_Base64:         ' + Transform(lcValue) )
+                        Endif
+
+                     Case Left( laConfig(m.I), 19 ) == Lower('DBF_IncludeDeleted:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 20 ) )
+                        If Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.l_DBF_IncludeDeleted = ( Transform(lcValue) == '1' )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > DBF_IncludeDeleted:         ' + Transform(lcValue) )
+                        Endif
+
+                        * Text file extensions
+                     Case Left( laConfig(m.I), 10 ) == Lower('Extension:')
+                        lcConfData  = Alltrim( Substr( laConfig(m.I), 11 ) )
+                        lcExt       = Alltrim( Getwordnum( lcConfData, 1, '=' ) )
+                        lcProp      = 'c_' + lcExt
+                        If Pemstatus( lo_CFG, lcProp, 5 )
+                           lcValue = Upper( Alltrim( Getwordnum( lcConfData, 2, '=' ) ) )
+                           AddProperty( lo_CFG, lcProp, lcValue )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > ' + loLang.C_EXTENSION_RECONFIGURATION_LOC + ' ' + lcExt + ' -> ' + lcValue )
+                        Endif
+
+                     Endcase
+                  Endfor
+
+                  This.o_Host.writeLog( )
+
+               Endif   && llExiste_CFG_EnDisco AND NOT .l_CFG_CachedAccess ...
+
+            Endif   && !llMasterLocked (modes A/B disk inheritance)
 
             *-- THESE ARE EVALUATED OUTSIDE THE IF BECAUSE THEY DO NOT DEPEND ON THE CFG
             *-- AND MAY ALSO COME FROM EXTERNAL PARAMETERS.
-            IF INLIST( TRANSFORM(tcDontShowProgress), '0', '1', '2' ) THEN
+            IF INLIST( tcDontShowProgress, '0', '1', '2' ) THEN
                lo_CFG.n_ShowProgressbar = ICase(tcDontShowProgress=='0',1, tcDontShowProgress=='1',0, 2)
             ENDIF
+
             IF INLIST( TRANSFORM(tcDontShowErrors), '0', '1' ) THEN
                lo_CFG.l_ShowErrors = NOT (Transform(tcDontShowErrors) == '1')
             ENDIF
@@ -978,10 +949,10 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
 
                This.o_Host.writeLog( C_TAB + 'Debug:                      ' + TRANSFORM(.getCfgValue('n_Debug')) )
 
-               * LScheffler, 2021/030/06: added DH HomeDir option
+               * HomeDir option
                This.o_Host.writeLog( C_TAB + 'HomeDir:                    ' + TRANSFORM(.getCfgValue('n_HomeDir')) )
 
-               *Conversion operation by type
+               * Conversion operation by type
                This.o_Host.writeLog( C_TAB + 'PJX_Conversion_Support      ' + TRANSFORM(.getCfgValue('n_PJX_Conversion_Support')) )
                This.o_Host.writeLog( C_TAB + 'VCX_Conversion_Support      ' + TRANSFORM(.getCfgValue('n_VCX_Conversion_Support')) )
                This.o_Host.writeLog( C_TAB + 'SCX_Conversion_Support      ' + TRANSFORM(.getCfgValue('n_SCX_Conversion_Support')) )
@@ -993,15 +964,13 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
                This.o_Host.writeLog( C_TAB + 'FKY_Conversion_Support      ' + TRANSFORM(.getCfgValue('n_FKY_Conversion_Support')) )
                This.o_Host.writeLog( C_TAB + 'MEM_Conversion_Support      ' + TRANSFORM(.getCfgValue('n_MEM_Conversion_Support')) )
 
-               *!* Changed by: LScheffler 19.03.2023
                * additional options controlling
                * files in non subpath of the PJX
-               *setting for PJX files
+               * setting for PJX files
                This.o_Host.writeLog( C_TAB + 'CheckFileInPath:            ' + TRANSFORM(.getCfgValue('n_CheckFileInPath')) )
-               *!* /Changed by: LScheffler 19.03.2023
 
-               *setting for container files (not pjx)
-               *Classes ( vcx )
+               * setting for container files (not pjx)
+               * Classes ( vcx )
                This.o_Host.writeLog( C_TAB + 'UseClassPerFile:            ' + TRANSFORM(.getCfgValue('n_UseClassPerFile')) )
                This.o_Host.writeLog( C_TAB + 'ClassPerFileCheck:          ' + TRANSFORM(.getCfgValue('l_ClassPerFileCheck')) )
                This.o_Host.writeLog( C_TAB + 'RedirectClassPerFileToMain: ' + TRANSFORM(.getCfgValue('l_RedirectClassPerFileToMain')) )
@@ -1017,8 +986,6 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
                This.o_Host.writeLog( C_TAB + 'UseFormsPerDir:             ' + TRANSFORM(IIF(.getCfgFlag('l_UseFormsPerDir'), 1, 0)) )
 
                *Databases
-               *!* Changed by: LScheffler 21.02.2021
-               *!* change date="{^2021-02-21,10:57:00}"
                * additional options controlling
                * - split of DBC separated from VCX/SCX
                * - new operations of DBF
@@ -1028,7 +995,6 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
                This.o_Host.writeLog( C_TAB + 'ItemPerDBCCheck:            ' + TRANSFORM(.getCfgValue('l_ItemPerDBCCheck')) )
                This.o_Host.writeLog( C_TAB + 'DBF_BinChar_Base64:         ' + TRANSFORM(.getCfgValue('l_DBF_BinChar_Base64')) )
                This.o_Host.writeLog( C_TAB + 'DBF_IncludeDeleted:         ' + TRANSFORM(.getCfgValue('l_DBF_IncludeDeleted')) )
-               *!* /Changed by: LScheffler 21.02.2021
 
                *general files
                This.o_Host.writeLog( C_TAB + 'NoTimestamps:               ' + TRANSFORM(.getCfgValue('l_NoTimestamps')) )
@@ -1121,6 +1087,8 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
 
       RETURN
    ENDPROC
+
+
    PROCEDURE get_DirSettings
       *---------------------------------------------------------------------------------------------------
       * PARAMETERS:       (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
@@ -1148,12 +1116,16 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
 
       RETURN loCFG
    ENDPROC
+
+
    PROCEDURE captureFactoryCFG
       *---------------------------------------------------------------------------------------------------
       * Factory CFG template (immutable). Defaults are defined in createCfgShell().
       *---------------------------------------------------------------------------------------------------
       This.o_FactoryCFG = This.createCfgShell()
    ENDPROC
+
+
    PROCEDURE createCfgShell
       *---------------------------------------------------------------------------------------------------
       * CFG schema and factory defaults (canonical source for o_FactoryCFG / newConfig).
