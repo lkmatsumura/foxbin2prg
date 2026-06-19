@@ -262,7 +262,7 @@ Define Class CL_DBF_INDEXES As CL_COL_BASE Of 'cl_col_base.prg'
                laIndexFiles( 1 )
 
             toFoxBin2Prg.writeLog( ' ' + Replicate('-', 98) )
-            toF1oxBin2Prg.writeLog( loLang.C_INDEX2TXT_EXTRAFILES_LOC )
+            toFoxBin2Prg.writeLog( loLang.C_INDEX2TXT_EXTRAFILES_LOC )
             toFoxBin2Prg.writeLog( ' ' + Replicate('- ', 49) )
 
             *Additional index files

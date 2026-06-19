@@ -74,8 +74,8 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'cl_col_base.prg'
    _ServerHead         = .Null.
    _ServerInfo         = ''
    _SourceFile         = ''
-   *LScheffler 20.08.2023
-   *issue #96, [KestasL] keep CodePage relavant information for binary sources
+
+   * issue #96, [KestasL] keep CodePage relavant information for binary sources
    _cpid               = Cpcurrent()
    _TimeStamp          = 0
    _Version            = ''
@@ -114,7 +114,7 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'cl_col_base.prg'
 
    Procedure decode_SpecialCodes_CR_LF
       *---------------------------------------------------------------------------------------------------
-      * PARÃMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcText                    (!@ IN    ) Decodifica los caracteres ASCII 10 y 13 de {nCode} a CHR(nCode)
       *---------------------------------------------------------------------------------------------------
       Lparameters tcText
@@ -126,7 +126,7 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'cl_col_base.prg'
 
    Procedure encode_SpecialCodes_CR_LF
       *---------------------------------------------------------------------------------------------------
-      * PARÃMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcText                    (!@ IN    ) Codifica los caracteres ASCII 10 y 13 de CHR(nCode) a {nCode}
       *---------------------------------------------------------------------------------------------------
       Lparameters tcText
@@ -177,14 +177,18 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'cl_col_base.prg'
    Procedure parseNullTerminatedValue
       Lparameters tcDevInfo, tnPos, tnLen
       Local lcValue, lnNullPos
-      lcStr       = Substr( tcDevInfo, tnPos, tnLen )
-      lnNullPos   = At(Chr(0), lcStr )
+      
+      lcStr     = Substr( tcDevInfo, tnPos, tnLen )
+      lnNullPos = At(Chr(0), lcStr )
+      
       If lnNullPos = 0
          lcValue = Chrtran( Left( lcStr, tnLen ), ['], ["] )
       Else
          lcValue = Chrtran( Left( lcStr, Min(tnLen, lnNullPos - 1 ) ), ['], ["] )
       Endif
+      lcValue = Alltrim( lcValue )
       lcValue = This.encode_SpecialCodes_CR_LF(lcValue)
+      
       Return lcValue
    Endproc
 
@@ -195,27 +199,25 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'cl_col_base.prg'
 
       Try
          With This As CL_PROJECT Of 'CL_PROJECT.prg'
-            ._Author            = .parseNullTerminatedValue( @tcDevInfo, 1, 45 )
-            ._Company           = .parseNullTerminatedValue( @tcDevInfo, 47, 45 )
-            ._Address           = .parseNullTerminatedValue( @tcDevInfo, 93, 45 )
-            ._City              = .parseNullTerminatedValue( @tcDevInfo, 139, 20 )
-            ._State             = .parseNullTerminatedValue( @tcDevInfo, 160, 5 )
-            ._PostalCode        = .parseNullTerminatedValue( @tcDevInfo, 166, 10 )
-            ._Country           = .parseNullTerminatedValue( @tcDevInfo, 177, 45 )
-            *--
-            ._Comments          = .parseNullTerminatedValue( @tcDevInfo, 223, 254 )
-            ._CompanyName       = .parseNullTerminatedValue( @tcDevInfo, 478, 254 )
-            ._FileDescription   = .parseNullTerminatedValue( @tcDevInfo, 733, 254 )
-            ._LegalCopyright    = .parseNullTerminatedValue( @tcDevInfo, 988, 254 )
+            ._Author            = .parseNullTerminatedValue( @tcDevInfo,    1,  45 )
+            ._Company           = .parseNullTerminatedValue( @tcDevInfo,   47,  45 )
+            ._Address           = .parseNullTerminatedValue( @tcDevInfo,   93,  45 )
+            ._City              = .parseNullTerminatedValue( @tcDevInfo,  139,  20 )
+            ._State             = .parseNullTerminatedValue( @tcDevInfo,  160,   5 )
+            ._PostalCode        = .parseNullTerminatedValue( @tcDevInfo,  166,  10 )
+            ._Country           = .parseNullTerminatedValue( @tcDevInfo,  177,  45 )
+            ._Comments          = .parseNullTerminatedValue( @tcDevInfo,  223, 254 )
+            ._CompanyName       = .parseNullTerminatedValue( @tcDevInfo,  478, 254 )
+            ._FileDescription   = .parseNullTerminatedValue( @tcDevInfo,  733, 254 )
+            ._LegalCopyright    = .parseNullTerminatedValue( @tcDevInfo,  988, 254 )
             ._LegalTrademark    = .parseNullTerminatedValue( @tcDevInfo, 1243, 254 )
             ._ProductName       = .parseNullTerminatedValue( @tcDevInfo, 1498, 254 )
-            ._MajorVer          = .parseNullTerminatedValue( @tcDevInfo, 1753, 4 )
-            ._MinorVer          = .parseNullTerminatedValue( @tcDevInfo, 1758, 4 )
-            ._Revision          = .parseNullTerminatedValue( @tcDevInfo, 1763, 4 )
-            ._LanguageID        = .parseNullTerminatedValue( @tcDevInfo, 1768, 19 )
-            *._AutoIncrement        = IIF( SUBSTR( tcDevInfo, 1788, 1 ) = CHR(1), '1', '0' )
-            ._AutoIncrement     = Transform(Asc(Substr(tcDevInfo, 1788, 1)))    && Proposed by Doug Hennig
-         Endwith && THIS
+            ._MajorVer          = .parseNullTerminatedValue( @tcDevInfo, 1753,   4 )
+            ._MinorVer          = .parseNullTerminatedValue( @tcDevInfo, 1758,   4 )
+            ._Revision          = .parseNullTerminatedValue( @tcDevInfo, 1763,   4 )
+            ._LanguageID        = .parseNullTerminatedValue( @tcDevInfo, 1768,  19 )
+            ._AutoIncrement     = Transform(Asc(Substr(tcDevInfo, 1788, 1)))
+         Endwith
 
       Catch To loEx
          If This.n_Debug > 0 And _vfp.StartMode = 0
@@ -239,17 +241,17 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'cl_col_base.prg'
          Endif
 
          With This As CL_PROJECT Of 'CL_PROJECT.prg'
-            tcDevInfo   = Stuff( tcDevInfo, 1, Len(._Author), ._Author)
-            tcDevInfo   = Stuff( tcDevInfo, 47, Len(._Company), ._Company)
-            tcDevInfo   = Stuff( tcDevInfo, 93, Len(._Address), ._Address)
-            tcDevInfo   = Stuff( tcDevInfo, 139, Len(._City), ._City)
-            tcDevInfo   = Stuff( tcDevInfo, 160, Len(._State), ._State)
-            tcDevInfo   = Stuff( tcDevInfo, 166, Len(._PostalCode), ._PostalCode)
-            tcDevInfo   = Stuff( tcDevInfo, 177, Len(._Country), ._Country)
-            tcDevInfo   = Stuff( tcDevInfo, 223, Len(._Comments), ._Comments)
-            tcDevInfo   = Stuff( tcDevInfo, 478, Len(._CompanyName), ._CompanyName)
-            tcDevInfo   = Stuff( tcDevInfo, 733, Len(._FileDescription), ._FileDescription)
-            tcDevInfo   = Stuff( tcDevInfo, 988, Len(._LegalCopyright), ._LegalCopyright)
+            tcDevInfo   = Stuff( tcDevInfo,    1, Len(._Author), ._Author)
+            tcDevInfo   = Stuff( tcDevInfo,   47, Len(._Company), ._Company)
+            tcDevInfo   = Stuff( tcDevInfo,   93, Len(._Address), ._Address)
+            tcDevInfo   = Stuff( tcDevInfo,  139, Len(._City), ._City)
+            tcDevInfo   = Stuff( tcDevInfo,  160, Len(._State), ._State)
+            tcDevInfo   = Stuff( tcDevInfo,  166, Len(._PostalCode), ._PostalCode)
+            tcDevInfo   = Stuff( tcDevInfo,  177, Len(._Country), ._Country)
+            tcDevInfo   = Stuff( tcDevInfo,  223, Len(._Comments), ._Comments)
+            tcDevInfo   = Stuff( tcDevInfo,  478, Len(._CompanyName), ._CompanyName)
+            tcDevInfo   = Stuff( tcDevInfo,  733, Len(._FileDescription), ._FileDescription)
+            tcDevInfo   = Stuff( tcDevInfo,  988, Len(._LegalCopyright), ._LegalCopyright)
             tcDevInfo   = Stuff( tcDevInfo, 1243, Len(._LegalTrademark), ._LegalTrademark)
             tcDevInfo   = Stuff( tcDevInfo, 1498, Len(._ProductName), ._ProductName)
             tcDevInfo   = Stuff( tcDevInfo, 1753, Len(._MajorVer), ._MajorVer)
@@ -258,7 +260,7 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'cl_col_base.prg'
             tcDevInfo   = Stuff( tcDevInfo, 1768, Len(._LanguageID), ._LanguageID)
             tcDevInfo   = Stuff( tcDevInfo, 1788, 1, Chr(Val(._AutoIncrement)))
             tcDevInfo   = Stuff( tcDevInfo, 1792, 1, Chr(1))
-         Endwith && THIS
+         Endwith
 
       Catch To loEx
          lnCodError  = loEx.ErrorNo
@@ -283,30 +285,29 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'cl_col_base.prg'
 
          With This As CL_PROJECT Of 'CL_PROJECT.prg'
             TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                    <<C_DEVINFO_I>>
-                    _Author = "<<._Author>>"
-                    _Company = "<<._Company>>"
-                    _Address = "<<._Address>>"
-                    _City = "<<._City>>"
-                    _State = "<<._State>>"
-                    _PostalCode = "<<._PostalCode>>"
-                    _Country = "<<._Country>>"
-                    *--
-                    _Comments = "<<._Comments>>"
-                    _CompanyName = "<<._CompanyName>>"
-                    _FileDescription = "<<._FileDescription>>"
-                    _LegalCopyright = "<<._LegalCopyright>>"
-                    _LegalTrademark = "<<._LegalTrademark>>"
-                    _ProductName = "<<._ProductName>>"
-                    _MajorVer = "<<._MajorVer>>"
-                    _MinorVer = "<<._MinorVer>>"
-                    _Revision = "<<._Revision>>"
-                    _LanguageID = "<<._LanguageID>>"
-                    _AutoIncrement = "<<._AutoIncrement>>"
-                    <<C_DEVINFO_F>>
-                    <<>>
+               <<C_DEVINFO_I>>
+               _Author = "<<._Author>>"
+               _Company = "<<._Company>>"
+               _Address = "<<._Address>>"
+               _City = "<<._City>>"
+               _State = "<<._State>>"
+               _PostalCode = "<<._PostalCode>>"
+               _Country = "<<._Country>>"
+               _Comments = "<<._Comments>>"
+               _CompanyName = "<<._CompanyName>>"
+               _FileDescription = "<<._FileDescription>>"
+               _LegalCopyright = "<<._LegalCopyright>>"
+               _LegalTrademark = "<<._LegalTrademark>>"
+               _ProductName = "<<._ProductName>>"
+               _MajorVer = "<<._MajorVer>>"
+               _MinorVer = "<<._MinorVer>>"
+               _Revision = "<<._Revision>>"
+               _LanguageID = "<<._LanguageID>>"
+               _AutoIncrement = "<<._AutoIncrement>>"
+               <<C_DEVINFO_F>>
+               <<>>
             ENDTEXT
-         Endwith && THIS
+         Endwith
 
       Catch To loEx
          If This.n_Debug > 0 And _vfp.StartMode = 0
@@ -323,7 +324,7 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'cl_col_base.prg'
 
    Function getFilesNotFound(taFiles) As Integer
       *---------------------------------------------------------------------------------------------------
-      * PARÃMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * taFiles                   (?@    OUT) Codifica los caracteres ASCII 10 y 13 de CHR(nCode) a {nCode}
       *---------------------------------------------------------------------------------------------------
       External Array taFiles
@@ -347,7 +348,7 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'cl_col_base.prg'
                Endif
             Endfor
 
-         Endwith && THIS
+         Endwith
 
       Catch To loEx
          If This.n_Debug > 0 And _vfp.StartMode = 0
