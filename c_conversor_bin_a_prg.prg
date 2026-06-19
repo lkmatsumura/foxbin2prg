@@ -1445,12 +1445,12 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       llOleObject     = ( Ascan( ta_NombresObjsOle, toRegClass.OBJNAME, 1, 0, 1, 1+2+4+8) > 0 )
 
       If Not Empty(toRegClass.CLASSLOC)
-         lcOF_Classlib   = 'OF "' + Lower(Alltrim(toRegClass.CLASSLOC)) + '" '
+         lcOF_Classlib   = ' OF "' + Lower(Alltrim(toRegClass.CLASSLOC)) + '"'
       Endif
 
       *-- DEFINICIÓN DE LA CLASE ( DEFINE CLASS 'className' AS 'classType' [OF 'classLib'] [OLEPUBLIC] )
       TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-            <<'DEFINE CLASS'>> <<ALLTRIM(toRegClass.ObjName)>> AS <<LOWER(ALLTRIM(toRegClass.Class))>> <<lcOF_Classlib + IIF(llOleObject, 'OLEPUBLIC', '')>>
+         DEFINE CLASS <<ALLTRIM(toRegClass.ObjName)>> AS <<LOWER(ALLTRIM(toRegClass.Class)) + lcOF_Classlib + IIF(llOleObject, ' OLEPUBLIC', '')>>
       ENDTEXT
 
       Return
@@ -1563,7 +1563,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
             <<>>
       ENDTEXT
 
-      TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2+4+8
+      TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2+4+8
             <<Chr(9)>><<C_CLASSDATA_I>>
             Baseclass="<<toRegClass.Baseclass>>"
             Timestamp="<<ALLTRIM(THIS.getTimeStamp(toRegClass.Timestamp))>>"
