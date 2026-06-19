@@ -2,16 +2,16 @@
 # disable newline conversion on checkout with no conversion on check-in for all files
 * -text
 
-*.pj2 text eol=crlf working-tree-encoding=CP1252
-*.vc2 text eol=crlf working-tree-encoding=CP1252
-*.sc2 text eol=crlf working-tree-encoding=CP1252
-*.fr2 text eol=crlf working-tree-encoding=CP1252
-*.fr2d text eol=crlf working-tree-encoding=CP1252
-*.mn2 text eol=crlf working-tree-encoding=CP1252
-*.lb2 text eol=crlf working-tree-encoding=CP1252
-*.lb2d text eol=crlf working-tree-encoding=CP1252
+*.pj2 text eol=crlf
+*.vc2 text eol=crlf
+*.sc2 text eol=crlf
+*.fr2 text eol=crlf
+*.fr2d text eol=crlf
+*.mn2 text eol=crlf
+*.lb2 text eol=crlf
+*.lb2d text eol=crlf
 
-*.prg text eol=crlf working-tree-encoding=CP1252
-*.h   text eol=crlf working-tree-encoding=CP1252
-*.ini text eol=crlf working-tree-encoding=CP1252
-*.xml text eol=crlf working-tree-encoding=CP1252
+*.prg text eol=crlf
+*.h   text eol=crlf
+*.ini text eol=crlf
+*.xml text eol=crlf
