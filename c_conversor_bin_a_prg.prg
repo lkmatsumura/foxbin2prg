@@ -55,9 +55,9 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (!@    OUT) Objeto generado de clase correspondiente con la informaci√≥n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (!@    OUT) Objeto generado de clase correspondiente con la informaciÛn leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -70,7 +70,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
 
    Procedure classify_PAM_Hidden_Protected
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tnPropsAndValues_Count    (@! IN    )
       * taPropsAndValues          (@! IN    )
       * tnProtected_Count         (@! IN    )
@@ -136,8 +136,8 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
             .method2Array( toRegObj.METHODS, @taMethods, @taCode, '', @tnMethodCount ;
                , @taPropsAndComments, tnPropsAndComments_Count, @taProtected, tnProtected_Count, @toFoxBin2Prg, @toRegObj )
 
-            *-- Ubico los m√©todos protegidos y les cambio la definici√≥n.
-            *-- Los m√©todos se deben generar con la ruta completa, porque si no es imposible saber a que objeto corresponden,
+            *-- Ubico los mÈtodos protegidos y les cambio la definiciÛn.
+            *-- Los mÈtodos se deben generar con la ruta completa, porque si no es imposible saber a que objeto corresponden,
             *-- o si son de la clase.
             If tnMethodCount - lnMethodCount > 0 Then
                For I = lnMethodCount + 1 To tnMethodCount
@@ -161,7 +161,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                      Endcase
                   Endif
 
-                  *-- Genero el m√©todo SIN indentar, ya que se hace luego
+                  *-- Genero el mÈtodo SIN indentar, ya que se hace luego
                   taCode(taMethods(m.I,2))    = 'PROCEDURE ' + lcMethodName + CR_LF + .indentMemo( taCode(taMethods(m.I,2)) ) + CR_LF + 'ENDPROC'
                   taMethods(m.I,1)    = lcMethodName
                Endfor
@@ -188,8 +188,8 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
 
    Procedure get_CLASS_METHODS
       Lparameters tnMethodCount, taMethods, taCode, taProtected, taPropsAndComments, toFoxBin2Prg
-      *-- DEFINIR M√âTODOS DE LA CLASE
-      *-- Ubico los m√©todos protegidos y les cambio la definici√≥n
+      *-- DEFINIR M…TODOS DE LA CLASE
+      *-- Ubico los mÈtodos protegidos y les cambio la definiciÛn
       External Array taMethods, taCode, taProtected, taPropsAndComments
 
       #If .F.
@@ -210,23 +210,23 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                      lnProtectedItem = Ascan( taProtected, taMethods(m.I,1) + '^', 1, 0, 0, 1+2+4)
 
                      If lnProtectedItem = 0
-                        *-- M√©todo com√∫n
+                        *-- MÈtodo com˙n
                         lcProcDef   = 'PROCEDURE'
                      Else
-                        *-- M√©todo oculto
+                        *-- MÈtodo oculto
                         lcProcDef   = 'HIDDEN PROCEDURE'
                      Endif
                   Else
-                     *-- M√©todo protegido
+                     *-- MÈtodo protegido
                      lcProcDef   = 'PROTECTED PROCEDURE'
                   Endif
 
                   lnCommentRow   = Ascan( taPropsAndComments, '*' + lcMethodName, 1, 0, 1, 1+2+4+8)
 
-                  *-- Nombre del m√©todo
+                  *-- Nombre del mÈtodo
                   lcMethod    = lcProcDef + ' ' + taMethods(m.I,1)
 
-                  *-- Comentarios del m√©todo (si tiene)
+                  *-- Comentarios del mÈtodo (si tiene)
                   If lnCommentRow > 0 And Not Empty(taPropsAndComments(lnCommentRow,2))
                      * PRG_Compat_Level >= 1
                      If Bitand(toFoxBin2Prg.getCfgValue('n_PRG_Compat_Level'), 1) > 0
@@ -237,7 +237,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                      Endif
                   Endif
 
-                  *-- C√≥digo del m√©todo
+                  *-- CÛdigo del mÈtodo
                   If taMethods(m.I,2) > 0 Then
                      taCode(taMethods(m.I,2))    = lcMethod + CR_LF + .indentMemo( taCode(taMethods(m.I,2)) ) + CR_LF + 'ENDPROC'
                   Else
@@ -290,9 +290,9 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
    Procedure get_PropsAndCommentsFrom_RESERVED3
       *-- Sirve para el memo RESERVED3
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcMemo                    (v! IN    ) Contenido de un campo MEMO
-      * tlSort                    (v? IN    ) Indica si se deben ordenar alfab√©ticamente los nombres
+      * tlSort                    (v? IN    ) Indica si se deben ordenar alfabÈticamente los nombres
       * taPropsAndComments        (!@    OUT) Array con las propiedades y comentarios
       * tnPropsAndComments_Count  (!@    OUT) Cantidad de propiedades
       * tcSortedMemo              (@?    OUT) Contenido del campo memo ordenado
@@ -350,13 +350,13 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       *-- Sirve para el memo PROPERTIES
       *---------------------------------------------------------------------------------------------------
       * KNOWLEDGE BASE:
-      * 29/11/2013    FDBOZZO     En un pageframe, si las props.nativas del mismo no est√°n antes que las de
+      * 29/11/2013    FDBOZZO     En un pageframe, si las props.nativas del mismo no est·n antes que las de
       *                           los objetos contenidos, causa un error. Se deben ordenar primero las
       *                           props.nativas (sin punto) y luego las de los objetos (con punto)
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcMemo                    (v! IN    ) Contenido de un campo MEMO
-      * tnSort                    (v? IN    ) Indica si se deben ordenar alfab√©ticamente los objetos y props (1), o no (0)
+      * tnSort                    (v? IN    ) Indica si se deben ordenar alfabÈticamente los objetos y props (1), o no (0)
       * taPropsAndValues          (!@    OUT) Array con las propiedades y comentarios
       * tnPropsAndValues_Count    (!@    OUT) Cantidad de propiedades
       * tcSortedMemo              (?@    OUT) Contenido del campo memo ordenado
@@ -377,7 +377,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
 
          If Not Empty(m.tcMemo)
             With This As c_conversor_bin_a_prg Of 'c_conversor_bin_a_prg.prg'
-               lnItemCount = Alines(laItems, m.tcMemo, 0, CR_LF)   && Espec√≠ficamente CR+LF para que no reconozca los CR o LF por separado
+               lnItemCount = Alines(laItems, m.tcMemo, 0, CR_LF)   && EspecÌficamente CR+LF para que no reconozca los CR o LF por separado
                X   = 0
 
                If lnItemCount <= 1 And Empty(laItems)
@@ -386,7 +386,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                Endif
 
 
-               *-- 1) OBTENCI√ìN Y SEPARACI√ìN DE PROPIEDADES Y VALORES
+               *-- 1) OBTENCI”N Y SEPARACI”N DE PROPIEDADES Y VALORES
                *-- Crear un array con los valores especiales que pueden estar repartidos entre varias lineas
                For I = 1 To m.lnItemCount
                   If Empty( laItems(m.I) )
@@ -394,7 +394,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                   Endif
 
                   If C_MPROPHEADER $ laItems(m.I)
-                     *-- Solo entrar√° por aqu√≠ cuando se eval√∫e una propiedad de PROPERTIES con un valor especial (largo)
+                     *-- Solo entrar· por aquÌ cuando se eval˙e una propiedad de PROPERTIES con un valor especial (largo)
                      lnLenAcum   = 0
                      lnPosEQ     = At( '=', laItems(m.I) )
                      lcPropName  = lcLastIncompletePropName + Left( laItems(m.I), lnPosEQ - 2 )
@@ -402,7 +402,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                      lcValue     = Substr( laItems(m.I), lnPosEQ + 2 + 517 + 8 )
 
                      If Len( lcValue ) < lnLenVal
-                        *-- Como el valor es multi-l√≠nea, debo agregarle los CR_LF que le quit√≥ el ALINES()
+                        *-- Como el valor es multi-lÌnea, debo agregarle los CR_LF que le quitÛ el ALINES()
                         For I = m.I + 1 To m.lnItemCount
                            lcValue = lcValue + CR_LF + laItems(m.I)
 
@@ -429,14 +429,14 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                      If lnPosEQ = 0 Then
                         *-- AUTOFIX DE PROPIEDAD PARTIDA:
                         *-- Esto solo puede ocurrir cuando en el memo de Propiedades hay alguna propiedad
-                        *-- partida debido a una edici√≥n manual con un Enter err√≥neo, algo como esto:
+                        *-- partida debido a una ediciÛn manual con un Enter errÛneo, algo como esto:
                         * comm
                         * AND2.Caption = "Command2"
                         *
-                        *-- En el caso anterior, las 2 l√≠neas son realmente una:
+                        *-- En el caso anterior, las 2 lÌneas son realmente una:
                         * command2.Caption = "Command2"
                         *
-                        *-- Soluci√≥n: Guardar esta parte del nombre y agregarlo a la pr√≥xima propiedad.
+                        *-- SoluciÛn: Guardar esta parte del nombre y agregarlo a la prÛxima propiedad.
                         lcLastIncompletePropName    = laItems(m.I)
                         Loop
                      Endif
@@ -483,7 +483,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                   tcSortedMemo    = m.tcSortedMemo + m.taPropsAndValues(m.I,1) + ' = ' + m.taPropsAndValues(m.I,2) + CR_LF
                Endfor
 
-               *-- Agregar m√©todos al final
+               *-- Agregar mÈtodos al final
                tcSortedMemo    = m.tcSortedMemo + m.lcMethods
 
             Endwith && THIS
@@ -510,9 +510,9 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       *---------------------------------------------------------------------------------------------------
       *-- Sirve para el memo PROTECTED
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcMemo                    (v! IN    ) Contenido de un campo MEMO
-      * tlSort                    (v? IN    ) Indica si se deben ordenar alfab√©ticamente los nombres
+      * tlSort                    (v? IN    ) Indica si se deben ordenar alfabÈticamente los nombres
       * taProtected               (!@    OUT) Array con las propiedades y comentarios
       * tnProtected_Count         (!@    OUT) Cantidad de propiedades
       * tcSortedMemo              (@?    OUT) Contenido del campo memo ordenado
@@ -533,7 +533,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
          Endif
 
          For I = tnProtected_Count To 1 Step -1
-            *-- El ASCAN es para evitar valores repetidos, que se eliminar√°n. v1.19.29
+            *-- El ASCAN es para evitar valores repetidos, que se eliminar·n. v1.19.29
             taProtected(m.I)    = taProtected(m.I)
             If Ascan( taProtected, taProtected(m.I), 1, -1, 0, 1+2+4 ) = m.I
                tcSortedMemo    = tcSortedMemo + taProtected(m.I) + CR_LF
@@ -618,7 +618,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
             * NOTA: Del parent solo se puede comprobar el objeto primario.
             If loObjs.GetKey(Getwordnum(lcParent + '.', 1, '.')) > 0
                * Existe: se agrega al array el nuevo objeto
-               * NOTA: Podr√≠a estar duplicado, pero no se trata ese caso aqu√≠
+               * NOTA: PodrÌa estar duplicado, pero no se trata ese caso aquÌ
                If Not Empty(lcParentObjName) And loObjs.GetKey(lcParentObjName) = 0
                   loObjs.Add( '', lcParentObjName )
                Endif
@@ -642,7 +642,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
 
    Procedure indentMemo
       Lparameters tcMethod, tcIndentation, tlKeepProcHeader
-      *-- INDENTA EL C√ìDIGO DE UN M√âTODO DADO Y QUITA LA CABECERA DE M√âTODO (PROCEDURE/ENDPROC) SI LA ENCUENTRA
+      *-- INDENTA EL C”DIGO DE UN M…TODO DADO Y QUITA LA CABECERA DE M…TODO (PROCEDURE/ENDPROC) SI LA ENCUENTRA
       Try
          Local I, X, lcMethod, llProcedure, lnInicio, lnFin, laLineas(1), lnOffset ;
             , loLang As CL_LANG Of 'cl_lang.prg'
@@ -660,12 +660,12 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
             tcIndentation   = ''
          Endif
 
-         *-- Quito las l√≠neas en blanco luego del final del ENDPROC
+         *-- Quito las lÌneas en blanco luego del final del ENDPROC
          X   = 0
          For I = lnFin To 1 Step -1
-            If Not Empty(laLineas(m.I)) && √öltima l√≠nea de c√≥digo
+            If Not Empty(laLineas(m.I)) && ⁄ltima lÌnea de cÛdigo
                If llProcedure And Left( Chrtran(laLineas(m.I), C_TAB, ' ') + ' ', 8 ) <> C_ENDPROC + ' ' Then
-                  *ERROR 'Procedimiento sin cerrar. La √∫ltima l√≠nea de c√≥digo debe ser ENDPROC. [' + laLineas(1) + ']'
+                  *ERROR 'Procedimiento sin cerrar. La ˙ltima lÌnea de cÛdigo debe ser ENDPROC. [' + laLineas(1) + ']'
                   Error (Textmerge(loLang.C_PROCEDURE_NOT_CLOSED_ON_LINE_LOC))
                Endif
                Exit
@@ -684,7 +684,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
          Endif
 
          For I = lnInicio + lnOffset To lnFin - lnOffset
-            *-- TEXT/ENDTEXT aqu√≠ da error 2044 de recursividad. No usar.
+            *-- TEXT/ENDTEXT aquÌ da error 2044 de recursividad. No usar.
             lcMethod    = lcMethod + CR_LF + tcIndentation + laLineas(m.I)
          Endfor
 
@@ -783,9 +783,9 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
 
    Procedure set_UserValue
       *---------------------------------------------------------------------------------------------------
-      * Intenta obtener informaci√≥n m√°s precisa sobre el error a reportar dentro de methods
+      * Intenta obtener informaciÛn m·s precisa sobre el error a reportar dentro de methods
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toEx                      (v! IN    ) Objeto Exception
       *---------------------------------------------------------------------------------------------------
       Lparameters toEx As Exception
@@ -873,8 +873,8 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
          If tnMethodCount > 0 Then
 
             *-- taMethods[1,3]
-            *--     1.Nombre M√©todo
-            *--     2.Posici√≥n Original
+            *--     1.Nombre MÈtodo
+            *--     2.PosiciÛn Original
             *--     3.Tipo (HIDDEN/PROTECTED/NORMAL)
 
             *-- Alphabetical ordering of methods
@@ -888,7 +888,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
             For I = tnMethodCount To 1 Step -1
                If taMethods(m.I,2) > 0 Then
                   If '.' $ taMethods(m.I,1)
-                     *-- Los m√©todos con '.' los mando a otro array
+                     *-- Los mÈtodos con '.' los mando a otro array
                      lnDeleted   = lnDeleted + 1
                      laMethods(lnDeleted,1)  = taMethods(m.I,1)
                      laMethods(lnDeleted,2)  = taMethods(m.I,2)
@@ -899,7 +899,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
             Endfor
 
             For I = lnDeleted To 1 Step -1
-               *-- Los m√©todos con '.' los paso al final
+               *-- Los mÈtodos con '.' los paso al final
                I2  = tnMethodCount - lnDeleted + (lnDeleted - m.I) + 1
                taMethods(I2,1) = laMethods(m.I,1)
                taMethods(I2,2) = laMethods(m.I,2)
@@ -931,7 +931,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
          , taProtected, tnProtected_Count, toFoxBin2Prg, toRegObj
       *-- 29/10/2013  Fernando D. Bozzo
       *-- Se tiene en cuenta la posibilidad de que haya un PROC/ENDPROC dentro de un TEXT/ENDTEXT
-      *-- cuando es usado en un generador de c√≥digo o similar.
+      *-- cuando es usado en un generador de cÛdigo o similar.
       External Array taMethods, taCode, taPropsAndComments, taProtected
 
       #If .F.
@@ -940,11 +940,11 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
 
       *-- ESTRUCTURA DE LOS ARRAYS CREADOS:
       *-- taMethods[1,3]
-      *--     1.Nombre M√©todo
-      *--     2.Posici√≥n Original
+      *--     1.Nombre MÈtodo
+      *--     2.PosiciÛn Original
       *--     3.Tipo (HIDDEN/PROTECTED/NORMAL)
       *-- taCode[1]
-      *--     1.Bloque de c√≥digo del m√©todo en su posici√≥n original
+      *--     1.Bloque de cÛdigo del mÈtodo en su posiciÛn original
       Try
          Local lnLineCount, laLine(1), I, lnTextNodes, tcSorted, lnProtectedLine, lcMethod, lnLine_Len, lcLine, llProcOpen ;
             , laLineasExclusion(1), lnBloquesExclusion, lcLastLine ;
@@ -960,7 +960,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                Store '' To laLine, lcLine, lcLastLine
                Store 0 To lnTextNodes
 
-               lnLineCount = Alines(laLine, m.tcMethod)    && NO aplicar nung√∫n formato ni limpieza, que es el C√ìDIGO FUENTE
+               lnLineCount = Alines(laLine, m.tcMethod)    && NO aplicar nung˙n formato ni limpieza, que es el C”DIGO FUENTE
 
                *-- Delete beginning empty lines before first "PROCEDURE", that is the first not empty line.
                For I = 1 To lnLineCount
@@ -1014,7 +1014,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                      Endif
 
                   Case Right(lcLastLine,1) == ';'
-                     *-- Saltear el an√°lisis de esta l√≠nea, que es continuaci√≥n de la anterior (lcLastLine).
+                     *-- Saltear el an·lisis de esta lÌnea, que es continuaciÛn de la anterior (lcLastLine).
                      taCode(tnMethodCount)   = taCode(tnMethodCount) + laLine(m.I) + CR_LF
                      Loop
 
@@ -1076,7 +1076,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                      If lnLine_Len >= 7 And Left( Upper( Chrtran( lcLine , '&'+Chr(9)+Chr(0), '   ') ) + ' ' ,8) == 'ENDPROC '
                         *-- Es el final de estructura ENDPROC
                         If Not llProcOpen
-                           *-- Esto no es normal, porque hay m√°s de un ENDPROC, por lo que se ignora.
+                           *-- Esto no es normal, porque hay m·s de un ENDPROC, por lo que se ignora.
                            Loop
                         Endif
                      Else
@@ -1092,7 +1092,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                      If lnLine_Len >= 7 And Left( Upper( Chrtran( laLine(m.I) , '&'+Chr(9)+Chr(0), '   ') ) + ' ' ,8) == 'ENDFUNC '
                         *-- Es el final de estructura ENDPROC
                         If Not llProcOpen
-                           *-- Esto no es normal, porque hay m√°s de un ENDFUNC, por lo que se ignora.
+                           *-- Esto no es normal, porque hay m·s de un ENDFUNC, por lo que se ignora.
                            Loop
                         Endif
                         lcLine  = Strtran( lcLine, 'ENDFUNC', 'ENDPROC' )
@@ -1108,7 +1108,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                      *CASE tnMethodCount = 0 OR NOT llProcOpen AND LEFT( LTRIM(laLine(m.I)),1 ) = '*'
                   Case tnMethodCount = 0 Or Not llProcOpen
                      *-- Skip empty and commented lines before methods begin
-                     *-- Aqu√≠ como condici√≥n podr√≠a poner: NOT llProcOpen AND LEFT(laLine(m.I), 7) # 'ENDPROC', pero abarcar√≠a demasiado.
+                     *-- AquÌ como condiciÛn podrÌa poner: NOT llProcOpen AND LEFT(laLine(m.I), 7) # 'ENDPROC', pero abarcarÌa demasiado.
 
                   Otherwise && Method Code
                      taCode(tnMethodCount)   = taCode(tnMethodCount) + laLine(m.I) + CR_LF
@@ -1116,7 +1116,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                   Endcase
                Endfor
 
-               *-- Agrego los m√©todos definidos, pero sin c√≥digo (Protected/Reserved3)
+               *-- Agrego los mÈtodos definidos, pero sin cÛdigo (Protected/Reserved3)
                For I = 1 To tnPropsAndComments_Count
                   lcMethod    = Chrtran( taPropsAndComments(m.I,1), '*', '' )
                   If Left( taPropsAndComments(m.I,1), 1 ) == '*' And Ascan( taMethods, lcMethod, 1, 0, 1, 1+2+4+8 ) = 0
@@ -1169,7 +1169,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
 
    Procedure write_ADD_OBJECTS_WithProperties
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toRegObj                  (v! IN    ) Objeto de registro
       * tcCodigo                  (@?    OUT) Codigo generado
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
@@ -1222,7 +1222,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                BaseClass="<<toRegObj.Baseclass>>" <<>>
             ENDTEXT
 
-            *-- Agrego metainformaci√≥n para objetos OLE
+            *-- Agrego metainformaciÛn para objetos OLE
             If toRegObj.BaseClass == 'olecontrol'
                TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2+4+8
                   OLEObject="<<LOWER( STREXTRACT(toRegObj.ole2, 'OLEObject = ', CHR(13)+CHR(10), 1, 1+2) )>>"
@@ -1256,7 +1256,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       Lparameters tcMethods, taMethods, taCode, tnMethodCount, taPropsAndComments, tnPropsAndComments_Count ;
          , taProtected, tnProtected_Count, toFoxBin2Prg, tcCodigo
 
-      *-- Finalmente, todos los m√©todos los ordeno y escribo juntos
+      *-- Finalmente, todos los mÈtodos los ordeno y escribo juntos
       Local laMethods(1), laCode(1), lnMethodCount, I, lcMethods
 
       If tnMethodCount > 0 Then
@@ -1270,8 +1270,8 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
             lcMethods   = C_TAB
 
             For I = 1 To tnMethodCount
-               *-- Genero los m√©todos indentados
-               *-- Sustituyo el TEXT/ENDTEXT aqu√≠ porque a veces quita espacios de la derecha, y eso es peligroso
+               *-- Genero los mÈtodos indentados
+               *-- Sustituyo el TEXT/ENDTEXT aquÌ porque a veces quita espacios de la derecha, y eso es peligroso
                If taMethods(m.I,2) = 0
                   Loop
                Endif
@@ -1319,7 +1319,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                .write_HIDDEN_Properties( @lcHiddenProp, @tcCodigo )
                .write_PROTECTED_Properties( @lcProtectedProp, @tcCodigo )
 
-               *-- Escribo las propiedades de la clase y sus comentarios (los comentarios aqu√≠ son redundantes)
+               *-- Escribo las propiedades de la clase y sus comentarios (los comentarios aquÌ son redundantes)
 
                *!* Changed by: LScheffler 16.3.2023
                *!* <pdm>
@@ -1384,11 +1384,11 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       Lparameters taPropsAndComments, tnPropsAndComments_Count, tcCodigo
 
       *<DefinedPropArrayMethod>
-      *m: *metodovacio_con_comentarios        && Este m√©todo no tiene c√≥digo, pero tiene comentarios. A ver que pasa!
+      *m: *metodovacio_con_comentarios        && Este mÈtodo no tiene cÛdigo, pero tiene comentarios. A ver que pasa!
       *m: *mimetodo       && Mi metodo
       *p: prop1       && Mi prop 1
       *p: prop_especial_cr        &&
-      *a: ^array_1_d[1,0]     && Array 1 dimensi√≥n (1)
+      *a: ^array_1_d[1,0]     && Array 1 dimensiÛn (1)
       *a: ^array_2_d[1,2]     && Array una dimension (1,2)
       *p: _memberdata     && XML Metadata for customizable properties
       *</DefinedPropArrayMethod>
@@ -1448,7 +1448,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
          lcOF_Classlib   = 'OF "' + Lower(Alltrim(toRegClass.CLASSLOC)) + '" '
       Endif
 
-      *-- DEFINICI√ìN DE LA CLASE ( DEFINE CLASS 'className' AS 'classType' [OF 'classLib'] [OLEPUBLIC] )
+      *-- DEFINICI”N DE LA CLASE ( DEFINE CLASS 'className' AS 'classType' [OF 'classLib'] [OLEPUBLIC] )
       TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
             <<'DEFINE CLASS'>> <<ALLTRIM(toRegClass.ObjName)>> AS <<LOWER(ALLTRIM(toRegClass.Class))>> <<lcOF_Classlib + IIF(llOleObject, 'OLEPUBLIC', '')>>
       ENDTEXT
@@ -1462,7 +1462,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       Lparameters toRegClass, tcCodigo
       *-- Comentario de la clase
       If Not Empty(toRegClass.RESERVED7) Then
-         *-- Si es multil√≠nea, debe ir en un tag <ClassComments> aparte
+         *-- Si es multilÌnea, debe ir en un tag <ClassComments> aparte
          If Occurs( Chr(13), toRegClass.RESERVED7 ) > 0 Then
             TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                     <<Chr(9)>><<C_CLASSCOMMENTS_I>>
@@ -1638,7 +1638,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
 
 
    Procedure write_HIDDEN_Properties
-      *-- Escribo la definici√≥n HIDDEN de propiedades
+      *-- Escribo la definiciÛn HIDDEN de propiedades
       Lparameters tcHiddenProp, tcCodigo
 
       If Not Empty(tcHiddenProp)
@@ -1653,7 +1653,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
 
 
    Procedure write_PROTECTED_Properties
-      *-- Escribo la definici√≥n PROTECTED de propiedades
+      *-- Escribo la definiciÛn PROTECTED de propiedades
       Lparameters tcProtectedProp, tcCodigo
 
       If Not Empty(tcProtectedProp)
@@ -1667,7 +1667,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
 
 
    Procedure write_OLEObjectDefinitions
-      *-- Crea la definici√≥n del tag *< OLE: /> con la informaci√≥n de todos los objetos OLE
+      *-- Crea la definiciÛn del tag *< OLE: /> con la informaciÛn de todos los objetos OLE
       Lparameters toFoxBin2Prg
 
       Local laOLE(1)
@@ -1710,14 +1710,14 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
 
       *!*             ENDSCAN
 
-      *-- LO QUE SIGUE LO COMENT√â PORQUE POR CADA OBJETO OLE SE AGREGABA UNA L√çNEA VAC√çA QUE QUEDA MUY MAL Y ES INNECESARIA.
-      *-- COMO CONSECUENCIA, LOS FORMS O CLASES CON OBJETOS OLE DAR√ÅN DIFERENCIA POR √öNICA VEZ EN LA CABECERA. - fdbozzo. 29/11/2014 (v1.19.37)
+      *-- LO QUE SIGUE LO COMENT… PORQUE POR CADA OBJETO OLE SE AGREGABA UNA LÕNEA VACÕA QUE QUEDA MUY MAL Y ES INNECESARIA.
+      *-- COMO CONSECUENCIA, LOS FORMS O CLASES CON OBJETOS OLE DAR¡N DIFERENCIA POR ⁄NICA VEZ EN LA CABECERA. - fdbozzo. 29/11/2014 (v1.19.37)
       *
       *SELECT COUNT(*) FROM TABLABIN WHERE TABLABIN.PLATFORM = "WINDOWS" AND BASECLASS == 'olecontrol' INTO ARRAY laOLE
 
       *IF laOLE(1) > 0 THEN
-      *   *-- Lo del <<>> para crear una l√≠nea vac√≠a es solamente por compatibilidad con lo antiguo,
-      *   *-- donde se creaba esta l√≠nea cuando el form o clase ten√≠a al menos un objeto OLE.
+      *   *-- Lo del <<>> para crear una lÌnea vacÌa es solamente por compatibilidad con lo antiguo,
+      *   *-- donde se creaba esta lÌnea cuando el form o clase tenÌa al menos un objeto OLE.
       *   TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
       *       <<>>
       *       *
@@ -1761,7 +1761,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
          * Default in lowercase
          tcOutputFile = Lower(tcOutputFile)
 
-         *** + √°rbol espejo: si cInputRoot est√° indicado, se replica la estructura de carpetas
+         *** + ·rbol espejo: si cInputRoot est· indicado, se replica la estructura de carpetas
          If Not Empty(This.cOutputFolder)
             tcOutputFile = This.get_MirroredOutputFile(tcOutputFile)
          Endif Not Empty(This.cOutputFolder)
@@ -1780,7 +1780,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
          Endif
 
          If Not toFoxBin2Prg.l_ProcessFiles Then
-            Exit    && Si se indic√≥ no procesar, salgo del proceso. (Modo de simulaci√≥n)
+            Exit    && Si se indicÛ no procesar, salgo del proceso. (Modo de simulaciÛn)
          Endif
 
          loLang          = _Screen.o_FoxBin2Prg_Lang
