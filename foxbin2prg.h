@@ -4,9 +4,7 @@
 *-- Configuration object marker (CREATEOBJECT('Empty') + ADDPROPERTY via c_foxbin2prg.newConfig)
 #DEFINE CFG_TYPE_MARKER             'FoxBin2Prg_CFG'
 
-
 *-- NO modificar! / Do NOT change!
-
 #DEFINE C_CMT_I                     '*--'
 #DEFINE C_CMT_F                     '--*'
 #DEFINE C_CLASSCOMMENTS_I           '*<ClassComment>'
@@ -28,8 +26,8 @@
 #DEFINE C_OLE_I                     '*< OLE:'
 #DEFINE C_OLE_F                     '/>'
 #DEFINE C_LEN_OLE_I                 Len(C_OLE_I)
-#DEFINE C_DEFINED_PAM_I             '*<DEFINEdPropArrayMethod>'
-#DEFINE C_DEFINED_PAM_F             '*</DEFINEdPropArrayMethod>'
+#DEFINE C_DEFINED_PAM_I             '*<DefinedPropArrayMethod>'
+#DEFINE C_DEFINED_PAM_F             '*</DefinedPropArrayMethod>'
 #DEFINE C_LEN_DEFINED_PAM_I         Len(C_DEFINED_PAM_I)
 #DEFINE C_LEN_DEFINED_PAM_F         Len(C_DEFINED_PAM_F)
 
@@ -104,7 +102,6 @@
 #DEFINE C_INDEXES_F                 '</INDEXES>'        && SF Read / write, no len, used w/o #DEFINE too, len
 #DEFINE C_INDEX_I                   '<INDEX>'           && SF used for read, not write?
 #DEFINE C_INDEX_F                   '</INDEX>'          && SF used for read, not write?
-
 #DEFINE C_DATABASE_I                '<DATABASE>'
 #DEFINE C_DATABASE_F                '</DATABASE>'
 #DEFINE C_STORED_PROC_I             '<STOREDPROCEDURES><![CDATA['
@@ -210,4 +207,3 @@
 #DEFINE SERVERINSTANCE_SINGLEUSE            1  && Single use server
 #DEFINE SERVERINSTANCE_NOTCREATABLE         2  && Instances creatable only inside Visual FoxPro
 #DEFINE SERVERINSTANCE_MULTIUSE             3  && Multi-use server
-
