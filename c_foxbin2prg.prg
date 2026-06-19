@@ -444,7 +444,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE ensureSpecialProps
       IF VARTYPE(This.o_SpecialProps) <> 'O' OR ISNULL(This.o_SpecialProps)
-         This.o_SpecialProps = NewObject('cl_fb2prg_special_props', 'cl_fb2prg_special_props.prg')
+         This.o_SpecialProps = NewObject('cl_fb2prg_special_props', 'cl_fb2prg_special_props.prg' , NULL , This.c_Foxbin2prg_FullPath )
       ENDIF
    ENDPROC
 

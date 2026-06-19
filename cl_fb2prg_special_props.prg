@@ -22,9 +22,16 @@ DEFINE CLASS cl_fb2prg_special_props AS Custom
 
    l_Loaded    = .F.
    c_PropsDir  = 'props\'
+   c_Foxbin2prg_FullPath = ''
 
 
    PROCEDURE Init
+      LPARAMETERS tcFoxbin2prg_FullPath
+
+      IF ! Empty( tcFoxbin2prg_FullPath )
+         This.c_Foxbin2prg_FullPath = tcFoxbin2prg_FullPath
+      ENDIF
+
       This.SpecialProps_Init()
    ENDPROC
 
@@ -53,10 +60,12 @@ DEFINE CLASS cl_fb2prg_special_props AS Custom
       IF This.l_Loaded
          RETURN
       ENDIF
+      LOCAL loEx AS Exception
+      LOCAL lcPropsFile, lcPropsDir, lnI, lcProperty
+
+      lcPropsFile = ''
 
       TRY
-         LOCAL loEx AS Exception
-         LOCAL lcPropsFile, lcPropsDir, lnI, lcProperty
 
          WITH This AS cl_fb2prg_special_props OF 'cl_fb2prg_special_props.prg'
             .SpecialPropsFiles_Add( "props_all.txt"                , "a_SpecialProps"        , "all"             )
@@ -96,9 +105,7 @@ DEFINE CLASS cl_fb2prg_special_props AS Custom
                lcPropsDir = Addbs( Justpath( .c_Foxbin2prg_FullPath ) ) + .c_PropsDir
             #ELSE
                lcPropsDir = .c_PropsDir
-            #ENDDEF
-
-            lcPropsFile = ''
+            #ENDIF
 
             FOR lnI = 1 TO Alen( .a_SpecialPropsFiles, 1 )
                lcPropsFile = lcPropsDir + .a_SpecialPropsFiles( lnI, 1 )

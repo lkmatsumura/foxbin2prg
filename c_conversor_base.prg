@@ -1508,7 +1508,7 @@ Define Class c_conversor_base As Custom
          RETURN
       ENDIF
 
-      This.o_SpecialProps = NewObject('cl_fb2prg_special_props', 'cl_fb2prg_special_props.prg')
+      This.o_SpecialProps = NewObject('cl_fb2prg_special_props', 'cl_fb2prg_special_props.prg', This.c_Foxbin2prg_FullPath )
    Endproc
 
 
