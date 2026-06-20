@@ -233,7 +233,7 @@ DEFINE CLASS cl_fb2prg_mirror AS Custom
          RETURN laExcluded
       ENDIF
 
-      lcBlock = STREXTRACT(FILETOSTR(tcPj2File), C_FILE_EXCL_I, C_FILE_EXCL_F)
+      lcBlock = STREXTRACT(This.o_Host.readTextFile(tcPj2File), C_FILE_EXCL_I, C_FILE_EXCL_F)
 
       IF EMPTY(lcBlock)
          RETURN laExcluded

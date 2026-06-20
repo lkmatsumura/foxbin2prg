@@ -1787,7 +1787,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
          lcOutputFile    = tcOutputFile
          llFileExists    = ( Adir(laDirFile, tcOutputFile) = 1 )
 
-         If llFileExists And Filetostr( tcOutputFile ) == tcCodigo Then
+         If llFileExists And toFoxBin2Prg.readTextFile(tcOutputFile) == tcCodigo Then
             *.writeLog( 'El archivo de salida [' + .c_OutputFile + '] no se sobreescribe por ser igual al generado.' )
             This.writeLog( C_TAB + C_TAB + '* ' + Textmerge(loLang.C_OUTPUT_FILE_IS_NOT_OVERWRITEN_LOC) )
 
@@ -1795,9 +1795,9 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
             If llFileExists Then
                toFoxBin2Prg.doBackup( .F., .T., '', '', '', tcOutputFile )
                toFoxBin2Prg.changeFileAttribute( tcOutputFile, '-R' )
-            Endif
+            ENDIF
 
-            lnBytes = Strtofile( tcCodigo, tcOutputFile )
+            lnBytes = toFoxBin2Prg.writeTextFile( tcCodigo, tcOutputFile )
 
             This.writeLog( C_TAB + C_TAB + '- ' + loLang.C_FILENAME_LOC + ': ' + tcOutputFile + ' (' + Alltrim(Transform(lnBytes/1024,'######.##')) + '/' + Alltrim(Transform(Len(tcCodigo)/1024,'######.##')) + ' KiB)' )
             *THIS.writeLog( '- ' + loLang.C_GENERATED_FILE_SIZE_LOC )

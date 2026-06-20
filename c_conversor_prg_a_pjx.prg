@@ -20,9 +20,9 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toProject                 (!@    OUT) Objeto generado de clase CL_PROJECT con la informaci√≥n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toProject                 (!@    OUT) Objeto generado de clase CL_PROJECT con la informaciÛn leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toProject, toEx As Exception, toFoxBin2Prg
@@ -47,16 +47,16 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
                   toFoxBin2Prg.updateProcessedFile()
                Endif
 
-               Exit    && Si se indic√≥ no procesar, se sale aqu√≠. (Modo de simulaci√≥n)
+               Exit    && Si se indicÛ no procesar, se sale aquÌ. (Modo de simulaciÛn)
             Endif
 
-            C_FB2PRG_CODE       = Filetostr( .c_InputFile )
+            C_FB2PRG_CODE       = toFoxBin2Prg.readTextFile( .c_InputFile )
             lnCodeLines         = Alines( laCodeLines, C_FB2PRG_CODE )
 
             *-- Identifico los TEXT/ENDTEXT, #IF .F./#ENDIF
             *.identifyExclusionBlocks( @laCodeLines, .F., @laLineasExclusion, @lnBloquesExclusion )
 
-            *-- Identifico el inicio/fin de bloque, definici√≥n, cabecera y cuerpo de cada clase
+            *-- Identifico el inicio/fin de bloque, definiciÛn, cabecera y cuerpo de cada clase
             .updateProgressbar( 'Identifying Code Blocks...', 1, 2, 1 )
             .identifyCodeBlocks( @laCodeLines, lnCodeLines, @laLineasExclusion, lnBloquesExclusion, @toProject, @toFoxBin2Prg )
 
@@ -239,16 +239,16 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
    Procedure identifyCodeBlocks
       Lparameters taCodeLines, tnCodeLines, taLineasExclusion, tnBloquesExclusion, toProject, toFoxBin2Prg
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * taCodeLines               (@! IN    ) El array con las l√≠neas del c√≥digo donde buscar
-      * tnCodeLines               (@! IN    ) Cantidad de l√≠neas de c√≥digo
-      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg√∫n la l√≠nea sea de exclusi√≥n o no
-      * tnBloquesExclusion        (@! IN    ) Cantidad de bloques de exclusi√≥n
-      * toProject                 (@?    OUT) Objeto con toda la informaci√≥n del proyecto analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taCodeLines               (@! IN    ) El array con las lÌneas del cÛdigo donde buscar
+      * tnCodeLines               (@! IN    ) Cantidad de lÌneas de cÛdigo
+      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg˙n la lÌnea sea de exclusiÛn o no
+      * tnBloquesExclusion        (@! IN    ) Cantidad de bloques de exclusiÛn
+      * toProject                 (@?    OUT) Objeto con toda la informaciÛn del proyecto analizado
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *
       * NOTA:
-      * Como identificador se usa el nombre de clase o de procedimiento, seg√∫n corresponda.
+      * Como identificador se usa el nombre de clase o de procedimiento, seg˙n corresponda.
       *--------------------------------------------------------------------------------------------------------------
       External Array taCodeLines, taLineasExclusion
 
@@ -274,7 +274,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
                   .set_Line( @lcLine, @taCodeLines, m.I )
 
                   Do Case
-                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && Vac√≠a o solo Comentarios
+                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && VacÌa o solo Comentarios
                      Loop
 
                   Case Not llFoxBin2Prg_Completed And .analyzeCodeBlock_FoxBin2Prg( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
@@ -333,11 +333,11 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
       *--------------------------------------------------------------------------------------------------------------
       * Analiza el bloque <BuildProj>
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toProject                 (@?    OUT) Objeto con toda la informaci√≥n del proyecto analizado
-      * tcLine                    (@! IN    ) L√≠nea de datos en evaluaci√≥n
-      * taCodeLines               (@! IN    ) El array con las l√≠neas del c√≥digo donde buscar
-      * tnCodeLines               (@! IN    ) Cantidad de l√≠neas de c√≥digo
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toProject                 (@?    OUT) Objeto con toda la informaciÛn del proyecto analizado
+      * tcLine                    (@! IN    ) LÌnea de datos en evaluaciÛn
+      * taCodeLines               (@! IN    ) El array con las lÌneas del cÛdigo donde buscar
+      * tnCodeLines               (@! IN    ) Cantidad de lÌneas de cÛdigo
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *--------------------------------------------------------------------------------------------------------------
       Lparameters toProject, tcLine, taCodeLines, I, tnCodeLines, toFoxBin2Prg
@@ -822,7 +822,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
                      Exit
 
                   Case Left( tcLine ,2 ) == '*<'
-                     *--- Se asigna con EVALUATE() tal cual est√° en el PJ2, pero quitando el marcador *< />
+                     *--- Se asigna con EVALUATE() tal cual est· en el PJ2, pero quitando el marcador *< />
                      lcLine      = Stuff( Alltrim( Strextract( tcLine, '*<', '/>' ) ), 2, 0, '_' )
                      toProject.setParsedProjInfoLine( lcLine )
 
@@ -832,7 +832,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
                      toProject.setParsedProjInfoLine( lcLine )
 
                   Otherwise
-                     *--- Se asigna con EVALUATE() tal cual est√° en el PJ2
+                     *--- Se asigna con EVALUATE() tal cual est· en el PJ2
                      lcLine      = Stuff( Alltrim( tcLine), 2, 0, '_' )
                      toProject.setParsedProjInfoLine( lcLine )
                   Endcase

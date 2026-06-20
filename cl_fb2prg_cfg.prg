@@ -763,6 +763,13 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
                            This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > RemoveNullCharsFromCode:    ' + Transform(lcValue) )
                         Endif
 
+                     Case Left( laConfig(m.I), 11 ) == Lower('ExportUTF8:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 12 ) )
+                        If Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.l_ExportUTF8 = ( Transform(lcValue) == '1' )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > ExportUTF8:                 ' + Transform(lcValue) )
+                        Endif
+
                      Case Left( laConfig(m.I), 25 ) == Lower('RemoveZOrderSetFromProps:')
                         lcValue = Alltrim( Substr( laConfig(m.I), 26 ) )
                         If Inlist( lcValue, '0', '1' ) Then
@@ -1001,6 +1008,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
                This.o_Host.writeLog( C_TAB + 'ClearUniqueID:              ' + TRANSFORM(.getCfgValue('l_ClearUniqueID')) )
                This.o_Host.writeLog( C_TAB + 'OptimizeByFilestamp:        ' + TRANSFORM(.getCfgValue('n_OptimizeByFilestamp')) )
                This.o_Host.writeLog( C_TAB + 'RemoveNullCharsFromCode:    ' + TRANSFORM(.getCfgValue('l_RemoveNullCharsFromCode')) )
+               This.o_Host.writeLog( C_TAB + 'ExportUTF8:                 ' + TRANSFORM(IIF(.getCfgFlag('l_ExportUTF8'), 1, 0)) )
                This.o_Host.writeLog( C_TAB + 'RemoveZOrderSetFromProps:   ' + TRANSFORM(.getCfgValue('l_RemoveZOrderSetFromProps')) )
                This.o_Host.writeLog( C_TAB + 'PRG_Compat_Level:           ' + TRANSFORM(.getCfgValue('n_PRG_Compat_Level')) )
 
@@ -1175,6 +1183,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       AddProperty(loCfg, 'l_ItemPerDBCCheck', .F.)
       AddProperty(loCfg, 'l_DBF_BinChar_Base64', .T.)
       AddProperty(loCfg, 'l_DBF_IncludeDeleted', .F.)
+      AddProperty(loCfg, 'l_ExportUTF8', .F.)
       AddProperty(loCfg, 'n_InhibitInheritance', 0)
       AddProperty(loCfg, 'n_ExtraBackupLevels', 1)
 

@@ -4302,6 +4302,77 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDPROC
 
 
+   FUNCTION isExportUTF8
+      RETURN This.getCfgFlag('l_ExportUTF8')
+   ENDFUNC
+
+
+   FUNCTION encodeTextForExport
+      *---------------------------------------------------------------------------------------------------
+      * Converts ANSI text (current code page) to UTF-8 bytes when ExportUTF8 is enabled.
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcText
+      IF This.isExportUTF8()
+         RETURN StrConv(tcText, 9)
+      ENDIF
+      RETURN tcText
+   ENDFUNC
+
+
+   FUNCTION decodeTextFromImport
+      *---------------------------------------------------------------------------------------------------
+      * Converts UTF-8 file bytes to ANSI (current code page) when ExportUTF8 is enabled.
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcText
+      IF This.isExportUTF8()
+         RETURN StrConv(tcText, 11)
+      ENDIF
+      RETURN tcText
+   ENDFUNC
+
+
+   FUNCTION readTextFile
+      *---------------------------------------------------------------------------------------------------
+      * Reads a text representation file (VC2, SC2, PJ2, DB2, etc.) honoring ExportUTF8.
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcFile
+      RETURN This.decodeTextFromImport(FileToStr(tcFile))
+   ENDFUNC
+
+
+   FUNCTION writeTextFile
+      *---------------------------------------------------------------------------------------------------
+      * Writes a text representation file honoring ExportUTF8.
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcText, tcFile
+      RETURN StrToFile(This.encodeTextForExport(tcText), tcFile)
+   ENDFUNC
+
+
+   FUNCTION finalizeTextExportFile
+      *---------------------------------------------------------------------------------------------------
+      * Converts an ANSI text file (e.g. written via Scripting.TextStream) to UTF-8 in place.
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcFile
+      LOCAL lcText, lnBytes
+      IF NOT This.isExportUTF8()
+         RETURN .T.
+      ENDIF
+      lcText  = FileToStr(tcFile)
+      lnBytes = StrToFile(StrConv(lcText, 9), tcFile)
+      RETURN (lnBytes > 0)
+   ENDFUNC
+
+
+   FUNCTION comparedTextExportFilesEqual
+      *---------------------------------------------------------------------------------------------------
+      * Compares a new ANSI temp file with an existing export file (ANSI or UTF-8).
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcNewAnsiFile, tcExistingFile
+      RETURN (FileToStr(tcNewAnsiFile) == This.readTextFile(tcExistingFile))
+   ENDFUNC
+
+
 
    PROCEDURE set_Line
       LPARAMETERS tcLine, taCodeLines, I

@@ -34,6 +34,7 @@ Define Class CL_CFG As Custom
       + [<memberdata name="l_itemperdbccheck" display="l_ItemPerDBCCheck"/>] ;
       + [<memberdata name="l_dbf_binchar_base64" display="l_DBF_BinChar_Base64"/>] ;
       + [<memberdata name="l_dbf_includedeleted" display="l_DBF_IncludeDeleted"/>] ;
+      + [<memberdata name="l_exportutf8" display="l_ExportUTF8"/>] ;
       + [<memberdata name="n_pjx_conversion_support" display="PJX_Conversion_Support"/>] ;
       + [<memberdata name="n_vcx_conversion_support" display="n_VCX_Conversion_Support"/>] ;
       + [<memberdata name="n_scx_conversion_support" display="n_SCX_Conversion_Support"/>] ;
@@ -93,6 +94,7 @@ Define Class CL_CFG As Custom
    l_ItemPerDBCCheck               = .Null.
    l_DBF_BinChar_Base64            = .Null.
    l_DBF_IncludeDeleted            = .Null.
+   l_ExportUTF8                    = .Null.
    n_InhibitInheritance            = .Null.
    n_ExtraBackupLevels             = .Null.
    c_VC2                           = .Null.
@@ -164,6 +166,7 @@ Define Class CL_CFG As Custom
          .l_ItemPerDBCCheck              = toParentCFG.l_ItemPerDBCCheck
          .l_DBF_BinChar_Base64           = toParentCFG.l_DBF_BinChar_Base64
          .l_DBF_IncludeDeleted           = toParentCFG.l_DBF_IncludeDeleted
+         .l_ExportUTF8                   = toParentCFG.l_ExportUTF8
          .n_InhibitInheritance           = toParentCFG.n_InhibitInheritance
          .n_ExtraBackupLevels            = toParentCFG.n_ExtraBackupLevels
 
