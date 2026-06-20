@@ -16,7 +16,6 @@ _City = ""
 _State = ""
 _PostalCode = ""
 _Country = ""
-*--
 _Comments = "Capitalization for files"
 _CompanyName = "Fernando D. Bozzo"
 _FileDescription = "Capitalization for files"
