@@ -11,9 +11,9 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR脕METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (!@    OUT) Objeto generado de clase CL_PROJECT con la informaci贸n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci贸n del error
+      * PAR罬ETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (!@    OUT) Objeto generado de clase CL_PROJECT con la informaci髇 leida del texto
+      * toEx                      (!@    OUT) Objeto con informaci髇 del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -56,14 +56,12 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
                C_FB2PRG_CODE = C_FB2PRG_CODE + toFoxBin2Prg.get_PROGRAM_HEADER()
 
-               *SELECT * FROM _TABLAORIG ;
-               WHERE ObjType IN (1,25,26) ;
-               ORDER BY ObjType ASC ;
-               INTO CURSOR TABLABIN_0 READWRITE
-               *-- Arreglo bug agrupaci贸n de controles. 29/10/2015
-               Select * From _TABLAORIG ;
-                  WHERE  ObjType In (1,25,26) ;
-                  INTO   Cursor TABLABIN_0 Readwrite
+
+               *-- Arreglo bug agrupaci髇 de controles. 29/10/2015
+               SELECT * ;
+               FROM   _TABLAORIG ;
+               WHERE  ObjType In (1,25,26) ;
+               INTO   Cursor TABLABIN_0 Readwrite
 
                *-- Header
                Select TABLABIN_0
@@ -83,19 +81,20 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
                If .l_ReportSort_Enabled
                   *-- ORDENADO
-                  Select * From _TABLAORIG ;
-                     WHERE ObjType Not In (1,25,26) ;
-                     ORDER By vpos,hpos Asc ;
-                     INTO Cursor TABLABIN Readwrite
+                  SELECT * ;
+                  FROM   _TABLAORIG ;
+                  WHERE  ObjType Not In (1,25,26) ;
+                  ORDER  By vpos,hpos Asc ;
+                  INTO   Cursor TABLABIN Readwrite
                Else
-                  *-- SIN ORDENAR (S贸lo para poder comparar con el original)
-                  Select * From _TABLAORIG ;
-                     WHERE ObjType Not In (1,25,26) ;
-                     INTO Cursor TABLABIN
+                  *-- SIN ORDENAR (S髄o para poder comparar con el original)
+                  SELECT * ;
+                  FROM   _TABLAORIG ;
+                  WHERE  ObjType Not In (1,25,26) ;
+                  INTO   Cursor TABLABIN
                Endif
 
-               loRegObj    = .Null.
-
+               loRegObj = .Null.
 
                *-- Recorro los registros y genero el texto
                If Vartype(loRegCab) = "O"
@@ -209,83 +208,83 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
       Try
          Local lc_TAG_REPORTE_I, lc_TAG_REPORTE_F, loEx As Exception
-         lc_TAG_REPORTE_I = '<'  + C_TAG_REPORTE + ' '
+         lc_TAG_REPORTE_I = '<'  + C_TAG_REPORTE
          lc_TAG_REPORTE_F = '</' + C_TAG_REPORTE + '>'
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                <<lc_TAG_REPORTE_I>>
+            <<lc_TAG_REPORTE_I>>
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                <<Chr(9)>>platform="WINDOWS " uniqueid="<<toReg.UniqueID>>" timestamp="<<toReg.TimeStamp>>" objtype="<<toReg.ObjType>>" <<>>
+            <<Chr(9)>>platform="<<toReg.Platform>>" uniqueid="<<toReg.UniqueID>>" timestamp="<<toReg.TimeStamp>>" objtype="<<toReg.ObjType>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                objcode="<<toReg.ObjCode>>" name="<<THIS.normalizeXMLValue(toReg.Name)>>" <<>>
+            <<>> objcode="<<toReg.ObjCode>>" name="<<THIS.normalizeXMLValue(toReg.Name)>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                vpos="<<toReg.vpos>>" hpos="<<toReg.hpos>>" height="<<toReg.height>>" width="<<toReg.width>>" <<>>
+            <<>> vpos="<<toReg.vpos>>" hpos="<<toReg.hpos>>" height="<<toReg.height>>" width="<<toReg.width>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                order="<<toReg.order>>" unique="<<toReg.unique>>" <<>>
+            <<>> order="<<toReg.order>>" unique="<<toReg.unique>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                environ="<<toReg.environ>>" boxchar="<<toReg.boxchar>>" fillchar="<<toReg.fillchar>>" <<>>
+            <<>> environ="<<toReg.environ>>" boxchar="<<toReg.boxchar>>" fillchar="<<toReg.fillchar>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                pengreen="<<toReg.pengreen>>" penblue="<<toReg.penblue>>" fillred="<<toReg.fillred>>" fillgreen="<<toReg.fillgreen>>" <<>>
+            <<>> pengreen="<<toReg.pengreen>>" penblue="<<toReg.penblue>>" fillred="<<toReg.fillred>>" fillgreen="<<toReg.fillgreen>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                fillblue="<<toReg.fillblue>>" pensize="<<toReg.pensize>>" penpat="<<toReg.penpat>>" fillpat="<<toReg.fillpat>>" <<>>
+            <<>> fillblue="<<toReg.fillblue>>" pensize="<<toReg.pensize>>" penpat="<<toReg.penpat>>" fillpat="<<toReg.fillpat>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                fontface="<<toReg.fontface>>" fontstyle="<<toReg.fontstyle>>" fontsize="<<toReg.fontsize>>" mode="<<toReg.mode>>" <<>>
+            <<>> fontface="<<toReg.fontface>>" fontstyle="<<toReg.fontstyle>>" fontsize="<<toReg.fontsize>>" mode="<<toReg.mode>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                ruler="<<toReg.ruler>>" rulerlines="<<toReg.rulerlines>>" grid="<<toReg.grid>>" gridv="<<toReg.gridv>>" <<>>
+            <<>> ruler="<<toReg.ruler>>" rulerlines="<<toReg.rulerlines>>" grid="<<toReg.grid>>" gridv="<<toReg.gridv>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                gridh="<<toReg.gridh>>" float="<<toReg.float>>" stretch="<<toReg.stretch>>" stretchtop="<<toReg.stretchtop>>" <<>>
+            <<>> gridh="<<toReg.gridh>>" float="<<toReg.float>>" stretch="<<toReg.stretch>>" stretchtop="<<toReg.stretchtop>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                top="<<toReg.top>>" bottom="<<toReg.bottom>>" suptype="<<toReg.suptype>>" suprest="<<toReg.suprest>>" norepeat="<<toReg.norepeat>>" <<>>
+            <<>> top="<<toReg.top>>" bottom="<<toReg.bottom>>" suptype="<<toReg.suptype>>" suprest="<<toReg.suprest>>" norepeat="<<toReg.norepeat>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                resetrpt="<<toReg.resetrpt>>" pagebreak="<<toReg.pagebreak>>" colbreak="<<toReg.colbreak>>" resetpage="<<toReg.resetpage>>" <<>>
+            <<>> resetrpt="<<toReg.resetrpt>>" pagebreak="<<toReg.pagebreak>>" colbreak="<<toReg.colbreak>>" resetpage="<<toReg.resetpage>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                general="<<toReg.general>>" spacing="<<toReg.spacing>>" double="<<toReg.double>>" swapheader="<<toReg.swapheader>>" <<>>
+            <<>> general="<<toReg.general>>" spacing="<<toReg.spacing>>" double="<<toReg.double>>" swapheader="<<toReg.swapheader>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                swapfooter="<<toReg.swapfooter>>" ejectbefor="<<toReg.ejectbefor>>" ejectafter="<<toReg.ejectafter>>" plain="<<toReg.plain>>" <<>>
+            <<>> swapfooter="<<toReg.swapfooter>>" ejectbefor="<<toReg.ejectbefor>>" ejectafter="<<toReg.ejectafter>>" plain="<<toReg.plain>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                summary="<<toReg.summary>>" addalias="<<toReg.addalias>>" offset="<<toReg.offset>>" topmargin="<<toReg.topmargin>>" <<>>
+            <<>> summary="<<toReg.summary>>" addalias="<<toReg.addalias>>" offset="<<toReg.offset>>" topmargin="<<toReg.topmargin>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                botmargin="<<toReg.botmargin>>" totaltype="<<toReg.totaltype>>" resettotal="<<toReg.resettotal>>" resoid="<<toReg.resoid>>" <<>>
+            <<>> botmargin="<<toReg.botmargin>>" totaltype="<<toReg.totaltype>>" resettotal="<<toReg.resettotal>>" resoid="<<toReg.resoid>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                curpos="<<toReg.curpos>>" supalways="<<toReg.supalways>>" supovflow="<<toReg.supovflow>>" suprpcol="<<toReg.suprpcol>>" <<>>
+            <<>>  curpos="<<toReg.curpos>>" supalways="<<toReg.supalways>>" supovflow="<<toReg.supovflow>>" suprpcol="<<toReg.suprpcol>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                supgroup="<<toReg.supgroup>>" supvalchng="<<toReg.supvalchng>>" <<>>
+            <<>> supgroup="<<toReg.supgroup>>" supvalchng="<<toReg.supvalchng>>"
          ENDTEXT
 
          C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + Chr(9) + "<picture><![CDATA[" + toReg.Picture + "]]>"
