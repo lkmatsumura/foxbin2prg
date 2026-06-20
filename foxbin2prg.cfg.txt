@@ -136,6 +136,7 @@
 *ClearUniqueID: 1               && 0=Keep UniqueID in text files, 1=Clear Unique ID. Useful for Diff and Merge
 *OptimizeByFilestamp: 0         && 1=Optimize file regeneration depending on file timestamp. Dangerous while working with branches!
 *RemoveNullCharsFromCode: 1     && 1=Drop .Null. chars from source code
+*ExportUTF8: 0                  && 0=Export text files in ANSI (current code page), 1=Export text files in UTF-8 (StrConv 9)
 *RemoveZOrderSetFromProps: 0    && 0=Do not remove ZOrderSet property from object, 1=Remove ZOrderSet property from object
 *PRG_Compat_Level: 0            && 0=Legacy, 1=Use HELPSTRING as Class Procedure comment
 *----------------------------------------------------------------------------------------------------------------
