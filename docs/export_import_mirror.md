@@ -99,6 +99,7 @@ When a project member is **not supported** for conversion by FoxBin2Prg (for exa
 With `CopyNonConvertible: 1` (or `loCfg.l_CopyNonConvertible = .T.`):
 
 - The file is **copied byte for byte** to the mirrored destination, preserving subfolders relative to the project.
+- With `ExportUTF8: 1`, recognized **text files** (`.prg`, `.txt`, `.h`, `.cfg`, etc.) are converted to UTF-8 on export and back to ANSI on import; binary files remain a byte-for-byte copy.
 - Copies only if the file exists on disk and is **inside `cInputRoot`**.
 - The destination name respects `l_CopyLowercaseNames` when active.
 - **Log:** `- Copied (not convertible): <mirrored path>`

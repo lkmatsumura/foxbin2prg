@@ -169,6 +169,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    cOutputFolder                   = ''            && the folder to write files to (blank = same folder as source file)
    cInputRoot                      = ''            && project/source root; if set with cOutputFolder, the folder tree is mirrored
+   l_MirrorExport                  = .F.           && .T. during evaluate_Full_PJX (bin->mirror), .F. during evaluate_Full_PJ2
 
    *keep CodePage relavant information for binary sources
    i_CPID                          = 0 &&CPCURRENT(1)
@@ -2419,10 +2420,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
       LOCAL lcFileSpec, lnFileCount, laFiles(1,2), lcFile, lnCodError, I, lnFileCount, llError, laDirInfo(1,5), lcStr ;
          , loLang AS CL_LANG OF 'cl_lang.prg' ;
-         , loEx AS EXCEPTION
+         , loEx AS EXCEPTION ;
+         , llMirrorExportSave AS Boolean
 
       TRY
          WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+            llMirrorExportSave = .l_MirrorExport
+            .l_MirrorExport     = .T.
             loLang      = _SCREEN.o_FoxBin2Prg_Lang
             lcFileSpec  = FULLPATH( tc_InputFile )
 
@@ -2527,7 +2531,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   *-- Non-convertible: optionally copied to the mirrored tree
                   IF .getCfgValue('l_CopyNonConvertible') AND NOT EMPTY(.cOutputFolder) AND ADIR( laDirInfo, lcFile ) > 0
                      IF .copyUnconvertedFile( lcFile )
-                        .writeLog( C_TAB + C_TAB + '- Copied (not convertible): ' + .get_MirroredPath(lcFile) )
+                        .writeLog( C_TAB + C_TAB + '- Copied (not convertible): ' + .get_MirroredPath(lcFile) ;
+                           + IIF( .isExportUTF8() AND .isTextFileForEncoding(lcFile), ' (UTF-8)', '' ) )
                      ENDIF
                   ENDIF
 
@@ -2549,6 +2554,9 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          THROW
 
       FINALLY
+         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+            .l_MirrorExport = llMirrorExportSave
+         ENDWITH
          STORE .NULL. TO loLang
          RELEASE loLang
       ENDTRY
@@ -2579,10 +2587,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
       LOCAL lcFileSpec, lnFileCount, laFiles(1,2), laExcluded(1), lcFile, lcBinFile, lcTextFile, lcFlatText, lnCodError, I, lnFileCount, llError, laDirInfo(1,5), lcStr ;
          , loLang AS CL_LANG OF 'cl_lang.prg' ;
-         , loEx AS EXCEPTION
+         , loEx AS EXCEPTION ;
+         , llMirrorExportSave AS Boolean
 
       TRY
          WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+            llMirrorExportSave = .l_MirrorExport
+            .l_MirrorExport     = .F.
             loLang      = _SCREEN.o_FoxBin2Prg_Lang
             lcFileSpec  = FULLPATH( tc_InputFile )
 
@@ -2697,7 +2708,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   IF .getCfgValue('l_CopyNonConvertible') AND NOT EMPTY(.cOutputFolder) ;
                         AND ( ADIR( laDirInfo, lcFile ) > 0 OR ADIR( laDirInfo, lcBinFile ) > 0 )
                      IF .copyUnconvertedFile( lcFile )
-                        .writeLog( C_TAB + C_TAB + '- Copied (not convertible): ' + .get_MirroredPath(lcFile) )
+                        .writeLog( C_TAB + C_TAB + '- Copied (not convertible): ' + .get_MirroredPath(lcFile) ;
+                           + IIF( .isExportUTF8() AND .isTextFileForEncoding(lcFile), ' (UTF-8)', '' ) )
                      ENDIF
                   ENDIF
 
@@ -2719,6 +2731,9 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          THROW
 
       FINALLY
+         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+            .l_MirrorExport = llMirrorExportSave
+         ENDWITH
          STORE .NULL. TO loLang
          RELEASE loLang
       ENDTRY
@@ -3733,6 +3748,41 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureMirror()
       RETURN This.o_Mirror.copyUnconvertedFile(tcFile)
    ENDPROC
+
+
+   FUNCTION isTextFileForEncoding
+      *---------------------------------------------------------------------------------------------------
+      * True for plain-text project files that may be UTF-8 encoded when copied in mirrored tree mode.
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcFile
+      LOCAL lcExt, lcSample, lnHandle
+
+      lcExt = UPPER(JUSTEXT(tcFile))
+
+      IF NOT INLIST(lcExt, 'PRG', 'TXT', 'H', 'FPW', 'MPR', 'SPR', 'CFG', 'INI', 'SQL' ;
+                         , 'MD', 'BAT', 'LOG', 'CSV', 'XML', 'HTM', 'HTML', 'JSON')
+         RETURN .F.
+      ENDIF
+
+      IF NOT FILE(tcFile)
+         RETURN .F.
+      ENDIF
+
+      lnHandle = FOPEN(tcFile, 0)
+
+      IF lnHandle < 0
+         RETURN .F.
+      ENDIF
+
+      lcSample = FREAD(lnHandle, 8192)
+      = FCLOSE(lnHandle)
+
+      IF OCCURS(CHR(0), lcSample) > 0
+         RETURN .F.
+      ENDIF
+
+      RETURN .T.
+   ENDFUNC
 
 
    PROCEDURE get_PROGRAM_HEADER

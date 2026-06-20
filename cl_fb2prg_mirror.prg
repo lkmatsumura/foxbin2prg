@@ -303,7 +303,7 @@ DEFINE CLASS cl_fb2prg_mirror AS Custom
       * Copy a non-convertible file into the mirrored tree.
       *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcFile
-      LOCAL lcDest, lcDir, lcName, llOK
+      LOCAL lcDest, lcDir, lcName, llOK, loHost, lnBytes
 
       llOK = .F.
 
@@ -331,8 +331,20 @@ DEFINE CLASS cl_fb2prg_mirror AS Custom
             IF FILE(lcDest)
                This.o_Host.changeFileAttribute(lcDest, '-R')
             ENDIF
-            COPY FILE (tcFile) TO (lcDest)
-            llOK = .T.
+
+            loHost = This.o_Host
+
+            IF loHost.isExportUTF8() AND loHost.isTextFileForEncoding(tcFile)
+               IF loHost.l_MirrorExport
+                  lnBytes = loHost.writeTextFile(FileToStr(tcFile), lcDest)
+               ELSE
+                  lnBytes = StrToFile(loHost.readTextFile(tcFile), lcDest)
+               ENDIF
+               llOK = (lnBytes > 0)
+            ELSE
+               COPY FILE (tcFile) TO (lcDest)
+               llOK = .T.
+            ENDIF
          ENDIF
       CATCH
          llOK = .F.
