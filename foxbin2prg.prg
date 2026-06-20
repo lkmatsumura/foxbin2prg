@@ -706,6 +706,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    cOutputFolder                   = ''            && the folder to write files to (blank = same folder as source file)
    cInputRoot                      = ''            && project/source root; if set with cOutputFolder, the folder tree is mirrored
+   l_MirrorExport                  = .F.           && .T. during evaluate_Full_PJX (bin->mirror), .F. during evaluate_Full_PJ2
 
    *keep CodePage relavant information for binary sources
    i_CPID                          = 0 &&CPCURRENT(1)
@@ -2956,10 +2957,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
       LOCAL lcFileSpec, lnFileCount, laFiles(1,2), lcFile, lnCodError, I, lnFileCount, llError, laDirInfo(1,5), lcStr ;
          , loLang AS CL_LANG Of 'foxbin2prg.prg' ;
-         , loEx AS EXCEPTION
+         , loEx AS EXCEPTION ;
+         , llMirrorExportSave AS Boolean
 
       TRY
          WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
+            llMirrorExportSave = .l_MirrorExport
+            .l_MirrorExport     = .T.
             loLang      = _SCREEN.o_FoxBin2Prg_Lang
             lcFileSpec  = FULLPATH( tc_InputFile )
 
@@ -3064,7 +3068,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   *-- Non-convertible: optionally copied to the mirrored tree
                   IF .getCfgValue('l_CopyNonConvertible') AND NOT EMPTY(.cOutputFolder) AND ADIR( laDirInfo, lcFile ) > 0
                      IF .copyUnconvertedFile( lcFile )
-                        .writeLog( C_TAB + C_TAB + '- Copied (not convertible): ' + .get_MirroredPath(lcFile) )
+                        .writeLog( C_TAB + C_TAB + '- Copied (not convertible): ' + .get_MirroredPath(lcFile) ;
+                           + IIF( .isExportUTF8() AND .isTextFileForEncoding(lcFile), ' (UTF-8)', '' ) )
                      ENDIF
                   ENDIF
 
@@ -3086,6 +3091,9 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          THROW
 
       FINALLY
+         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
+            .l_MirrorExport = llMirrorExportSave
+         ENDWITH
          STORE .NULL. TO loLang
          RELEASE loLang
       ENDTRY
@@ -3116,10 +3124,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
       LOCAL lcFileSpec, lnFileCount, laFiles(1,2), laExcluded(1), lcFile, lcBinFile, lcTextFile, lcFlatText, lnCodError, I, lnFileCount, llError, laDirInfo(1,5), lcStr ;
          , loLang AS CL_LANG Of 'foxbin2prg.prg' ;
-         , loEx AS EXCEPTION
+         , loEx AS EXCEPTION ;
+         , llMirrorExportSave AS Boolean
 
       TRY
          WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
+            llMirrorExportSave = .l_MirrorExport
+            .l_MirrorExport     = .F.
             loLang      = _SCREEN.o_FoxBin2Prg_Lang
             lcFileSpec  = FULLPATH( tc_InputFile )
 
@@ -3234,7 +3245,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   IF .getCfgValue('l_CopyNonConvertible') AND NOT EMPTY(.cOutputFolder) ;
                         AND ( ADIR( laDirInfo, lcFile ) > 0 OR ADIR( laDirInfo, lcBinFile ) > 0 )
                      IF .copyUnconvertedFile( lcFile )
-                        .writeLog( C_TAB + C_TAB + '- Copied (not convertible): ' + .get_MirroredPath(lcFile) )
+                        .writeLog( C_TAB + C_TAB + '- Copied (not convertible): ' + .get_MirroredPath(lcFile) ;
+                           + IIF( .isExportUTF8() AND .isTextFileForEncoding(lcFile), ' (UTF-8)', '' ) )
                      ENDIF
                   ENDIF
 
@@ -3256,6 +3268,9 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          THROW
 
       FINALLY
+         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
+            .l_MirrorExport = llMirrorExportSave
+         ENDWITH
          STORE .NULL. TO loLang
          RELEASE loLang
       ENDTRY
@@ -4272,6 +4287,41 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDPROC
 
 
+   FUNCTION isTextFileForEncoding
+      *---------------------------------------------------------------------------------------------------
+      * True for plain-text project files that may be UTF-8 encoded when copied in mirrored tree mode.
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcFile
+      LOCAL lcExt, lcSample, lnHandle
+
+      lcExt = UPPER(JUSTEXT(tcFile))
+
+      IF NOT INLIST(lcExt, 'PRG', 'TXT', 'H', 'FPW', 'MPR', 'SPR', 'CFG', 'INI', 'SQL' ;
+                         , 'MD', 'BAT', 'LOG', 'CSV', 'XML', 'HTM', 'HTML', 'JSON')
+         RETURN .F.
+      ENDIF
+
+      IF NOT FILE(tcFile)
+         RETURN .F.
+      ENDIF
+
+      lnHandle = FOPEN(tcFile, 0)
+
+      IF lnHandle < 0
+         RETURN .F.
+      ENDIF
+
+      lcSample = FREAD(lnHandle, 8192)
+      = FCLOSE(lnHandle)
+
+      IF OCCURS(CHR(0), lcSample) > 0
+         RETURN .F.
+      ENDIF
+
+      RETURN .T.
+   ENDFUNC
+
+
    PROCEDURE get_PROGRAM_HEADER
       LOCAL lcText
       lcText  = ''
@@ -4837,6 +4887,77 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureFileUtils()
       RETURN This.o_FileUtils.renameTmpFile2Tx2File(tcFileName)
    ENDPROC
+
+
+   FUNCTION isExportUTF8
+      RETURN This.getCfgFlag('l_ExportUTF8')
+   ENDFUNC
+
+
+   FUNCTION encodeTextForExport
+      *---------------------------------------------------------------------------------------------------
+      * Converts ANSI text (current code page) to UTF-8 bytes when ExportUTF8 is enabled.
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcText
+      IF This.isExportUTF8()
+         RETURN StrConv(tcText, 9)
+      ENDIF
+      RETURN tcText
+   ENDFUNC
+
+
+   FUNCTION decodeTextFromImport
+      *---------------------------------------------------------------------------------------------------
+      * Converts UTF-8 file bytes to ANSI (current code page) when ExportUTF8 is enabled.
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcText
+      IF This.isExportUTF8()
+         RETURN StrConv(tcText, 11)
+      ENDIF
+      RETURN tcText
+   ENDFUNC
+
+
+   FUNCTION readTextFile
+      *---------------------------------------------------------------------------------------------------
+      * Reads a text representation file (VC2, SC2, PJ2, DB2, etc.) honoring ExportUTF8.
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcFile
+      RETURN This.decodeTextFromImport(FileToStr(tcFile))
+   ENDFUNC
+
+
+   FUNCTION writeTextFile
+      *---------------------------------------------------------------------------------------------------
+      * Writes a text representation file honoring ExportUTF8.
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcText, tcFile
+      RETURN StrToFile(This.encodeTextForExport(tcText), tcFile)
+   ENDFUNC
+
+
+   FUNCTION finalizeTextExportFile
+      *---------------------------------------------------------------------------------------------------
+      * Converts an ANSI text file (e.g. written via Scripting.TextStream) to UTF-8 in place.
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcFile
+      LOCAL lcText, lnBytes
+      IF NOT This.isExportUTF8()
+         RETURN .T.
+      ENDIF
+      lcText  = FileToStr(tcFile)
+      lnBytes = StrToFile(StrConv(lcText, 9), tcFile)
+      RETURN (lnBytes > 0)
+   ENDFUNC
+
+
+   FUNCTION comparedTextExportFilesEqual
+      *---------------------------------------------------------------------------------------------------
+      * Compares a new ANSI temp file with an existing export file (ANSI or UTF-8).
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcNewAnsiFile, tcExistingFile
+      RETURN (FileToStr(tcNewAnsiFile) == This.readTextFile(tcExistingFile))
+   ENDFUNC
 
 
 
@@ -9202,7 +9323,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
          lcOutputFile    = tcOutputFile
          llFileExists    = ( Adir(laDirFile, tcOutputFile) = 1 )
 
-         If llFileExists And Filetostr( tcOutputFile ) == tcCodigo Then
+         If llFileExists And toFoxBin2Prg.readTextFile(tcOutputFile) == tcCodigo Then
             *.writeLog( 'El archivo de salida [' + .c_OutputFile + '] no se sobreescribe por ser igual al generado.' )
             This.writeLog( C_TAB + C_TAB + '* ' + Textmerge(loLang.C_OUTPUT_FILE_IS_NOT_OVERWRITEN_LOC) )
 
@@ -9210,9 +9331,9 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
             If llFileExists Then
                toFoxBin2Prg.doBackup( .F., .T., '', '', '', tcOutputFile )
                toFoxBin2Prg.changeFileAttribute( tcOutputFile, '-R' )
-            Endif
+            ENDIF
 
-            lnBytes = Strtofile( tcCodigo, tcOutputFile )
+            lnBytes = toFoxBin2Prg.writeTextFile( tcCodigo, tcOutputFile )
 
             This.writeLog( C_TAB + C_TAB + '- ' + loLang.C_FILENAME_LOC + ': ' + tcOutputFile + ' (' + Alltrim(Transform(lnBytes/1024,'######.##')) + '/' + Alltrim(Transform(Len(tcCodigo)/1024,'######.##')) + ' KiB)' )
             *THIS.writeLog( '- ' + loLang.C_GENERATED_FILE_SIZE_LOC )
@@ -9650,13 +9771,14 @@ Define Class c_conversor_dbf_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                   toModulo    = C_FB2PRG_CODE
                Else
                   Do Case
-                  Case Adir(laDirInfo, .c_OutputFile) > 0 And toFoxBin2Prg.comparedFilesAreEqual( .c_OutputFile + '.TMP', .c_OutputFile ) = 1
+                  Case Adir(laDirInfo, .c_OutputFile) > 0 And toFoxBin2Prg.comparedTextExportFilesEqual( .c_OutputFile + '.TMP', .c_OutputFile )
                      Erase (.c_OutputFile + '.TMP')
                      *.writeLog( 'El archivo de salida [' + .c_OutputFile + '] no se sobreescribe por ser igual al generado.' )
                      lcOutputFile    = .c_OutputFile
                      .writeLog( C_TAB + C_TAB + '* ' + Textmerge(loLang.C_OUTPUT_FILE_IS_NOT_OVERWRITEN_LOC) )
                   Case toFoxBin2Prg.doBackup( .F., .T., '', '', '' ) ;
                         AND toFoxBin2Prg.changeFileAttribute( .c_OutputFile + '.TMP', '-R' ) > 0 ;
+                        AND toFoxBin2Prg.finalizeTextExportFile( .c_OutputFile + '.TMP' ) ;
                         AND Not toFoxBin2Prg.renameTmpFile2Tx2File( .c_OutputFile )
                      *ERROR 'No se puede generar el archivo [' + .c_OutputFile + '] porque es ReadOnly'
                      Error (Textmerge(loLang.C_CANT_GENERATE_FILE_BECAUSE_IT_IS_READONLY_LOC))
@@ -9904,14 +10026,12 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
                C_FB2PRG_CODE = C_FB2PRG_CODE + toFoxBin2Prg.get_PROGRAM_HEADER()
 
-               *SELECT * FROM _TABLAORIG ;
-               WHERE ObjType IN (1,25,26) ;
-               ORDER BY ObjType ASC ;
-               INTO CURSOR TABLABIN_0 READWRITE
+
                *-- Arreglo bug agrupación de controles. 29/10/2015
-               Select * From _TABLAORIG ;
-                  WHERE  ObjType In (1,25,26) ;
-                  INTO   Cursor TABLABIN_0 Readwrite
+               SELECT * ;
+               FROM   _TABLAORIG ;
+               WHERE  ObjType In (1,25,26) ;
+               INTO   Cursor TABLABIN_0 Readwrite
 
                *-- Header
                Select TABLABIN_0
@@ -9931,19 +10051,20 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
                If .l_ReportSort_Enabled
                   *-- ORDENADO
-                  Select * From _TABLAORIG ;
-                     WHERE ObjType Not In (1,25,26) ;
-                     ORDER By vpos,hpos Asc ;
-                     INTO Cursor TABLABIN Readwrite
+                  SELECT * ;
+                  FROM   _TABLAORIG ;
+                  WHERE  ObjType Not In (1,25,26) ;
+                  ORDER  By vpos,hpos Asc ;
+                  INTO   Cursor TABLABIN Readwrite
                Else
                   *-- SIN ORDENAR (Sólo para poder comparar con el original)
-                  Select * From _TABLAORIG ;
-                     WHERE ObjType Not In (1,25,26) ;
-                     INTO Cursor TABLABIN
+                  SELECT * ;
+                  FROM   _TABLAORIG ;
+                  WHERE  ObjType Not In (1,25,26) ;
+                  INTO   Cursor TABLABIN
                Endif
 
-               loRegObj    = .Null.
-
+               loRegObj = .Null.
 
                *-- Recorro los registros y genero el texto
                If Vartype(loRegCab) = "O"
@@ -10057,83 +10178,83 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
       Try
          Local lc_TAG_REPORTE_I, lc_TAG_REPORTE_F, loEx As Exception
-         lc_TAG_REPORTE_I = '<'  + C_TAG_REPORTE + ' '
+         lc_TAG_REPORTE_I = '<'  + C_TAG_REPORTE
          lc_TAG_REPORTE_F = '</' + C_TAG_REPORTE + '>'
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                <<lc_TAG_REPORTE_I>>
+            <<lc_TAG_REPORTE_I>>
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                <<Chr(9)>>platform="WINDOWS " uniqueid="<<toReg.UniqueID>>" timestamp="<<toReg.TimeStamp>>" objtype="<<toReg.ObjType>>" <<>>
+            <<Chr(9)>>platform="<<toReg.Platform>>" uniqueid="<<toReg.UniqueID>>" timestamp="<<toReg.TimeStamp>>" objtype="<<toReg.ObjType>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                objcode="<<toReg.ObjCode>>" name="<<THIS.normalizeXMLValue(toReg.Name)>>" <<>>
+            <<>> objcode="<<toReg.ObjCode>>" name="<<THIS.normalizeXMLValue(toReg.Name)>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                vpos="<<toReg.vpos>>" hpos="<<toReg.hpos>>" height="<<toReg.height>>" width="<<toReg.width>>" <<>>
+            <<>> vpos="<<toReg.vpos>>" hpos="<<toReg.hpos>>" height="<<toReg.height>>" width="<<toReg.width>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                order="<<toReg.order>>" unique="<<toReg.unique>>" <<>>
+            <<>> order="<<toReg.order>>" unique="<<toReg.unique>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                environ="<<toReg.environ>>" boxchar="<<toReg.boxchar>>" fillchar="<<toReg.fillchar>>" <<>>
+            <<>> environ="<<toReg.environ>>" boxchar="<<toReg.boxchar>>" fillchar="<<toReg.fillchar>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                pengreen="<<toReg.pengreen>>" penblue="<<toReg.penblue>>" fillred="<<toReg.fillred>>" fillgreen="<<toReg.fillgreen>>" <<>>
+            <<>> pengreen="<<toReg.pengreen>>" penblue="<<toReg.penblue>>" fillred="<<toReg.fillred>>" fillgreen="<<toReg.fillgreen>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                fillblue="<<toReg.fillblue>>" pensize="<<toReg.pensize>>" penpat="<<toReg.penpat>>" fillpat="<<toReg.fillpat>>" <<>>
+            <<>> fillblue="<<toReg.fillblue>>" pensize="<<toReg.pensize>>" penpat="<<toReg.penpat>>" fillpat="<<toReg.fillpat>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                fontface="<<toReg.fontface>>" fontstyle="<<toReg.fontstyle>>" fontsize="<<toReg.fontsize>>" mode="<<toReg.mode>>" <<>>
+            <<>> fontface="<<toReg.fontface>>" fontstyle="<<toReg.fontstyle>>" fontsize="<<toReg.fontsize>>" mode="<<toReg.mode>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                ruler="<<toReg.ruler>>" rulerlines="<<toReg.rulerlines>>" grid="<<toReg.grid>>" gridv="<<toReg.gridv>>" <<>>
+            <<>> ruler="<<toReg.ruler>>" rulerlines="<<toReg.rulerlines>>" grid="<<toReg.grid>>" gridv="<<toReg.gridv>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                gridh="<<toReg.gridh>>" float="<<toReg.float>>" stretch="<<toReg.stretch>>" stretchtop="<<toReg.stretchtop>>" <<>>
+            <<>> gridh="<<toReg.gridh>>" float="<<toReg.float>>" stretch="<<toReg.stretch>>" stretchtop="<<toReg.stretchtop>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                top="<<toReg.top>>" bottom="<<toReg.bottom>>" suptype="<<toReg.suptype>>" suprest="<<toReg.suprest>>" norepeat="<<toReg.norepeat>>" <<>>
+            <<>> top="<<toReg.top>>" bottom="<<toReg.bottom>>" suptype="<<toReg.suptype>>" suprest="<<toReg.suprest>>" norepeat="<<toReg.norepeat>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                resetrpt="<<toReg.resetrpt>>" pagebreak="<<toReg.pagebreak>>" colbreak="<<toReg.colbreak>>" resetpage="<<toReg.resetpage>>" <<>>
+            <<>> resetrpt="<<toReg.resetrpt>>" pagebreak="<<toReg.pagebreak>>" colbreak="<<toReg.colbreak>>" resetpage="<<toReg.resetpage>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                general="<<toReg.general>>" spacing="<<toReg.spacing>>" double="<<toReg.double>>" swapheader="<<toReg.swapheader>>" <<>>
+            <<>> general="<<toReg.general>>" spacing="<<toReg.spacing>>" double="<<toReg.double>>" swapheader="<<toReg.swapheader>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                swapfooter="<<toReg.swapfooter>>" ejectbefor="<<toReg.ejectbefor>>" ejectafter="<<toReg.ejectafter>>" plain="<<toReg.plain>>" <<>>
+            <<>> swapfooter="<<toReg.swapfooter>>" ejectbefor="<<toReg.ejectbefor>>" ejectafter="<<toReg.ejectafter>>" plain="<<toReg.plain>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                summary="<<toReg.summary>>" addalias="<<toReg.addalias>>" offset="<<toReg.offset>>" topmargin="<<toReg.topmargin>>" <<>>
+            <<>> summary="<<toReg.summary>>" addalias="<<toReg.addalias>>" offset="<<toReg.offset>>" topmargin="<<toReg.topmargin>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                botmargin="<<toReg.botmargin>>" totaltype="<<toReg.totaltype>>" resettotal="<<toReg.resettotal>>" resoid="<<toReg.resoid>>" <<>>
+            <<>> botmargin="<<toReg.botmargin>>" totaltype="<<toReg.totaltype>>" resettotal="<<toReg.resettotal>>" resoid="<<toReg.resoid>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                curpos="<<toReg.curpos>>" supalways="<<toReg.supalways>>" supovflow="<<toReg.supovflow>>" suprpcol="<<toReg.suprpcol>>" <<>>
+            <<>>  curpos="<<toReg.curpos>>" supalways="<<toReg.supalways>>" supovflow="<<toReg.supovflow>>" suprpcol="<<toReg.suprpcol>>"
          ENDTEXT
 
          TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                supgroup="<<toReg.supgroup>>" supvalchng="<<toReg.supvalchng>>" <<>>
+            <<>> supgroup="<<toReg.supgroup>>" supvalchng="<<toReg.supvalchng>>"
          ENDTEXT
 
          C_FB2PRG_CODE = C_FB2PRG_CODE + CR_LF + Chr(9) + "<picture><![CDATA[" + toReg.Picture + "]]>"
@@ -14059,7 +14180,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
             lnIDInputFile       = toFoxBin2Prg.n_ProcessedFiles
 
             If toFoxBin2Prg.getCfgValue('n_UseFilesPerDBC') > 0 And toFoxBin2Prg.getCfgValue('l_RedirectFilePerDBCToMain')
-               C_FB2PRG_CODE       = Filetostr( .c_InputFile )
+               C_FB2PRG_CODE       = toFoxBin2Prg.readTextFile( .c_InputFile )
                lnCodeLines         = Alines( laCodeLines, C_FB2PRG_CODE )
                C_FB2PRG_CODE       = ''
 
@@ -14154,7 +14275,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
                   If toFoxBin2Prg.l_ProcessFiles Then
                      toFoxBin2Prg.normalizeFileCapitalization( .T., lcInputFile_Class )
-                     lcTempTxt       = Filetostr( lcInputFile_Class )
+                     lcTempTxt       = toFoxBin2Prg.readTextFile( lcInputFile_Class )
 
                      *!* Changed by: SF 19.11.2023
                      *!* <pdm>
@@ -14225,7 +14346,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                   Exit    && Si se indicó no procesar, se sale aquí. (Modo de simulación)
                Endif
 
-               C_FB2PRG_CODE       = Filetostr( .c_InputFile )
+               C_FB2PRG_CODE       = toFoxBin2Prg.readTextFile( .c_InputFile )
 
                lnCodeLines         = Alines( laCodeLines, C_FB2PRG_CODE )
 
@@ -14618,7 +14739,7 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                Exit    && Si se indicó no procesar, se sale aquí. (Modo de simulación)
             Endif
 
-            C_FB2PRG_CODE       = Filetostr( .c_InputFile )
+            C_FB2PRG_CODE       = toFoxBin2Prg.readTextFile( .c_InputFile )
             lnCodeLines         = Alines( laCodeLines, C_FB2PRG_CODE )
 
             toFoxBin2Prg.doBackup( .F., .T., '', '', '' )
@@ -15076,7 +15197,7 @@ Define Class c_conversor_prg_a_frx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                Exit    && Si se indicó no procesar, se sale aquí. (Modo de simulación)
             Endif
 
-            C_FB2PRG_CODE = Filetostr( .c_InputFile )
+            C_FB2PRG_CODE = toFoxBin2Prg.readTextFile( .c_InputFile )
             lnCodeLines   = Alines( laCodeLines, C_FB2PRG_CODE )
 
             .l_Fox2x = Inlist( Upper(Justext(.c_InputFile)) ;
@@ -15569,7 +15690,7 @@ Define Class c_conversor_prg_a_mnx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                Exit    && Si se indicó no procesar, se sale aquí. (Modo de simulación)
             Endif
 
-            C_FB2PRG_CODE       = Filetostr( .c_InputFile )
+            C_FB2PRG_CODE       = toFoxBin2Prg.readTextFile( .c_InputFile )
             lnCodeLines         = Alines( laCodeLines, C_FB2PRG_CODE )
 
             .createMenu('CURSOR',toMenu )
@@ -15782,7 +15903,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                Exit    && Si se indicó no procesar, se sale aquí. (Modo de simulación)
             Endif
 
-            C_FB2PRG_CODE       = Filetostr( .c_InputFile )
+            C_FB2PRG_CODE       = toFoxBin2Prg.readTextFile( .c_InputFile )
             lnCodeLines         = Alines( laCodeLines, C_FB2PRG_CODE )
 
             *-- Identifico los TEXT/ENDTEXT, #IF .F./#ENDIF
@@ -16635,7 +16756,7 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                If File(lcHeader)
                   .c_InputFile = lcHeader
                Endif
-               C_FB2PRG_CODE       = Filetostr( .c_InputFile )
+               C_FB2PRG_CODE       = toFoxBin2Prg.readTextFile( .c_InputFile )
 
                lnCodeLines         = Alines( laCodeLines, C_FB2PRG_CODE )
 
@@ -16695,13 +16816,13 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                   Endif
 
                   toFoxBin2Prg.normalizeFileCapitalization( .T., lcInputFile_Form )
-                  C_FB2PRG_CODE   = C_FB2PRG_CODE + CR_LF + Filetostr( lcInputFile_Form )
+                  C_FB2PRG_CODE   = C_FB2PRG_CODE + CR_LF + toFoxBin2Prg.readTextFile( lcInputFile_Form )
                Endfor
 
                lnCodeLines         = Alines( laCodeLines, C_FB2PRG_CODE )
             Else
                *-- No es clase por archivo, o no se quiere redireccionar a Main.
-               C_FB2PRG_CODE       = Filetostr( .c_InputFile )
+               C_FB2PRG_CODE       = toFoxBin2Prg.readTextFile( .c_InputFile )
                lnCodeLines         = Alines( laCodeLines, C_FB2PRG_CODE )
 
                .updateProgressbar( 'Identifying Header Blocks...', 1, lnCodeLines, 1 )
@@ -17064,7 +17185,7 @@ Define Class c_conversor_prg_a_vcx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                   If File(lcHeader)
                      .c_InputFile = lcHeader
                   Endif
-                  C_FB2PRG_CODE       = Filetostr( .c_InputFile )
+                  C_FB2PRG_CODE       = toFoxBin2Prg.readTextFile( .c_InputFile )
 
                   lnCodeLines         = Alines( laCodeLines, C_FB2PRG_CODE )
 
@@ -17152,7 +17273,7 @@ Define Class c_conversor_prg_a_vcx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
                   If toFoxBin2Prg.l_ProcessFiles Then
                      toFoxBin2Prg.normalizeFileCapitalization( .T., lcInputFile_Class )
-                     C_FB2PRG_CODE   = C_FB2PRG_CODE + CR_LF + Filetostr( lcInputFile_Class )
+                     C_FB2PRG_CODE   = C_FB2PRG_CODE + CR_LF + toFoxBin2Prg.readTextFile( lcInputFile_Class )
                   Endif
                Endfor
 
@@ -17161,7 +17282,7 @@ Define Class c_conversor_prg_a_vcx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                *-- No es clase por archivo, o no se quiere redireccionar a Main, o se usó
                *-- la sintaxis "classlib.vcx::classname::import"
                If toFoxBin2Prg.l_ProcessFiles Then
-                  C_FB2PRG_CODE       = Filetostr( .c_InputFile )
+                  C_FB2PRG_CODE       = toFoxBin2Prg.readTextFile( .c_InputFile )
                   lnCodeLines         = Alines( laCodeLines, C_FB2PRG_CODE )
 
                   .updateProgressbar( 'Identifying Header Blocks...', 1, lnCodeLines, 1 )
@@ -27009,6 +27130,13 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
                            This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > RemoveNullCharsFromCode:    ' + Transform(lcValue) )
                         Endif
 
+                     Case Left( laConfig(m.I), 11 ) == Lower('ExportUTF8:')
+                        lcValue = Alltrim( Substr( laConfig(m.I), 12 ) )
+                        If Inlist( lcValue, '0', '1' ) Then
+                           lo_CFG.l_ExportUTF8 = ( Transform(lcValue) == '1' )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > ExportUTF8:                 ' + Transform(lcValue) )
+                        Endif
+
                      Case Left( laConfig(m.I), 25 ) == Lower('RemoveZOrderSetFromProps:')
                         lcValue = Alltrim( Substr( laConfig(m.I), 26 ) )
                         If Inlist( lcValue, '0', '1' ) Then
@@ -27247,6 +27375,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
                This.o_Host.writeLog( C_TAB + 'ClearUniqueID:              ' + TRANSFORM(.getCfgValue('l_ClearUniqueID')) )
                This.o_Host.writeLog( C_TAB + 'OptimizeByFilestamp:        ' + TRANSFORM(.getCfgValue('n_OptimizeByFilestamp')) )
                This.o_Host.writeLog( C_TAB + 'RemoveNullCharsFromCode:    ' + TRANSFORM(.getCfgValue('l_RemoveNullCharsFromCode')) )
+               This.o_Host.writeLog( C_TAB + 'ExportUTF8:                 ' + TRANSFORM(IIF(.getCfgFlag('l_ExportUTF8'), 1, 0)) )
                This.o_Host.writeLog( C_TAB + 'RemoveZOrderSetFromProps:   ' + TRANSFORM(.getCfgValue('l_RemoveZOrderSetFromProps')) )
                This.o_Host.writeLog( C_TAB + 'PRG_Compat_Level:           ' + TRANSFORM(.getCfgValue('n_PRG_Compat_Level')) )
 
@@ -27421,6 +27550,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       AddProperty(loCfg, 'l_ItemPerDBCCheck', .F.)
       AddProperty(loCfg, 'l_DBF_BinChar_Base64', .T.)
       AddProperty(loCfg, 'l_DBF_IncludeDeleted', .F.)
+      AddProperty(loCfg, 'l_ExportUTF8', .F.)
       AddProperty(loCfg, 'n_InhibitInheritance', 0)
       AddProperty(loCfg, 'n_ExtraBackupLevels', 1)
 
@@ -27988,7 +28118,7 @@ DEFINE CLASS cl_fb2prg_mirror AS Custom
          RETURN laExcluded
       ENDIF
 
-      lcBlock = STREXTRACT(FILETOSTR(tcPj2File), C_FILE_EXCL_I, C_FILE_EXCL_F)
+      lcBlock = STREXTRACT(This.o_Host.readTextFile(tcPj2File), C_FILE_EXCL_I, C_FILE_EXCL_F)
 
       IF EMPTY(lcBlock)
          RETURN laExcluded
@@ -28058,7 +28188,7 @@ DEFINE CLASS cl_fb2prg_mirror AS Custom
       * Copy a non-convertible file into the mirrored tree.
       *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcFile
-      LOCAL lcDest, lcDir, lcName, llOK
+      LOCAL lcDest, lcDir, lcName, llOK, loHost, lnBytes
 
       llOK = .F.
 
@@ -28086,8 +28216,20 @@ DEFINE CLASS cl_fb2prg_mirror AS Custom
             IF FILE(lcDest)
                This.o_Host.changeFileAttribute(lcDest, '-R')
             ENDIF
-            COPY FILE (tcFile) TO (lcDest)
-            llOK = .T.
+
+            loHost = This.o_Host
+
+            IF loHost.isExportUTF8() AND loHost.isTextFileForEncoding(tcFile)
+               IF loHost.l_MirrorExport
+                  lnBytes = loHost.writeTextFile(FileToStr(tcFile), lcDest)
+               ELSE
+                  lnBytes = StrToFile(loHost.readTextFile(tcFile), lcDest)
+               ENDIF
+               llOK = (lnBytes > 0)
+            ELSE
+               COPY FILE (tcFile) TO (lcDest)
+               llOK = .T.
+            ENDIF
          ENDIF
       CATCH
          llOK = .F.
@@ -29230,6 +29372,7 @@ Define Class CL_LANG As Custom
                         <<>>ClearUniqueID: 1               && 0=Keep UniqueID in text files, 1=Clear Unique ID. Useful for Diff and Merge
                         <<>>OptimizeByFilestamp: 0         && 1=Optimize file regeneration depending on file timestamp. Dangerous while working with branches!
                         <<>>RemoveNullCharsFromCode: 1     && 1=Drop .Null. chars from source code
+                        <<>>ExportUTF8: 0                  && 0=Export text files in ANSI (current code page), 1=Export text files in UTF-8 (StrConv 9)
                         <<>>RemoveZOrderSetFromProps: 0    && 0=Do not remove ZOrderSet property from object, 1=Remove ZOrderSet property from object
                         <<>>PRG_Compat_Level: 0            && 0=Legacy, 1=Use HELPSTRING as Class Procedure comment
                         <<>>----------------------------------------------------------------------------------------------------------------
@@ -29591,6 +29734,7 @@ Define Class CL_LANG As Custom
                         <<>>ClearUniqueID: 1               && 0=Keep UniqueID in text files, 1=Clear Unique ID. Useful for Diff and Merge
                         <<>>OptimizeByFilestamp: 0         && 1=Optimize file regeneration depending on file timestamp. Dangerous while working with branches!
                         <<>>RemoveNullCharsFromCode: 1     && 1=Drop .Null. chars from source code
+                        <<>>ExportUTF8: 0                  && 0=Export text files in ANSI (current code page), 1=Export text files in UTF-8 (StrConv 9)
                         <<>>RemoveZOrderSetFromProps: 0    && 0=Do not remove ZOrderSet property from object, 1=Remove ZOrderSet property from object
                         <<>>PRG_Compat_Level: 0            && 0=Legacy, 1=Use HELPSTRING as Class Procedure comment
                         <<>>----------------------------------------------------------------------------------------------------------------
@@ -29963,6 +30107,7 @@ Define Class CL_LANG As Custom
                         <<>>ClearUniqueID: 1               && 0=Erhalte die Unique ID in den Text-Dateien, 1=Lösche Unique ID. Nützlich für Diff und Merge
                         <<>>OptimizeByFilestamp: 0         && 0=Aus, 1=Optimierte Erzeugung der Binärdateien in Abhängigkeit vom Zeitstempel. Gefährlich beim Arbeiten mit Zweigen!
                         <<>>RemoveNullCharsFromCode: 1     && 0=Aus 1=Lösche .Null. (CHR(0)) Zeichen aus dem Quellcode
+                        <<>>ExportUTF8: 0                  && 0=Textdateien in ANSI (aktuelle Codepage), 1=Textdateien in UTF-8 exportieren (StrConv 9)
                         <<>>RemoveZOrderSetFromProps: 0    && 0=Aus, 1=Entferne ZOrderSet Eigenschaft von Objekten
                         <<>>PRG_Compat_Level: 0            && 0=Legacy, 1=Nutze HELPSTRING als Class Procedure Kommentar
                         <<>>----------------------------------------------------------------------------------------------------------------
@@ -30340,6 +30485,7 @@ Define Class CL_LANG As Custom
                         <<>>ClearUniqueID: 1               && 0=Keep UniqueID in text files, 1=Clear Unique ID. Useful for Diff and Merge
                         <<>>OptimizeByFilestamp: 0         && 1=Optimize file regeneration depending on file timestamp. Dangerous while working with branches!
                         <<>>RemoveNullCharsFromCode: 1     && 1=Drop .Null. chars from source code
+                        <<>>ExportUTF8: 0                  && 0=Export text files in ANSI (current code page), 1=Export text files in UTF-8 (StrConv 9)
                         <<>>RemoveZOrderSetFromProps: 0    && 0=Do not remove ZOrderSet property from object, 1=Remove ZOrderSet property from object
                         <<>>PRG_Compat_Level: 0            && 0=Legacy, 1=Use HELPSTRING as Class Procedure comment
                         <<>>----------------------------------------------------------------------------------------------------------------
