@@ -61,7 +61,7 @@ Define Class CL_OBJETO As CL_CUS_BASE Of 'cl_cus_base.prg'
             toProcedure._Nombre = Substr( toProcedure._Nombre, At( '.', toProcedure._Nombre, Occurs( '.', ._Nombre) ) + 1 )
          Endif
 
-         *-- Verificación de Procedure repetido
+         *-- VerificaciÃ³n de Procedure repetido
          If ._Procedure_Count > 0 And Ascan( ._aProcNames, toProcedure._Nombre, 1, 0, 0, 1+2+4 ) > 0 Then
             .writeErrorLog( '* Duplicated Method "' + toProcedure._Nombre + '" of class.object "' ;
                + ._Nombre + '" @line ' + Transform(toProcedure._Inicio) )

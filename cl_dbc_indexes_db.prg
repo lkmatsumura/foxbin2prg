@@ -11,11 +11,11 @@ Define Class CL_DBC_INDEXES_DB As CL_DBC_COL_BASE Of 'cl_dbc_col_base.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
-      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
-      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
+      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
+      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -44,7 +44,7 @@ Define Class CL_DBC_INDEXES_DB As CL_DBC_COL_BASE Of 'cl_dbc_col_base.prg'
                      loIndex = .Null.
                      loIndex = NewObject('CL_DBC_INDEX_DB', 'cl_dbc_index_db.prg')
                      loIndex.analyzeCodeBlock( @tcLine, @taCodeLines, @m.I, tnCodeLines )
-                     *-- El siguiente PADR() es porque si no "estoXXX" est· antes que "esto" cuando keysort=2 (raro...)
+                     *-- El siguiente PADR() es porque si no "estoXXX" est√° antes que "esto" cuando keysort=2 (raro...)
                      .Add( loIndex, Padr(Lower(loIndex._Name),128) )
 
                   Otherwise   && Otro valor
@@ -77,7 +77,7 @@ Define Class CL_DBC_INDEXES_DB As CL_DBC_COL_BASE Of 'cl_dbc_col_base.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcTable                   (v! IN    ) Nombre de la Tabla
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       *---------------------------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ Define Class CL_DBC_INDEXES_DB As CL_DBC_COL_BASE Of 'cl_dbc_col_base.prg'
 
    Procedure read_BinDataToProperties
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcTable                   (v! IN    ) Nombre de la Tabla
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       *---------------------------------------------------------------------------------------------------
@@ -169,7 +169,7 @@ Define Class CL_DBC_INDEXES_DB As CL_DBC_COL_BASE Of 'cl_dbc_col_base.prg'
                For I = 1 To lnIndex_Count
                   loIndex = NewObject('CL_DBC_INDEX_DB', 'cl_dbc_index_db.prg')
                   loIndex.read_BinDataToProperties( tcTable + '.' + laIndexes(m.I) )
-                  *-- El siguiente PADR() es porque si no "estoXXX" est· antes que "esto" cuando keysort=2 (raro...)
+                  *-- El siguiente PADR() es porque si no "estoXXX" est√° antes que "esto" cuando keysort=2 (raro...)
                   .Add( loIndex, Padr(Lower(loIndex._Name),128) )
                Endfor
             Endif

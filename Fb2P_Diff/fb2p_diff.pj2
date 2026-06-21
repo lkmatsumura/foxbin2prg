@@ -16,7 +16,6 @@ _City = "Coslada"
 _State = "MAD"
 _PostalCode = "28823"
 _Country = "Spain"
-*--
 _Comments = "Comparador de binarios FoxPro 9 (scx,vcx,pjx,pjm,mnx,frx,lbx,dbf,dbc) para FoxBin2Prg"
 _CompanyName = "Fernand D. Bozzo"
 _FileDescription = "Comparador de binarios FoxPro 9 (scx,vcx,pjx,pjm,mnx,frx,lbx,dbf,dbc) para FoxBin2Prg"
@@ -63,15 +62,15 @@ WITH loProject.FILES
 	*</ExcludedFiles>
 
 	*<TextFiles>
-	.ITEM("config.fpw").Type = 'T'
+	.ITEM(lcCurdir + 'config.fpw').Type = 'T'
 	*</TextFiles>
 ENDWITH
 
 WITH loProject
 	*<ProjectProperties>
-	.SetMain("main_fb2p_diff.prg")
+	.SetMain(lcCurdir + 'main_fb2p_diff.prg')
 
-	.Icon = "fb2p_diff.ico"
+	.Icon = lcCurdir + 'fb2p_diff.ico'
 	.Debug = .T.
 	.Encrypted = .F.
 	*<.CmntStyle = 1 />

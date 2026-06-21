@@ -83,7 +83,7 @@ IF lnI > 0
 
    Fclose( lnH )
 ELSE
-   ? 'Erro, n„o foi possivel carregar lista de prgs a serem reunidos'
+   ? 'Erro, n√£o foi possivel carregar lista de prgs a serem reunidos'
 ENDIF
 
 

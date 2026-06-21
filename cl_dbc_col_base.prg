@@ -18,9 +18,9 @@ Define Class CL_DBC_COL_BASE As CL_COL_BASE Of 'cl_col_base.prg'
 
    Procedure updateDBC
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tc_OutputFile             (v! IN    ) Nombre del archivo de salida
-      * tnLastID                  (!@ IN    ) ⁄ltimo n˙mero de ID usado
+      * tnLastID                  (!@ IN    ) √öltimo n√∫mero de ID usado
       * tnParentID                (v! IN    ) ID del objeto Padre
       *---------------------------------------------------------------------------------------------------
       Lparameters tc_OutputFile, tnLastID, tnParentID

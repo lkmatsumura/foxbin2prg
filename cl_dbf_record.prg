@@ -11,11 +11,11 @@ Define Class CL_DBF_RECORD As CL_CUS_BASE Of 'cl_cus_base.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (!=Obligatorio | ?=Opcional) (@=Pasar por referencia | v=Pasar por valor) (IN/OUT)
-      * tcLine                    (@! IN/OUT) Contenido de la lÌnea en an·lisis
-      * taCodeLines               (@! IN    ) Array de lÌneas del programa analizado
-      * I                         (@! IN/OUT) N˙mero de lÌnea en an·lisis
-      * tnCodeLines               (@! IN    ) Cantidad de lÌneas del programa analizado
+      * PAR√ÅMETROS:               (!=Obligatorio | ?=Opcional) (@=Pasar por referencia | v=Pasar por valor) (IN/OUT)
+      * tcLine                    (@! IN/OUT) Contenido de la l√≠nea en an√°lisis
+      * taCodeLines               (@! IN    ) Array de l√≠neas del programa analizado
+      * I                         (@! IN/OUT) N√∫mero de l√≠nea en an√°lisis
+      * tnCodeLines               (@! IN    ) Cantidad de l√≠neas del programa analizado
       * toFields                  (@! IN    ) Estructura de los campos
       * tl_DBF_BinChar_Base64     out of settings (folder or per-file) Transform NocPTrans fields base64
       *---------------------------------------------------------------------------------------------------
@@ -122,7 +122,7 @@ Define Class CL_DBF_RECORD As CL_CUS_BASE Of 'cl_cus_base.prg'
                            If llOneLineOnly And Atc('<![CDATA[', lcValue) = 0
                               luValue = .Decode(lcValue, .F.)
                            Else
-                              * Si el memo es multi-lÌnea, leer hasta encontrar el final ']]>' del CDATA.
+                              * Si el memo es multi-l√≠nea, leer hasta encontrar el final ']]>' del CDATA.
                               luValue = ''
                               Do While Not Empty(lcValue)
                                  If ']]>' $ tcLine Or '</' + lcFieldName + '>' $ tcLine Then
@@ -205,8 +205,8 @@ Define Class CL_DBF_RECORD As CL_CUS_BASE Of 'cl_cus_base.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (!=Obligatorio | ?=Opcional) (@=Pasar por referencia | v=Pasar por valor) (IN/OUT)
-      * taFields                  (@! IN    ) Array de informaciÛn de campos
+      * PAR√ÅMETROS:               (!=Obligatorio | ?=Opcional) (@=Pasar por referencia | v=Pasar por valor) (IN/OUT)
+      * taFields                  (@! IN    ) Array de informaci√≥n de campos
       * tnField_Count             (@! IN    ) Cantidad de campos
       * tl_DBF_BinChar_Base64     out of settings (folder or per-file) Transform NocPTrans fields base64
       *---------------------------------------------------------------------------------------------------
@@ -256,7 +256,7 @@ Define Class CL_DBF_RECORD As CL_CUS_BASE Of 'cl_cus_base.prg'
                   luValue     = Evaluate("TABLABIN."+lcField)
 
                   Do Case
-                  Case lcFieldType $ 'GWQVCM' And luValue == '' ; && VacÌo
+                  Case lcFieldType $ 'GWQVCM' And luValue == '' ; && Vac√≠o
                      Or lcFieldType $ 'DT' And luValue == {} ;
                         OR lcFieldType $ 'YIBFN' And luValue == 0
 
@@ -377,10 +377,10 @@ Define Class CL_DBF_RECORD As CL_CUS_BASE Of 'cl_cus_base.prg'
 
    Procedure set_Line
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@    OUT) Contenido de la lÌnea en an·lisis
-      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
-      * I                         (v! IN    ) N˙mero de lÌnea en an·lisis
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@    OUT) Contenido de la l√≠nea en an√°lisis
+      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
+      * I                         (v! IN    ) N√∫mero de l√≠nea en an√°lisis
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I
       External Array taCodeLines

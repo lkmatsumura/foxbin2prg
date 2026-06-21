@@ -20,12 +20,12 @@ Define Class CL_MENU_BARPOP As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
-      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
-      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÈtodos
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
+      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
+      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus m√©todos
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, toConversor
       External Array taCodeLines
@@ -93,7 +93,7 @@ Define Class CL_MENU_BARPOP As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
                      loReg.Scheme        = 4
                      loReg.Name          = Alltrim( Getwordnum( tcLine, 3 ) )
 
-                     If Right(loReg.Name,5) == '_FB2P'   && Originalmente era vacÌo y se la habÌa puesto un nombre temporal.
+                     If Right(loReg.Name,5) == '_FB2P'   && Originalmente era vac√≠o y se la hab√≠a puesto un nombre temporal.
                         loReg.Name      = ''
                      Endif
 
@@ -123,7 +123,7 @@ Define Class CL_MENU_BARPOP As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
                   loReg.Scheme            = Iif( loReg.OBJCODE = C_OBJCODE_MENUBARPOPUP_MENUBAR, 3, 4 )
                   loOption    = .Null.
 
-                  If I = lnLast_I && No avanzÛ, debe salir.
+                  If I = lnLast_I && No avanz√≥, debe salir.
                      Exit
                   Endif
 
@@ -153,10 +153,10 @@ Define Class CL_MENU_BARPOP As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toParentReg               (v! IN    ) Objeto registro Padre
       * tnNivel                   (v! IN    ) Nivel para indentar
-      * tcEndProcedures           (!@    OUT) Agregar aquÌ los procedimientos que ir·n al final
+      * tcEndProcedures           (!@    OUT) Agregar aqu√≠ los procedimientos que ir√°n al final
       * toHeader                  (v! IN    ) Objeto Registro de cabecera del menu
       *---------------------------------------------------------------------------------------------------
       Lparameters toParentReg, tnNivel, tcEndProcedures, toHeader
@@ -170,7 +170,7 @@ Define Class CL_MENU_BARPOP As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
          loReg   = This.oReg
          lcTab   = Replicate(Chr(9),tnNivel)
 
-         *-- Menu Bar or Popup (ObjType:2, ObjCode:0 Û 1)
+         *-- Menu Bar or Popup (ObjType:2, ObjCode:0 √≥ 1)
          If loReg.OBJCODE = C_OBJCODE_MENUBARPOPUP_MENUPAD   && (Menu Pad)
             If toHeader.ObjType = C_OBJTYPE_MENUTYPE_SHORTCUT
                *-- Shortcut

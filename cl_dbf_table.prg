@@ -60,11 +60,11 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE Of 'cl_cus_base.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la línea en análisis
-      * taCodeLines               (!@ IN    ) Array de líneas del programa analizado
-      * I                         (!@ IN/OUT) Número de línea en análisis
-      * tnCodeLines               (!@ IN    ) Cantidad de líneas del programa analizado
+      * PARÃMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÃ­nea en anÃ¡lisis
+      * taCodeLines               (!@ IN    ) Array de lÃ­neas del programa analizado
+      * I                         (!@ IN/OUT) NÃºmero de lÃ­nea en anÃ¡lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÃ­neas del programa analizado
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       * tl_DBF_BinChar_Base64     out of settings (folder or per-file) Transform NocPTrans fields base64
       * tl_DBF_IncludeDeleted     out of settings (folder or per-file) Include deleted records
@@ -116,11 +116,11 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE Of 'cl_cus_base.prg'
 
                   Case C_RECORDS_I $ tcLine
                      If llFieldsEvaluated
-                        * Pensado para poder llamar a este método 2 veces:
+                        * Pensado para poder llamar a este mÃ©todo 2 veces:
                         * > La 1ra.para evaluar Campos e Indices, y poder crear la estructura de la tabla
                         *   al finalizar este paso.
                         * > La 2da.para cargar los registros, luego de que se haya creado la tabla,
-                        *   así se van volcando directamente y no se guardan en memoria.
+                        *   asÃ­ se van volcando directamente y no se guardan en memoria.
                         Exit
                      Endif
 
@@ -168,14 +168,14 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE Of 'cl_cus_base.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PARÃMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tc_FileTypeDesc           (v! IN    ) Tipo de archivo (en Hex)
       * tl_FileHasCDX             (v! IN    ) Indica si el archivo tiene CDX asociado
       * tl_FileHasMemo            (v! IN    ) Indica si el archivo tiene MEMO (FPT) asociado
       * tl_FileIsDBC              (v! IN    ) Indica si el archivo es un DBC
       * tc_DBC_Name               (v! IN    ) Nombre del DBC (si tiene)
       * tc_InputFile              (v! IN    ) Nombre del archivo de salida
-      * tc_FileTypeDesc           (v! IN    ) Descripción del Tipo de archivo
+      * tc_FileTypeDesc           (v! IN    ) DescripciÃ³n del Tipo de archivo
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       *---------------------------------------------------------------------------------------------------
       Lparameters tn_HexFileType, tl_FileHasCDX, tl_FileHasMemo, tl_FileIsDBC, tc_DBC_Name, tc_InputFile, tc_FileTypeDesc, toFoxBin2Prg
@@ -229,11 +229,11 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE Of 'cl_cus_base.prg'
 
          Do Case
          Case Inlist(ln_DBF_Conversion_Support, 4, 8)
-            *-- Si hay un archivo DBF.CFG, manda sobre la configuración general
+            *-- Si hay un archivo DBF.CFG, manda sobre la configuraciÃ³n general
             llExportData        = .T.
 
          Case ln_DBF_Conversion_Support > 0
-            *-- Si hay un archivo DBF.CFG, manda sobre la configuración general
+            *-- Si hay un archivo DBF.CFG, manda sobre la configuraciÃ³n general
             * Asume llExportData=.F.
 
             *!*                     Case Inlist(toFoxBin2Prg.getCfgValue('n_DBF_Conversion_Support'), 4, 8)    && BIN2TXT (DATA EXPORT FOR DIFF)

@@ -8,11 +8,11 @@ Define Class CL_DBF_INDEXES As CL_COL_BASE Of 'cl_col_base.prg'
    * LScheffler
    Procedure analyzeIndexFilesBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
-      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
-      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
+      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
+      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -62,11 +62,11 @@ Define Class CL_DBF_INDEXES As CL_COL_BASE Of 'cl_col_base.prg'
 
    Procedure analyzeIndexFileBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
-      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
-      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
+      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
+      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -119,11 +119,11 @@ Define Class CL_DBF_INDEXES As CL_COL_BASE Of 'cl_col_base.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
-      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
-      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
+      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
+      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, tcIndexFile, tlStandAlone
       External Array taCodeLines
@@ -180,9 +180,9 @@ Define Class CL_DBF_INDEXES As CL_COL_BASE Of 'cl_col_base.prg'
    * LScheffler proc wrapping index
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * taTagInfo                 (@?    OUT) Array de informaciÛn de indices
-      * tnTagInfo_Count           (@?    OUT) Cantidad de Ìndices
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taTagInfo                 (@?    OUT) Array de informaci√≥n de indices
+      * tnTagInfo_Count           (@?    OUT) Cantidad de √≠ndices
       * tc_InputFile              (v! IN    ) Archivo de entrada (el DBF)
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       * tc_DBF_IndexList          (?  IN    ) comm a delimited list of non structuiral index files

@@ -38,7 +38,7 @@ DEFINE CLASS cl_fb2prg_special_props AS Custom
 
    FUNCTION getPropSortIndex
       *--------------------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcBaseClass               (v! IN    ) BaseClass del objeto o clase evaluada
       * tcPropName                (v! IN    ) Nombre de la propiedad
       *--------------------------------------------------------------------------------------------------------------

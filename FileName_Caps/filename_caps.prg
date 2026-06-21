@@ -1,15 +1,15 @@
 *--------------------------------------------------------------------------------------------------------------
 *-- FileName_Caps.PRG
-*-- CAPITALIZA EL NOMBRE Y EXTENSIÓN DEL ARCHIVO INDICADO SEGÚN LA CONFIGURACIÓN INDICADA
+*-- CAPITALIZA EL NOMBRE Y EXTENSIÃ“N DEL ARCHIVO INDICADO SEGÃšN LA CONFIGURACIÃ“N INDICADA
 *-- Fernando D. Bozzo - 24/12/2013
 *--------------------------------------------------------------------------------------------------------------
-* EJEMPLOS CON MÁSCARAS IN-LINE (SIN ARCHIVO CONFIG):
+* EJEMPLOS CON MÃSCARAS IN-LINE (SIN ARCHIVO CONFIG):
 * filename_caps( 'un_EjeMplo.PrG', '*.pRg:M.M' )			==> 'un_EjeMplo.PrG'
 * filename_caps( 'un_EjeMplo.PrG', '*.pRg:U.L' )			==> 'UN_EJEMPLO.prg'
 * filename_caps( 'un_EjeMplo.PrG', '*.pRg:P.U' )			==> 'Un_ejemplo.PRG'
 * filename_caps( 'UN_EJEMPLO.PRG', 'un_EjeMplo.pRg:M.M' )	==> 'un_EjeMplo.pRg'
 *
-* EJEMPLO CON MÁSCARAS EN ARCHIVO CONFIG 'filename_caps.cfg':
+* EJEMPLO CON MÃSCARAS EN ARCHIVO CONFIG 'filename_caps.cfg':
 * filemask=*.TXT:P.L
 * filemask=*.PDF:U.L
 * filemask=*.APP:P.U
@@ -20,11 +20,11 @@
 * filename_caps( 'un_ejemplo.prg', 'filename_caps.cfg', 'F' )	==> 'Un_ejemplo.PRG'
 * filename_caps( 'UN_EJEMPLO.PRG', 'filename_caps.cfg', 'F' )	==> 'un_EjeMplo.PrG'
 *--------------------------------------------------------------------------------------------------------------
-* PARÁMETROS:				(!=Obligatorio | ?=Opcional) (@=Pasar por referencia | v=Pasar por valor) (IN/OUT)
+* PARÃMETROS:				(!=Obligatorio | ?=Opcional) (@=Pasar por referencia | v=Pasar por valor) (IN/OUT)
 * tcFileName				(!v IN    ) Archivo a capitalizar
-* tcFileMask				(?v IN    ) Mascara de archivo o archivo de configuración de máscaras (U,L,P,N,M)
+* tcFileMask				(?v IN    ) Mascara de archivo o archivo de configuraciÃ³n de mÃ¡scaras (U,L,P,N,M)
 *							            => Significado: (U)pper,(L)ower,(P)roper,(M)atch,(N)one
-* tcFileMaskType			(?v IN    ) 'M' o nada=FileMask es una máscara, 'F'=FileMask es un archivo config.
+* tcFileMaskType			(?v IN    ) 'M' o nada=FileMask es una mÃ¡scara, 'F'=FileMask es un archivo config.
 * tcLog						(?@    OUT) Log generado por este programa
 * tlRelanzarError			(?v IN    ) Indica si el error se debe relanzar (THROW) o no
 * tcDontShowErrors			(?v IN    ) '1'=Don't show errors, Otherwise=Show errors
@@ -52,8 +52,8 @@ DEFINE CLASS cl_FileName_Caps AS Custom
 
 	PROCEDURE INIT
 		*DECLARE INTEGER MoveFile IN KERNEL32.DLL STRING lpExistingFileName, STRING lpNewFileName
-		
-		* DOCUMENTACIÓN: https://msdn.microsoft.com/es-es/library/windows/desktop/aa365240(v=vs.85).aspx
+
+		* DOCUMENTACIÃ“N: https://msdn.microsoft.com/es-es/library/windows/desktop/aa365240(v=vs.85).aspx
 		* dwFlags:
 		* 1 (0x1) MOVEFILE_REPLACE_EXISTING
 		* 8 (0x8) MOVEFILE_WRITE_THROUGH
@@ -61,8 +61,8 @@ DEFINE CLASS cl_FileName_Caps AS Custom
 
 		DECLARE INTEGER GetLastError IN KERNEL32.DLL
 		DECLARE Sleep IN KERNEL32.DLL INTEGER dwMilliseconds
-		
-		* DOCUMENTACIÓN: https://msdn.microsoft.com/en-us/library/windows/desktop/ms679351(v=vs.85).aspx
+
+		* DOCUMENTACIÃ“N: https://msdn.microsoft.com/en-us/library/windows/desktop/ms679351(v=vs.85).aspx
 		DECLARE INTEGER FormatMessage IN KERNEL32.DLL INTEGER dwFlags, INTEGER lpSource, INTEGER dwMessageId ;
 			, INTEGER dwLanguageId, STRING @lpBuffer, INTEGER nSize, INTEGER Arguments
 		_SCREEN.AddProperty("ExitCodeFNC",0)
@@ -92,20 +92,20 @@ DEFINE CLASS cl_FileName_Caps AS Custom
 
 			IF EMPTY(tcFileMask)
 				IF tcFileMaskType <> 'F'
-					tcLog	= tcLog + CR_LF + '- No hay máscara definida ni archivo de configuración'
-					EXIT	&& No se indicó nada que hacer
+					tcLog	= tcLog + CR_LF + '- No hay mÃ¡scara definida ni archivo de configuraciÃ³n'
+					EXIT	&& No se indicÃ³ nada que hacer
 				ELSE
 					tcFileMask	= FORCEEXT( SUBSTR( lcSys16, lnPosProg ), 'CFG' )
-					tcLog	= tcLog + CR_LF + '- Se usará el archivo de configuración [' + tcFileMask + ']'
+					tcLog	= tcLog + CR_LF + '- Se usarÃ¡ el archivo de configuraciÃ³n [' + tcFileMask + ']'
 					IF NOT FILE(tcFileMask)
-						ERROR 'El archivo de configuración de FileName_CAPS [' + tcFileMask + '] no existe!'
+						ERROR 'El archivo de configuraciÃ³n de FileName_CAPS [' + tcFileMask + '] no existe!'
 					ENDIF
 				ENDIF
 			ENDIF
 
-			IF tcFileMaskType == 'M'	&& Máscara in-line
+			IF tcFileMaskType == 'M'	&& MÃ¡scara in-line
 				*-- Estructura: Filename.Ext:FNameMask.ExtMask;...
-				tcLog	= tcLog + CR_LF + '- Máscaras definidas: [' + tcFileMask + ']'
+				tcLog	= tcLog + CR_LF + '- MÃ¡scaras definidas: [' + tcFileMask + ']'
 				FOR I = 1 TO OCCURS( ';', tcFileMask + ';' )
 					lcDefinition	= GETWORDNUM( tcFileMask + ';', I, ';' )
 					lcFileDef		= GETWORDNUM( lcDefinition, 1, ':' )
@@ -115,7 +115,7 @@ DEFINE CLASS cl_FileName_Caps AS Custom
 					laMasks(I,3)	= JUSTSTEM( lcMaskDef )
 					laMasks(I,4)	= JUSTEXT( lcMaskDef )
 				ENDFOR
-			ELSE	&& Archivo de configuración
+			ELSE	&& Archivo de configuraciÃ³n
 				*-- Estructura:
 				* filemask=Filename.Ext:FilenameCap.ExtCap => Cap: (U)pper,(L)ower,(P)roper,(M)atch,(N)one
 				* filemask=*.PDF:U.L		==> <NOMBREARCHIVO.pdf>
@@ -125,7 +125,7 @@ DEFINE CLASS cl_FileName_Caps AS Custom
 				X = 0
 				FOR I = 1 TO ALINES( laLines, FILETOSTR( tcFileMask ), 1+4 )
 					IF LOWER( LEFT( laLines(I), 8 ) ) == 'filemask'
-						tcLog	= tcLog + CR_LF + '- Se encontró la máscara: [' + laLines(I) + ']'
+						tcLog	= tcLog + CR_LF + '- Se encontrÃ³ la mÃ¡scara: [' + laLines(I) + ']'
 						X = X + 1
 						lcDefinition	= GETWORDNUM( laLines(I), 2, '=' )
 						lcFileDef		= GETWORDNUM( lcDefinition, 1, ':' )
@@ -146,7 +146,7 @@ DEFINE CLASS cl_FileName_Caps AS Custom
 
 			FOR I = 1 TO ALEN( laMasks, 1 )
 				IF LIKE( UPPER( FORCEEXT( laMasks(I,1), laMasks(I,2) ) ), UPPER( FORCEEXT( lcName, lcExt ) ) )
-					*-- EVALUACIÓN DEL NOMBRE
+					*-- EVALUACIÃ“N DEL NOMBRE
 					DO CASE
 					CASE UPPER(laMasks(I,3)) == 'U'
 						lcFileName	= UPPER(lcName)
@@ -158,12 +158,12 @@ DEFINE CLASS cl_FileName_Caps AS Custom
 						lcFileName	= lcName
 					OTHERWISE	&& (M)atch: Tal cual aparece definido
 						IF '?' $ laMasks(I,1) OR '*' $ laMasks(I,1)
-							ERROR 'Para (M)atch no puede usar máscara "' + laMasks(I,1) + '"'
+							ERROR 'Para (M)atch no puede usar mÃ¡scara "' + laMasks(I,1) + '"'
 						ENDIF
 						lcFileName	= laMasks(I,1)
 					ENDCASE
 
-					*-- EVALUACIÓN DE LA EXTENSIÓN
+					*-- EVALUACIÃ“N DE LA EXTENSIÃ“N
 					DO CASE
 					CASE UPPER(laMasks(I,4)) == 'U'
 						lcFileName	= FORCEEXT( lcFileName + '.' + lcExt, UPPER(lcExt) )
@@ -175,7 +175,7 @@ DEFINE CLASS cl_FileName_Caps AS Custom
 						lcFileName	= FORCEEXT( lcFileName + '.' + lcExt, lcExt )
 					OTHERWISE	&& (M)atch: Tal cual aparece definido
 						IF '?' $ laMasks(I,1) OR '*' $ laMasks(I,1)
-							ERROR 'Para (M)atch no puede usar máscara "' + laMasks(I,1) + '"'
+							ERROR 'Para (M)atch no puede usar mÃ¡scara "' + laMasks(I,1) + '"'
 						ENDIF
 						lcFileName	= FORCEEXT( lcFileName + '.' + lcExt, laMasks(I,2) )
 					ENDCASE
@@ -185,22 +185,22 @@ DEFINE CLASS cl_FileName_Caps AS Custom
 					EXIT
 				ENDIF
 			ENDFOR
-			
+
 			*MESSAGEBOX( 'lcLogFile = ' + TRANSFORM(lcLogFile),0+4096, 'Error' )
 
 			IF ADIR( laFile, lcFileName, '', 1 ) > 0 AND laFile(1,1) <> JUSTFNAME(lcFileName)
 				lnRet	= THIS.RenameFile( FORCEPATH( laFile(1,1), JUSTPATH(lcFileName) ), lcFileName )
 				*MESSAGEBOX('(MoveFile) lnRet = ' + TRANSFORM(lnRet),0+4096, 'Error')
-				
+
 				IF lnRet = 0 && Failed
 					lnRet = GetLastError()
 					*MESSAGEBOX('(GetLastError) lnRet = ' + TRANSFORM(lnRet),0+4096, 'Error')
 					ERROR 'MoveFile'
 				ENDIF
-				
-				tcLog	= tcLog + CR_LF + '  => Se renombrará a [' + lcFileName + ']'
+
+				tcLog	= tcLog + CR_LF + '  => Se renombrarÃ¡ a [' + lcFileName + ']'
 			ELSE
-				tcLog	= tcLog + CR_LF + '  => No se renombrará a [' + lcFileName + '] porque ya estaba correcto.'
+				tcLog	= tcLog + CR_LF + '  => No se renombrarÃ¡ a [' + lcFileName + '] porque ya estaba correcto.'
 			ENDIF
 
 
@@ -222,7 +222,7 @@ DEFINE CLASS cl_FileName_Caps AS Custom
 				THROW
 			ELSE
 				IF '800a0046:' $ loEx.Details
-					tcLog	= tcLog + CR_LF + '  => No se renombrará a [' + lcFileName + '] porque el archivo estaba en uso o no se puede acceder a el.'
+					tcLog	= tcLog + CR_LF + '  => No se renombrarÃ¡ a [' + lcFileName + '] porque el archivo estaba en uso o no se puede acceder a el.'
 				ENDIF
 
 				lcMenErr	= 'ERROR ' + TRANSFORM(loEx.ERRORNO) + ', ' + loEx.MESSAGE + CHR(13) ;
@@ -230,7 +230,7 @@ DEFINE CLASS cl_FileName_Caps AS Custom
 					+ loEx.LINECONTENTS
 
 				IF TRANSFORM(tcDontShowErrors) # '1' THEN
-					MESSAGEBOX( lcMenErr, 0+16+4096, 'ATENCIÓN!! Ha ocurrido un error al capitalizar', 600000 )
+					MESSAGEBOX( lcMenErr, 0+16+4096, 'ATENCIÃ“N!! Ha ocurrido un error al capitalizar', 600000 )
 				ENDIF
 			ENDIF
 
@@ -259,7 +259,7 @@ DEFINE CLASS cl_FileName_Caps AS Custom
 		LOCAL lnRet
 		lnRet	= 0
 		*lnRet	= MoveFile( FORCEPATH( laFile(1,1), JUSTPATH(lcFileName) ), lcFileName )
-		
+
 		FOR I = 1 TO 10
 			lnRet	= MoveFileEx( lpExistingFileName, lpNewFileName, 0x1 + 0x8 )
 			IF lnRet != 0

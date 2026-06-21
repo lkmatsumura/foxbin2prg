@@ -114,7 +114,7 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'cl_col_base.prg'
 
    Procedure decode_SpecialCodes_CR_LF
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcText                    (!@ IN    ) Decodifica los caracteres ASCII 10 y 13 de {nCode} a CHR(nCode)
       *---------------------------------------------------------------------------------------------------
       Lparameters tcText
@@ -126,7 +126,7 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'cl_col_base.prg'
 
    Procedure encode_SpecialCodes_CR_LF
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcText                    (!@ IN    ) Codifica los caracteres ASCII 10 y 13 de CHR(nCode) a {nCode}
       *---------------------------------------------------------------------------------------------------
       Lparameters tcText
@@ -324,7 +324,7 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'cl_col_base.prg'
 
    Function getFilesNotFound(taFiles) As Integer
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * taFiles                   (?@    OUT) Codifica los caracteres ASCII 10 y 13 de CHR(nCode) a {nCode}
       *---------------------------------------------------------------------------------------------------
       External Array taFiles

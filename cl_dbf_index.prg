@@ -31,11 +31,11 @@ Define Class CL_DBF_INDEX As CL_CUS_BASE Of 'cl_cus_base.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
-      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
-      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
+      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
+      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, tcIndexFile, tlStandAlone
       External Array taCodeLines
@@ -91,9 +91,9 @@ Define Class CL_DBF_INDEX As CL_CUS_BASE Of 'cl_cus_base.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * taTagInfo                 (@! IN    ) Array de informaciÛn de indices
-      * I                         (@! IN    ) Indice en evaluaciÛn
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taTagInfo                 (@! IN    ) Array de informaci√≥n de indices
+      * I                         (@! IN    ) Indice en evaluaci√≥n
       *---------------------------------------------------------------------------------------------------
       Lparameters taTagInfo, I
 

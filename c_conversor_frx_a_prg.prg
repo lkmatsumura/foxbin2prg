@@ -11,9 +11,9 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR罬ETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (!@    OUT) Objeto generado de clase CL_PROJECT con la informaci髇 leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci髇 del error
+      * PAR脕METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (!@    OUT) Objeto generado de clase CL_PROJECT con la informaci贸n leida del texto
+      * toEx                      (!@    OUT) Objeto con informaci贸n del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -57,7 +57,7 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                C_FB2PRG_CODE = C_FB2PRG_CODE + toFoxBin2Prg.get_PROGRAM_HEADER()
 
 
-               *-- Arreglo bug agrupaci髇 de controles. 29/10/2015
+               *-- Arreglo bug agrupaci贸n de controles. 29/10/2015
                SELECT * ;
                FROM   _TABLAORIG ;
                WHERE  ObjType In (1,25,26) ;
@@ -87,7 +87,7 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                   ORDER  By vpos,hpos Asc ;
                   INTO   Cursor TABLABIN Readwrite
                Else
-                  *-- SIN ORDENAR (S髄o para poder comparar con el original)
+                  *-- SIN ORDENAR (S贸lo para poder comparar con el original)
                   SELECT * ;
                   FROM   _TABLAORIG ;
                   WHERE  ObjType Not In (1,25,26) ;

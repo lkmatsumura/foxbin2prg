@@ -127,21 +127,21 @@ Define Class frm_interactive As Form
 
 
    Procedure cmd_Bin2Prg.Click
-      *-- Selección
+      *-- SelecciÃ³n
       Thisform.n_ConversionType = 1
       Thisform.do_selection()
    Endproc
 
 
    Procedure cmd_Prg2Bin.Click
-      *-- Selección
+      *-- SelecciÃ³n
       Thisform.n_ConversionType = 2
       Thisform.do_selection()
    Endproc
 
 
    Procedure cmd_None.Click
-      *-- Selección
+      *-- SelecciÃ³n
       Thisform.n_ConversionType = 3
       Thisform.do_selection()
    Endproc

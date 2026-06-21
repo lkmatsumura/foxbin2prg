@@ -10,9 +10,9 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (!@    OUT) Objeto generado de clase CL_CLASSLIB con la información leida del texto
-      * toEx                      (!@    OUT) Objeto con información del error
+      * PARÃMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (!@    OUT) Objeto generado de clase CL_CLASSLIB con la informaciÃ³n leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÃ³n del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -71,7 +71,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
             .write_OLEObjectDefinitions( @toFoxBin2Prg )
 
-            *-- Escribo los métodos ordenados
+            *-- Escribo los mÃ©todos ordenados
             lnLastObj       = 0
             lnLastClass     = 0
 
@@ -117,7 +117,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                loRegClass  = .Null.
                Scatter Memo Name loRegClass
 
-               *-- Normalización de capitalización y de datos según parametrización
+               *-- NormalizaciÃ³n de capitalizaciÃ³n y de datos segÃºn parametrizaciÃ³n
                loRegClass.BaseClass    = Lower( loRegClass.BaseClass )
                loRegClass.CLASSLOC     = Lower( loRegClass.CLASSLOC )
                loRegClass.Class        = Lower( loRegClass.Class )
@@ -138,7 +138,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                laClasses(lnClassCount,3)   = loRegClass.BaseClass
 
                If Not toFoxBin2Prg.l_ProcessFiles Then
-                  Loop    && Si se indicó no procesar, salteo el resto del proceso. (Modo de simulación)
+                  Loop    && Si se indicÃ³ no procesar, salteo el resto del proceso. (Modo de simulaciÃ³n)
                Endif
 
                lnStep          = lnStep + 1
@@ -155,7 +155,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                Endif
 
                *-------------------------------------------------------------------------------
-               *-- RECORRO LOS OBJETOS DENTRO DE LA CLASE ACTUAL PARA EXPORTAR SU DEFINICIÓN
+               *-- RECORRO LOS OBJETOS DENTRO DE LA CLASE ACTUAL PARA EXPORTAR SU DEFINICIÃ“N
                *-------------------------------------------------------------------------------
                lnObjCount  = 0
                lnRecno = Recno()
@@ -166,7 +166,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                   loRegObj    = .Null.
                   Scatter Memo Name loRegObj
 
-                  *-- Normalización de capitalización y de datos según parametrización
+                  *-- NormalizaciÃ³n de capitalizaciÃ³n y de datos segÃºn parametrizaciÃ³n
                   loRegObj.BaseClass      = Lower( loRegObj.BaseClass )
                   loRegObj.CLASSLOC       = Lower( loRegObj.CLASSLOC )
                   loRegObj.Class          = Lower( loRegObj.Class )
@@ -221,7 +221,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                .write_CLASS_PROPERTIES( @loRegClass, @laPropsAndValues, @laPropsAndComments, @laProtected ;
                   , @lnPropsAndValues_Count, @lnPropsAndComments_Count, @lnProtected_Count, @lcCodigo, @toFoxBin2Prg )
 
-               Asort(laObjs, 3, -1, 0, 0)  && Orden Alfabético de objetos (del SCAN original)
+               Asort(laObjs, 3, -1, 0, 0)  && Orden AlfabÃ©tico de objetos (del SCAN original)
 
                lnStep          = lnStep + 1
                .updateProgressbar( 'Processing Form ' + lcObjName + ' > Writing Obtects with Properties...', lnStep, lnClassTotal*lnStepCount, 1 )
@@ -231,7 +231,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                Endfor
 
 
-               *-- OBTENGO LOS MÉTODOS DE LA CLASE PARA POSTERIOR TRATAMIENTO
+               *-- OBTENGO LOS MÃ‰TODOS DE LA CLASE PARA POSTERIOR TRATAMIENTO
                lnStep          = lnStep + 1
                .updateProgressbar( 'Processing Form ' + lcObjName + ' > Getting Methods...', lnStep, lnClassTotal*lnStepCount, 1 )
 
@@ -247,7 +247,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                lnLastClass     = 1
                lcMethods       = ''
 
-               *-- RECORRO LOS OBJETOS DENTRO DE LA CLASE ACTUAL PARA OBTENER SUS MÉTODOS
+               *-- RECORRO LOS OBJETOS DENTRO DE LA CLASE ACTUAL PARA OBTENER SUS MÃ‰TODOS
                lnStep          = lnStep + 1
                .updateProgressbar( 'Processing Form ' + lcObjName + ' > Getting Objects Methods...', lnStep, lnClassTotal*lnStepCount, 1 )
 
@@ -263,7 +263,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                   loRegObj    = .Null.
                   Scatter Memo Name loRegObj
 
-                  *-- Normalización de capitalización y de datos según parametrización
+                  *-- NormalizaciÃ³n de capitalizaciÃ³n y de datos segÃºn parametrizaciÃ³n
                   loRegObj.BaseClass  = Lower( loRegObj.BaseClass )
                   loRegObj.CLASSLOC   = Lower( loRegObj.CLASSLOC )
                   loRegObj.Class      = Lower( loRegObj.Class )
@@ -330,7 +330,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                llUseFormsPerDir    = toFoxBin2Prg.getCfgFlag('l_UseFormsPerDir')
                lnUseFormPerFile    = toFoxBin2Prg.getCfgInt('n_UseFormPerFile')
 
-               *-- En árbol espejo, ensurePerFileDir se aplica en destino dentro de write_OutputFile/get_MirroredOutputFile
+               *-- En Ã¡rbol espejo, ensurePerFileDir se aplica en destino dentro de write_OutputFile/get_MirroredOutputFile
                If lnUseFormPerFile > 0 And Empty(.cOutputFolder) Then
                   toFoxBin2Prg.ensurePerFileDir( .c_InputFile, lcSc2Ext, llUseFormsPerDir, lnUseFormPerFile )
                Endif

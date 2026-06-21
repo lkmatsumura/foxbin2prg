@@ -16,9 +16,9 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toTable                   (!@    OUT) Objeto generado de clase CL_TABLE con la informaciÛn leida del texto
-      * toEx                      (!@    OUT) Objeto con informaciÛn del error
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toTable                   (!@    OUT) Objeto generado de clase CL_TABLE con la informaci√≥n leida del texto
+      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toTable, toEx As Exception, toFoxBin2Prg
@@ -76,7 +76,7 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'c_conversor_prg_
                   toFoxBin2Prg.updateProcessedFile()
                Endif
 
-               Exit    && Si se indicÛ no procesar, se sale aquÌ. (Modo de simulaciÛn)
+               Exit    && Si se indic√≥ no procesar, se sale aqu√≠. (Modo de simulaci√≥n)
             Endif
 
             C_FB2PRG_CODE       = toFoxBin2Prg.readTextFile( .c_InputFile )
@@ -84,7 +84,7 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
             toFoxBin2Prg.doBackup( .F., .T., '', '', '' )
 
-            *-- Identifico el inicio/fin de bloque, campos e Ìndices de la tabla
+            *-- Identifico el inicio/fin de bloque, campos e √≠ndices de la tabla
             .identifyCodeBlocks( @laCodeLines, lnCodeLines, @laLineasExclusion, lnBloquesExclusion, @toTable )
 
             Do Case
@@ -261,7 +261,7 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'c_conversor_prg_
                tcAlterTable    = 'ALTER TABLE "' + .c_OutputFile + '" ' + tcAlterTable
             Endif
 
-            *-- Hook para permitir ejecuciÛn externa (por ejemplo, para rellenar la tabla con datos)
+            *-- Hook para permitir ejecuci√≥n externa (por ejemplo, para rellenar la tabla con datos)
             If Not Empty(toFoxBin2Prg.run_AfterCreateTable)
                lnSelect    = Select()
                Do (toFoxBin2Prg.run_AfterCreateTable) With (lnDataSessionID), (.c_OutputFile), (toTable)
@@ -327,7 +327,7 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'c_conversor_prg_
                toFoxBin2Prg.writeLog( loLang.C_INDEX2BIN_PROCESSING_LOC )
                toFoxBin2Prg.writeLog( ' ' + Replicate('-', 98) )
 
-               *-- Regenero los Ìndices
+               *-- Regenero los √≠ndices
                For Each loIndex In toTable._Indexes FoxObject
                   Do Case
                   Case Isnull ( m.lcIndexFile ) And Empty (m.loIndex._IndexFile)
@@ -387,7 +387,7 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
             Use In (Select(Juststem(.c_OutputFile)))
 
-            *-- La actualizaciÛn de la fecha sirve para evitar diferencias al regenerar el DBF
+            *-- La actualizaci√≥n de la fecha sirve para evitar diferencias al regenerar el DBF
             If toFoxBin2Prg.getCfgValue('l_ClearDBFLastUpdate') Then
                ldLastUpdate    = Evaluate( '{^2013/11/04}' )
             Else
@@ -426,12 +426,12 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
    Procedure identifyCodeBlocks
       *--------------------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * taCodeLines               (!@ IN    ) El array con las lÌneas del cÛdigo donde buscar
-      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas de cÛdigo
-      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg˙n la lÌnea sea de exclusiÛn o no
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taCodeLines               (!@ IN    ) El array con las l√≠neas del c√≥digo donde buscar
+      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas de c√≥digo
+      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg√∫n la l√≠nea sea de exclusi√≥n o no
       * tnBloquesExclusion        (@? IN    ) Sin uso
-      * toTable                   (@?    OUT) Objeto con toda la informaciÛn de la tabla analizada
+      * toTable                   (@?    OUT) Objeto con toda la informaci√≥n de la tabla analizada
       *--------------------------------------------------------------------------------------------------------------
       Lparameters taCodeLines, tnCodeLines, taLineasExclusion, tnBloquesExclusion, toTable
 
@@ -456,7 +456,7 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'c_conversor_prg_
                   .set_Line( @lcLine, @taCodeLines, m.I )
 
                   Do Case
-                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && VacÌa o solo Comentarios
+                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && Vac√≠a o solo Comentarios
                      Loop
 
                   Case Not llFoxBin2Prg_Completed And .analyzeCodeBlock_FoxBin2Prg( toTable, @lcLine, @taCodeLines, @m.I, tnCodeLines )

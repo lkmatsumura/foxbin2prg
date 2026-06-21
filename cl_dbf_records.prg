@@ -9,11 +9,11 @@ Define Class CL_DBF_RECORDS As CL_COL_BASE Of 'cl_col_base.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (!=Obligatorio | ?=Opcional) (@=Pasar por referencia | v=Pasar por valor) (IN/OUT)
-      * tcLine                    (@! IN/OUT) Contenido de la lÌnea en an·lisis
-      * taCodeLines               (@! IN    ) Array de lÌneas del programa analizado
-      * I                         (@! IN/OUT) N˙mero de lÌnea en an·lisis
-      * tnCodeLines               (@! IN    ) Cantidad de lÌneas del programa analizado
+      * PAR√ÅMETROS:               (!=Obligatorio | ?=Opcional) (@=Pasar por referencia | v=Pasar por valor) (IN/OUT)
+      * tcLine                    (@! IN/OUT) Contenido de la l√≠nea en an√°lisis
+      * taCodeLines               (@! IN    ) Array de l√≠neas del programa analizado
+      * I                         (@! IN/OUT) N√∫mero de l√≠nea en an√°lisis
+      * tnCodeLines               (@! IN    ) Cantidad de l√≠neas del programa analizado
       * toFields                  (@! IN    ) Estructura de los campos
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       * tl_DBF_BinChar_Base64     out of settings (folder or per-file) Transform NocPTrans fields base64
@@ -117,10 +117,10 @@ Define Class CL_DBF_RECORDS As CL_COL_BASE Of 'cl_col_base.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:                   (!=Obligatorio | ?=Opcional) (@=Pasar por referencia | v=Pasar por valor) (IN/OUT)
-      * taFields                      (@! IN    ) Array de informaciÛn de campos
+      * PAR√ÅMETROS:                   (!=Obligatorio | ?=Opcional) (@=Pasar por referencia | v=Pasar por valor) (IN/OUT)
+      * taFields                      (@! IN    ) Array de informaci√≥n de campos
       * tnField_Count                 (v! IN    ) Cantidad de campos
-      * tc_DBF_Conversion_Condition   (v? IN    ) CondiciÛn de filtro para la conversiÛn. Solo se exporta lo que la cumpla.
+      * tc_DBF_Conversion_Condition   (v? IN    ) Condici√≥n de filtro para la conversi√≥n. Solo se exporta lo que la cumpla.
       * toFoxBin2Prg                  (@! IN    ) Referencia de toFoxBin2Prg
       * tl_DBF_BinChar_Base64         out of settings (folder or per-file) Transform NocPTrans fields base64
       * tl_DBF_IncludeDeleted         out of settings (folder or per-file) Include deleted records
@@ -224,10 +224,10 @@ Define Class CL_DBF_RECORDS As CL_COL_BASE Of 'cl_col_base.prg'
 
    Procedure set_Line
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@    OUT) Contenido de la lÌnea en an·lisis
-      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
-      * I                         (v! IN    ) N˙mero de lÌnea en an·lisis
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@    OUT) Contenido de la l√≠nea en an√°lisis
+      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
+      * I                         (v! IN    ) N√∫mero de l√≠nea en an√°lisis
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I
       External Array taCodeLines

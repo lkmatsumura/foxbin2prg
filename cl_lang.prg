@@ -134,7 +134,7 @@ Define Class CL_LANG As Custom
             , loEx As Exception
 
          With This As CL_LANG Of 'cl_lang.prg'
-            *-- El lenguaje pasado por par·metro prevalece sobre el existente.
+            *-- El lenguaje pasado por par√°metro prevalece sobre el existente.
             tcLanguage  = Evl(tcLanguage,'')
 
             If Empty(tcLanguage)
@@ -146,44 +146,44 @@ Define Class CL_LANG As Custom
             tcLanguage  = Upper( Evl(tcLanguage, Version(3)) )
 
             Do Case
-            Case Inlist(tcLanguage, '33', 'FR') && French (FrancÈs)
+            Case Inlist(tcLanguage, '33', 'FR') && French (Franc√©s)
                *-------------------------------------------------------------------------------------------------------------------------------------------
                *-- NOTE: MUST USE DOUBLE QUOTES, OR SYNTAX ERRORS HAPPEN WHEN COMPILING. STRANGE :(
                *-------------------------------------------------------------------------------------------------------------------------------------------
-               .C_ALLOWED_VALUES_ARE_LOC                                       = "Les valeurs autorisÈes sont"
-               .C_ASTERISK_EXT_NOT_ALLOWED_LOC                                 = "* Et ? extensions ne sont pas autorisÈes car il est dangereux (binaires peuvent Ítre remplacÈs par des fichiers vides de XX2)"
-               .C_BACKLINK_CANT_UPDATE_BL_LOC                                  = "Impossible de mettre ‡ jour backlink"
+               .C_ALLOWED_VALUES_ARE_LOC                                       = "Les valeurs autoris√©es sont"
+               .C_ASTERISK_EXT_NOT_ALLOWED_LOC                                 = "* Et ? extensions ne sont pas autoris√©es car il est dangereux (binaires peuvent √™tre remplac√©s par des fichiers vides de XX2)"
+               .C_BACKLINK_CANT_UPDATE_BL_LOC                                  = "Impossible de mettre √† jour backlink"
                .C_BACKLINK_OF_TABLE_LOC                                        = "de la table"
                .C_BACKUP_OF_LOC                                                = "Faire de sauvegarde des: "
-               .C_CACHING_CONFIG_FOR_DIRECTORY_LOC                             = "La mise en cache pour le rÈpertoire config"
-               .C_CANT_GENERATE_FILE_BECAUSE_IT_IS_READONLY_LOC                = "Vous ne pouvez pas gÈnÈrer un fichier [<<THIS.c_OutputFile>>] car il est en lecture seule"
-               .C_CLASSPERFILE_OPTIMIZATION_BASE_ALREADY_PROCESSED_LOC         = "Optimisation: Fichier de base [<<JUSTFNAME(.c_InputFile)>>] DÈj‡ traitÈe, en sautant traitement de fichier [<<tc_InputFile>>]"
+               .C_CACHING_CONFIG_FOR_DIRECTORY_LOC                             = "La mise en cache pour le r√©pertoire config"
+               .C_CANT_GENERATE_FILE_BECAUSE_IT_IS_READONLY_LOC                = "Vous ne pouvez pas g√©n√©rer un fichier [<<THIS.c_OutputFile>>] car il est en lecture seule"
+               .C_CLASSPERFILE_OPTIMIZATION_BASE_ALREADY_PROCESSED_LOC         = "Optimisation: Fichier de base [<<JUSTFNAME(.c_InputFile)>>] D√©j√† trait√©e, en sautant traitement de fichier [<<tc_InputFile>>]"
                .C_CONFIGFILE_LOC                                               = "Utilisation du fichier de configuration:"
-               .C_CONVERSION_CANCELLED_BY_USER_LOC                             = "Conversion AnnulÈ par l'utilisateur"
+               .C_CONVERSION_CANCELLED_BY_USER_LOC                             = "Conversion Annul√© par l'utilisateur"
                .C_CONVERT_ALL_FILES_IN_A_PROJECT_LOC                           = "Convertir tous les fichiers dans un Projet"
                .C_CONVERT_FOLDER_LOC                                           = "Convertir un Dossier"
                .C_BINARY_TO_TEXT_LOC                                           = "Binaire en Texte"
-               .C_TEXT_TO_BINARY_LOC                                           = "Texte ‡ Binaire"
+               .C_TEXT_TO_BINARY_LOC                                           = "Texte √† Binaire"
                .C_CONVERT_FOLDER_NONE_LOC                                      = "Aucun"
-               .C_CONVERT_FOLDER_QUESTION_LOC                                  = "Que la conversion doit Ítre effectuÈe sur les fichiers de ce dossier?"
-               .C_CONVERTER_UNLOAD_LOC                                         = "Convertisseur dÈchargement"
+               .C_CONVERT_FOLDER_QUESTION_LOC                                  = "Que la conversion doit √™tre effectu√©e sur les fichiers de ce dossier?"
+               .C_CONVERTER_UNLOAD_LOC                                         = "Convertisseur d√©chargement"
                .C_CONVERTING_FILE_LOC                                          = "Conversion de fichiers"
-               .C_DATA_ERROR_CANT_PARSE_UNPAIRING_DOUBLE_QUOTES_LOC            = "Erreur de donnÈes: ne peut pas analyser en raison de guillemets non appariÈs en ligne <<lcMetadatos>>"
-               .C_DUPLICATED_FILE_LOC                                          = "fichier dupliquÈ"
-               .C_DUPLICATED_OBJECT_LOC                                        = "Object dupliquÈ"
+               .C_DATA_ERROR_CANT_PARSE_UNPAIRING_DOUBLE_QUOTES_LOC            = "Erreur de donn√©es: ne peut pas analyser en raison de guillemets non appari√©s en ligne <<lcMetadatos>>"
+               .C_DUPLICATED_FILE_LOC                                          = "fichier dupliqu√©"
+               .C_DUPLICATED_OBJECT_LOC                                        = "Object dupliqu√©"
                .C_ENDDEFINE_MARKER_NOT_FOUND_LOC                               = "Vous ne trouvez pas marqueur de fin [ENDDEFINE] de la ligne <<TRANSFORM(toClase._Inicio)>> ID [<<toClase._Nombre>>]"
-               .C_END_MARKER_NOT_FOUND_LOC                                     = "Vous ne trouvez pas fin marqueur [<<ta_ID_Bloques(lnPrimerID, 2)>>] qui ferme marqueur de dÈbut [<<ta_ID_Bloques(lnPrimerID, 1) >>] en ligne <<TRANSFORM(taBloquesExclusion (tnBloquesExclusion, 1))>>"
+               .C_END_MARKER_NOT_FOUND_LOC                                     = "Vous ne trouvez pas fin marqueur [<<ta_ID_Bloques(lnPrimerID, 2)>>] qui ferme marqueur de d√©but [<<ta_ID_Bloques(lnPrimerID, 1) >>] en ligne <<TRANSFORM(taBloquesExclusion (tnBloquesExclusion, 1))>>"
                .C_END_OF_PROCESS_LOC                                           = "Fin du processus"
                .C_ERROR_LOC                                                    = "ERREUR"
-               .C_ERRORS_FOUND_IN_FILE_LOC                                     = "ERREURS TROUV… DANS LE FICHIER"
+               .C_ERRORS_FOUND_IN_FILE_LOC                                     = "ERREURS TROUV√â DANS LE FICHIER"
                .C_EXTENSION_RECONFIGURATION_LOC                                = "Extension Reconfiguration:"
-               .C_EXTERNAL_CLASS_COUNT_DOES_NOT_MATCH_FOUND_CLASSES_LOC        = "Nombre de classe externe (<<toModulo._ExternalClasses_Count>>) ne correspond pas classes trouvÈes (<<toModulo._Clases_Count>>) pour le fichier [<<toFoxBin2Prg.c_InputFile>>]"
-               .C_EXTERNAL_CLASS_NAME_WAS_NOT_FOUND_LOC                        = "Aucune classe externe est trouvÈ"
-               .C_EXTERNAL_MEMBER_NAME_WAS_NOT_FOUND_LOC                       = "Nom de membre externe n'a pas ÈtÈ trouvÈ"
-               .C_EXTERNAL_PARAMETERS_LOC                                      = "PARAM»TRES EXTERNES"
+               .C_EXTERNAL_CLASS_COUNT_DOES_NOT_MATCH_FOUND_CLASSES_LOC        = "Nombre de classe externe (<<toModulo._ExternalClasses_Count>>) ne correspond pas classes trouv√©es (<<toModulo._Clases_Count>>) pour le fichier [<<toFoxBin2Prg.c_InputFile>>]"
+               .C_EXTERNAL_CLASS_NAME_WAS_NOT_FOUND_LOC                        = "Aucune classe externe est trouv√©"
+               .C_EXTERNAL_MEMBER_NAME_WAS_NOT_FOUND_LOC                       = "Nom de membre externe n'a pas √©t√© trouv√©"
+               .C_EXTERNAL_PARAMETERS_LOC                                      = "PARAM√àTRES EXTERNES"
                .C_FIELD_NOT_FOUND_ON_FILE_STRUCTURE_LOC                        = "Champ [<< laProps (m.I) >>] ne trouve pas dans la structure du fichier DBF <<('TABLABIN')>>"
                .C_FILE_DOESNT_EXIST_LOC                                        = "Fichier ne existe pas:"
-               .C_FILE_NAME_IS_NOT_SUPPORTED_LOC                               = "File [<<.c_InputFile>>] ne est pas supportÈ"
+               .C_FILE_NAME_IS_NOT_SUPPORTED_LOC                               = "File [<<.c_InputFile>>] ne est pas support√©"
                .C_FILE_NOT_FOUND_LOC                                           = "Fichier introuvable"
                .C_FILENAME_LOC                                                 = "Fichier"
                .C_FOXBIN2PRG_ERROR_CAPTION_LOC                                 = "ERREUR"
@@ -264,7 +264,7 @@ Define Class CL_LANG As Custom
                         <<>>****************************************************************************************************************
                         <<>>
                         <<>>-- Settings for internal work, not processing
-                        <<>>Language: (auto)               && Language of shown messages and LOGs. EN=English, FR=French, ES=EspaÒol, DE=German, Not defined = AUTOMATIC [DEFAULT]
+                        <<>>Language: (auto)               && Language of shown messages and LOGs. EN=English, FR=French, ES=Espa√±ol, DE=German, Not defined = AUTOMATIC [DEFAULT]
                         <<>>ShowProgressbar: 1             && 0=Don't show, 1=Allways show, 2=Show only for multi-file processing
                         <<>>DontShowErrors: 0              && Show message errors by default
                         <<>>ExtraBackupLevels: 1           && By default 1 BAK is created. With this you can make more .N.BAK, or none
@@ -441,47 +441,47 @@ Define Class CL_LANG As Custom
                ENDTEXT
                .C_FOXBIN2PRG_JUST_VFP_9_LOC                                    = "FOXBIN2PRG est seulement pour Visual FoxPro 9.0!"
                .C_FOXBIN2PRG_WARN_CAPTION_LOC                                  = "AVERTISSEMENT!"
-               .C_GENERATED_FILE_SIZE_LOC                                      = "Taille du fichier gÈnÈrÈ"
-               .C_GENERATING_BINARY_LOC                                        = "GÈnÈration Binaire"
+               .C_GENERATED_FILE_SIZE_LOC                                      = "Taille du fichier g√©n√©r√©"
+               .C_GENERATING_BINARY_LOC                                        = "G√©n√©ration Binaire"
                .C_INCLUDING_CLASS_LOC                                          = "classe, y compris"
                .C_INCLUDING_MEMBER_LOC                                         = "membres, y compris"
-               .C_INCORRECT_VFP9_VERSION__MISSING_SP1_LOC                      = "SourceSafe CompatibilitÈ ModeIncorrect VFP 9 Version - SP1 manquant! PrÈvue: 3504 ou plus tard, rÈelle: " + Version(4)
-               .C_INHERITING_FROM_LOC                                          = "HÈritant de"
-               .C_INTERACTIVE_DIRECTORY_SELECTION_LOC                          = "SÈlection rÈpertoire interactive"
-               .C_INVALID_PARAMETER_LOC                                        = "ParamËtre non valide"
+               .C_INCORRECT_VFP9_VERSION__MISSING_SP1_LOC                      = "SourceSafe Compatibilit√© ModeIncorrect VFP 9 Version - SP1 manquant! Pr√©vue: 3504 ou plus tard, r√©elle: " + Version(4)
+               .C_INHERITING_FROM_LOC                                          = "H√©ritant de"
+               .C_INTERACTIVE_DIRECTORY_SELECTION_LOC                          = "S√©lection r√©pertoire interactive"
+               .C_INVALID_PARAMETER_LOC                                        = "Param√®tre non valide"
                .C_IS_A_FILE_LOC                                                = "est un FICHIER"
-               .C_IS_A_DIRECTORY_LOC                                           = "est un R…PERTOIRE"
-               .C_IS_UNSUPPORTED_LOC                                           = "ne est pas supportÈ"
+               .C_IS_A_DIRECTORY_LOC                                           = "est un R√âPERTOIRE"
+               .C_IS_UNSUPPORTED_LOC                                           = "ne est pas support√©"
                .C_LANGUAGE_LOC                                                 = "FR"
-               .C_MAIN_EXECUTION_LOC                                           = "EX…CUTION PRINCIPALE"
-               .C_MENU_NOT_IN_VFP9_FORMAT_LOC                                  = "Menu [<<THIS.c_InputFile>>] ne est pas dans VFP 9 Format! - Se il vous plaÓt se convertir ‡ VFP 9 avec MODIFY MENU '<<THIS.c_InputFile>>'"
-               .C_NAMES_CAPITALIZATION_PROGRAM_FOUND_LOC                       = "* Programme des noms de capitalisation [<<lcEXE_CAPS>>] trouvÈ"
+               .C_MAIN_EXECUTION_LOC                                           = "EX√âCUTION PRINCIPALE"
+               .C_MENU_NOT_IN_VFP9_FORMAT_LOC                                  = "Menu [<<THIS.c_InputFile>>] ne est pas dans VFP 9 Format! - Se il vous pla√Æt se convertir √† VFP 9 avec MODIFY MENU '<<THIS.c_InputFile>>'"
+               .C_NAMES_CAPITALIZATION_PROGRAM_FOUND_LOC                       = "* Programme des noms de capitalisation [<<lcEXE_CAPS>>] trouv√©"
                .C_NAMES_CAPITALIZATION_PROGRAM_NOT_FOUND_LOC                   = "* Programme des noms de capitalisation [<<lcEXE_CAPS>>] introuvables"
                .C_OBJECT_NAME_WITHOUT_OBJECT_OREG_LOC                          = "Object [<<toObj.CLASS>>] ne contient pas l'objet oReg (niveau <<TRANSFORM(tnNivel)>>)"
-               .C_ONLY_SETNAME_AND_GETNAME_RECOGNIZED_LOC                      = "OpÈration non reconnu. Seulement SETNAME et GETNAME permis."
-               .C_OPTIMIZATION_SKIPPING_ALREADY_PROCESSED_FILE_LOC             = "Optimisation: sauter fichier dÈj‡ traitÈ [<<(lcFile)>>]"
+               .C_ONLY_SETNAME_AND_GETNAME_RECOGNIZED_LOC                      = "Op√©ration non reconnu. Seulement SETNAME et GETNAME permis."
+               .C_OPTIMIZATION_SKIPPING_ALREADY_PROCESSED_FILE_LOC             = "Optimisation: sauter fichier d√©j√† trait√© [<<(lcFile)>>]"
                .C_OPTION_LOC                                                   = "Option"
-               .C_OUTER_CLASS_DOES_NOT_MATCH_INNER_CLASSES_LOC                 = "La classe externe ne correspond pas ‡ la classe interne"
-               .C_OUTER_MEMBER_DOES_NOT_MATCH_INNER_MEMBERS_LOC                = "L'ÈlÈment extÈrieur ne correspond pas aux ÈlÈments intÈrieur"
-               .C_OUTPUT_FILE_IS_NOT_OVERWRITEN_LOC                            = "Optimisation: fichier de sortie [<<lcOutputFile>>] ne Ètait pas ÈcrasÈ parce que ce est la mÍme que celle gÈnÈrÈe."
-               .C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimisation: le fichier de sortie [<<THIS.c_OutputFile>>] pas rÈgÈnÈrÈ en ayant le mÍme horodatage que l'entrÈe."
-               .C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimisation: le fichier de sortie [<<THIS.c_OutputFile>>] n'a pas ÈtÈ rÈgÈnÈrÈ car il est plus rÈcent que le fichier d'entrÈe."
+               .C_OUTER_CLASS_DOES_NOT_MATCH_INNER_CLASSES_LOC                 = "La classe externe ne correspond pas √† la classe interne"
+               .C_OUTER_MEMBER_DOES_NOT_MATCH_INNER_MEMBERS_LOC                = "L'√©l√©ment ext√©rieur ne correspond pas aux √©l√©ments int√©rieur"
+               .C_OUTPUT_FILE_IS_NOT_OVERWRITEN_LOC                            = "Optimisation: fichier de sortie [<<lcOutputFile>>] ne √©tait pas √©cras√© parce que ce est la m√™me que celle g√©n√©r√©e."
+               .C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimisation: le fichier de sortie [<<THIS.c_OutputFile>>] pas r√©g√©n√©r√© en ayant le m√™me horodatage que l'entr√©e."
+               .C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimisation: le fichier de sortie [<<THIS.c_OutputFile>>] n'a pas √©t√© r√©g√©n√©r√© car il est plus r√©cent que le fichier d'entr√©e."
                .C_PRESS_ESC_TO_CANCEL                                          = "Appuyez sur Esc pour Annuler"
-               .C_PROCEDURE_NOT_CLOSED_ON_LINE_LOC                             = "ProcÈdure pas fermÈ. DerniËre ligne de code doit Ítre ENDPROC. [<<laLineas(1)>>, Recno:<<RECNO()>>]"
+               .C_PROCEDURE_NOT_CLOSED_ON_LINE_LOC                             = "Proc√©dure pas ferm√©. Derni√®re ligne de code doit √™tre ENDPROC. [<<laLineas(1)>>, Recno:<<RECNO()>>]"
                .C_PROCESSING_LOC                                               = "Traitement du fichier"
-               .C_PROCESS_PROGRESS_LOC                                         = "Processus ProgrËs:"
-               .C_PROPERTY_NAME_NOT_RECOGNIZED_LOC                             = "PropriÈtÈ [<<TRANSFORM(tnPropertyID)>>] ne est pas reconnu."
-               .C_READING_CFG_VALUES_FROM_DISK_LOC                             = "VALEURS LECTURE CFG ¿ PARTIR DU DISQUE"
-               .C_REPORT_NOT_IN_VFP9_FORMAT_LOC                                = "Rapport [<<THIS.c_InputFile>>] ne est pas dans VFP 9 Format! - Se il vous plaÓt se convertir ‡ VFP 9 avec MODIFY REPORT '<<THIS.c_InputFile>>'"
+               .C_PROCESS_PROGRESS_LOC                                         = "Processus Progr√®s:"
+               .C_PROPERTY_NAME_NOT_RECOGNIZED_LOC                             = "Propri√©t√© [<<TRANSFORM(tnPropertyID)>>] ne est pas reconnu."
+               .C_READING_CFG_VALUES_FROM_DISK_LOC                             = "VALEURS LECTURE CFG √Ä PARTIR DU DISQUE"
+               .C_REPORT_NOT_IN_VFP9_FORMAT_LOC                                = "Rapport [<<THIS.c_InputFile>>] ne est pas dans VFP 9 Format! - Se il vous pla√Æt se convertir √† VFP 9 avec MODIFY REPORT '<<THIS.c_InputFile>>'"
                .C_REQUESTING_CAPITALIZATION_OF_FILE_LOC                        = "- Demande de capitalisation de fichier [<<tcFileName>>]"
-               .C_SCANNING_FILE_AND_DIR_INFO_LOC                               = "Fichier de numÈrisation et de l'information de rÈpertoire pour"
+               .C_SCANNING_FILE_AND_DIR_INFO_LOC                               = "Fichier de num√©risation et de l'information de r√©pertoire pour"
                .C_SOURCEFILE_LOC                                               = "Fichier source: "
-               .C_SOURCESAFE_COMPATIBILITY_MODE_LOC                            = "Mode de compatibilitÈ SourceSafe"
-               .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_LOC                 = "Nesting erreur de structure. ENDPROC prÈvu, mais a trouvÈ ENDDEFINE sur la classe <<toClase._Nombre>> (<<loProcedure._Nombre>>), ligne <<TRANSFORM(m.I)>> du fichier <<THIS.c_InputFile>>"
+               .C_SOURCESAFE_COMPATIBILITY_MODE_LOC                            = "Mode de compatibilit√© SourceSafe"
+               .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_LOC                 = "Nesting erreur de structure. ENDPROC pr√©vu, mais a trouv√© ENDDEFINE sur la classe <<toClase._Nombre>> (<<loProcedure._Nombre>>), ligne <<TRANSFORM(m.I)>> du fichier <<THIS.c_InputFile>>"
                .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_2_LOC               = "Nesting erreur de structure. ENDPROC attendue, mais ENDDEFINE sur la classe <<toClase._Nombre>> (<<toObjeto._Nombre>>.<<loProcedure._Nombre>>), ligne <<TRANSFORM(m.I)>> du fichier <<THIS.c_InputFile>>"
                .C_UNKNOWN_CLASS_NAME_LOC                                       = "Classe inconnue[<<THIS.CLASS>>]"
                .C_USE_FILE_TIMESTAMP_OPTIMIZATION_LOC                          = "Utilisez le fichier Optimisation d'horodatage"
-               .C_USING_THIS_SETTINGS_LOC                                      = "Utilisation de ce paramËtre"
+               .C_USING_THIS_SETTINGS_LOC                                      = "Utilisation de ce param√®tre"
                .C_USING_THIS_SETTINGS_LOC1                                     = " BY PARAMETER, skipping all previous config!"
                .C_USING_THIS_SETTINGS_LOC2                                     = " Parsing of full configuration allowed."+CR_LF
                .C_USING_THIS_SETTINGS_LOC3                                     = " Parsing configuration in parent~ and subdirectories allowed."+CR_LF
@@ -490,7 +490,7 @@ Define Class CL_LANG As Custom
                .C_USING_THIS_SETTINGS_LOC6                                     = "External configuration file set: "
                .C_USING_THIS_SETTINGS_LOC7                                     = ", using cached config."
                .C_WARNING_LOC                                                  = "AVERTISSEMENT!"
-               .C_WARN_TABLE_ALIAS_ON_INDEX_EXPRESSION_LOC                     = "AVERTISSEMENT!" + CR_LF+ "ASSUREZ VOUS NE UTILISEZ PAS UN ALIAS DE TABLE SUR LES EXPRESSIONS INDEX CL…S!! (exemple: index on <<UPPER(JUSTSTEM(THIS.c_InputFile))>>.campo tag keyname)"
+               .C_WARN_TABLE_ALIAS_ON_INDEX_EXPRESSION_LOC                     = "AVERTISSEMENT!" + CR_LF+ "ASSUREZ VOUS NE UTILISEZ PAS UN ALIAS DE TABLE SUR LES EXPRESSIONS INDEX CL√âS!! (exemple: index on <<UPPER(JUSTSTEM(THIS.c_InputFile))>>.campo tag keyname)"
                .C_WITH_ERRORS_LOC                                              = "avec des erreurs"
 
                .C_LOCKINGFOLDER_LOC                                            = " found, proccessing directory and subdirectories inhibited."
@@ -508,64 +508,64 @@ Define Class CL_LANG As Custom
                .C_PJXPATH_ERR_LOC4                                             = '"' + CR_LF + 'not in PJX folder structure, "'
                .C_PJXPATH_ERR_LOC5                                             = '",' + CR_LF + 'check option "CheckFileInPath".' + CR_LF+CR_LF
 
-            Case Inlist(tcLanguage, '34', 'ES') && Spanish (EspaÒol)
+            Case Inlist(tcLanguage, '34', 'ES') && Spanish (Espa√±ol)
                *-------------------------------------------------------------------------------------------------------------------------------------------
-               *-- NOTA: SE DEBEN USAR COMILLAS DOBLES, O ERRORES DE SINTAXIS OCURREN AL COMPILAR. EXTRA—O :(
+               *-- NOTA: SE DEBEN USAR COMILLAS DOBLES, O ERRORES DE SINTAXIS OCURREN AL COMPILAR. EXTRA√ëO :(
                *-------------------------------------------------------------------------------------------------------------------------------------------
                .C_ALLOWED_VALUES_ARE_LOC                                       = "Los valores permitidos son"
-               .C_ASTERISK_EXT_NOT_ALLOWED_LOC                                 = "No se admiten extensiones * o ? porque es peligroso (se pueden pisar binarios con archivo xx2 vacÌos)."
+               .C_ASTERISK_EXT_NOT_ALLOWED_LOC                                 = "No se admiten extensiones * o ? porque es peligroso (se pueden pisar binarios con archivo xx2 vac√≠os)."
                .C_BACKLINK_CANT_UPDATE_BL_LOC                                  = "No se pudo actualizar el backlink"
                .C_BACKLINK_OF_TABLE_LOC                                        = "de la tabla"
                .C_BACKUP_OF_LOC                                                = "Haciendo Backup de: "
-               .C_CACHING_CONFIG_FOR_DIRECTORY_LOC                             = "Cacheando configuraciÛn para directorio"
+               .C_CACHING_CONFIG_FOR_DIRECTORY_LOC                             = "Cacheando configuraci√≥n para directorio"
                .C_CANT_GENERATE_FILE_BECAUSE_IT_IS_READONLY_LOC                = "No se puede generar el archivo [<<THIS.c_OutputFile>>] porque es ReadOnly"
-               .C_CLASSPERFILE_OPTIMIZATION_BASE_ALREADY_PROCESSED_LOC         = "OptimizaciÛn: El archivo Base [<<JUSTFNAME(.c_InputFile)>>] ya fue procesado, ignorando el procesamiento del archivo [<<tc_InputFile>>]"
-               .C_CONFIGFILE_LOC                                               = "Usando archivo de configuraciÛn:"
-               .C_CONVERSION_CANCELLED_BY_USER_LOC                             = "ConversiÛn Cancelada por el usuario"
+               .C_CLASSPERFILE_OPTIMIZATION_BASE_ALREADY_PROCESSED_LOC         = "Optimizaci√≥n: El archivo Base [<<JUSTFNAME(.c_InputFile)>>] ya fue procesado, ignorando el procesamiento del archivo [<<tc_InputFile>>]"
+               .C_CONFIGFILE_LOC                                               = "Usando archivo de configuraci√≥n:"
+               .C_CONVERSION_CANCELLED_BY_USER_LOC                             = "Conversi√≥n Cancelada por el usuario"
                .C_CONVERT_ALL_FILES_IN_A_PROJECT_LOC                           = "Convertir todos los archivos de un Proyecto"
                .C_CONVERT_FOLDER_LOC                                           = "Convertir Carpeta"
                .C_BINARY_TO_TEXT_LOC                                           = "Binario a Texto"
                .C_TEXT_TO_BINARY_LOC                                           = "Texto a Binario"
                .C_CONVERT_FOLDER_NONE_LOC                                      = "Ninguna"
-               .C_CONVERT_FOLDER_QUESTION_LOC                                  = "øQuÈ tipo de conversiÛn se debe hacer en esta carpeta?"
+               .C_CONVERT_FOLDER_QUESTION_LOC                                  = "¬øQu√© tipo de conversi√≥n se debe hacer en esta carpeta?"
                .C_CONVERTER_UNLOAD_LOC                                         = "Descarga del conversor"
                .C_CONVERTING_FILE_LOC                                          = "Convirtiendo archivo"
-               .C_DATA_ERROR_CANT_PARSE_UNPAIRING_DOUBLE_QUOTES_LOC            = "Error de datos: No se puede parsear porque las comillas no son pares en la lÌnea <<lcMetadatos>>"
+               .C_DATA_ERROR_CANT_PARSE_UNPAIRING_DOUBLE_QUOTES_LOC            = "Error de datos: No se puede parsear porque las comillas no son pares en la l√≠nea <<lcMetadatos>>"
                .C_DUPLICATED_FILE_LOC                                          = "Archivo duplicado"
                .C_DUPLICATED_OBJECT_LOC                                        = "Objeto Duplicado"
-               .C_ENDDEFINE_MARKER_NOT_FOUND_LOC                               = "No se ha encontrado el marcador de fin [ENDDEFINE] de la lÌnea <<TRANSFORM( toClase._Inicio )>> para el identificador [<<toClase._Nombre>>]"
-               .C_END_MARKER_NOT_FOUND_LOC                                     = "No se ha encontrado el marcador de fin [<<ta_ID_Bloques(lnPrimerID,2)>>] que cierra al marcador de inicio [<<ta_ID_Bloques(lnPrimerID,1)>>] de la lÌnea <<TRANSFORM(taBloquesExclusion(tnBloquesExclusion,1))>>"
+               .C_ENDDEFINE_MARKER_NOT_FOUND_LOC                               = "No se ha encontrado el marcador de fin [ENDDEFINE] de la l√≠nea <<TRANSFORM( toClase._Inicio )>> para el identificador [<<toClase._Nombre>>]"
+               .C_END_MARKER_NOT_FOUND_LOC                                     = "No se ha encontrado el marcador de fin [<<ta_ID_Bloques(lnPrimerID,2)>>] que cierra al marcador de inicio [<<ta_ID_Bloques(lnPrimerID,1)>>] de la l√≠nea <<TRANSFORM(taBloquesExclusion(tnBloquesExclusion,1))>>"
                .C_END_OF_PROCESS_LOC                                           = "Fin del Proceso"
                .C_ERROR_LOC                                                    = "ERROR"
                .C_ERRORS_FOUND_IN_FILE_LOC                                     = "SE HAN ENCONTRADOS ERRORES EN EL ARCHIVO"
-               .C_EXTENSION_RECONFIGURATION_LOC                                = "ReconfiguraciÛn de extensiÛn:"
+               .C_EXTENSION_RECONFIGURATION_LOC                                = "Reconfiguraci√≥n de extensi√≥n:"
                .C_EXTERNAL_CLASS_COUNT_DOES_NOT_MATCH_FOUND_CLASSES_LOC        = "El conteo de clases externas (<<toModulo._ExternalClasses_Count>>) no coincide con la cantidad encontrada (<<toModulo._Clases_Count>>) para el archivo [<<toFoxBin2Prg.c_InputFile>>]"
-               .C_EXTERNAL_CLASS_NAME_WAS_NOT_FOUND_LOC                        = "No se encontrÛ la clase externa"
-               .C_EXTERNAL_MEMBER_NAME_WAS_NOT_FOUND_LOC                       = "No se encontrÛ el miembro externo"
-               .C_EXTERNAL_PARAMETERS_LOC                                      = "PAR¡METROS EXTERNOS"
-               .C_FIELD_NOT_FOUND_ON_FILE_STRUCTURE_LOC                        = "No se encontrÛ el campo [<<laProps(m.I)>>] en la estructura del archivo <<DBF('TABLABIN')>>"
+               .C_EXTERNAL_CLASS_NAME_WAS_NOT_FOUND_LOC                        = "No se encontr√≥ la clase externa"
+               .C_EXTERNAL_MEMBER_NAME_WAS_NOT_FOUND_LOC                       = "No se encontr√≥ el miembro externo"
+               .C_EXTERNAL_PARAMETERS_LOC                                      = "PAR√ÅMETROS EXTERNOS"
+               .C_FIELD_NOT_FOUND_ON_FILE_STRUCTURE_LOC                        = "No se encontr√≥ el campo [<<laProps(m.I)>>] en la estructura del archivo <<DBF('TABLABIN')>>"
                .C_FILE_DOESNT_EXIST_LOC                                        = "El archivo no existe:"
-               .C_FILE_NAME_IS_NOT_SUPPORTED_LOC                               = "El archivo [<<.c_InputFile>>] no est· soportado"
-               .C_FILE_NOT_FOUND_LOC                                           = "No se encontrÛ el archivo"
+               .C_FILE_NAME_IS_NOT_SUPPORTED_LOC                               = "El archivo [<<.c_InputFile>>] no est√° soportado"
+               .C_FILE_NOT_FOUND_LOC                                           = "No se encontr√≥ el archivo"
                .C_FILENAME_LOC                                                 = "Archivo"
                .C_FOXBIN2PRG_ERROR_CAPTION_LOC                                 = "ERROR"
-               .C_FOXBIN2PRG_SYNTAX_INFO_LOC                                   = "INFORMACI”N DE SINTAXIS Y PAR¡METROS"
+               .C_FOXBIN2PRG_SYNTAX_INFO_LOC                                   = "INFORMACI√ìN DE SINTAXIS Y PAR√ÅMETROS"
                .C_ClassTwice_Header_LOC                                        = CR_LF+"Class defined twice."+CR_LF
                .C_ClassTwice_Lib_LOC                                           = CR_LF+"Library: "
                .C_ClassTwice_Class_LOC                                         = CR_LF+"Class: "
                TEXT TO .C_FOXBIN2PRG_SYNTAX_INFO_EXAMPLE_LOC TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
                         <<>>################################################################################################################
-                        <<>>P·gina principal y descarga de FoxBin2Prg: https://github.com/fdbozzo/foxbin2prg/wiki  -  Fernando D. Bozzo (2013.11.25)
+                        <<>>P√°gina principal y descarga de FoxBin2Prg: https://github.com/fdbozzo/foxbin2prg/wiki  -  Fernando D. Bozzo (2013.11.25)
                         <<>>****************************************************************************************************************
                         <<>>
                         <<>>FOXBIN2PRG.EXE <cFileSpec.Ext> [cType [cTextName [cGenText [cDontShowErrors [cDebug [cDontShowProgress [cOriginalFileName [cRecompile [cNoTimestamps [cCFG_File [cOutputFolder] ] ] ] ] ] ] ] ] ] ]
                         <<>>
-                        <<>>-- Detalle de par·metros:
+                        <<>>-- Detalle de par√°metros:
                         <<>>cFileSpec.Ext:     ? | interactive This help
                         <<>>                   Nombre completo (fullpath) del archivo a convertir o del directorio a procesar
                         <<>>                   - Si indica 'BIN2PRG', se procesa el directorio indicado en tcType para generar los TX2
                         <<>>                   - Si indica 'PRG2BIN', se procesa el directorio indicado en tcType para generar los BIN
-                        <<>>                   - En modo compatibilidad con SCCAPI (VSS), se usa para preguntar el tipo de soporte de conversiÛn para el tipo de archivo indicado
+                        <<>>                   - En modo compatibilidad con SCCAPI (VSS), se usa para preguntar el tipo de soporte de conversi√≥n para el tipo de archivo indicado
                         <<>>                     VSS Types: d=DBC, D=DBF, K=Form, B=Label, M=Menu, R=Report, V=Class
                         <<>>cType:             En modo compatibilidad con SCCAPI (VSS) es el Tipo de archivo de entrada.
                         <<>>                    - i indica '*' o '*-' y tc_InputFile es un PJX, se procesa todo el proyecto
@@ -574,9 +574,9 @@ Define Class CL_LANG As Custom
                         <<>>cDontShowErrors:   '1' para NO mostrar errores
                         <<>>cDebug:            '1' para generar LOGs del proceso, stop on errors
                         <<>>cDontShowProgress: '1' para NO mostrar la ventana de progreso
-                        <<>>cOriginalFileName: Sirve para los casos en los que inputFile es un nombre temporal y se quiere generar el nombre correcto en la cabecera de la versiÛn texto
-                        <<>>cRecompile:        Indica recompilar ('1') el binario una vez regenerado. TambiÈn se puede indicar un Path (p.ej, el del proyecto)
-                        <<>>cNoTimestamps:     Indica si se debe anular el timestamp ('1' o vacÌo) o no ('0')
+                        <<>>cOriginalFileName: Sirve para los casos en los que inputFile es un nombre temporal y se quiere generar el nombre correcto en la cabecera de la versi√≥n texto
+                        <<>>cRecompile:        Indica recompilar ('1') el binario una vez regenerado. Tambi√©n se puede indicar un Path (p.ej, el del proyecto)
+                        <<>>cNoTimestamps:     Indica si se debe anular el timestamp ('1' o vac√≠o) o no ('0')
                         <<>>cCFG_File:         Indicates a CFG filename for using special default instead of the config file in foxbin2prg directory.
                         <<>>cOutputFolder:     The output folder to write to. If it isn't specified, the same folder as the source is used.
                         <<>>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -626,7 +626,7 @@ Define Class CL_LANG As Custom
                         <<>>****************************************************************************************************************
                         <<>>
                         <<>>-- Settings for internal work, not processing
-                        <<>>Language: (auto)               && Language of shown messages and LOGs. EN=English, FR=French, ES=EspaÒol, DE=German, Not defined = AUTOMATIC [DEFAULT]
+                        <<>>Language: (auto)               && Language of shown messages and LOGs. EN=English, FR=French, ES=Espa√±ol, DE=German, Not defined = AUTOMATIC [DEFAULT]
                         <<>>ShowProgressbar: 1             && 0=Don't show, 1=Allways show, 2=Show only for multi-file processing
                         <<>>DontShowErrors: 0              && Show message errors by default
                         <<>>ExtraBackupLevels: 1           && By default 1 BAK is created. With this you can make more .N.BAK, or none
@@ -789,61 +789,61 @@ Define Class CL_LANG As Custom
                ENDTEXT
                TEXT TO .C_FOXBIN2PRG_SYNTAX_INFO_EXAMPLE_LOC_tab_cfg TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
                         <<>>################################################################################################################
-                        <<>>-- Archivo de configuraciÛn individual para DBF (sintaxis: archivo.dbf.cfg) Defaults see FoxBin2prg.cfg
+                        <<>>-- Archivo de configuraci√≥n individual para DBF (sintaxis: archivo.dbf.cfg) Defaults see FoxBin2prg.cfg
                         <<>>Version: <<_Screen.c_FB2PRG_EXE_Version>>
                         <<>>****************************************************************************************************************
                         <<>>
-                        <<>>DBF_Conversion_Support: <1,2,4,8>           && Ver esta misma configuraciÛn m·s arriba
-                        <<>>DBF_Conversion_Order: <c_Expression>        && ExpresiÛn de campo. ej: nombre+str(edad,3)
-                        <<>>DBF_Conversion_Condition: <c_Expression>    && ExpresiÛn lÛgica. ej: edad > 10 AND NOT DELETED()
+                        <<>>DBF_Conversion_Support: <1,2,4,8>           && Ver esta misma configuraci√≥n m√°s arriba
+                        <<>>DBF_Conversion_Order: <c_Expression>        && Expresi√≥n de campo. ej: nombre+str(edad,3)
+                        <<>>DBF_Conversion_Condition: <c_Expression>    && Expresi√≥n l√≥gica. ej: edad > 10 AND NOT DELETED()
                         <<>>DBF_IndexList: <cFile_List>                 && comma delimited list of additonal non structural index files, cdx or idx
                         <<>>DBF_BinChar_Base64: <0,1>                   && For character type fields, if NoCPTrans 0=do not transform, 1=use Base64 transform
                         <<>>DBF_IncludeDeleted: <0,1>                   && 0=Do not include deleted records, 1=Include deleted records
                         <<>>
                ENDTEXT
-               .C_FOXBIN2PRG_JUST_VFP_9_LOC                                    = "°FOXBIN2PRG es solo para Visual FoxPro 9.0!"
-               .C_FOXBIN2PRG_WARN_CAPTION_LOC                                  = "°ATENCI”N!"
-               .C_GENERATED_FILE_SIZE_LOC                                      = "TamaÒo del archivo generado"
+               .C_FOXBIN2PRG_JUST_VFP_9_LOC                                    = "¬°FOXBIN2PRG es solo para Visual FoxPro 9.0!"
+               .C_FOXBIN2PRG_WARN_CAPTION_LOC                                  = "¬°ATENCI√ìN!"
+               .C_GENERATED_FILE_SIZE_LOC                                      = "Tama√±o del archivo generado"
                .C_GENERATING_BINARY_LOC                                        = "Generando Binario"
-               .C_MENU_NOT_IN_VFP9_FORMAT_LOC                                  = "El Men˙ [<<THIS.c_InputFile>>] NO est· en formato VFP 9! - Por favor convertirlo a VFP 9 con MODIFY MENU '<<THIS.c_InputFile>>'"
+               .C_MENU_NOT_IN_VFP9_FORMAT_LOC                                  = "El Men√∫ [<<THIS.c_InputFile>>] NO est√° en formato VFP 9! - Por favor convertirlo a VFP 9 con MODIFY MENU '<<THIS.c_InputFile>>'"
                .C_INCLUDING_CLASS_LOC                                          = "Incluyendo clase"
                .C_INCLUDING_MEMBER_LOC                                         = "Incluyendo miembro"
-               .C_INCORRECT_VFP9_VERSION__MISSING_SP1_LOC                      = "VersiÛn Incorrecta de VFP 9 - Falta el SP1! Esperado: 3504 o posterior, actual: " + Version(4)
+               .C_INCORRECT_VFP9_VERSION__MISSING_SP1_LOC                      = "Versi√≥n Incorrecta de VFP 9 - Falta el SP1! Esperado: 3504 o posterior, actual: " + Version(4)
                .C_INHERITING_FROM_LOC                                          = "Heredando desde"
-               .C_INTERACTIVE_DIRECTORY_SELECTION_LOC                          = "SelecciÛn Interactiva de Directorio"
-               .C_INVALID_PARAMETER_LOC                                        = "Par·metro inv·lido"
+               .C_INTERACTIVE_DIRECTORY_SELECTION_LOC                          = "Selecci√≥n Interactiva de Directorio"
+               .C_INVALID_PARAMETER_LOC                                        = "Par√°metro inv√°lido"
                .C_IS_A_FILE_LOC                                                = "es un ARCHIVO"
                .C_IS_A_DIRECTORY_LOC                                           = "es un DIRECTORIO"
-               .C_IS_UNSUPPORTED_LOC                                           = "no est· soportado"
+               .C_IS_UNSUPPORTED_LOC                                           = "no est√° soportado"
                .C_LANGUAGE_LOC                                                 = "ES"
-               .C_MAIN_EXECUTION_LOC                                           = "EJECUCI”N PRINCIPAL"
-               .C_NAMES_CAPITALIZATION_PROGRAM_FOUND_LOC                       = "* Se ha encontrado el programa de capitalizaciÛn de nombres [<<lcEXE_CAPS>>]"
-               .C_NAMES_CAPITALIZATION_PROGRAM_NOT_FOUND_LOC                   = "* No se ha encontrado el programa de capitalizaciÛn de nombres [<<lcEXE_CAPS>>]"
+               .C_MAIN_EXECUTION_LOC                                           = "EJECUCI√ìN PRINCIPAL"
+               .C_NAMES_CAPITALIZATION_PROGRAM_FOUND_LOC                       = "* Se ha encontrado el programa de capitalizaci√≥n de nombres [<<lcEXE_CAPS>>]"
+               .C_NAMES_CAPITALIZATION_PROGRAM_NOT_FOUND_LOC                   = "* No se ha encontrado el programa de capitalizaci√≥n de nombres [<<lcEXE_CAPS>>]"
                .C_OBJECT_NAME_WITHOUT_OBJECT_OREG_LOC                          = "Objeto [<<toObj.CLASS>>] no contiene el objeto oReg (nivel <<TRANSFORM(tnNivel)>>)"
-               .C_ONLY_SETNAME_AND_GETNAME_RECOGNIZED_LOC                      = "OperaciÛn no reconocida. Solo re reconoce SETNAME y GETNAME."
-               .C_OPTIMIZATION_SKIPPING_ALREADY_PROCESSED_FILE_LOC             = "OptimizaciÛn: saltando el archivo ya procesado [<<(lcFile)>>]"
-               .C_OPTION_LOC                                                   = "OpciÛn"
+               .C_ONLY_SETNAME_AND_GETNAME_RECOGNIZED_LOC                      = "Operaci√≥n no reconocida. Solo re reconoce SETNAME y GETNAME."
+               .C_OPTIMIZATION_SKIPPING_ALREADY_PROCESSED_FILE_LOC             = "Optimizaci√≥n: saltando el archivo ya procesado [<<(lcFile)>>]"
+               .C_OPTION_LOC                                                   = "Opci√≥n"
                .C_OUTER_CLASS_DOES_NOT_MATCH_INNER_CLASSES_LOC                 = "La clase externa no coincide con las clases internas"
                .C_OUTER_MEMBER_DOES_NOT_MATCH_INNER_MEMBERS_LOC                = "El miembro externo no coincide con los miembros internos"
-               .C_OUTPUT_FILE_IS_NOT_OVERWRITEN_LOC                            = "OptimizaciÛn: el archivo de salida [<<lcOutputFile>>] no se sobreescribe por ser igual al ya existente."
-               .C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC      = "OptimizaciÛn: el archivo de salida [<<THIS.c_OutputFile>>] no se regenera por tener el mismo timestamp que el de entrada."
-               .C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC      = "OptimizaciÛn: el archivo de salida [<<THIS.c_OutputFile>>] no se regenera por tener un timestamp m·s nuevo que el de entrada."
+               .C_OUTPUT_FILE_IS_NOT_OVERWRITEN_LOC                            = "Optimizaci√≥n: el archivo de salida [<<lcOutputFile>>] no se sobreescribe por ser igual al ya existente."
+               .C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimizaci√≥n: el archivo de salida [<<THIS.c_OutputFile>>] no se regenera por tener el mismo timestamp que el de entrada."
+               .C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimizaci√≥n: el archivo de salida [<<THIS.c_OutputFile>>] no se regenera por tener un timestamp m√°s nuevo que el de entrada."
                .C_PRESS_ESC_TO_CANCEL                                          = "Pulse Esc para Cancelar"
-               .C_PROCEDURE_NOT_CLOSED_ON_LINE_LOC                             = "Procedimiento sin cerrar. La ˙ltima lÌnea de cÛdigo debe ser ENDPROC. [<<laLineas(1)>>, Recno:<<RECNO()>>]"
+               .C_PROCEDURE_NOT_CLOSED_ON_LINE_LOC                             = "Procedimiento sin cerrar. La √∫ltima l√≠nea de c√≥digo debe ser ENDPROC. [<<laLineas(1)>>, Recno:<<RECNO()>>]"
                .C_PROCESSING_LOC                                               = "Procesando archivo"
                .C_PROCESS_PROGRESS_LOC                                         = "Avance del proceso:"
                .C_PROPERTY_NAME_NOT_RECOGNIZED_LOC                             = "Propiedad [<<TRANSFORM(tnPropertyID)>>] no reconocida."
                .C_READING_CFG_VALUES_FROM_DISK_LOC                             = "LEYENDO VALORES DEL ARCHIVO CFG DEL DISCO"
-               .C_REPORT_NOT_IN_VFP9_FORMAT_LOC                                = "El Reporte [<<THIS.c_InputFile>>] NO est· en formato VFP 9! - Por favor convertirlo a VFP 9 con MODIFY REPORT '<<THIS.c_InputFile>>'"
+               .C_REPORT_NOT_IN_VFP9_FORMAT_LOC                                = "El Reporte [<<THIS.c_InputFile>>] NO est√° en formato VFP 9! - Por favor convertirlo a VFP 9 con MODIFY REPORT '<<THIS.c_InputFile>>'"
                .C_REQUESTING_CAPITALIZATION_OF_FILE_LOC                        = "- Solicitado capitalizar el archivo [<<tcFileName>>]"
-               .C_SCANNING_FILE_AND_DIR_INFO_LOC                               = "Escaneando archivos e informaciÛn de directorio para"
+               .C_SCANNING_FILE_AND_DIR_INFO_LOC                               = "Escaneando archivos e informaci√≥n de directorio para"
                .C_SOURCEFILE_LOC                                               = "Archivo origen: "
                .C_SOURCESAFE_COMPATIBILITY_MODE_LOC                            = "Modo de Compatibilidad SourceSafe"
-               .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_LOC                 = "Error de anidamiento de estructuras. Se esperaba ENDPROC pero se encontrÛ ENDDEFINE en la clase <<toClase._Nombre>> (<<loProcedure._Nombre>>), lÌnea <<TRANSFORM(m.I)>> del archivo <<THIS.c_InputFile>>"
-               .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_2_LOC               = "Error de anidamiento de estructuras. Se esperaba ENDPROC pero se encontrÛ ENDDEFINE en la clase <<toClase._Nombre>> (<<toObjeto._Nombre>>.<<loProcedure._Nombre>>), lÌnea <<TRANSFORM(m.I)>> del archivo <<THIS.c_InputFile>>"
+               .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_LOC                 = "Error de anidamiento de estructuras. Se esperaba ENDPROC pero se encontr√≥ ENDDEFINE en la clase <<toClase._Nombre>> (<<loProcedure._Nombre>>), l√≠nea <<TRANSFORM(m.I)>> del archivo <<THIS.c_InputFile>>"
+               .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_2_LOC               = "Error de anidamiento de estructuras. Se esperaba ENDPROC pero se encontr√≥ ENDDEFINE en la clase <<toClase._Nombre>> (<<toObjeto._Nombre>>.<<loProcedure._Nombre>>), l√≠nea <<TRANSFORM(m.I)>> del archivo <<THIS.c_InputFile>>"
                .C_UNKNOWN_CLASS_NAME_LOC                                       = "Clase [<<THIS.CLASS>>] desconocida"
-               .C_USE_FILE_TIMESTAMP_OPTIMIZATION_LOC                          = "Usar OptimizaciÛn de filestamp de archivo"
-               .C_USING_THIS_SETTINGS_LOC                                      = "Usando esta configuraciÛn"
+               .C_USE_FILE_TIMESTAMP_OPTIMIZATION_LOC                          = "Usar Optimizaci√≥n de filestamp de archivo"
+               .C_USING_THIS_SETTINGS_LOC                                      = "Usando esta configuraci√≥n"
                .C_USING_THIS_SETTINGS_LOC1                                     = " BY PARAMETER, skipping all previous config!"
                .C_USING_THIS_SETTINGS_LOC2                                     = " Parsing of full configuration allowed."+CR_LF
                .C_USING_THIS_SETTINGS_LOC3                                     = " Parsing configuration in parent~ and subdirectories allowed."+CR_LF
@@ -851,8 +851,8 @@ Define Class CL_LANG As Custom
                .C_USING_THIS_SETTINGS_LOC5                                     = " Parsing of other configuration not allowed."+CR_LF
                .C_USING_THIS_SETTINGS_LOC6                                     = "External configuration file set: "
                .C_USING_THIS_SETTINGS_LOC7                                     = ", using cached config."
-               .C_WARNING_LOC                                                  = "°ATENCI”N!"
-               .C_WARN_TABLE_ALIAS_ON_INDEX_EXPRESSION_LOC                     = "°ATENCI”N!" + CR_LF+ "ASEG⁄RESE DE QUE NO EST¡ USANDO UN ALIAS DE TABLA EN LAS EXPRESIONES DE LOS ÕNDICES!! (ej: index on <<UPPER(JUSTSTEM(THIS.c_InputFile))>>.campo tag nombreclave)"
+               .C_WARNING_LOC                                                  = "¬°ATENCI√ìN!"
+               .C_WARN_TABLE_ALIAS_ON_INDEX_EXPRESSION_LOC                     = "¬°ATENCI√ìN!" + CR_LF+ "ASEG√öRESE DE QUE NO EST√Å USANDO UN ALIAS DE TABLA EN LAS EXPRESIONES DE LOS √çNDICES!! (ej: index on <<UPPER(JUSTSTEM(THIS.c_InputFile))>>.campo tag nombreclave)"
                .C_WITH_ERRORS_LOC                                              = "con errores"
                .C_LOCKINGFOLDER_LOC                                            = " found, proccessing directory and subdirectories inhibited."
 
@@ -870,44 +870,44 @@ Define Class CL_LANG As Custom
                .C_PJXPATH_ERR_LOC4                                             = '"' + CR_LF + 'not in PJX folder structure, "'
                .C_PJXPATH_ERR_LOC5                                             = '",' + CR_LF + 'check option "CheckFileInPath".' + CR_LF+CR_LF
 
-            Case Inlist(tcLanguage, '49', 'DE') && German (Alem·n)
+            Case Inlist(tcLanguage, '49', 'DE') && German (Alem√°n)
                *-------------------------------------------------------------------------------------------------------------------------------------------
-               *-- NOTE: ES M‹SSEN ANF‹HRUNGSZEICHEN BENUTZT WERDEN, ODER SYNTAX ERRORS PASSIEREN BEIM COMPILE. SELTSAM :(
+               *-- NOTE: ES M√úSSEN ANF√úHRUNGSZEICHEN BENUTZT WERDEN, ODER SYNTAX ERRORS PASSIEREN BEIM COMPILE. SELTSAM :(
                *-------------------------------------------------------------------------------------------------------------------------------------------
                .C_ALLOWED_VALUES_ARE_LOC                                       = "Erlaubte Werte sind"
-               .C_ASTERISK_EXT_NOT_ALLOWED_LOC                                 = "Die Erweiterungen * und ? sind nicht erlaubt, da sie gef‰hrlich sind (Binaries kˆnnten mit xx2 leeren Dateien ¸berschrieben werden)"
+               .C_ASTERISK_EXT_NOT_ALLOWED_LOC                                 = "Die Erweiterungen * und ? sind nicht erlaubt, da sie gef√§hrlich sind (Binaries k√∂nnten mit xx2 leeren Dateien √ºberschrieben werden)"
                .C_BACKLINK_CANT_UPDATE_BL_LOC                                  = "Backlink kann nicht aktualisiert werden"
                .C_BACKLINK_OF_TABLE_LOC                                        = "von Tabelle"
                .C_BACKUP_OF_LOC                                                = "Erzeuge Backup von: "
-               .C_CACHING_CONFIG_FOR_DIRECTORY_LOC                             = "Caching Konfiguration f¸r Verzeichnis"
-               .C_CANT_GENERATE_FILE_BECAUSE_IT_IS_READONLY_LOC                = "Kann Datei [<<THIS.c_OutputFile>>] nicht generieren, da sie schreibgesch¸tzt ist"
-               .C_CLASSPERFILE_OPTIMIZATION_BASE_ALREADY_PROCESSED_LOC         = "Optimierung: Grund Datei [<<JUSTFNAME(.c_InputFile)>>] Schon verarbeitet, das ‹berspringen Verarbeitung der Datei [<<tc_InputFile>>]"
+               .C_CACHING_CONFIG_FOR_DIRECTORY_LOC                             = "Caching Konfiguration f√ºr Verzeichnis"
+               .C_CANT_GENERATE_FILE_BECAUSE_IT_IS_READONLY_LOC                = "Kann Datei [<<THIS.c_OutputFile>>] nicht generieren, da sie schreibgesch√ºtzt ist"
+               .C_CLASSPERFILE_OPTIMIZATION_BASE_ALREADY_PROCESSED_LOC         = "Optimierung: Grund Datei [<<JUSTFNAME(.c_InputFile)>>] Schon verarbeitet, das √úberspringen Verarbeitung der Datei [<<tc_InputFile>>]"
                .C_CONFIGFILE_LOC                                               = "Benutzte Konfigurationsdatei:"
                .C_CONVERSION_CANCELLED_BY_USER_LOC                             = "Konvertierung durch den Benutzer abgebrochen"
                .C_CONVERT_ALL_FILES_IN_A_PROJECT_LOC                           = "alle Dateien in einem Projekt zu konvertieren"
                .C_CONVERT_FOLDER_LOC                                           = "Konvertieren Verzeichnis"
-               .C_BINARY_TO_TEXT_LOC                                           = "Bin‰r zu Text"
-               .C_TEXT_TO_BINARY_LOC                                           = "Text zu Bin‰r"
+               .C_BINARY_TO_TEXT_LOC                                           = "Bin√§r zu Text"
+               .C_TEXT_TO_BINARY_LOC                                           = "Text zu Bin√§r"
                .C_CONVERT_FOLDER_NONE_LOC                                      = "Nichts"
-               .C_CONVERT_FOLDER_QUESTION_LOC                                  = "Welche Umwandlung sollte sich auf die Dateien dieses Verzeichnis durchgef¸hrt werden?"
+               .C_CONVERT_FOLDER_QUESTION_LOC                                  = "Welche Umwandlung sollte sich auf die Dateien dieses Verzeichnis durchgef√ºhrt werden?"
                .C_CONVERTER_UNLOAD_LOC                                         = "Konverter wird entladen"
                .C_CONVERTING_FILE_LOC                                          = "Konvertiere Datei"
-               .C_DATA_ERROR_CANT_PARSE_UNPAIRING_DOUBLE_QUOTES_LOC            = "Datenfehler: Keine Analyse mˆglich, da ungepaarte Anf¸hrungszeichen in Zeile <<lcMetadatos>> sind."
+               .C_DATA_ERROR_CANT_PARSE_UNPAIRING_DOUBLE_QUOTES_LOC            = "Datenfehler: Keine Analyse m√∂glich, da ungepaarte Anf√ºhrungszeichen in Zeile <<lcMetadatos>> sind."
                .C_DUPLICATED_FILE_LOC                                          = "Doppelte Datei"
                .C_DUPLICATED_OBJECT_LOC                                        = "Doppelte Objekt"
-               .C_ENDDEFINE_MARKER_NOT_FOUND_LOC                               = "Kann keinen Ende Marker [ENDDEFINE] in Zeile <<TRANSFORM( toClase._Inicio )>> f¸r die ID [<<toClase._Nombre>>] finden"
-               .C_END_MARKER_NOT_FOUND_LOC                                     = "Kann keinen Ende Marker [<<ta_ID_Bloques(lnPrimerID,2)>>] welcher den Start Marker [<<ta_ID_Bloques(lnPrimerID,1)>>] in Zeile <<TRANSFORM(taBloquesExclusion(tnBloquesExclusion,1))>> schlieﬂt"
+               .C_ENDDEFINE_MARKER_NOT_FOUND_LOC                               = "Kann keinen Ende Marker [ENDDEFINE] in Zeile <<TRANSFORM( toClase._Inicio )>> f√ºr die ID [<<toClase._Nombre>>] finden"
+               .C_END_MARKER_NOT_FOUND_LOC                                     = "Kann keinen Ende Marker [<<ta_ID_Bloques(lnPrimerID,2)>>] welcher den Start Marker [<<ta_ID_Bloques(lnPrimerID,1)>>] in Zeile <<TRANSFORM(taBloquesExclusion(tnBloquesExclusion,1))>> schlie√üt"
                .C_END_OF_PROCESS_LOC                                           = "Ende des Prozesses"
                .C_ERROR_LOC                                                    = "FEHLER"
                .C_ERRORS_FOUND_IN_FILE_LOC                                     = "FEHLER IN FILE GEFUNDEN"
-               .C_EXTENSION_RECONFIGURATION_LOC                                = "Neukonfiguration der Erweiterungen:"     &&wir wollen es mal nicht ¸bertreiben, mit den zusammengesetzten Substantiven
+               .C_EXTENSION_RECONFIGURATION_LOC                                = "Neukonfiguration der Erweiterungen:"     &&wir wollen es mal nicht √ºbertreiben, mit den zusammengesetzten Substantiven
                .C_EXTERNAL_CLASS_COUNT_DOES_NOT_MATCH_FOUND_CLASSES_LOC        = "Die Anzahl externee Klassen (<< toModulo._ExternalClasses_Count >>) entspricht nicht der der gefunden Klassen (<< toModulo._Clases_Count >>), Datei: [<< toFoxBin2Prg.c_InputFile >>]"
                .C_EXTERNAL_CLASS_NAME_WAS_NOT_FOUND_LOC                        = "Keine externe Klasse gefunden"
                .C_EXTERNAL_MEMBER_NAME_WAS_NOT_FOUND_LOC                       = "Externe Mitglied wurde nicht gefunden"
                .C_EXTERNAL_PARAMETERS_LOC                                      = "EXTERNE PARAMETER"
                .C_FIELD_NOT_FOUND_ON_FILE_STRUCTURE_LOC                        = "Feld [<<laProps(m.I)>>] nicht in der Struktur von Datei <<DBF('TABLABIN')>> gefunden"
                .C_FILE_DOESNT_EXIST_LOC                                        = "Datei existiert nicht:"
-               .C_FILE_NAME_IS_NOT_SUPPORTED_LOC                               = "Datei [<<.c_InputFile>>] wird nicht unterst¸tzt"
+               .C_FILE_NAME_IS_NOT_SUPPORTED_LOC                               = "Datei [<<.c_InputFile>>] wird nicht unterst√ºtzt"
                .C_FILE_NOT_FOUND_LOC                                           = "Datei nicht gefunden"
                .C_FILENAME_LOC                                                 = "Datei"
                .C_FOXBIN2PRG_ERROR_CAPTION_LOC                                 = "FEHLER"
@@ -924,21 +924,21 @@ Define Class CL_LANG As Custom
                         <<>>
                         <<>>-- Parameter:
                         <<>>cFileSpec.Ext:     ? | interactive Diese Hilfe
-                        <<>>                   Vollst‰ndiger Name der Datei (mit Pfad) zum Konvertieren, oder das Verzeichnis zum Konvertieren
+                        <<>>                   Vollst√§ndiger Name der Datei (mit Pfad) zum Konvertieren, oder das Verzeichnis zum Konvertieren
                         <<>>                    - wenn 'BIN2PRG' spezifiziert ist, wird das Verzeichnis in cType (!!) zum Erstellen der Textdateien genutzt
-                        <<>>                    - wenn 'PRG2BIN' spezifiziert ist, wird das Verzeichnis in cType (!!) zum Erstellen der Bin‰rdateien genutzt
-                        <<>>                    - Im SCCAPI (VSS) Kompatibilit‰tsmodus, wird dies zur Abfrage der Unterst¸tzung der Umwandlung f¸r den genannten Dateityp genutzt
+                        <<>>                    - wenn 'PRG2BIN' spezifiziert ist, wird das Verzeichnis in cType (!!) zum Erstellen der Bin√§rdateien genutzt
+                        <<>>                    - Im SCCAPI (VSS) Kompatibilit√§tsmodus, wird dies zur Abfrage der Unterst√ºtzung der Umwandlung f√ºr den genannten Dateityp genutzt
                         <<>>                      VSS Types: d=DBC, D=DBF, K=Form, B=Label, M=Menu, R=Report, V=Class
-                        <<>>cType:             Im SCCAPI (VSS) Kompatibilit‰tsmodus wird hier der Dateityp der Input-Datei festgelegt
+                        <<>>cType:             Im SCCAPI (VSS) Kompatibilit√§tsmodus wird hier der Dateityp der Input-Datei festgelegt
                         <<>>                    - Wird hier '*' oder '*-' angegeben, und tc_InputFile ist ein PJX, werden alle Dateien im PJX konvertiert
-                        <<>>cTextName:         Text Dateiname. Nur im SCCAPI (VSS) Kompatibilit‰tsmodus.
-                        <<>>lGenText:          .T.=Erzeuge Text, .F.=Erzeuge Binary. Nur im SCCAPI (VSS) Kompatibilit‰tsmodus.
-                        <<>>cDontShowErrors:   '1' Unterdr¸ckt die Anzeige von Fehlern
-                        <<>>cDebug:            '1' Erzeugt LOG Dateien, h‰lt bei Fehlern an
+                        <<>>cTextName:         Text Dateiname. Nur im SCCAPI (VSS) Kompatibilit√§tsmodus.
+                        <<>>lGenText:          .T.=Erzeuge Text, .F.=Erzeuge Binary. Nur im SCCAPI (VSS) Kompatibilit√§tsmodus.
+                        <<>>cDontShowErrors:   '1' Unterdr√ºckt die Anzeige von Fehlern
+                        <<>>cDebug:            '1' Erzeugt LOG Dateien, h√§lt bei Fehlern an
                         <<>>cDontShowProgress: '1' Zeige kein Fortschrittsfenster
-                        <<>>cOriginalFileName: Falls als Inputdatei eine tempor‰re Datei genutzt wird, kann hier f¸r den Kopf der Textdatei der richtige Name angegeben werden.
-                        <<>>cRecompile:        '1' Die erzeugten Bin‰dateien werden nach dem Erzeugen kompiliert. Eine Pfadangabe (d.h., die des Projektes) ist mˆglich.
-                        <<>>cNoTimestamps:     Legt fest ob der Zeitstempel einiger Dateiarten gelˆscht werden soll ('1' oder leer) oder nicht ('0')
+                        <<>>cOriginalFileName: Falls als Inputdatei eine tempor√§re Datei genutzt wird, kann hier f√ºr den Kopf der Textdatei der richtige Name angegeben werden.
+                        <<>>cRecompile:        '1' Die erzeugten Bin√§dateien werden nach dem Erzeugen kompiliert. Eine Pfadangabe (d.h., die des Projektes) ist m√∂glich.
+                        <<>>cNoTimestamps:     Legt fest ob der Zeitstempel einiger Dateiarten gel√∂scht werden soll ('1' oder leer) oder nicht ('0')
                         <<>>cCFG_File:         Legt eine alternative Konfigurationsdatei (CFG) fest, die als Standard statt der im foxbin2prg Verzeichnis genutzt werden soll.
                         <<>>cOutputFolder:     Der Ordner in die die Ausgabedatei geschrieben werden soll. Wenn nicht angegeben, das Verzeichnis der Quelle.
                         <<>>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -948,14 +948,14 @@ Define Class CL_LANG As Custom
                         <<>>
                         <<>>-- Parameter:
                         <<>>Keine Parameter:   Startet dieses Formular
-                        <<>>-c (c)             Erzeugt eine Vorlage <OutFileName> f¸r eine Config-Datei (wie FOXBIN2PRG.CFG)
+                        <<>>-c (c)             Erzeugt eine Vorlage <OutFileName> f√ºr eine Config-Datei (wie FOXBIN2PRG.CFG)
                         <<>>-C (C)             Erzeugt eine  Config-Datei <OutFileName>  (wie FOXBIN2PRG.CFG) mit den aktuellen Optionen des Pfades von <OutFileName>
                         <<>>                   Wird OutFileName nicht angegeben, so wird eine Konfigurationsdatei FoxBin2Prg._cfg angelegt.
-                        <<>>-t (t)             Erzeugt eine Vorlage <OutFileName> f¸r eine Tabellen-Config-Datei (wie <Tabellenname>.dbf.cfg)
+                        <<>>-t (t)             Erzeugt eine Vorlage <OutFileName> f√ºr eine Tabellen-Config-Datei (wie <Tabellenname>.dbf.cfg)
                         <<>>                   Wird OutFileName nicht angegeben und ist eine Tabelle offen,
                         <<>>                   so wird eine Konfigurationsdatei <Tabellenname>.dbf._cfg im Verzeichnis der Tabelle angelegt.
                         <<>>cCFG_File:         Legt eine alternative Konfigurationsdatei (CFG) fest, die als Standard statt der im foxbin2prg Verzeichnis genutzt werden soll.
-                        <<>>cDebug:            '1' Erzeugt LOG Dateien, h‰lt bei Fehlern an
+                        <<>>cDebug:            '1' Erzeugt LOG Dateien, h√§lt bei Fehlern an
                         <<>>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                         <<>>
                         <<>>FOXBIN2PRG.EXE VERNO
@@ -963,47 +963,47 @@ Define Class CL_LANG As Custom
                         <<>>
                         <<>>-- Parameter:
                         <<>>-VERNO (VERNO) Return version number of FoxBin2Prg
-                        <<>>cPara          A Ein Parameter mit dem Wert "VERNO", der R¸ckgabewert des Parameters die Versionsnummer
+                        <<>>cPara          A Ein Parameter mit dem Wert "VERNO", der R√ºckgabewert des Parameters die Versionsnummer
                         <<>>
                         <<>>
                ENDTEXT
                *** DH 2021-03-04: added HomeDir to text
-               .C_FOXBIN2PRG_SYNTAX_INFO_EXAMPLE_LOC_Header4 = "*Optionen f¸r Verzeichnis <<.c_Recompile>>, gelesen am <<DATETIME() gelesen.>>"
+               .C_FOXBIN2PRG_SYNTAX_INFO_EXAMPLE_LOC_Header4 = "*Optionen f√ºr Verzeichnis <<.c_Recompile>>, gelesen am <<DATETIME() gelesen.>>"
                TEXT TO .C_FOXBIN2PRG_SYNTAX_INFO_EXAMPLE_LOC_cfg TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
                         <<>>################################################################################################################
-                        <<>>FOXBIN2PRG.CFG Konfigurations-Optionen: (Wird die Option nicht aufgef¸hrt, ist der Wert im Beispiel der Default)
+                        <<>>FOXBIN2PRG.CFG Konfigurations-Optionen: (Wird die Option nicht aufgef√ºhrt, ist der Wert im Beispiel der Default)
                         <<>>Version: <<_Screen.c_FB2PRG_EXE_Version>>
                         <<>>****************************************************************************************************************
                         <<>>
                         <<>> Achtung, die Konfigurationsdateien werden vererbt.
                         <<>> 1.  Defaultwerte
                         <<>> 2., optional FOXBIN2PRG.CFG im Vereichnis aus dem FOXBIN2PRG.EXE startet
-                        <<>>   Oder, wenn definiert, eine Konfigurationsdatei die per Parameter an FOXBIN2PRG ¸bergeben wurde.
+                        <<>>   Oder, wenn definiert, eine Konfigurationsdatei die per Parameter an FOXBIN2PRG √ºbergeben wurde.
                         <<>>       Wird diese genutzt, steuert die Einstellung InhibitInheritance, ob folgende Konfigurationsdateien ausgewertet werden.  (default)
                         <<>> 3., optional FOXBIN2PRG.CFG in der Wurzel des Arbeitsverzeichnises
                         <<>> 4., optional FOXBIN2PRG.CFG in jedem Verzeichnis bis zum Arbeitsverzeichnis
-                        <<>> 5., optional Es kˆnnen spezielle Einstellungen f¸r einzelne DBF's erzeugt werden (Syntax: <TableName>.dbf.cfg im Verzeichnis der Tabelle)
+                        <<>> 5., optional Es k√∂nnen spezielle Einstellungen f√ºr einzelne DBF's erzeugt werden (Syntax: <TableName>.dbf.cfg im Verzeichnis der Tabelle)
                         <<>>
-                        <<>> Einige Parameter im Aufruf von FOXBIN2PRG.EXE ¸bersteueren diese Vorgaben (bis auf die Defaults)
+                        <<>> Einige Parameter im Aufruf von FOXBIN2PRG.EXE √ºbersteueren diese Vorgaben (bis auf die Defaults)
                         <<>>****************************************************************************************************************
                         <<>>
                         <<>>Interne Einstellungen
-                        <<>>Language: (auto)               && Sprache f¸r Anzeigen und Logs. EN=English, FR=FranÁais, ES=EspaÒol, DE=Deutsch, Nicht definiert = Automatisch [DEFAULT]
+                        <<>>Language: (auto)               && Sprache f√ºr Anzeigen und Logs. EN=English, FR=Fran√ßais, ES=Espa√±ol, DE=Deutsch, Nicht definiert = Automatisch [DEFAULT]
                         <<>>ShowProgressbar: 1             && 0=Zeige Fortschrittsfenster, 1=Zeige es nicht, 2=Zeige Fortschrittsfenster nur, wenn mehrere Dateien konvertiert werden.
                         <<>>DontShowErrors: 0              && 0=Zeige Fehler an, 1=Zeige keine Fehler an
-                        <<>>ExtraBackupLevels: 1           && Anzahl der Backup-Ebenen der Bin‰rdateien 0=kein Backup, 1=<Datei>.BAK, n>1= n-Backup-Ebenen, <Datei>.n.BAK
+                        <<>>ExtraBackupLevels: 1           && Anzahl der Backup-Ebenen der Bin√§rdateien 0=kein Backup, 1=<Datei>.BAK, n>1= n-Backup-Ebenen, <Datei>.n.BAK
                         <<>>Debug: 0                       && 0=Individuelles Logging ist aus
                         <<>>                               && 1=Individuelles Log per Datei <Datei>.Log
                         <<>>                               && 2=???
-                        <<>>                               && Nur g¸ltig, wenn nicht durch einen Parameter ¸bersteuert
-                        <<>>BackgroundImage: <cFile>       && Hintergrundbild f¸r das Formular zur Fortschrittsanzeige.
+                        <<>>                               && Nur g√ºltig, wenn nicht durch einen Parameter √ºbersteuert
+                        <<>>BackgroundImage: <cFile>       && Hintergrundbild f√ºr das Formular zur Fortschrittsanzeige.
                         <<>>                               && Leer erzeugt kein Hintergrundbild. Wird die Datei nicht gefunden, wird der Standardhintergrund verwendet.
                         <<>>HomeDir: 1                     && Speichern der HomeDir Eigenschaft in die PJX
                         <<>>                               && 0 Die Eigenschaft HomeDir wird nicht in die PJ2 gespeichert
                         <<>>                               && 1 Die Eigenschaft wird gespeichert
                         <<>>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                         <<>>-- Settings for config file via parameter only
-                        <<>>InhibitInheritance: 0          && 0=Alle Konfiguration wird gelesen (Die Datei aus dem Parameter ist nur ein zus‰tzlicher default)
+                        <<>>InhibitInheritance: 0          && 0=Alle Konfiguration wird gelesen (Die Datei aus dem Parameter ist nur ein zus√§tzlicher default)
                         <<>>                               && 1=Nur die Vererbung in den Verezeichnissen , Im Verzeichnis der Konfiguration und Unterverzeichnisse werden gelesen
                         <<>>                               && 2=Nur die Konfiguration des Veruzeichnisses der Parameterdatei und Unterverzeichnisse werden gelesen
                         <<>>                               && 3=Keine weiter Konfiguration wird gelesen
@@ -1016,62 +1016,62 @@ Define Class CL_LANG As Custom
                         <<>>----------------------------------------------------------------------------------------------------------------
                         <<>>
                         <<>>-- Konvertierungs Optionen:
-                        <<>>PJX_Conversion_Support: 2      && 0=Aus, 1=Erzeuge nur Textdatei (Diff), 2=Erzeuge Text- und Bin‰rdatei (Merge)
-                        <<>>VCX_Conversion_Support: 2      && 0=Aus, 1=Erzeuge nur Textdatei (Diff), 2=Erzeuge Text- und Bin‰rdatei (Merge)
-                        <<>>SCX_Conversion_Support: 2      && 0=Aus, 1=Erzeuge nur Textdatei (Diff), 2=Erzeuge Text- und Bin‰rdatei (Merge)
-                        <<>>FRX_Conversion_Support: 2      && 0=Aus, 1=Erzeuge nur Textdatei (Diff), 2=Erzeuge Text- und Bin‰rdatei (Merge)
-                        <<>>LBX_Conversion_Support: 2      && 0=Aus, 1=Erzeuge nur Textdatei (Diff), 2=Erzeuge Text- und Bin‰rdatei (Merge)
-                        <<>>MNX_Conversion_Support: 2      && 0=Aus, 1=Erzeuge nur Textdatei (Diff), 2=Erzeuge Text- und Bin‰rdatei (Merge)
-                        <<>>DBC_Conversion_Support: 2      && 0=Aus, 1=Erzeuge nur Textdatei (Diff), 2=Erzeuge Text- und Bin‰rdatei (Merge)
+                        <<>>PJX_Conversion_Support: 2      && 0=Aus, 1=Erzeuge nur Textdatei (Diff), 2=Erzeuge Text- und Bin√§rdatei (Merge)
+                        <<>>VCX_Conversion_Support: 2      && 0=Aus, 1=Erzeuge nur Textdatei (Diff), 2=Erzeuge Text- und Bin√§rdatei (Merge)
+                        <<>>SCX_Conversion_Support: 2      && 0=Aus, 1=Erzeuge nur Textdatei (Diff), 2=Erzeuge Text- und Bin√§rdatei (Merge)
+                        <<>>FRX_Conversion_Support: 2      && 0=Aus, 1=Erzeuge nur Textdatei (Diff), 2=Erzeuge Text- und Bin√§rdatei (Merge)
+                        <<>>LBX_Conversion_Support: 2      && 0=Aus, 1=Erzeuge nur Textdatei (Diff), 2=Erzeuge Text- und Bin√§rdatei (Merge)
+                        <<>>MNX_Conversion_Support: 2      && 0=Aus, 1=Erzeuge nur Textdatei (Diff), 2=Erzeuge Text- und Bin√§rdatei (Merge)
+                        <<>>DBC_Conversion_Support: 2      && 0=Aus, 1=Erzeuge nur Textdatei (Diff), 2=Erzeuge Text- und Bin√§rdatei (Merge)
                         <<>>DBF_Conversion_Support: 1      && 0=Aus
-                        <<>>                               && 1=Erzeuge Textdatei nur f¸r Struktur (Diff)
-                        <<>>                               && 2=Erzeuge Text- und Bin‰rdatei nur f¸r Struktur (Merge)
-                        <<>>                               && 4=Erzeuge Textdatei nur f¸r Struktur und Daten (Diff)
-                        <<>>                               && 8=Erzeuge Text- und Bin‰rdatei nur f¸r Struktur und Daten (Merge)
+                        <<>>                               && 1=Erzeuge Textdatei nur f√ºr Struktur (Diff)
+                        <<>>                               && 2=Erzeuge Text- und Bin√§rdatei nur f√ºr Struktur (Merge)
+                        <<>>                               && 4=Erzeuge Textdatei nur f√ºr Struktur und Daten (Diff)
+                        <<>>                               && 8=Erzeuge Text- und Bin√§rdatei nur f√ºr Struktur und Daten (Merge)
                         <<>>FKY_Conversion_Support: 1      && 0=Aus, 1=Erzeuge nur Textdatei (Diff)
                         <<>>MEM_Conversion_Support: 1      && 0=Aus, 1=Erzeuge nur Textdatei (Diff)
                         <<>>----------------------------------------------------------------------------------------------------------------
                         <<>>
                         <<>>Setting for pjx files
-                        <<>>CheckFileInPath: 0             && Bestimmt, ob bein Erstellen von pj2 Dateien Dateien in der ordnerstruktur des PJX sein m¸ssen.
-                        <<>>                               && Keine Behandlung f¸r UNC Pfade.
+                        <<>>CheckFileInPath: 0             && Bestimmt, ob bein Erstellen von pj2 Dateien Dateien in der ordnerstruktur des PJX sein m√ºssen.
+                        <<>>                               && Keine Behandlung f√ºr UNC Pfade.
                         <<>>                               && 0 Ignorieren. Default
-                        <<>>                               && 1 Teste, und breche ab wenn die Datei nicht in der Struktur ist (f¸r Quellcodeverwaltung)
-                        <<>>                               && 2 Erstelle absoluten Pfad f¸r Dateien auf einem anderen Laufwerk.
-                        <<>>                               && 3 Erstelle absoluten Pfad f¸r Dateien die nicht in der Ordnerstruktur sind.
+                        <<>>                               && 1 Teste, und breche ab wenn die Datei nicht in der Struktur ist (f√ºr Quellcodeverwaltung)
+                        <<>>                               && 2 Erstelle absoluten Pfad f√ºr Dateien auf einem anderen Laufwerk.
+                        <<>>                               && 3 Erstelle absoluten Pfad f√ºr Dateien die nicht in der Ordnerstruktur sind.
                         <<>>----------------------------------------------------------------------------------------------------------------
                         <<>>
-                        <<>> ------Einstellungen f¸r Container-Dateien (nicht pjx)
-                        <<>>-- Optionen f¸r CLASS und FORM
+                        <<>> ------Einstellungen f√ºr Container-Dateien (nicht pjx)
+                        <<>>-- Optionen f√ºr CLASS und FORM
                         <<>>-- CLASS (, FORM und DBC) Einstellungen (tx2 versteht sich als vc2 oder sc2, VCX kann auch SCX meinen)
                         <<>>-- FORM und DBC Einstellungen nutzen die folgenden Werte, solange nicht anders definiert. Siehe unten.
-                        <<>>- Optionen f¸r Datei per Klasse ( 1) (f¸r VCX: vc2, f¸r SCX: sc2)
+                        <<>>- Optionen f√ºr Datei per Klasse ( 1) (f√ºr VCX: vc2, f√ºr SCX: sc2)
                         <<>>UseClassPerFile: 0             && Bestimmt wie die Klassen einer Bibliothek oder die Objekte eines Formulars behandelt werden
                         <<>>                               && 0 Eine Textdatei pro VCX/SCX
                         <<>>                               && 1 Mehrere Dateien <Dateiname>.KlassenName.vc2
                         <<>>                               && 2 Mehrere Dateien <Dateiname>.Basisklasse.KlassenName.vc2
-                        <<>>                               &&   F¸r 1, 2 wird jeweils auch ein Headerdatei <Dateiname>.vc2 erzeugt
-                        <<>>RedirectClassPerFileToMain: 0  && Bestimmt beim Erzeugen von Binardateien f¸r Klassenbibliotheken und Formulare die Zieldatei
+                        <<>>                               &&   F√ºr 1, 2 wird jeweils auch ein Headerdatei <Dateiname>.vc2 erzeugt
+                        <<>>RedirectClassPerFileToMain: 0  && Bestimmt beim Erzeugen von Binardateien f√ºr Klassenbibliotheken und Formulare die Zieldatei
                         <<>>                               && 0 Keine Umlenkung
-                        <<>>                               && 1 Klassen (und Objekte) werden in die VCX/SCX geschrieben wenn eine Datei <Dateiname>[.Basisklasse].KlassenName.tx2 gew‰hlt wurde
+                        <<>>                               && 1 Klassen (und Objekte) werden in die VCX/SCX geschrieben wenn eine Datei <Dateiname>[.Basisklasse].KlassenName.tx2 gew√§hlt wurde
                         <<>>                               &&   RedirectClassType: 1 hat Vorrang
-                        <<>>RedirectClassType: 0           && F¸r Textdateien die mit UseClassPerFile>0 in der Form <Dateiname>[.Basisklasse].KlassenName.tx2 erstellt wurden.
-                        <<>>                               && diese Dateien kˆnnen als Dateiname.tx2::KlassenName::import oder als <Dateiname>[.Basisklasse].KlassenName.tx2 importiert werden.
-                        <<>>                               && F¸r die zweite Form gilt (jeweils VCX oder SCX ):
+                        <<>>RedirectClassType: 0           && F√ºr Textdateien die mit UseClassPerFile>0 in der Form <Dateiname>[.Basisklasse].KlassenName.tx2 erstellt wurden.
+                        <<>>                               && diese Dateien k√∂nnen als Dateiname.tx2::KlassenName::import oder als <Dateiname>[.Basisklasse].KlassenName.tx2 importiert werden.
+                        <<>>                               && F√ºr die zweite Form gilt (jeweils VCX oder SCX ):
                         <<>>                               && 0 Aus <Dateiname>[.Basisklasse].KlassenName.tx2 wird <Dateiname>.VCX und alle Klassen dieser Bibliothek werden neu gelesen
                         <<>>                               && 1 Aus <Dateiname>[.Basisklasse].KlassenName.tx2 wird <Dateiname>[.Basisklasse].KlassenName.VCX, die Bibliothek file.VCX wird ignoriert
-                        <<>>                               && 2 Aus <Dateiname>[.Basisklasse].KlassenName.tx2 wird <Dateiname>.VCX aber alle anderen Klassen bleiben unver‰ndert
+                        <<>>                               && 2 Aus <Dateiname>[.Basisklasse].KlassenName.tx2 wird <Dateiname>.VCX aber alle anderen Klassen bleiben unver√§ndert
                         <<>>ClassPerFileCheck: 0           && Test, ob Dateien die in der Basisdatei definert wurden, einbezogen wurden.
                         <<>>                               && 0 Kein Test
                         <<>>                               && 1 Teste, ob die Datei <Dateiname>[.Basisklasse].KlassenName.tx2 einbezogen wurde
-                        <<>>                               &&   Nur f¸r die <Dateiname>[.Basisklasse].KlassenName.tx2 Syntax
-                        <<>>                               &&   Wird f¸r RedirectClassType: 2 ignoriert
+                        <<>>                               &&   Nur f√ºr die <Dateiname>[.Basisklasse].KlassenName.tx2 Syntax
+                        <<>>                               &&   Wird f√ºr RedirectClassType: 2 ignoriert
                         <<>>UseClassPerDir: 0              && 0=flaches file.class.ext Layout (Standard)
                         <<>>                               && 1=unter file.ext/ Unterverzeichnis speichern (erfordert UseClassPerFile>0)
                         <<>>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                         <<>>
-                        <<>>-- Optionen f¸r FORM
-                        <<>>- Optionen f¸r Datei per Form (UseFormPerFile: 1)
+                        <<>>-- Optionen f√ºr FORM
+                        <<>>- Optionen f√ºr Datei per Form (UseFormPerFile: 1)
                         <<>>UseFormSettings: 0             && 1=Die unten stehenden Form Optionen werden aktiviert, 0=Die UseClassPerFile Einstellungen werden genutzt.
                         <<>>                               &&   Die unten stehenden Optionen werden nur gelesen, wenn UseFormSettings vorher 1 ist!
                         <<>>                               &&   Wird UseFormSettings wieder auf 0 gesetzt, gehen diese Einstellungen verloren.
@@ -1079,46 +1079,46 @@ Define Class CL_LANG As Custom
                         <<>>                               && 0 Eine Textdatei Form.sc2  pro SCX
                         <<>>                               && 1 Mehrere Dateien Form.Obj.sc2 pro SCX
                         <<>>                               && 2 Mehrere Dateien Form.baseclass.Obj.sc2 pro SCX
-                        <<>>                               && F¸r 1, 2 wird jeweils auch ein Headerdatei <Form>.sc2 erzeugt
-                        <<>>RedirectFormPerFileToMain: 0   && Bestimmt beim Erzeugen von Binardateien f¸r Formulare die Zieldatei
+                        <<>>                               && F√ºr 1, 2 wird jeweils auch ein Headerdatei <Form>.sc2 erzeugt
+                        <<>>RedirectFormPerFileToMain: 0   && Bestimmt beim Erzeugen von Binardateien f√ºr Formulare die Zieldatei
                         <<>>                               && 0 Keine Umlenkung
-                        <<>>                               && 1 Objekte werden in die SCX geschrieben wenn eine Datei Form.sc2 when selecting Form[.baseclass].Obj.sc2 gew‰hlt wurde
+                        <<>>                               && 1 Objekte werden in die SCX geschrieben wenn eine Datei Form.sc2 when selecting Form[.baseclass].Obj.sc2 gew√§hlt wurde
                         <<>>                               &&   RedirectFormType: 1 1 hat Vorrang
-                        <<>>RedirectFormType: 0            && F¸r Textdateien die mit UseFormPerFile>0 in der Form Form[.baseclass].Obj.sc2 erstellt wurden.
-                        <<>>                               && diese Dateien kˆnnen als Form.sc2::Class::import oder als Form[.baseclass].Obj.sc2 importiert werden.
-                        <<>>                               && F¸r die zweite Form gilt (jeweils VCX oder SCX ):
+                        <<>>RedirectFormType: 0            && F√ºr Textdateien die mit UseFormPerFile>0 in der Form Form[.baseclass].Obj.sc2 erstellt wurden.
+                        <<>>                               && diese Dateien k√∂nnen als Form.sc2::Class::import oder als Form[.baseclass].Obj.sc2 importiert werden.
+                        <<>>                               && F√ºr die zweite Form gilt (jeweils VCX oder SCX ):
                         <<>>                               && 0 Aus Form[.baseclass].Obj.sc2 wird Form.SCX und alle Klassen dieser Bibliothek werden neu gelesen
                         <<>>                               && 1 Aus Form[.baseclass].Obj.sc2 wird Form[.baseclass].Obj.SCX, die Bibliothek file.VCX wird ignoriert
-                        <<>>                               && 2 Aus Form[.baseclass].Obj.sc2 wird Form.SCX aber alle anderen Klassen bleiben unver‰ndert
+                        <<>>                               && 2 Aus Form[.baseclass].Obj.sc2 wird Form.SCX aber alle anderen Klassen bleiben unver√§ndert
                         <<>>FormPerFileCheck: 0            && Test, ob Dateien die in der Basisdatei definert wurden, einbezogen wurden.
                         <<>>                               && 0 Kein Test
                         <<>>                               && 1 Teste, ob die Datei Form[.baseclass].Obj.sc2 einbezogen wurde
-                        <<>>                               &&   Nur f¸r die  Form[.baseclass].Obj.sc2 Syntax
-                        <<>>                               &&   Wird f¸r RedirectFormType: 2 ignoriert
+                        <<>>                               &&   Nur f√ºr die  Form[.baseclass].Obj.sc2 Syntax
+                        <<>>                               &&   Wird f√ºr RedirectFormType: 2 ignoriert
                         <<>>UseFormsPerDir: 0              && 0=flaches Form.Obj.ext Layout (Standard)
                         <<>>                               && 1=unter Form.ext/ Unterverzeichnis speichern (erfordert UseFormPerFile>0)
                         <<>>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                         <<>>
-                        <<>>-- Optionen f¸r DBC
-                        <<>>- Optionen f¸r Datei per DBC (UseFilesPerDBC: 1)
+                        <<>>-- Optionen f√ºr DBC
+                        <<>>- Optionen f√ºr Datei per DBC (UseFilesPerDBC: 1)
                         <<>>OldFilesPerDBC: 0              && 1=Die unten stehenden DBC Optionen werden aktiviert, 0=Die UseClassPerFile Einstellungen werden genutzt.
                         <<>>                               &&   Die unten stehenden Optionen werden nur gelesen, wenn OldFilesPerDBC vorher 1 ist!
                         <<>>                               &&   Wird OldFilesPerDBC wieder auf 0 gesetzt, gehen diese Einstellungen verloren.
                         <<>>UseFilesPerDBC: 0              && 0=Erzeuge eine dc2 Datei, 1=Erzeuge mehrfache Dateien.*.*.dc2
                         <<>>                               && 0 Erzeugt eine Datei <Datenbank>.db2 mit allem Inhalt der DBC
                         <<>>                               && 1 Erzeugt eine Datei <Datenbank>.dc2 mit den Eigenschaften der Datenbank
-                        <<>>                               &&   und zus‰tzlich eine Datei f¸r jedes Item der Datenbank (Gespeicherte Prozeduren, Tabellen, Views, ..)
-                        <<>>                               &&   Achtung! Diese Dateien werden nur dann in die Bin‰datei einbezogen, wenn RedirectFilePerDBCToMain 1 ist
-                        <<>>RedirectFilePerDBCToMain: 0    && Originale Dokumentation: 0=Keine Umlenkung, 1=Erzeuge <Datenbank>.dbc, wenn <Datenbank>.item.*.dc2 gew‰hlt wurde
-                        <<>>                               &&   Die Bin‰r-Datenbank wird nur dann automatisch zusammen gef¸gt, wenn diese Option 1 ist!
+                        <<>>                               &&   und zus√§tzlich eine Datei f√ºr jedes Item der Datenbank (Gespeicherte Prozeduren, Tabellen, Views, ..)
+                        <<>>                               &&   Achtung! Diese Dateien werden nur dann in die Bin√§datei einbezogen, wenn RedirectFilePerDBCToMain 1 ist
+                        <<>>RedirectFilePerDBCToMain: 0    && Originale Dokumentation: 0=Keine Umlenkung, 1=Erzeuge <Datenbank>.dbc, wenn <Datenbank>.item.*.dc2 gew√§hlt wurde
+                        <<>>                               &&   Die Bin√§r-Datenbank wird nur dann automatisch zusammen gef√ºgt, wenn diese Option 1 ist!
                         <<>>ItemPerDBCCheck: 0             && 0=Aus, 1=Teste, ob <Datenbank>.item.*.dc2 einbezogen wird.
                         <<>>----------------------------------------------------------------------------------------------------------------
                         <<>>
                         <<>>Allgemeine Dateien
-                        <<>>NoTimestamps: 1                && 0=Zeitstempel einiger Dateiarten werden nicht gelˆscht 1=Zeitstempel werden zum Minimieren der Text-Datei-Unterschiede gelˆscht
-                        <<>>ClearUniqueID: 1               && 0=Erhalte die Unique ID in den Text-Dateien, 1=Lˆsche Unique ID. N¸tzlich f¸r Diff und Merge
-                        <<>>OptimizeByFilestamp: 0         && 0=Aus, 1=Optimierte Erzeugung der Bin‰rdateien in Abh‰ngigkeit vom Zeitstempel. Gef‰hrlich beim Arbeiten mit Zweigen!
-                        <<>>RemoveNullCharsFromCode: 1     && 0=Aus 1=Lˆsche .Null. (CHR(0)) Zeichen aus dem Quellcode
+                        <<>>NoTimestamps: 1                && 0=Zeitstempel einiger Dateiarten werden nicht gel√∂scht 1=Zeitstempel werden zum Minimieren der Text-Datei-Unterschiede gel√∂scht
+                        <<>>ClearUniqueID: 1               && 0=Erhalte die Unique ID in den Text-Dateien, 1=L√∂sche Unique ID. N√ºtzlich f√ºr Diff und Merge
+                        <<>>OptimizeByFilestamp: 0         && 0=Aus, 1=Optimierte Erzeugung der Bin√§rdateien in Abh√§ngigkeit vom Zeitstempel. Gef√§hrlich beim Arbeiten mit Zweigen!
+                        <<>>RemoveNullCharsFromCode: 1     && 0=Aus 1=L√∂sche .Null. (CHR(0)) Zeichen aus dem Quellcode
                         <<>>ExportUTF8: 0                  && 0=Textdateien in ANSI (aktuelle Codepage), 1=Textdateien in UTF-8 exportieren (StrConv 9)
                         <<>>RemoveZOrderSetFromProps: 0    && 0=Aus, 1=Entferne ZOrderSet Eigenschaft von Objekten
                         <<>>PRG_Compat_Level: 0            && 0=Legacy, 1=Nutze HELPSTRING als Class Procedure Kommentar
@@ -1129,41 +1129,41 @@ Define Class CL_LANG As Custom
                         <<>>----------------------------------------------------------------------------------------------------------------
                         <<>>
                         <<>>-- Gespiegelter Baum (nur exportProjectTree / importProjectTree)
-                        <<>>CopyNonConvertible: 0          && 0=Nicht konvertierbare PJX/PJ2-Mitglieder ¸berspringen, 1=Unver‰ndert in den Spiegel kopieren
-                        <<>>CopyExcludedPjxFiles: 0        && 0=PJX/PJ2-Mitglieder mit Exclude ¸berspringen (Standard), 1=In Export/Import einbeziehen
-                        <<>>ExcludedSubdirs:               && Unterpfade unter der Projektwurzel, getrennt durch ; ó weder konvertieren noch kopieren
+                        <<>>CopyNonConvertible: 0          && 0=Nicht konvertierbare PJX/PJ2-Mitglieder √ºberspringen, 1=Unver√§ndert in den Spiegel kopieren
+                        <<>>CopyExcludedPjxFiles: 0        && 0=PJX/PJ2-Mitglieder mit Exclude √ºberspringen (Standard), 1=In Export/Import einbeziehen
+                        <<>>ExcludedSubdirs:               && Unterpfade unter der Projektwurzel, getrennt durch ; ‚Äî weder konvertieren noch kopieren
                         <<>>                               && Beispiel: tmp;backup;forms\old
                         <<>>----------------------------------------------------------------------------------------------------------------
                         <<>>
                         <<>>-- speziell DBF
-                        <<>>ClearDBFLastUpdate: 1          && 0=Erhalte DBF LastUpdate, 1=Lˆsche DBF LastUpdate. N¸tzlich f¸r Diff und Merge
+                        <<>>ClearDBFLastUpdate: 1          && 0=Erhalte DBF LastUpdate, 1=L√∂sche DBF LastUpdate. N√ºtzlich f√ºr Diff und Merge
                         <<>>ExcludeDBFAutoincNextval: 0    && 0=Aus, 1=Entferne diesen Wert aus der Textdate der Datenbank (db2)
-                        <<>>DBF_Conversion_Included: *     && F¸r DBF_Conversion_Support: 4 kann eine mehrfache Dateimaske zum Einbeziehen angegeben werden, z.B.: www,fb2p_free.dbf
+                        <<>>DBF_Conversion_Included: *     && F√ºr DBF_Conversion_Support: 4 kann eine mehrfache Dateimaske zum Einbeziehen angegeben werden, z.B.: www,fb2p_free.dbf
                         <<>>                               && *=Alle, Die Maske darf Wildcards (*,?) enthalten
                         <<>>                               &&   Diese Option kann auch per Tabelle gesetzt werden.
-                        <<>>DBF_Conversion_Excluded:       && F¸r DBF_Conversion_Support: 4 kann eine mehrfache Dateimaske zum Ausschlieﬂen angegeben werden, z.B.: www,fb2p_free.dbf
-                        <<>>                               && Leer=Keine Datei auschlieﬂen
-                        <<>>DBF_BinChar_Base64: 1          && F¸r Felder mit Zeichen Typ (C,V,M), wenn NoCPTrans, dann 0=nicht transform,ieren, 1=F¸hre Base64 Transformation aus (default)
+                        <<>>DBF_Conversion_Excluded:       && F√ºr DBF_Conversion_Support: 4 kann eine mehrfache Dateimaske zum Ausschlie√üen angegeben werden, z.B.: www,fb2p_free.dbf
+                        <<>>                               && Leer=Keine Datei auschlie√üen
+                        <<>>DBF_BinChar_Base64: 1          && F√ºr Felder mit Zeichen Typ (C,V,M), wenn NoCPTrans, dann 0=nicht transform,ieren, 1=F√ºhre Base64 Transformation aus (default)
                         <<>>                               &&   Dies entspricht dem Flag 4096 in CursorToXML()
                         <<>>                               &&   Diese Option kann auch per Tabelle gesetzt werden.
-                        <<>>DBF_IncludeDeleted: 0          && 0=Ohne gelˆschte Datens‰tze (default), 1=Mit gelˆschten Datens‰tzen
+                        <<>>DBF_IncludeDeleted: 0          && 0=Ohne gel√∂schte Datens√§tze (default), 1=Mit gel√∂schten Datens√§tzen
                         <<>>                               &&   Diese Option kann auch per Tabelle gesetzt werden.
                         <<>>----------------------------------------------------------------------------------------------------------------
                         <<>>
                         <<>>-- Text-Datei Endungen
                         <<>>extension: tx2=newext          && Umdefinition der Dateiendung der Textdateien. Die vordefinierten Endungen enden mit '2' (Beispiel siehe Ende dieser Datei)
-                        <<>>-- Beispiel f¸r ge‰nderte Textdatei Endungen, hier f¸r SourceSafe Kompatibilt‰t:
-                        <<>>extension: pj2=pja             && Text Datei f¸r PJX
-                        <<>>extension: vc2=vca             && Text Datei f¸r VCX
-                        <<>>extension: sc2=sca             && Text Datei f¸r SCX
-                        <<>>extension: fr2=fra             && Text Datei f¸r FRX
-                        <<>>extension: lb2=lba             && Text Datei f¸r LBX
-                        <<>>extension: mn2=mna             && Text Datei f¸r MNX
-                        <<>>extension: db2=dba             && Text Datei f¸r DBF
-                        <<>>extension: dc2=dca             && Text Datei f¸r DBC
-                        <<>>-- Zus‰tzliche Endungen
-                        <<>>extension: fk2=fkx             && Text Datei f¸r FKY
-                        <<>>extension: me2=fkx             && Text Datei f¸r MEM
+                        <<>>-- Beispiel f√ºr ge√§nderte Textdatei Endungen, hier f√ºr SourceSafe Kompatibilt√§t:
+                        <<>>extension: pj2=pja             && Text Datei f√ºr PJX
+                        <<>>extension: vc2=vca             && Text Datei f√ºr VCX
+                        <<>>extension: sc2=sca             && Text Datei f√ºr SCX
+                        <<>>extension: fr2=fra             && Text Datei f√ºr FRX
+                        <<>>extension: lb2=lba             && Text Datei f√ºr LBX
+                        <<>>extension: mn2=mna             && Text Datei f√ºr MNX
+                        <<>>extension: db2=dba             && Text Datei f√ºr DBF
+                        <<>>extension: dc2=dca             && Text Datei f√ºr DBC
+                        <<>>-- Zus√§tzliche Endungen
+                        <<>>extension: fk2=fkx             && Text Datei f√ºr FKY
+                        <<>>extension: me2=fkx             && Text Datei f√ºr MEM
                         <<>>
                ENDTEXT
                TEXT TO .C_FOXBIN2PRG_SYNTAX_INFO_EXAMPLE_LOC_tab_cfg TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
@@ -1173,71 +1173,71 @@ Define Class CL_LANG As Custom
                         <<>>****************************************************************************************************************
                         <<>>
                         <<>>DBF_Conversion_Support: <1,2,4,8>           && 0=Aus
-                        <<>>                                            && 1=Erzeuge Textdatei nur f¸r Struktur (Diff)
-                        <<>>                                            && 2=Erzeuge Text- und Bin‰rdatei nur f¸r Struktur (Merge)
-                        <<>>                                            && 4=Erzeuge Textdatei nur f¸r Struktur und Daten (Diff)
-                        <<>>                                            && 8=Erzeuge Text- und Bin‰rdatei nur f¸r Struktur und Daten (Merge)
-                        <<>>DBF_Conversion_Order: <c_Expression>        && Optional, Reihenfolge der Datens‰tze. Ausdruck f¸r INDEX ON. ie: name+str(age,3)
+                        <<>>                                            && 1=Erzeuge Textdatei nur f√ºr Struktur (Diff)
+                        <<>>                                            && 2=Erzeuge Text- und Bin√§rdatei nur f√ºr Struktur (Merge)
+                        <<>>                                            && 4=Erzeuge Textdatei nur f√ºr Struktur und Daten (Diff)
+                        <<>>                                            && 8=Erzeuge Text- und Bin√§rdatei nur f√ºr Struktur und Daten (Merge)
+                        <<>>DBF_Conversion_Order: <c_Expression>        && Optional, Reihenfolge der Datens√§tze. Ausdruck f√ºr INDEX ON. ie: name+str(age,3)
                         <<>>                                            && leer: normale Reihenfolge
-                        <<>>DBF_Conversion_Condition: <c_Expression>    && Optional, Ausdruck f¸r SELECT FOR. ie: age > 10 AND NOT DELETED()
-                        <<>>                                            && leer: Alle, auﬂer DBF_IncludeDeleted
-                        <<>>DBF_IndexList: <cFile_List>                 && Kommagetrennte Liste von Dateien. Zus‰tzliche Index - Dateien. CDX oder IDX. Nicht der Strukturelle Index
-                        <<>>DBF_BinChar_Base64: <0,1>                   && F¸r Felder mit Zeichen Typ (C,V,M), wenn NoCPTrans, dann 0=nicht transform,ieren, 1=F¸hre Base64 Transformation aus
+                        <<>>DBF_Conversion_Condition: <c_Expression>    && Optional, Ausdruck f√ºr SELECT FOR. ie: age > 10 AND NOT DELETED()
+                        <<>>                                            && leer: Alle, au√üer DBF_IncludeDeleted
+                        <<>>DBF_IndexList: <cFile_List>                 && Kommagetrennte Liste von Dateien. Zus√§tzliche Index - Dateien. CDX oder IDX. Nicht der Strukturelle Index
+                        <<>>DBF_BinChar_Base64: <0,1>                   && F√ºr Felder mit Zeichen Typ (C,V,M), wenn NoCPTrans, dann 0=nicht transform,ieren, 1=F√ºhre Base64 Transformation aus
                         <<>>                                            &&   Dies entspricht dem Flag 4096 in CursorToXML()
                         <<>>                                            &&   Diese Option kann auch per Tabelle gesetzt werden.
-                        <<>>DBF_IncludeDeleted: <0,1>                   && 0=Ohne gelˆschte Datens‰tze, 1=Mit gelˆschten Datens‰tzen
+                        <<>>DBF_IncludeDeleted: <0,1>                   && 0=Ohne gel√∂schte Datens√§tze, 1=Mit gel√∂schten Datens√§tzen
                         <<>>                                            &&   Diese Option kann auch per Tabelle gesetzt werden.
                         <<>>
                ENDTEXT
-               .C_FOXBIN2PRG_JUST_VFP_9_LOC                                    = "FOXBIN2PRG arbeitet nur f¸r Visual FoxPro 9.0!"
+               .C_FOXBIN2PRG_JUST_VFP_9_LOC                                    = "FOXBIN2PRG arbeitet nur f√ºr Visual FoxPro 9.0!"
                .C_FOXBIN2PRG_WARN_CAPTION_LOC                                  = "WARNUNG!"
-               .C_GENERATED_FILE_SIZE_LOC                                      = "Generierte Dateigrˆﬂe"
+               .C_GENERATED_FILE_SIZE_LOC                                      = "Generierte Dateigr√∂√üe"
                .C_GENERATING_BINARY_LOC                                        = "Gene Binary"
-               .C_INCLUDING_CLASS_LOC                                          = "einschlieﬂlich Klasse"
+               .C_INCLUDING_CLASS_LOC                                          = "einschlie√ülich Klasse"
                .C_INCLUDING_MEMBER_LOC                                         = "inklusive Mitglied"
-               .C_INCORRECT_VFP9_VERSION__MISSING_SP1_LOC                      = "Quell-Kompatibilit‰ts-Mode Incorrect VFP 9 Version - Fehlende SP1! Erwartet: 3504 oder grˆﬂer, aktuell:" + Version(4)
+               .C_INCORRECT_VFP9_VERSION__MISSING_SP1_LOC                      = "Quell-Kompatibilit√§ts-Mode Incorrect VFP 9 Version - Fehlende SP1! Erwartet: 3504 oder gr√∂√üer, aktuell:" + Version(4)
                .C_INHERITING_FROM_LOC                                          = "Ererbt von"
-               .C_INTERACTIVE_DIRECTORY_SELECTION_LOC                          = "Interaktives Ausw‰hlen des Verzeichnises"
-               .C_INVALID_PARAMETER_LOC                                        = "Ung¸ltige Parameter"
+               .C_INTERACTIVE_DIRECTORY_SELECTION_LOC                          = "Interaktives Ausw√§hlen des Verzeichnises"
+               .C_INVALID_PARAMETER_LOC                                        = "Ung√ºltige Parameter"
                .C_IS_A_FILE_LOC                                                = "ist eine DATEI"
                .C_IS_A_DIRECTORY_LOC                                           = "ist ein VERZEICHNIS"
-               .C_IS_UNSUPPORTED_LOC                                           = "wird nicht unterst¸tzt"
+               .C_IS_UNSUPPORTED_LOC                                           = "wird nicht unterst√ºtzt"
                .C_LANGUAGE_LOC                                                 = "DE"
-               .C_MAIN_EXECUTION_LOC                                           = "HAUPTAUSF‹HRUNG"
-               .C_MENU_NOT_IN_VFP9_FORMAT_LOC                                  = "Men¸ [<<THIS.c_InputFile>>] ist NICHT im VFP 9 Format! - Bitte zuerst mit MODIFY MENU '<<THIS.c_InputFile>>' nach VFP 9 konvertieren."
-               .C_NAMES_CAPITALIZATION_PROGRAM_FOUND_LOC                       = "* Programm f¸r Groﬂschreibungssetzung [<<lcEXE_CAPS>>] gefunden"
-               .C_NAMES_CAPITALIZATION_PROGRAM_NOT_FOUND_LOC                   = "* Programm f¸r Groﬂschreibungssetzung [<<lcEXE_CAPS>>] nicht gefunden"
-               .C_OBJECT_NAME_WITHOUT_OBJECT_OREG_LOC                          = "Objekt [<<toObj.CLASS>>] enth‰lt nicht das oReg Objekt (level <<TRANSFORM(tnNivel)>>)"
+               .C_MAIN_EXECUTION_LOC                                           = "HAUPTAUSF√úHRUNG"
+               .C_MENU_NOT_IN_VFP9_FORMAT_LOC                                  = "Men√º [<<THIS.c_InputFile>>] ist NICHT im VFP 9 Format! - Bitte zuerst mit MODIFY MENU '<<THIS.c_InputFile>>' nach VFP 9 konvertieren."
+               .C_NAMES_CAPITALIZATION_PROGRAM_FOUND_LOC                       = "* Programm f√ºr Gro√üschreibungssetzung [<<lcEXE_CAPS>>] gefunden"
+               .C_NAMES_CAPITALIZATION_PROGRAM_NOT_FOUND_LOC                   = "* Programm f√ºr Gro√üschreibungssetzung [<<lcEXE_CAPS>>] nicht gefunden"
+               .C_OBJECT_NAME_WITHOUT_OBJECT_OREG_LOC                          = "Objekt [<<toObj.CLASS>>] enth√§lt nicht das oReg Objekt (level <<TRANSFORM(tnNivel)>>)"
                .C_ONLY_SETNAME_AND_GETNAME_RECOGNIZED_LOC                      = "Befehl nicht erkannt. Nur SETNAME und GETNAME erlaubt."
-               .C_OPTIMIZATION_SKIPPING_ALREADY_PROCESSED_FILE_LOC             = "Optimierung: ‹berspringen von bereits bearbeiteten Datei [<<(lcFile)>>]"
+               .C_OPTIMIZATION_SKIPPING_ALREADY_PROCESSED_FILE_LOC             = "Optimierung: √úberspringen von bereits bearbeiteten Datei [<<(lcFile)>>]"
                .C_OPTION_LOC                                                   = "Option"
-               .C_OUTER_CLASS_DOES_NOT_MATCH_INNER_CLASSES_LOC                 = "Die ‰uﬂere Klasse zeigt nicht die die innere Klassifizierung an"
-               .C_OUTER_MEMBER_DOES_NOT_MATCH_INNER_MEMBERS_LOC                = "Das ‰uﬂere Element entspricht nicht den inneren Elementen"
-               .C_OUTPUT_FILE_IS_NOT_OVERWRITEN_LOC                            = "Optimierung: Ausgabedatei [<<lcOutputFile>>] wurde nicht ¸berschrieben, da sie dieselbe ist wie die neu generierte."
-               .C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimierung: Ausgabedatei [<<THIS.c_OutputFile>>] wurde nicht verl‰ngert, weil ihre Zeitmarke die gleiche der Quelldatei ist."
+               .C_OUTER_CLASS_DOES_NOT_MATCH_INNER_CLASSES_LOC                 = "Die √§u√üere Klasse zeigt nicht die die innere Klassifizierung an"
+               .C_OUTER_MEMBER_DOES_NOT_MATCH_INNER_MEMBERS_LOC                = "Das √§u√üere Element entspricht nicht den inneren Elementen"
+               .C_OUTPUT_FILE_IS_NOT_OVERWRITEN_LOC                            = "Optimierung: Ausgabedatei [<<lcOutputFile>>] wurde nicht √ºberschrieben, da sie dieselbe ist wie die neu generierte."
+               .C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimierung: Ausgabedatei [<<THIS.c_OutputFile>>] wurde nicht verl√§ngert, weil ihre Zeitmarke die gleiche der Quelldatei ist."
                .C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimierung: Ausgabedatei [<<THIS.c_OutputFile>>] wurde nicht erneuert, da sie neuer als die Ursprungsdatei ist."
-               .C_PRESS_ESC_TO_CANCEL                                          = "Dr¸cken Sie Esc zum Abbrechen"
+               .C_PRESS_ESC_TO_CANCEL                                          = "Dr√ºcken Sie Esc zum Abbrechen"
                .C_PROCEDURE_NOT_CLOSED_ON_LINE_LOC                             = "Prozedur nicht geschlossen. Letzte Zeile des Codes muss ENDPROC sein. [<<laLineas(1)>>, Recno:<<RECNO()>>]"
                .C_PROCESSING_LOC                                               = "Bearbeite Datei"
                .C_PROCESS_PROGRESS_LOC                                         = "Bearbeitungsfortschritt:"
                .C_PROPERTY_NAME_NOT_RECOGNIZED_LOC                             = "Eigenschaft [<<TRANSFORM(tnPropertyID)>>] nicht erkannt."
                .C_READING_CFG_VALUES_FROM_DISK_LOC                             = "Von der Festplatte gelesene Werte der CFG-DATEI"
                .C_REPORT_NOT_IN_VFP9_FORMAT_LOC                                = "Report [<<THIS.c_InputFile>>] ist NICHT in VFP 9 Format! - Bitte zuerst nach VFP 9 konvertieren mit MODIFY REPORT '<<THIS.c_InputFile>>'"
-               .C_REQUESTING_CAPITALIZATION_OF_FILE_LOC                        = "- Fordere Groﬂschreibung f¸r Datei [<<tcFileName>>] an"
-               .C_SCANNING_FILE_AND_DIR_INFO_LOC                               = "Scanne Datei- und Verzeichnisinformationen f¸r"
+               .C_REQUESTING_CAPITALIZATION_OF_FILE_LOC                        = "- Fordere Gro√üschreibung f√ºr Datei [<<tcFileName>>] an"
+               .C_SCANNING_FILE_AND_DIR_INFO_LOC                               = "Scanne Datei- und Verzeichnisinformationen f√ºr"
                .C_SOURCEFILE_LOC                                               = "Quell Datei: "
-               .C_SOURCESAFE_COMPATIBILITY_MODE_LOC                            = "Sourcesafe-Kompatibilit‰tsmodus"
+               .C_SOURCESAFE_COMPATIBILITY_MODE_LOC                            = "Sourcesafe-Kompatibilit√§tsmodus"
                .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_LOC                 = "Fehler in Verschachtelungsstruktur. ENDPROC erwartet, aber es wurde ENDDEFINE in Klasse <<toClase._Nombre>> (<<loProcedure._Nombre>>), Zeile <<TRANSFORM(m.I)>> der Datei <<THIS.c_InputFile>> gefunden"
                .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_2_LOC               = "Fehler in Verschachtelungsstruktur. ENDPROC wurde erwartet, aber es wurde ENDDEFINE in Klasse <<toClase._Nombre>> (<<toObjeto._Nombre>>.<<loProcedure._Nombre>>), Zeile <<TRANSFORM(m.I)>> der Datei <<THIS.c_InputFile>> gefunden"
                .C_UNKNOWN_CLASS_NAME_LOC                                       = "Unbekannte Klasse [<<THIS.CLASS>>]"
                .C_USE_FILE_TIMESTAMP_OPTIMIZATION_LOC                          = "Verwenden Sie die Datei-Zeitstempel-Optimierung"
                .C_USING_THIS_SETTINGS_LOC                                      = "Mit dieser Einstellung"
-               .C_USING_THIS_SETTINGS_LOC1                                     = " BY PARAMETER, alle vorherigen Einstellungen werden zur¸ckgesetzt!"
+               .C_USING_THIS_SETTINGS_LOC1                                     = " BY PARAMETER, alle vorherigen Einstellungen werden zur√ºckgesetzt!"
                .C_USING_THIS_SETTINGS_LOC2                                     = " Komplette Auswertung der Konfiguration gestattet."+CR_LF
                .C_USING_THIS_SETTINGS_LOC3                                     = " Konfigurationsdateien von Unterverzeichnissen und ererbete Konfigurationen aus dem Baum werden ausgewertet."+CR_LF
                .C_USING_THIS_SETTINGS_LOC4                                     = " Konfigurationsdateien von Unterverzeichnissen werden ausgewertet."+CR_LF
                .C_USING_THIS_SETTINGS_LOC5                                     = " Es werden keine anderen Konfigurationsdateien gelesen."+CR_LF
-               .C_USING_THIS_SETTINGS_LOC6                                     = "Externe Konfigurationsdatei ¸bergeben: "
+               .C_USING_THIS_SETTINGS_LOC6                                     = "Externe Konfigurationsdatei √ºbergeben: "
                .C_USING_THIS_SETTINGS_LOC7                                     = ", nutze gespeicherte Konfiguration."
                .C_WARNING_LOC                                                  = "WARNUNG!"
                .C_WARN_TABLE_ALIAS_ON_INDEX_EXPRESSION_LOC                     = "WARNUNG!" + CR_LF+ "STELLEN SIE SICHER, DAS KEIN TABELLENALIAS IM INDEXAUSDRUCK BENUTZT WIRD!! (z.B.: index on <<UPPER(JUSTSTEM(THIS.c_InputFile))>>.campo tag keyname)"
@@ -1245,13 +1245,13 @@ Define Class CL_LANG As Custom
                .C_LOCKINGFOLDER_LOC                                            = " gefunden, das Verzeichnis und Unterverzeichnisse werden ignoriert."
 
                .C_INDEX2TXT_PROCESSING_LOC                                     = " Ermittle Index"
-               .C_INDEX2TXT_EXTRAFILES_LOC                                     = "  Zus‰tzliche Index Dateien"
+               .C_INDEX2TXT_EXTRAFILES_LOC                                     = "  Zus√§tzliche Index Dateien"
                .C_INDEX2TXT_NOFILE_LOC                                         = "     Keine Datei "
                .C_INDEX2TXT_NOTTHISTABLE_LOC                                   = "   Index passt nicht zur Tabelle "
                .C_INDEX2BIN_PROCESSING_LOC                                     = " Erstelle Index"
-               .C_INDEX2BIN_STRUCTURAL_LOC                                     = "  TAGs f¸r den strukturellen Index"
-               .C_INDEX2BIN_STANDALONE_LOC                                     = "  Eigenst‰ndige Indexdatei: "
-               .C_INDEX2BIN_COMPOUND_LOC                                       = "  TAGs f¸r verbundene Indexdatei: "
+               .C_INDEX2BIN_STRUCTURAL_LOC                                     = "  TAGs f√ºr den strukturellen Index"
+               .C_INDEX2BIN_STANDALONE_LOC                                     = "  Eigenst√§ndige Indexdatei: "
+               .C_INDEX2BIN_COMPOUND_LOC                                       = "  TAGs f√ºr verbundene Indexdatei: "
                .C_PJXPATH_ERR_LOC1                                             = CR_LF + 'Hauptdatei "'
                .C_PJXPATH_ERR_LOC2                                             = CR_LF + 'Projekt-Icon Datei "'
                .C_PJXPATH_ERR_LOC3                                             = CR_LF + 'Datei ""'
@@ -1259,7 +1259,7 @@ Define Class CL_LANG As Custom
                .C_PJXPATH_ERR_LOC5                                             = '",' + CR_LF + 'siehe Option "CheckFileInPath".' + CR_LF+CR_LF
 
 
-            Otherwise   && English (InglÈs)
+            Otherwise   && English (Ingl√©s)
                *-------------------------------------------------------------------------------------------------------------------------------------------
                *-- NOTE: MUST USE DOUBLE QUOTES, OR SYNTAX ERRORS HAPPEN WHEN COMPILING. STRANGE :(
                *-------------------------------------------------------------------------------------------------------------------------------------------
@@ -1377,7 +1377,7 @@ Define Class CL_LANG As Custom
                         <<>>****************************************************************************************************************
                         <<>>
                         <<>>-- Settings for internal work, not processing
-                        <<>>Language: (auto)               && Language of shown messages and LOGs. EN=English, FR=French, ES=EspaÒol, DE=German, Not defined = AUTOMATIC [DEFAULT]
+                        <<>>Language: (auto)               && Language of shown messages and LOGs. EN=English, FR=French, ES=Espa√±ol, DE=German, Not defined = AUTOMATIC [DEFAULT]
                         <<>>ShowProgressbar: 1             && 0=Don't show, 1=Allways show, 2=Show only for multi-file processing
                         <<>>DontShowErrors: 0              && Show message errors by default
                         <<>>ExtraBackupLevels: 1           && By default 1 BAK is created. With this you can make more .N.BAK, or none

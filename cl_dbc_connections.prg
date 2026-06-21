@@ -9,11 +9,11 @@ Define Class CL_DBC_CONNECTIONS As CL_DBC_COL_BASE Of 'cl_dbc_col_base.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
-      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
-      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
+      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
+      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -41,7 +41,7 @@ Define Class CL_DBC_CONNECTIONS As CL_DBC_COL_BASE Of 'cl_dbc_col_base.prg'
                   Case C_CONNECTION_I $ tcLine
                      loConnection = NewObject('CL_DBC_CONNECTION', 'cl_dbc_connection.prg')
                      loConnection.analyzeCodeBlock( @tcLine, @taCodeLines, @m.I, tnCodeLines )
-                     *-- El siguiente PADR() es porque si no "estoXXX" est· antes que "esto" cuando keysort=2 (raro...)
+                     *-- El siguiente PADR() es porque si no "estoXXX" est√° antes que "esto" cuando keysort=2 (raro...)
                      .Add( loConnection, Padr(loConnection._Name,128) )
 
                   Case '<Comment>' $ tcLine
@@ -78,7 +78,7 @@ Define Class CL_DBC_CONNECTIONS As CL_DBC_COL_BASE Of 'cl_dbc_col_base.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       *---------------------------------------------------------------------------------------------------
       Lparameters toFoxBin2Prg
@@ -134,7 +134,7 @@ Define Class CL_DBC_CONNECTIONS As CL_DBC_COL_BASE Of 'cl_dbc_col_base.prg'
 
    Procedure read_BinDataToProperties
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       *---------------------------------------------------------------------------------------------------
       Lparameters toFoxBin2Prg
@@ -160,7 +160,7 @@ Define Class CL_DBC_CONNECTIONS As CL_DBC_COL_BASE Of 'cl_dbc_col_base.prg'
                For I = 1 To lnConnection_Count
                   loConnection    = NewObject('CL_DBC_CONNECTION', 'cl_dbc_connection.prg')
                   loConnection.read_BinDataToProperties( laConnections(m.I) )
-                  *-- El siguiente PADR() es porque si no "estoXXX" est· antes que "esto" cuando keysort=2 (raro...)
+                  *-- El siguiente PADR() es porque si no "estoXXX" est√° antes que "esto" cuando keysort=2 (raro...)
                   .Add( loConnection, Padr(Lower(loConnection._Name),128) )
                Endfor
             Endif

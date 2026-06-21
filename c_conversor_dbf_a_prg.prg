@@ -9,9 +9,9 @@ Define Class c_conversor_dbf_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toModulo                  (!@    OUT) Contenido del texto generado
-      * toEx                      (!@    OUT) Objeto con informaciÛn del error
+      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -40,7 +40,7 @@ Define Class c_conversor_dbf_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                *moved up:
                *               IF NOT toFoxBin2Prg.l_ProcessFiles THEN
                *                   .write_OutputFile( '', .c_OutputFile, @toFoxBin2Prg )
-               *                   EXIT    && Si se indicÛ no procesar, se sale aquÌ. (Modo de simulaciÛn)
+               *                   EXIT    && Si se indic√≥ no procesar, se sale aqu√≠. (Modo de simulaci√≥n)
                *               ENDIF
                *!* /Changed by: LScheffler 11.2.2021
 
@@ -63,20 +63,20 @@ Define Class c_conversor_dbf_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                loDBFUtils          = NewObject('CL_DBF_UTILS', 'cl_dbf_utils.prg')
                loDBC               = NewObject('CL_DBC', 'cl_dbc.prg')
 
-               *-- EVALUAR OPCIONES ESPECÕFICAS DE DBF
+               *-- EVALUAR OPCIONES ESPEC√çFICAS DE DBF
                .updateProgressbar( 'Scanning DBF Structure...', 1, 3, 1 )
 
                *-- Include
                If Not Empty(toFoxBin2Prg.getCfgValue('c_DBF_Conversion_Included')) And Not toFoxBin2Prg.getCfgValue('c_DBF_Conversion_Included') == '*' ;
                      AND Not toFoxBin2Prg.filenameFoundInFilter( Justfname(.c_InputFile), toFoxBin2Prg.getCfgValue('c_DBF_Conversion_Included') )
-                  toFoxBin2Prg.writeLog('  ' + Justfname(.c_InputFile) + ' no est· en el filtro DBF_Conversion_Included (' + toFoxBin2Prg.getCfgValue('c_DBF_Conversion_Included') + ')' )
+                  toFoxBin2Prg.writeLog('  ' + Justfname(.c_InputFile) + ' no est√° en el filtro DBF_Conversion_Included (' + toFoxBin2Prg.getCfgValue('c_DBF_Conversion_Included') + ')' )
                   Exit
                Endif
 
                *-- Exclude
                If Not Empty(toFoxBin2Prg.getCfgValue('c_DBF_Conversion_Excluded')) ;
                      AND toFoxBin2Prg.filenameFoundInFilter( Justfname(.c_InputFile), toFoxBin2Prg.getCfgValue('c_DBF_Conversion_Excluded') )
-                  toFoxBin2Prg.writeLog('  ' + Justfname(.c_InputFile) + ' est· en el filtro DBF_Conversion_Excluded (' + toFoxBin2Prg.getCfgValue('c_DBF_Conversion_Excluded') + ')' )
+                  toFoxBin2Prg.writeLog('  ' + Justfname(.c_InputFile) + ' est√° en el filtro DBF_Conversion_Excluded (' + toFoxBin2Prg.getCfgValue('c_DBF_Conversion_Excluded') + ')' )
                   Exit
                Endif
 
@@ -114,7 +114,7 @@ Define Class c_conversor_dbf_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                *-- Header
                loTable         = NewObject('CL_DBF_TABLE', 'cl_dbf_table.prg')
 
-               *-- ExportaciÛn de estructura y datos (para Diff solamente)
+               *-- Exportaci√≥n de estructura y datos (para Diff solamente)
                Erase (.c_OutputFile + '.TMP' )
                loTextStream    = loFSO.CreateTextFile(.c_OutputFile + '.TMP' )     && Replace VFP low-level file funcs.because the 8-16KB limit.
                toFoxBin2Prg.o_TextStream = loTextStream
@@ -165,7 +165,7 @@ Define Class c_conversor_dbf_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                Endif
 
 
-               *-- Hook para permitir ejecuciÛn externa (por ejemplo, para exportar datos)
+               *-- Hook para permitir ejecuci√≥n externa (por ejemplo, para exportar datos)
                If Not Empty(toFoxBin2Prg.run_AfterCreate_DB2)
                   lnSelect    = Select()
                   Do (toFoxBin2Prg.run_AfterCreate_DB2) With (lnDataSessionID), (.c_OutputFile), (loTable)
@@ -187,8 +187,8 @@ Define Class c_conversor_dbf_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                *!*     toEx.UserValue = 'WARNING!!' + CR_LF ;
                *!*         + "MAY BE DATABASE FIELDS DOESN'T" ;
                *!*         + UPPER(JUSTSTEM(THIS.c_InputFile)) + '.field tag keyname)' + CR_LF + CR_LF ;
-               *!*         + '°°ATENCI”N!!' + CR_LF ;
-               *!*         + 'ASEG⁄RESE DE QUE NO EST¡ USANDO UN ALIAS DE TABLA EN LAS EXPRESIONES DE LOS ÕNDICES!! (ej: index on ' ;
+               *!*         + '¬°¬°ATENCI√ìN!!' + CR_LF ;
+               *!*         + 'ASEG√öRESE DE QUE NO EST√Å USANDO UN ALIAS DE TABLA EN LAS EXPRESIONES DE LOS √çNDICES!! (ej: index on ' ;
                *!*         + UPPER(JUSTSTEM(THIS.c_InputFile)) + '.campo tag nombreclave)'
 
             Endcase

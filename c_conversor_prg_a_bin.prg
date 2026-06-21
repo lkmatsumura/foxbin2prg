@@ -53,9 +53,9 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (!@    OUT) Objeto generado de clase correspondiente con la informaciÛn leida del texto
-      * toEx                      (!@    OUT) Objeto con informaciÛn del error
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (!@    OUT) Objeto generado de clase correspondiente con la informaci√≥n leida del texto
+      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
       * toFoxBin2Prg              (!@ IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -77,7 +77,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       lnPos   = Ascan( taPropsAndValues, tcPropName, 1, 0, 1, 1+2+4+8)
 
       If lnPos = 0 Or Empty( taPropsAndValues( lnPos, 2 ) )
-         *-- Valores no encontrados o vacÌos
+         *-- Valores no encontrados o vac√≠os
          luPropValue = ''
       Else
          luPropValue = taPropsAndValues( lnPos, 2 )
@@ -99,7 +99,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       Case tcValueType = 'E'
          luPropValue = Evaluate( luPropValue )
 
-      Otherwise && Asumo 'C' para lo dem·s
+      Otherwise && Asumo 'C' para lo dem√°s
          luPropValue = luPropValue
 
       Endcase
@@ -122,7 +122,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
          With This As c_conversor_prg_a_bin Of c_conversor_prg_a_bin.prg
             llBloqueEncontrado  = .T.
 
-            *-- Metadatos del mÛdulo
+            *-- Metadatos del m√≥dulo
             .get_ListNamesWithValuesFrom_InLine_MetadataTag( @tcLine, @laPropsAndValues, @lnPropsAndValues_Count, C_FB2PRG_META_I, C_FB2PRG_META_F )
             toModulo._Version       = .get_ValueByName_FromListNamesWithValues( 'Version', 'N', @laPropsAndValues )
             toModulo._SourceFile    = .get_ValueByName_FromListNamesWithValues( 'SourceFile', 'C', @laPropsAndValues )
@@ -149,7 +149,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       If Upper( Left( tcLine, Len(C_LIBCOMMENT_I) ) ) == C_LIBCOMMENT_I
          llBloqueEncontrado  = .T.
 
-         *-- Metadatos del mÛdulo
+         *-- Metadatos del m√≥dulo
          toModulo._Comment       = Alltrim( Strextract( tcLine, C_LIBCOMMENT_I, C_LIBCOMMENT_F ) )
       Endif
 
@@ -634,7 +634,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       *--------------------------------------------------------------------------------------------------------------
       * ARMA EL MEMO DE PROPERTIES CON LAS PROPIEDADES Y SUS VALORES
       *--------------------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toClase                   (!@ IN    ) Objeto de la Clase
       * toFoxBin2Prg              (@? IN    ) Referencia al objeto principal
       *--------------------------------------------------------------------------------------------------------------
@@ -754,7 +754,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
          , loProcedure As CL_PROCEDURE Of 'cl_procedure.prg'
       lcMemo  = ''
 
-      *-- Recorrer los mÈtodos
+      *-- Recorrer los m√©todos
       With This As c_conversor_prg_a_bin Of c_conversor_prg_a_bin.prg
          For I = 1 To toClase._Procedure_Count
             loProcedure = .Null.
@@ -764,7 +764,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
                .updateProgressbar( 'Generating Procedure ' + toClase._Nombre + '.' + loProcedure._Nombre + '...', m.I, toClase._Procedure_Count, 2 )
 
                If '.' $ loProcedure._Nombre
-                  *-- cboNombre.InteractiveChange ==> No debe acortarse por ser mÈtodo modificado de combobox heredado de la clase
+                  *-- cboNombre.InteractiveChange ==> No debe acortarse por ser m√©todo modificado de combobox heredado de la clase
                   *-- cntDatos.txtEdad.Valid      ==> Debe acortarse si cntDatos es un objeto existente
                   lcNombreObjeto  = Left( loProcedure._Nombre, At('.', loProcedure._Nombre) - 1 )
 
@@ -786,7 +786,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
                   *lcMemo = lcMemo + C_PROCEDURE + ' ' + loProcedure._Nombre
                Endif
 
-               *-- Incluir las lÌneas del mÈtodo
+               *-- Incluir las l√≠neas del m√©todo
                *.updateProgressbar( 'Generating Lines of Procedure ' + toClase._Nombre + '.' + loProcedure._Nombre + '...', m.I, toClase._Procedure_Count, 2 )
                For X = 1 To loProcedure._ProcLine_Count
                   *TEXT TO lcMemo ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
@@ -822,7 +822,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
          , loProcedure As CL_PROCEDURE Of 'cl_procedure.prg'
       lcMemo  = ''
 
-      *-- Recorrer los mÈtodos
+      *-- Recorrer los m√©todos
       This.updateProgressbar( 'Generating Object Methods for ' + toClase._Nombre + '.' + toObjeto._ObjName + '...', 0, 1, 2 )
       For I = 1 To toObjeto._Procedure_Count
          loProcedure = .Null.
@@ -832,7 +832,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
                 <<C_PROCEDURE>> <<loProcedure._Nombre>>
          ENDTEXT
 
-         *-- Incluir las lÌneas del mÈtodo
+         *-- Incluir las l√≠neas del m√©todo
          For X = 1 To loProcedure._ProcLine_Count
             lcMemo = lcMemo + Chr(13) + Chr(10) + loProcedure._ProcLines(m.X)
          Endfor
@@ -852,7 +852,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
    Procedure getClassPropertyComment
       *-- Devuelve el comentario (columna 2 del array toClase._Props) de la propiedad indicada,
-      *-- busc·ndola en la columna 2 por su nombre.
+      *-- busc√°ndola en la columna 2 por su nombre.
       Lparameters tcPropName As String, toClase
 
       #If .F.
@@ -877,8 +877,8 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
    Procedure getClassMethodComment
       *---------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (@! IN/OUT) LÌnea a separar del comentario (En este punto, el ˙nico comentario puede ser un HELPSTRING)
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (@! IN/OUT) L√≠nea a separar del comentario (En este punto, el √∫nico comentario puede ser un HELPSTRING)
       * tcComment                 (@?    OUT) Comentario
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine As String, tcComment As String
@@ -928,7 +928,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
    Procedure defined_PAM2Memo
       *--------------------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toClase                   (!@ IN    ) Objeto de la Clase
       *--------------------------------------------------------------------------------------------------------------
       Lparameters toClase
@@ -1125,9 +1125,9 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
 
    Procedure insert_AllObjects
-      *-- Recorro primero los objetos con ZOrder definido, y luego los dem·s
-      *-- NOTA: Como consecuencia de una integraciÛn de cÛdigo, puede que se hayan agregado objetos nuevos (desconocidos),
-      *--       pero todo lo dem·s tiene un ZOrder definido, que es el n˙mero de registro original * 100.
+      *-- Recorro primero los objetos con ZOrder definido, y luego los dem√°s
+      *-- NOTA: Como consecuencia de una integraci√≥n de c√≥digo, puede que se hayan agregado objetos nuevos (desconocidos),
+      *--       pero todo lo dem√°s tiene un ZOrder definido, que es el n√∫mero de registro original * 100.
       Lparameters toClase, toFoxBin2Prg
 
       #If .F.
@@ -1257,20 +1257,20 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
                   Case Upper( Left( tcLine + ' ', 10 ) ) == 'ENDDEFINE '  && Fin de bloque (ENDDEFINE) encontrado
                      If llEsProcedureDeClase
-                        *ERROR 'Error de anidamiento de estructuras. Se esperaba ENDPROC y se encontrÛ ENDDEFINE en la clase ' ;
+                        *ERROR 'Error de anidamiento de estructuras. Se esperaba ENDPROC y se encontr√≥ ENDDEFINE en la clase ' ;
                         + toClase._Nombre + ' (' + loProcedure._Nombre + ')' ;
-                        + ', lÌnea ' + TRANSFORM(m.I) + ' del archivo ' + .c_InputFile
+                        + ', l√≠nea ' + TRANSFORM(m.I) + ' del archivo ' + .c_InputFile
                         Error (Textmerge(loLang.C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_LOC))
                      Else
-                        *ERROR 'Error de anidamiento de estructuras. Se esperaba ENDPROC y se encontrÛ ENDDEFINE en la clase ' ;
+                        *ERROR 'Error de anidamiento de estructuras. Se esperaba ENDPROC y se encontr√≥ ENDDEFINE en la clase ' ;
                         + toClase._Nombre + ' (' + toObjeto._Nombre + '.' + loProcedure._Nombre + ')' ;
-                        + ', lÌnea ' + TRANSFORM(m.I) + ' del archivo ' + .c_InputFile
+                        + ', l√≠nea ' + TRANSFORM(m.I) + ' del archivo ' + .c_InputFile
                         Error (Textmerge(loLang.C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_2_LOC))
                      Endif
                   Endcase
                Endif
 
-               *-- Quito 2 TABS de la izquierda (si se puede y si el integrador/desarrollador no la liÛ quit·ndolos)
+               *-- Quito 2 TABS de la izquierda (si se puede y si el integrador/desarrollador no la li√≥ quit√°ndolos)
                Do Case
                Case Left( taCodeLines(m.I),2 ) = C_TAB + C_TAB
                   loProcedure.add_Line( Substr(taCodeLines(m.I), 3) )
@@ -1302,13 +1302,13 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
    Procedure analyzeCodeBlock_ADD_OBJECT
       *--------------------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toModulo                  (!@ IN    ) Objeto del Modulo
       * toClase                   (!@ IN    ) Objeto de la Clase
-      * tcLine                    (!@ IN    ) LÌnea de datos en evaluaciÛn
-      * taCodeLines               (!@ IN    ) El array con las lÌneas del cÛdigo de texto donde buscar
-      * I                         (!@ IN    ) N˙mero de lÌnea en evaluaciÛn
-      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas de cÛdigo
+      * tcLine                    (!@ IN    ) L√≠nea de datos en evaluaci√≥n
+      * taCodeLines               (!@ IN    ) El array con las l√≠neas del c√≥digo de texto donde buscar
+      * I                         (!@ IN    ) N√∫mero de l√≠nea en evaluaci√≥n
+      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas de c√≥digo
       * toFoxBin2Prg              (?@ IN    ) Referencia al objeto principal
       *--------------------------------------------------------------------------------------------------------------
       Lparameters toModulo, toClase, tcLine, I, taCodeLines, tnCodeLines, toFoxBin2Prg
@@ -1357,7 +1357,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
                If Isnull(toObjeto)
                   Z           = 0
                   toObjeto    = NewObject('CL_OBJETO', 'cl_objeto.prg')
-                  *-- Luego se reasigna el ZOrder, pero si no lo hace, se pone ˙ltimo como si se acabara de agregar.
+                  *-- Luego se reasigna el ZOrder, pero si no lo hace, se pone √∫ltimo como si se acabara de agregar.
                   *-- Puede pasar si se agrega manualmente al TX2 y se olvida agregar la metadata OBJECTDATA.
                   toObjeto._ZOrder    = 9999
                   toObjeto._Nombre    = lcNombre
@@ -1418,7 +1418,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
                      Endif
 
                      *-- Ubico el objeto ole por su nombre (parent+objname), que no se repite.
-                     If Empty(toObjeto._Ole) && Si _Ole est· vacÌo es porque el propio control no tiene la info y est· en la cabecera (antiguo guardado)
+                     If Empty(toObjeto._Ole) && Si _Ole est√° vac√≠o es porque el propio control no tiene la info y est√° en la cabecera (antiguo guardado)
                         If toModulo.existeObjetoOLE( toObjeto._Nombre, @m.Z )
                            toObjeto._Ole   = toModulo._Ole_Objs(m.Z)._Value
                         Endif
@@ -1472,25 +1472,25 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
    Procedure analyzeCodeBlock_DEFINED_PAM
       *--------------------------------------------------------------------------------------------------------------
-      * 07/01/2014    FDBOZZO     Los *mÈtodos deben ir siempre al final, si no los eventos ACCESS no se ejecutan!
+      * 07/01/2014    FDBOZZO     Los *m√©todos deben ir siempre al final, si no los eventos ACCESS no se ejecutan!
       *--------------------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toClase                   (!@ IN    ) Objeto de la Clase
-      * tcLine                    (!@ IN    ) LÌnea de datos en evaluaciÛn
-      * taCodeLines               (!@ IN    ) El array con las lÌneas del cÛdigo de texto donde buscar
-      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas de cÛdigo
-      * I                         (!@ IN    ) N˙mero de lÌnea en evaluaciÛn
+      * tcLine                    (!@ IN    ) L√≠nea de datos en evaluaci√≥n
+      * taCodeLines               (!@ IN    ) El array con las l√≠neas del c√≥digo de texto donde buscar
+      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas de c√≥digo
+      * I                         (!@ IN    ) N√∫mero de l√≠nea en evaluaci√≥n
       *--------------------------------------------------------------------------------------------------------------
       Lparameters toClase, tcLine, taCodeLines, tnCodeLines, I
       External Array taCodeLines
 
-      *-- ESTRUCTURA A ANALIZAR (tambiÈn se admite sin los sÌmbolos ^ y *):
+      *-- ESTRUCTURA A ANALIZAR (tambi√©n se admite sin los s√≠mbolos ^ y *):
       *<DefinedPropArrayMethod>
-      *m: *metodovacio_con_comentarios        && Este mÈtodo no tiene cÛdigo, pero tiene comentarios. A ver que pasa!
+      *m: *metodovacio_con_comentarios        && Este m√©todo no tiene c√≥digo, pero tiene comentarios. A ver que pasa!
       *m: *mimetodo       && Mi metodo
       *p: prop1       && Mi prop 1
       *p: prop_especial_cr        &&
-      *a: ^array_1_d[1,0]     && Array 1 dimensiÛn (1)
+      *a: ^array_1_d[1,0]     && Array 1 dimensi√≥n (1)
       *a: ^array_2_d[1,2]     && Array una dimension (1,2)
       *p: _memberdata     && XML Metadata for customizable properties
       *</DefinedPropArrayMethod>
@@ -1532,7 +1532,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
                      Endif
 
-                     *-- Separo propiedades y mÈtodos
+                     *-- Separo propiedades y m√©todos
                      If lcPAM_Type == '*m:'
                         If Left(lcItem,1) == '*'
                            lcMethods       = lcMethods + lcItem
@@ -1550,7 +1550,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
                Endfor
             Endwith && THIS
 
-            *-- Junto propiedades y los mÈtodos al final.
+            *-- Junto propiedades y los m√©todos al final.
             toClase._Defined_PAM    = lcDefinedPAM + lcMethods
             I = m.I - 1
          Endif
@@ -1584,12 +1584,12 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       * 16/03/2023    LutzScheffler   old version (pre v1.19.77) stored the comment on the property value, so it was impossible to to keep && in value
       * the method is basically a copy of analyzeCodeBlock_DEFINED_PAM
       *--------------------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toClase                   (!@ IN    ) Objeto de la Clase
-      * tcLine                    (!@ IN    ) LÌnea de datos en evaluaciÛn
-      * taCodeLines               (!@ IN    ) El array con las lÌneas del cÛdigo de texto donde buscar
-      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas de cÛdigo
-      * I                         (!@ IN    ) N˙mero de lÌnea en evaluaciÛn
+      * tcLine                    (!@ IN    ) L√≠nea de datos en evaluaci√≥n
+      * taCodeLines               (!@ IN    ) El array con las l√≠neas del c√≥digo de texto donde buscar
+      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas de c√≥digo
+      * I                         (!@ IN    ) N√∫mero de l√≠nea en evaluaci√≥n
       *--------------------------------------------------------------------------------------------------------------
       Lparameters toClase, tcLine, taCodeLines, tnCodeLines, I
       External Array taCodeLines
@@ -1641,7 +1641,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
                Endfor
             Endwith && THIS
 
-            *-- Junto propiedades y los mÈtodos al final.
+            *-- Junto propiedades y los m√©todos al final.
             I = m.I - 1
          Endif
 
@@ -1664,16 +1664,16 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
    Procedure analyzeCodeBlock_DEFINE_CLASS
       *--------------------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toModulo                  (!@ IN    ) Objeto del Modulo
       * toClase                   (!@ IN    ) Objeto de la Clase
-      * tcLine                    (!@ IN    ) LÌnea de datos en evaluaciÛn
-      * taCodeLines               (!@ IN    ) El array con las lÌneas del cÛdigo de texto donde buscar
-      * I                         (!@ IN    ) N˙mero de lÌnea en evaluaciÛn
-      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas de cÛdigo
+      * tcLine                    (!@ IN    ) L√≠nea de datos en evaluaci√≥n
+      * taCodeLines               (!@ IN    ) El array con las l√≠neas del c√≥digo de texto donde buscar
+      * I                         (!@ IN    ) N√∫mero de l√≠nea en evaluaci√≥n
+      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas de c√≥digo
       * tcProcedureAbierto        (!v IN    ) Nombre del Procedure abierto
-      * taLineasExclusion         (!@ IN    ) Array de lÌneas de exclusiÛn
-      * tnBloquesExclusion        (!@ IN    ) Cantidad de lÌneas de exclusiÛn
+      * taLineasExclusion         (!@ IN    ) Array de l√≠neas de exclusi√≥n
+      * tnBloquesExclusion        (!@ IN    ) Cantidad de l√≠neas de exclusi√≥n
       * tc_Comentario             (!v IN    ) Comentario
       * toFoxBin2Prg              (@? IN    ) Referencia al objeto principal
       *--------------------------------------------------------------------------------------------------------------
@@ -1725,7 +1725,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
                toClase._Ole    = toModulo._Ole_Objs(m.Z)._Value
             Endif
 
-            * B˙squeda del ID de fin de bloque (ENDDEFINE)
+            * B√∫squeda del ID de fin de bloque (ENDDEFINE)
             With This As c_conversor_prg_a_bin Of 'c_conversor_prg_a_bin.prg'
                For I = toClase._Ini_Cab To tnCodeLines
                   tc_Comentario   = ''
@@ -1737,7 +1737,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
                   Case .analyzeCodeBlock_PROCEDURE( @toModulo, @toClase, @loObjeto, @tcLine, @taCodeLines, @m.I, @tnCodeLines ;
                         , @tcProcedureAbierto, @tc_Comentario, @taLineasExclusion, @tnBloquesExclusion )
-                     *-- OJO: Esta se analiza primero a propÛsito, solo porque no puede estar detr·s de PROTECTED y HIDDEN
+                     *-- OJO: Esta se analiza primero a prop√≥sito, solo porque no puede estar detr√°s de PROTECTED y HIDDEN
                      Store .T. To llCLASSCOMMENTS_Completed ;
                         , llCLASS_PROPERTY_Completed ;
                         , llPROTECTED_Completed ;
@@ -1770,7 +1770,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
 
                   Case Not llOBJECTMETADATA_Completed And .analyzeCodeBlock_OBJECTMETADATA( @toClase, @tcLine )
-                     * No se usa flag porque puede haber m˙ltiples ObjectMetadata.
+                     * No se usa flag porque puede haber m√∫ltiples ObjectMetadata.
 
 
                   Case Not llDEFINED_PAM_Completed And .analyzeCodeBlock_DEFINED_PAM( @toClase, @tcLine, @taCodeLines, tnCodeLines, @m.I )
@@ -1798,25 +1798,25 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
                   Case Not llCLASS_PROPERTY_Completed And Empty( toClase._Fin_Cab )
                      *-- Propiedades de la CLASE
                      *--
-                     *-- NOTA: Las propiedades se agregan tal cual, incluso aunque estÈn separadas en
-                     *--       varias lÌneas (memberdata y fb2p_value), ya que luego se ensamblan en classProps2Memo().
+                     *-- NOTA: Las propiedades se agregan tal cual, incluso aunque est√©n separadas en
+                     *--       varias l√≠neas (memberdata y fb2p_value), ya que luego se ensamblan en classProps2Memo().
                      *
                      .get_SeparatedPropAndValue( tcLine, @lcProp, @lcValue, @toClase, @taCodeLines, tnCodeLines, @m.I )
                      toClase.add_Property( @lcProp, @lcValue, Rtrim(tc_Comentario) )
 
 
                   Otherwise
-                     *-- Las lÌneas que pasan por aquÌ deberÌan estar vacÌas y ser de relleno del embellecimiento
+                     *-- Las l√≠neas que pasan por aqu√≠ deber√≠an estar vac√≠as y ser de relleno del embellecimiento
 
                   Endcase
 
                Endfor
 
-               *-- ValidaciÛn
+               *-- Validaci√≥n
                If Empty( toClase._Fin )
                   *ERROR 'No se ha encontrado el marcador de fin [ENDDEFINE] ' ;
                   + 'que cierra al marcador de inicio [DEFINE CLASS] ' ;
-                  + 'de la lÌnea ' + TRANSFORM( toClase._Inicio ) + ' ' ;
+                  + 'de la l√≠nea ' + TRANSFORM( toClase._Inicio ) + ' ' ;
                   + 'para el identificador [' + toClase._Nombre + ']'
                   Error (Textmerge(loLang.C_ENDDEFINE_MARKER_NOT_FOUND_LOC))
                Endif
@@ -2135,7 +2135,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
       If Left( tcLine + ' ', C_LEN_OLE_I + 1 ) == C_OLE_I + ' '
          llBloqueEncontrado  = .T.
-         *-- Se encontrÛ una definiciÛn de objeto OLE
+         *-- Se encontr√≥ una definici√≥n de objeto OLE
          *< OLE: Nombre="frm_d.ole_ImageControl2" parent="frm_d" objname="ole_ImageControl2" checksum="4171274922" value="b64-value" />
          Local laPropsAndValues(1,2), lnPropsAndValues_Count ;
             , loOle As CL_OLE Of 'cl_ole.prg'
@@ -2155,8 +2155,8 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
          toModulo.add_OLE( loOle )
 
          If Empty( loOle._Value )
-            *-- Si el objeto OLE no tiene VALUE, es porque hay otro con el mismo contenido y no se duplicÛ para preservar espacio.
-            *-- Busco el VALUE del duplicado que se guardÛ y lo asigno nuevamente
+            *-- Si el objeto OLE no tiene VALUE, es porque hay otro con el mismo contenido y no se duplic√≥ para preservar espacio.
+            *-- Busco el VALUE del duplicado que se guard√≥ y lo asigno nuevamente
             For Z = 1 To toModulo._Ole_Obj_count - 1
                If toModulo._Ole_Objs(m.Z)._CheckSum == loOle._CheckSum And Not Empty( toModulo._Ole_Objs(m.Z)._Value )
                   loOle._Value    = toModulo._Ole_Objs(m.Z)._Value
@@ -2236,7 +2236,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
          Endcase
 
          If llBloqueEncontrado
-            *-- Eval˙o todo el contenido del PROCEDURE
+            *-- Eval√∫o todo el contenido del PROCEDURE
             .updateProgressbar( 'Analyzing Procedure ' + toClase._Nombre + '.' + tcProcedureAbierto + '...', m.I, tnCodeLines, 1 )
             .analyzeProcedureLines( @toClase, @toObjeto, @tcLine, @taCodeLines, @m.I, @tnCodeLines, @tcProcedureAbierto ;
                , @tc_Comentario, @taLineasExclusion, @tnBloquesExclusion )
@@ -2292,7 +2292,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
          loProcedure._Comentario     = tc_Comentario
          loProcedure._Inicio         = m.I
 
-         *-- Anoto en HiddenMethods y ProtectedMethods seg˙n corresponda
+         *-- Anoto en HiddenMethods y ProtectedMethods seg√∫n corresponda
          Do Case
          Case loProcedure._ProcType == 'hidden'
             toClase._HiddenMethods  = toClase._HiddenMethods + ',' + tcProcName
@@ -2307,7 +2307,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
             *-- Procedimiento de objeto
             lcNombreObjeto  = Lower( Juststem( tcProcName ) )
 
-            *-- Busco el objeto al que corresponde el mÈtodo
+            *-- Busco el objeto al que corresponde el m√©todo
             lnObjProc   = This.findMethodsObjectByName( lcNombreObjeto, toClase )
 
             If lnObjProc = 0
@@ -2349,16 +2349,16 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
    Procedure identifyCodeBlocks
       *--------------------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * taCodeLines               (@! IN    ) El array con las lÌneas del cÛdigo donde buscar
-      * tnCodeLines               (@! IN    ) Cantidad de lÌneas de cÛdigo
-      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg˙n la lÌnea sea de exclusiÛn o no
-      * tnBloquesExclusion        (@! IN    ) Cantidad de bloques de exclusiÛn
-      * toModulo                  (@?    OUT) Objeto con toda la informaciÛn del mÛdulo analizado
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taCodeLines               (@! IN    ) El array con las l√≠neas del c√≥digo donde buscar
+      * tnCodeLines               (@! IN    ) Cantidad de l√≠neas de c√≥digo
+      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg√∫n la l√≠nea sea de exclusi√≥n o no
+      * tnBloquesExclusion        (@! IN    ) Cantidad de bloques de exclusi√≥n
+      * toModulo                  (@?    OUT) Objeto con toda la informaci√≥n del m√≥dulo analizado
       * toFoxBin2Prg              (@? IN    ) Referencia al objeto principal
       *
       * NOTA:
-      * Como identificador se usa el nombre de clase o de procedimiento, seg˙n corresponda.
+      * Como identificador se usa el nombre de clase o de procedimiento, seg√∫n corresponda.
       *--------------------------------------------------------------------------------------------------------------
       Lparameters taCodeLines, tnCodeLines, taLineasExclusion, tnBloquesExclusion, toModulo, toFoxBin2Prg
 
@@ -2382,14 +2382,14 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
             If tnCodeLines > 1
 
-               *-- B˙squeda del ID de inicio de bloque (DEFINE CLASS / PROCEDURE)
+               *-- B√∫squeda del ID de inicio de bloque (DEFINE CLASS / PROCEDURE)
                For I = 1 To tnCodeLines
                   Store '' To lc_Comentario
                   .set_Line( @lcLine, @taCodeLines, m.I )
 
                   Do Case
                   Case .excludedLine( m.I, tnBloquesExclusion, @taLineasExclusion ) ;
-                        OR .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && Excluida, vacÌa o solo Comentarios
+                        OR .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && Excluida, vac√≠a o solo Comentarios
 
                   Case .analyzeCodeBlock_DEFINE_CLASS( @toModulo, @loClase, @lcLine, @taCodeLines, @m.I, tnCodeLines ;
                         , @lcProcedureAbierto, @taLineasExclusion, @tnBloquesExclusion, @lc_Comentario, @toFoxBin2Prg )
@@ -2429,16 +2429,16 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
    Procedure identifyHeaderBlocks
       *--------------------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * taCodeLines               (@! IN    ) El array con las lÌneas del cÛdigo donde buscar
-      * tnCodeLines               (@! IN    ) Cantidad de lÌneas de cÛdigo
-      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg˙n la lÌnea sea de exclusiÛn o no
-      * tnBloquesExclusion        (@! IN    ) Cantidad de bloques de exclusiÛn
-      * toModulo                  (@?    OUT) Objeto con toda la informaciÛn del mÛdulo analizado
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taCodeLines               (@! IN    ) El array con las l√≠neas del c√≥digo donde buscar
+      * tnCodeLines               (@! IN    ) Cantidad de l√≠neas de c√≥digo
+      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg√∫n la l√≠nea sea de exclusi√≥n o no
+      * tnBloquesExclusion        (@! IN    ) Cantidad de bloques de exclusi√≥n
+      * toModulo                  (@?    OUT) Objeto con toda la informaci√≥n del m√≥dulo analizado
       * toFoxBin2Prg              (@? IN    ) Referencia al objeto principal
       *
       * NOTA:
-      * Como identificador se usa el nombre de clase o de procedimiento, seg˙n corresponda.
+      * Como identificador se usa el nombre de clase o de procedimiento, seg√∫n corresponda.
       *--------------------------------------------------------------------------------------------------------------
       Lparameters taCodeLines, tnCodeLines, taLineasExclusion, tnBloquesExclusion, toModulo, toFoxBin2Prg
 
@@ -2482,13 +2482,13 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
                   llEXTERNAL_CLASS_Completed  = .T.
                Endif
 
-               *-- B˙squeda del ID de inicio de bloque (DEFINE CLASS / PROCEDURE)
+               *-- B√∫squeda del ID de inicio de bloque (DEFINE CLASS / PROCEDURE)
                For I = 1 To tnCodeLines
                   Store '' To lc_Comentario
                   .set_Line( @lcLine, @taCodeLines, m.I )
 
                   Do Case
-                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && Excluida, vacÌa o solo Comentarios
+                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && Excluida, vac√≠a o solo Comentarios
 
                   Case Not llFoxBin2Prg_Completed And .analyzeCodeBlock_FoxBin2Prg( @toModulo, @lcLine, @taCodeLines, @m.I, tnCodeLines )
                      llFoxBin2Prg_Completed  = .T.
@@ -2506,7 +2506,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
                   Case Not llINCLUDE_SCX_Completed And .c_Type = 'SCX' And .analyzeCodeBlock_INCLUDE( @toModulo, @loClase, @lcLine ;
                         , @taCodeLines, @m.I, tnCodeLines, @lcProcedureAbierto )
-                     * EspecÌfico para SCX que lo tiene al inicio
+                     * Espec√≠fico para SCX que lo tiene al inicio
                      llINCLUDE_SCX_Completed = .T.
                      llEXTERNAL_CLASS_Completed  = .T.
 
@@ -2539,8 +2539,8 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       *--------------------------------------------------------------------------------
       *-- Compara las clases definidas en la cabecera con las clases encontradas luego
       *--------------------------------------------------------------------------------------------------------------
-      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (@?    OUT) Objeto con toda la informaciÛn del mÛdulo analizado
+      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (@?    OUT) Objeto con toda la informaci√≥n del m√≥dulo analizado
       * toFoxBin2Prg              (@? IN    ) Referencia al objeto principal
       *--------------------------------------------------------------------------------------------------------------
       Lparameters toModulo, toFoxBin2Prg
@@ -2574,7 +2574,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
       Endcase
 
-      *-- VerificaciÛn de las Clases, si son Externas y se indicÛ chequearlas
+      *-- Verificaci√≥n de las Clases, si son Externas y se indic√≥ chequearlas
       Do Case
       Case ln_UseXPerFile = 1 And ll_XPerFileCheck And Empty(toFoxBin2Prg.c_ClassOperationType)
          *-- El ClassPerFile original, con nomenclatura 'Libreria.NombreClase.vc2'
