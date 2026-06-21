@@ -1,63 +1,14 @@
 # exclude general
-*
-!*/
-
-# Include relevant files
-# grafics
-!*.bmp
-!*.msk
-!*.ico
-!*.cdr
-!*.cur
-
-# programms
-!*.prg
-!*.fpw
-!*.h
-
-# diverse
-!*.reg
-!*.md
-
-# FoxBin2prg 
-!*.vc2
-!*.pj2
-!*.fr2
-!*.mn2
-!*.sc2
-!*.lb2
-!*.d[bc]2
-
-# props
-!props/*
-!unify.txt
-
-# Thor
-!/BuildProcess/*.prg
-!/BuildProcess/*.txt
-!/ThorUpdater/*.*
-
-# default git
-!*.gitignore
-!/desktop.ini
-!/FileName_Caps.EXE
-!/Fb2P_Diff.EXE
-!/"CLEAR ALL.exe"
-
-# !foxbin2prg_keywords.*
-
-#libs (by FoxBin2prg)
-# !*.vc[xt]
-# !*.pj[xt]
-# !*.fr[xt]
-# !*.mn[xt]
-# !*.sc[xt]
-# !*.lb[xt]
-
-# include general
-# dbx data
-# !*.dbf
-# !*.fpt
-# !*.cdx
-# !*.dbc
-# !*.dc[tx]
+*.pj[xt]
+*.sc[xt]
+*.fx[xt]
+*.fx[xt]
+*.lb[xt]
+*.mn[xt]
+*.db[ft]
+*.dbc
+*.dct
+*.cdx
+*.fxp
+*.exe
+*.bak
