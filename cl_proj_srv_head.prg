@@ -26,7 +26,7 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'cl_cus_base.prg'
       + [<memberdata name="setparsedinfoline" display="setParsedInfoLine"/>] ;
       + [</VFPData>]
 
-   *-- Informaci√≥n interesante sobre Servidores OLE y corrupci√≥n de IDs: http://www.west-wind.com/wconnect/weblog/ShowEntry.blog?id=880
+   *-- InformaciÛn interesante sobre Servidores OLE y corrupciÛn de IDs: http://www.west-wind.com/wconnect/weblog/ShowEntry.blog?id=880
 
    *-- Server Head info
    Dimension _Servers[1]
@@ -42,7 +42,7 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'cl_cus_base.prg'
 
    Procedure decode_SpecialCodes_CR_LF
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcText                    (!@ IN    ) Decodifica los caracteres ASCII 10 y 13 de {nCode} a CHR(nCode)
       *---------------------------------------------------------------------------------------------------
       Lparameters tcText
@@ -54,7 +54,7 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'cl_cus_base.prg'
 
    Procedure encode_SpecialCodes_CR_LF
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcText                    (!@ IN    ) Codifica los caracteres ASCII 10 y 13 de CHR(nCode) a {nCode}
       *---------------------------------------------------------------------------------------------------
       Lparameters tcText
@@ -153,7 +153,7 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'cl_cus_base.prg'
                ._ServerType    = .getDataFromPair_LenData_Structure( @tcServerInfo, @lnPos, @lnLen )
                ._TypeLib       = .getDataFromPair_LenData_Structure( @tcServerInfo, @lnPos, @lnLen )
 
-               *-- Informaci√≥n de los servidores
+               *-- InformaciÛn de los servidores
                For I = 1 To lnServerCount
                   loServerData    = .Null.
                   loServerData    = .getServerDataObject()

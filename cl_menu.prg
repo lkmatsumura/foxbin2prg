@@ -27,12 +27,12 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus m√©todos
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÈtodos
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, toConversor
       External Array taCodeLines
@@ -130,12 +130,12 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure analyzeCodeBlock_SetupCode
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus m√©todos
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÈtodos
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, toConversor
       
@@ -161,7 +161,7 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
                      I = m.I + 1
                      Exit
 
-                  Otherwise   && L√≠neas de procedure
+                  Otherwise   && LÌneas de procedure
                      lcText  = lcText + CR_LF + taCodeLines(m.I)
                   Endcase
                Endfor
@@ -186,12 +186,12 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure analyzeCodeBlock_CleanupCode
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus m√©todos
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÈtodos
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, toConversor
 
@@ -217,7 +217,7 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
                      I = m.I + 1
                      Exit
 
-                  Otherwise   && L√≠neas de procedure
+                  Otherwise   && LÌneas de procedure
                      lcText  = lcText + CR_LF + taCodeLines(m.I)
                   Endcase
                Endfor
@@ -242,12 +242,12 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure analyzeCodeBlock_MenuCode
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus m√©todos
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÈtodos
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, toConversor
       External Array taCodeLines
@@ -407,12 +407,12 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure analyzeCodeBlock_PROCEDURE
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus m√©todos
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÈtodos
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, toConversor
       External Array taCodeLines
@@ -437,7 +437,7 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
                      I = m.I + 1
                      Exit
 
-                  Otherwise   && L√≠neas de procedure
+                  Otherwise   && LÌneas de procedure
                      *-- Las saltea
                   Endcase
                Endfor
@@ -461,7 +461,7 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       *---------------------------------------------------------------------------------------------------
 
       Try
@@ -613,7 +613,7 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure get_DataFromTablabin
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       *---------------------------------------------------------------------------------------------------
       Local loReg, loCol_LastLevelName As Collection
       Store .Null. To loReg, loCol_LastLevelName
@@ -628,8 +628,8 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure updateMENU
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus m√©todos
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÈtodos
       *---------------------------------------------------------------------------------------------------
       Lparameters toConversor
 
@@ -657,10 +657,10 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure UpdateMenu_Recursivo
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toObj                     (v! IN    ) Referencia del objeto CL_MENU_BARPOP o CL_MENU_OPTION
-      * tnNivel                   (v! IN    ) Nivel de indentaci√≥n (solo para debug)
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus m√©todos
+      * tnNivel                   (v! IN    ) Nivel de indentaciÛn (solo para debug)
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÈtodos
       *---------------------------------------------------------------------------------------------------
       Lparameters toObj As Collection, tnNivel, toConversor
 

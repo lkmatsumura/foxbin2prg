@@ -20,7 +20,7 @@ Define Class CL_COL_BASE As Collection
       + [</VFPData>]
 
    n_Debug             = 0
-   _Saved              = .F.       && Indica si la informaci√≥n fue leida y guardada en las propiedades.
+   _Saved              = .F.       && Indica si la informaciÛn fue leida y guardada en las propiedades.
 
 
    Procedure Init
@@ -41,10 +41,10 @@ Define Class CL_COL_BASE As Collection
 
    Procedure set_Line
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@    OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (v! IN    ) N√∫mero de l√≠nea en an√°lisis
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@    OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (v! IN    ) N˙mero de lÌnea en an·lisis
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I
       External Array taCodeLines
@@ -59,7 +59,7 @@ Define Class CL_COL_BASE As Collection
       tc_InputFile    = Evl(tc_InputFile,'')
 
       If Not Empty( Justext(tc_FullPath) ) Then
-         *-- Se indic√≥ PATH+archivo.ext
+         *-- Se indicÛ PATH+archivo.ext
          tc_FullPath = Justpath(tc_FullPath)
       Endif
 
@@ -77,10 +77,10 @@ Define Class CL_COL_BASE As Collection
 
    Procedure get_SeparatedLineAndComment
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) L√≠nea a separar del comentario
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) LÌnea a separar del comentario
       * tcComment                 (@?    OUT) Comentario
-      * tlDeepCommentAnalysis     (v? IN    ) Indica realizar un an√°lisis profundo de comentarios (para detectar casos complejos de c√≥digo con '&&' embebido)
+      * tlDeepCommentAnalysis     (v? IN    ) Indica realizar un an·lisis profundo de comentarios (para detectar casos complejos de cÛdigo con '&&' embebido)
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine As String, tcComment As String, tlDeepCommentAnalysis As Boolean
       Local ln_AT_Cmt
@@ -91,7 +91,7 @@ Define Class CL_COL_BASE As Collection
          If tlDeepCommentAnalysis Then
             Local laSeparador(3,3), lcSeparadoresIzq, lcSeparadoresDer, lcStr, lnAT_Amp, lnAT1, lnAT2, lnLen, I, X
 
-            lcStr   = tcLine    &&EVL(tcStr, [DEFINE BAR 2 OF Opci√≥nAsub PROMPT "Opci√≥n A&]+[&2" &]+[& Comentario Opci√≥n A-2])
+            lcStr   = tcLine    &&EVL(tcStr, [DEFINE BAR 2 OF OpciÛnAsub PROMPT "OpciÛn A&]+[&2" &]+[& Comentario OpciÛn A-2])
             laSeparador(1,1)    = '"'
             laSeparador(1,2)    = '"'
             laSeparador(1,3)    = 2
@@ -110,16 +110,16 @@ Define Class CL_COL_BASE As Collection
             lnAT1   = At(laSeparador(m.X,1), lcStr)
 
             *-- Funcionamiento:
-            *-- La anulaci√≥n de subcadenas se hace comenzando desde la primer comilla doble ["], y luego se va
-            *-- cancelando hasta la siguiente. A partir de ahi, se busca car√°cter a car√°cter el siguiente separador
+            *-- La anulaciÛn de subcadenas se hace comenzando desde la primer comilla doble ["], y luego se va
+            *-- cancelando hasta la siguiente. A partir de ahi, se busca car·cter a car·cter el siguiente separador
             *-- izquierdo de cadena ( '"[ ), se busca su pareja derecha y se cancela el texto entre ambos.
-            *-- La anulaci√≥n de subcadenas es temporal, solo para determinar la verdadera posici√≥n del comentario,
+            *-- La anulaciÛn de subcadenas es temporal, solo para determinar la verdadera posiciÛn del comentario,
             *-- por ejemplo, esto:
-            *-- DEFINE BAR 2 OF Opci√≥nAsub PROMPT ""+var+'aa'+["bb]+"Opci√≥n A&&2" && Comentario Opci√≥n A-2
+            *-- DEFINE BAR 2 OF OpciÛnAsub PROMPT ""+var+'aa'+["bb]+"OpciÛn A&&2" && Comentario OpciÛn A-2
             *-- se convierte temporalmente en esto:
-            *-- DEFINE BAR 2 OF Opci√≥nAsub PROMPT XX+var+XXXX+XXXXX+XXXXXXXXXXXXX && Comentario Opci√≥n A-2
+            *-- DEFINE BAR 2 OF OpciÛnAsub PROMPT XX+var+XXXX+XXXXX+XXXXXXXXXXXXX && Comentario OpciÛn A-2
             *-- lo que facilita encontrar el comentario '&&' real.
-            *-- Si se encuentra alg√∫n separador de cadena que no cierre, se genera un error 10 (Syntax Error).
+            *-- Si se encuentra alg˙n separador de cadena que no cierre, se genera un error 10 (Syntax Error).
             If lnAT1 > 0 Then
                For I = lnAT1+1 To lnLen
                   If m.X > 0 Then
@@ -131,7 +131,7 @@ Define Class CL_COL_BASE As Collection
                         ln_AT_Cmt   = At( '&'+'&', lcStr)
 
                         If ln_AT_Cmt = 0 Or ln_AT_Cmt < lnAT1
-                           *-- No tiene comentario '&&' real, o s√≠ lo tiene y adem√°s contiene un delimitador de cadena como parte del comentario
+                           *-- No tiene comentario '&&' real, o sÌ lo tiene y adem·s contiene un delimitador de cadena como parte del comentario
                            Exit
                         Else
                            Error 'Closing string delimiter <' + laSeparador(m.X,2) + '> not found: ' + tcLine
@@ -139,7 +139,7 @@ Define Class CL_COL_BASE As Collection
                      Endif
                   Endif
 
-                  *-- Verifico si el car√°cter es un separador de cadenas: '"[
+                  *-- Verifico si el car·cter es un separador de cadenas: '"[
                   X   = At( Substr(lcStr, m.I, 1), lcSeparadoresIzq)
 
                   If m.X > 0 Then
@@ -164,7 +164,7 @@ Define Class CL_COL_BASE As Collection
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * taArray                   (@?    OUT) Array de conexiones
       * tnArray_Count             (@?    OUT) Cantidad de conexiones
       *---------------------------------------------------------------------------------------------------

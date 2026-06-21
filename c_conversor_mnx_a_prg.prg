@@ -10,9 +10,9 @@ Define Class c_conversor_mnx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * totoMenu                  (!@    OUT) Objeto generado de clase CL_MENU con la informaci√≥n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * totoMenu                  (!@    OUT) Objeto generado de clase CL_MENU con la informaciÛn leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toMenu, toEx As Exception, toFoxBin2Prg
@@ -42,7 +42,7 @@ Define Class c_conversor_mnx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                Use In (Select("_TABLAORIG"))
                .updateProgressbar( 'Analyzing MNX...', 1, 2, 1 )
 
-               *-- Verificaci√≥n de men√∫ VFP 9
+               *-- VerificaciÛn de men˙ VFP 9
                If Fcount() < 25 Or Empty(Field("RESNAME")) Or Empty(Field("SYSRES"))
                   *ERROR 'Menu [' + (.c_InputFile) + '] is NOT VFP 9 Format! - Please convert to VFP 9 with MODIFY MENU ' + JUSTFNAME((.c_InputFile))
                   Error (Textmerge(loLang.C_MENU_NOT_IN_VFP9_FORMAT_LOC))

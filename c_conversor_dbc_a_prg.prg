@@ -9,9 +9,9 @@ Define Class c_conversor_dbc_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toDatabase                (!@    OUT) Objeto generado de clase CL_DBC con la informaci√≥n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toDatabase                (!@    OUT) Objeto generado de clase CL_DBC con la informaciÛn leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toDatabase, toEx As Exception, toFoxBin2Prg

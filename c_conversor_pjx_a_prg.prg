@@ -14,9 +14,9 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (@!    OUT) Objeto generado de clase CL_PROJECT con la informaci√≥n leida del texto
-      * toEx                      (@!    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (@!    OUT) Objeto generado de clase CL_PROJECT con la informaciÛn leida del texto
+      * toEx                      (@!    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (@! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -40,7 +40,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
          With This As c_conversor_pjx_a_prg Of 'c_conversor_pjx_a_prg.prg'
             If toFoxBin2Prg.l_ProcessFiles Then
                If Vartype(toModulo) = "O" And toModulo.Class == 'Cl_project' Then
-                  *-- Ya esta cargado el objeto del Proyecto y se pas√≥ por referencia
+                  *-- Ya esta cargado el objeto del Proyecto y se pasÛ por referencia
                Else
                   .loadModule( @toModulo, @toEx, @toFoxBin2Prg )
                Endif
@@ -97,16 +97,16 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                         <<>>
                ENDTEXT
 
-               *-- Informaci√≥n del programa
+               *-- InformaciÛn del programa
                C_FB2PRG_CODE   = C_FB2PRG_CODE + loProject.getFormattedDeviceInfoText() + CR_LF
 
-               *-- Informaci√≥n de los Servidores definidos
+               *-- InformaciÛn de los Servidores definidos
                If Not Empty(loProject._ServerInfo)
                   C_FB2PRG_CODE   = C_FB2PRG_CODE + loServerHead.getFormattedServerText() + CR_LF
                Endif
 
 
-               *-- Generaci√≥n del proyecto
+               *-- GeneraciÛn del proyecto
                If toFoxBin2Prg.getCfgValue('n_HomeDir') = 1
                   * only output HomeDir if we're supposed to
                   TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
@@ -375,9 +375,9 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
    Procedure loadModule
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (@!    OUT) Objeto generado de clase CL_PROJECT con la informaci√≥n leida del texto
-      * toEx                      (@!    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (@!    OUT) Objeto generado de clase CL_PROJECT con la informaciÛn leida del texto
+      * toEx                      (@!    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -435,7 +435,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
             loProject._User         = loReg.User
             loProject.parseDeviceInfo( loReg.DEVINFO )
 
-            *-- Informaci√≥n de los Servidores definidos
+            *-- InformaciÛn de los Servidores definidos
             If Not Empty(loProject._ServerInfo)
                loServerHead.parseServerInfo( loProject._ServerInfo )
                loServerHead    = .Null.
@@ -482,7 +482,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                loReg.Name      = Lower( Alltrim( .get_ValueFromNullTerminatedValue( loReg.Name ) ) )
                loReg.COMMENTS  = Alltrim( .get_ValueFromNullTerminatedValue( loReg.COMMENTS ) )
 
-               *-- TIP: Si el "Name" del objeto est√° vac√≠o, lo salteo
+               *-- TIP: Si el "Name" del objeto est· vacÌo, lo salteo
                If Empty(loReg.Name)
                   Loop
                Endif
@@ -541,7 +541,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
    *!* </pdm>
    Procedure GetPathFromHome
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcFilePath                (v! IN    ) String of a file with path
       * tcProjPath                (v! IN    ) Home directory of a project
       * tcPrefix                  (v! IN    ) Prefix for return

@@ -22,7 +22,7 @@ Define Class CL_MACRO_RECORD As CL_CUS_BASE Of 'cl_cus_base.prg'
 
    Procedure ReadNextMacro(tnHandle As Integer)
       *---------------------------------------------------------------------------------------------------
-      * PARÃMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tnHandle                  (!v IN    ) FKY file handle
       *---------------------------------------------------------------------------------------------------
       Local lnMacro_Length
@@ -43,7 +43,7 @@ Define Class CL_MACRO_RECORD As CL_CUS_BASE Of 'cl_cus_base.prg'
 
    Procedure toBin As String
       *---------------------------------------------------------------------------------------------------
-      * PARÃMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       *---------------------------------------------------------------------------------------------------
       Local lcText
 
@@ -57,7 +57,7 @@ Define Class CL_MACRO_RECORD As CL_CUS_BASE Of 'cl_cus_base.prg'
 
    Procedure toText As String
       *---------------------------------------------------------------------------------------------------
-      * PARÃMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       *---------------------------------------------------------------------------------------------------
       Local lcText, loField As CL_MACRO_RECORD Of 'cl_macro_record.prg'
       lcText  = ''
@@ -81,7 +81,7 @@ Define Class CL_MACRO_RECORD As CL_CUS_BASE Of 'cl_cus_base.prg'
       *---------------------------------------------------------------------------------------------------
       * DEVLUELVE LOS LITERALES DE TODAS LAS TECLAS
       *---------------------------------------------------------------------------------------------------
-      * PARÃMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       *---------------------------------------------------------------------------------------------------
       Local lcKeystrokes, I
 
@@ -101,9 +101,9 @@ Define Class CL_MACRO_RECORD As CL_CUS_BASE Of 'cl_cus_base.prg'
       *---------------------------------------------------------------------------------------------------
       * DEVLUELVE EL LITERAL DE UNA TECLA
       *---------------------------------------------------------------------------------------------------
-      * PARÃMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcMacroStr                (!@ IN    ) Cadena de teclas de la macro
-      * I                         (!@ IN    ) PosiciÃ³n actualmente analizada de la cadena
+      * I                         (!@ IN    ) Posición actualmente analizada de la cadena
       * tlLiteralForCaption       (?v IN    ) Indica si algunos caracteres especiales se deben convertir a literal (ej: ";" => "SHIFT+SEMICOLON")
       *---------------------------------------------------------------------------------------------------
       Local lcMod, lcKey, lcKeyName, lcKeyMod, lcTecla, lnKeyVal, lcKeyPair, lnCntMod ;
@@ -341,7 +341,7 @@ Define Class CL_MACRO_RECORD As CL_CUS_BASE Of 'cl_cus_base.prg'
             lcKeyName   = 'ALT+Q'
 
          Case Bitand(lnKeyVal, 0x410C) = 0x410C
-            lcKeyName   = [ALT+']   && No estÃ¡ en la ayuda de VFP
+            lcKeyName   = [ALT+']   && No está en la ayuda de VFP
 
          Case Bitand(lnKeyVal, 0x2194) = 0x2194
             lcKeyName   = 'CTRL+TAB'
@@ -692,7 +692,7 @@ Define Class CL_MACRO_RECORD As CL_CUS_BASE Of 'cl_cus_base.prg'
          *ENDIF
       Endif
 
-      * Tratamiento de combinaciÃ³n final
+      * Tratamiento de combinación final
       Do Case
       Case Len(lcKeyName) > 1 And (Not llComplementar Or Empty(lcKeyMod))
          If tlLiteralForCaption

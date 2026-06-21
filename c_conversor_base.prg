@@ -87,9 +87,9 @@ Define Class c_conversor_base As Custom
    c_ClaseActual           = ''
    o_SpecialProps          = .Null.
    oFSO                    = .Null.
-   n_Methods_LineNo        = 0         && N√∫mero de l√≠nea del error dentro de "Methods"
+   n_Methods_LineNo        = 0         && N˙mero de lÌnea del error dentro de "Methods"
    cOutputFolder           = ''
-   cInputRoot              = ''        && Ra√≠z del √°rbol de origen (proyecto). Si se indica junto a cOutputFolder, se replica la estructura de carpetas
+   cInputRoot              = ''        && RaÌz del ·rbol de origen (proyecto). Si se indica junto a cOutputFolder, se replica la estructura de carpetas
 
 
 
@@ -115,7 +115,7 @@ Define Class c_conversor_base As Custom
       Endif
 
       Public C_FB2PRG_CODE
-      C_FB2PRG_CODE   = ''    && Contendr√° todo el c√≥digo generado
+      C_FB2PRG_CODE   = ''    && Contendr· todo el cÛdigo generado
       This.c_CurDir   = Sys(5) + Curdir()
       This.oFSO       = Createobject( "Scripting.FileSystemObject")
       lcSys16         = Sys(16)
@@ -139,7 +139,7 @@ Define Class c_conversor_base As Custom
       Use In (Select("TABLABIN"))
       Use In (Select("foxbin2prg_keywords"))
 
-      *-- Esta comprobaci√≥n es por los TESTS, que a veces no cargan o_FoxBin2Prg_Lang
+      *-- Esta comprobaciÛn es por los TESTS, que a veces no cargan o_FoxBin2Prg_Lang
       If Vartype(_Screen.o_FoxBin2Prg_Lang) = "O" Then
          loLang          = _Screen.o_FoxBin2Prg_Lang
          This.writeLog( loLang.C_CONVERTER_UNLOAD_LOC )
@@ -151,7 +151,7 @@ Define Class c_conversor_base As Custom
 
 
    Procedure analyzeAssignmentOf_TAG
-      *-- DETALLES: Este m√©todo est√° pensado para leer los tags FB2P_VALUE y MEMBERDATA, que tienen esta sintaxis:
+      *-- DETALLES: Este mÈtodo est· pensado para leer los tags FB2P_VALUE y MEMBERDATA, que tienen esta sintaxis:
       *
       *   _memberdata = <VFPData>
       *       <memberdata name="mimetodo" display="miMetodo"/>
@@ -160,12 +160,12 @@ Define Class c_conversor_base As Custom
       *   <fb2p_value>Este es un&#13;valor especial</fb2p_value>
       *
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcPropName                (v! IN    ) Nombre de la propiedad
       * tcValue                   (v! IN    ) Valor (o inicio del valor) de la propiedad
-      * taProps                   (!@ IN    ) El array con las l√≠neas del c√≥digo donde buscar
-      * tnProp_Count              (!@ IN    ) Cantidad de l√≠neas de c√≥digo
-      * I                         (!@ IN    ) L√≠nea actualmente evaluada
+      * taProps                   (!@ IN    ) El array con las lÌneas del cÛdigo donde buscar
+      * tnProp_Count              (!@ IN    ) Cantidad de lÌneas de cÛdigo
+      * I                         (!@ IN    ) LÌnea actualmente evaluada
       * tcTAG_I                   (v! IN    ) TAG de inicio   <tag>
       * tcTAG_F                   (v! IN    ) TAG de fin      </tag>
       * tnLEN_TAG_I               (v! IN    ) Longitud del tag de inicio
@@ -185,7 +185,7 @@ Define Class c_conversor_base As Custom
             With This As c_conversor_base Of 'c_conversor_base.prg'
 
                *-- Propiedad especial
-               If tcTAG_F $ tcValue        && El fin de tag est√° "inline"
+               If tcTAG_F $ tcValue        && El fin de tag est· "inline"
                   .denormalizePropertyValue( @tcPropName, @tcValue, '' )
                   Exit
                Endif
@@ -250,9 +250,9 @@ Define Class c_conversor_base As Custom
 
    Procedure findMethodsObjectByName
       Lparameters tcNombreObjeto, toClase
-      *-- Caso 1: Un m√©todo de un objeto de la clase
+      *-- Caso 1: Un mÈtodo de un objeto de la clase
       *--     findMethodsObjectByName( 'command1', loClase )
-      *-- Caso 2: Un m√©todo de un objeto heredado que no est√° definido en esta librer√≠a
+      *-- Caso 2: Un mÈtodo de un objeto heredado que no est· definido en esta librerÌa
       *--     findMethodsObjectByName( 'cnt_descripcion.Cntlista.cmgAceptarCancelar.cmdCancelar', loClase )
       #If .F.
          Local toClase As CL_CLASE Of 'cl_clase.prg'
@@ -263,18 +263,18 @@ Define Class c_conversor_base As Custom
             , loObjeto As CL_OBJETO Of 'cl_objeto.prg'
          Store 0 To N, lnObjeto
 
-         *--   El m√©todo puede pertenecer a esta clase, a un objeto de esta clase,
-         *-- o a un objeto heredado que no est√° definido en esta clase, sino en otra,
+         *--   El mÈtodo puede pertenecer a esta clase, a un objeto de esta clase,
+         *-- o a un objeto heredado que no est· definido en esta clase, sino en otra,
          *-- y para la cual la ruta a buscar es parcial.
          *--   Por ejemplo, el caso 2 puede que el objeto que hay sea 'cnt_descripcion.Cntlista'
-         *-- y el bot√≥n sea heredado, pero se le haya redefinido su m√©todo Click aqu√≠.
+         *-- y el botÛn sea heredado, pero se le haya redefinido su mÈtodo Click aquÌ.
          For X = Occurs( '.', tcNombreObjeto + '.' ) To 1 Step -1
             N   = N + 1
             lcRutaDelNombre = Left( tcNombreObjeto, Rat( '.', tcNombreObjeto + '.', N ) - 1 )
             For I = 1 To toClase._AddObject_Count
                loObjeto    = toClase._AddObjects(m.I)
 
-               *-- Busco tanto el [nombre] del m√©todo como [class.nombre]+[nombre] del m√©todo
+               *-- Busco tanto el [nombre] del mÈtodo como [class.nombre]+[nombre] del mÈtodo
                If Lower(loObjeto._Nombre) == Lower(toClase._ObjName) + '.' + lcRutaDelNombre ;
                      OR Lower(loObjeto._Nombre) == lcRutaDelNombre
                   lnObjeto    = m.I
@@ -327,9 +327,9 @@ Define Class c_conversor_base As Custom
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (!@    OUT) Objeto generado de clase correspondiente con la informaci√≥n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (!@    OUT) Objeto generado de clase correspondiente con la informaciÛn leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (!@ IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -352,7 +352,7 @@ Define Class c_conversor_base As Custom
 
       EXTERNAL ARRAY taCodeLines
 
-      *-- Analizo la l√≠nea anterior para saber si termina con ";" o "," y la actual es continuaci√≥n
+      *-- Analizo la lÌnea anterior para saber si termina con ";" o "," y la actual es continuaciÛn
       If m.I > 1
          lcPrevLine  = taCodeLines(m.I-1)
       Else
@@ -361,7 +361,7 @@ Define Class c_conversor_base As Custom
 
       This.get_SeparatedLineAndComment( @lcPrevLine )
 
-      If Inlist( Right( lcPrevLine,1 ), ';', ',' )    && Esta l√≠nea es continuaci√≥n de la anterior
+      If Inlist( Right( lcPrevLine,1 ), ';', ',' )    && Esta lÌnea es continuaciÛn de la anterior
          llIsContinuation    = .T.
       Endif
 
@@ -376,7 +376,7 @@ Define Class c_conversor_base As Custom
       Local llEncontrado, lcWord, lcWord2, lcLine, lnWordCount
 
       Try
-         *-- Pre-normalizaci√≥n
+         *-- Pre-normalizaciÛn
          lcLine  = tcLine
 
          If tnIniFin = 1
@@ -403,13 +403,13 @@ Define Class c_conversor_base As Custom
                      If lcWord2 == "TO"
                         * OK, es TEXT TO...
                      Else
-                        * Luego de TEXT sigue cualquier otra cosa, as√≠ que puede ser
+                        * Luego de TEXT sigue cualquier otra cosa, asÌ que puede ser
                         * un campo, variable, etc, que lo han llamado TEXT.
                         Exit
                      Endif
 
                   Otherwise
-                     * OK, es TEXT sin m√°s.
+                     * OK, es TEXT sin m·s.
                   Endcase
                Endif
 
@@ -439,7 +439,7 @@ Define Class c_conversor_base As Custom
 
    Procedure decode_SpecialCodes_1_31
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcText                    (!@ IN    ) Decodifica los primeros 31 caracteres ASCII de {nCode} a CHR(nCode)
       *---------------------------------------------------------------------------------------------------
       Lparameters tcText
@@ -455,7 +455,7 @@ Define Class c_conversor_base As Custom
 
    Procedure decode_SpecialCodes_CR_LF
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcText                    (!@ IN    ) Decodifica los caracteres ASCII 10 y 13 de {nCode} a CHR(nCode)
       *---------------------------------------------------------------------------------------------------
       Lparameters tcText
@@ -484,7 +484,7 @@ Define Class c_conversor_base As Custom
 
 
    Procedure denormalizePropertyValue
-      *-- Este m√©todo se ejecuta cuando se regenera el binario desde el tx2
+      *-- Este mÈtodo se ejecuta cuando se regenera el binario desde el tx2
       Lparameters tcProp, tcValue, tcComentario
       Local lnCodError, lnPos, lcValue
       tcComentario    = ''
@@ -526,7 +526,7 @@ Define Class c_conversor_base As Custom
 
    Procedure denormalizeXMLValue
       Lparameters tcValor
-      *-- DESNORMALIZA EL TEXTO INDICADO, EXPANDIENDO LOS S√çMBOLOS XML ESPECIALES.
+      *-- DESNORMALIZA EL TEXTO INDICADO, EXPANDIENDO LOS SÕMBOLOS XML ESPECIALES.
       Local lnPos, lnPos2, lnAscii
       tcValor = Strtran(tcValor, Chr(38)+'gt;', '>')          &&  >
       tcValor = Strtran(tcValor, Chr(38)+'lt;', '<')          &&  <
@@ -564,7 +564,7 @@ Define Class c_conversor_base As Custom
 
    Procedure encode_SpecialCodes_1_31
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcText                    (!@ IN    ) Decodifica los primeros 31 caracteres ASCII de CHR(nCode) a {nCode}
       *---------------------------------------------------------------------------------------------------
       Lparameters tcText
@@ -580,7 +580,7 @@ Define Class c_conversor_base As Custom
 
    Procedure encode_SpecialCodes_CR_LF
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcText                    (!@ IN    ) Codifica los caracteres ASCII 10 y 13 de CHR(nCode) a {nCode}
       *---------------------------------------------------------------------------------------------------
       Lparameters tcText
@@ -628,8 +628,8 @@ Define Class c_conversor_base As Custom
 
    Function getTimeStamp
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tnTimeStamp               (v! IN    ) Timestamp en formato num√©rico
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tnTimeStamp               (v! IN    ) Timestamp en formato numÈrico
       *---------------------------------------------------------------------------------------------------
       Lparameters tnTimeStamp
       *-- CONVIERTE UN DATO TIMESTAMP NUMERICO USADO POR LOS ARCHIVOS SCX/VCX/etc. EN TIPO DATETIME
@@ -648,8 +648,8 @@ Define Class c_conversor_base As Custom
 
                   ltTimeStamp = Evaluate( '{^' + Dtoc(laDirInfo(1,3)) + ' ' + Transform(laDirInfo(1,4)) + '}' )
 
-                  *-- En mi arreglo, si la hora pasada tiene 32 segundos o m√°s, redondeo al siguiente minuto, ya que
-                  *-- la descodificaci√≥n posterior de getTimeStamp tiene ese margen de error.
+                  *-- En mi arreglo, si la hora pasada tiene 32 segundos o m·s, redondeo al siguiente minuto, ya que
+                  *-- la descodificaciÛn posterior de getTimeStamp tiene ese margen de error.
                   If Sec(m.ltTimeStamp) >= 32
                      ltTimeStamp = m.ltTimeStamp + 28
                   Endif
@@ -702,13 +702,13 @@ Define Class c_conversor_base As Custom
 
    Procedure get_ListNamesWithValuesFrom_InLine_MetadataTag
       *-- OBTENGO EL ARRAY DE DATOS Y VALORES DE LA LINEA DE METADATOS INDICADA
-      *-- NOTA: Los valores NO PUEDEN contener comillas dobles en su valor, ya que generar√≠a un error al parsearlos.
+      *-- NOTA: Los valores NO PUEDEN contener comillas dobles en su valor, ya que generarÌa un error al parsearlos.
       *-- Ejemplo:
       *< FileMetadata: Type="V" Cpid="1252" Timestamp="1131901580" ID="1129207528" ObjRev="544" />
       *< OLE: Nombre="frm_form.Pageframe1.Page1.Cnt_controles_h.Olecontrol1" Parent="frm_form.Pageframe1.Page1.Cnt_controles_h" ObjName="Olecontrol1" Checksum="1685567300" Value="0M8R4KGxGuEAAAAAAAAAAAAAAAAAAAAAPg...ADAP7AAAA==" />
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLineWithMetadata        (!@ IN    ) L√≠nea con metadatos y un tag de metadatos
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLineWithMetadata        (!@ IN    ) LÌnea con metadatos y un tag de metadatos
       * taPropsAndValues          (!@    OUT) Array a devolver con las propiedades y valores encontrados
       * tnPropsAndValues_Count    (!@    OUT) Cantidad de propiedades encontradas
       * tcLeftTag                 (v! IN    ) TAG de inicio de los metadatos
@@ -730,14 +730,14 @@ Define Class c_conversor_base As Custom
          lcMetadatos     = Alltrim( Strextract( tcLineWithMetadata, tcLeftTag, tcRightTag, 1, 1) )
 
          If Empty(lcMetadatos)
-            * Puede que la l√≠nea est√© separada con un CR err√≥neo. El usuario debe revisarlo
+            * Puede que la lÌnea estÈ separada con un CR errÛneo. El usuario debe revisarlo
             Error (Textmerge("Can't identify Metadata TAG '<<tcRightTag>>'. May be the Source line have an extra CR/LF?"))
          Endif
 
          lnCantComillas  = Occurs( '"', lcMetadatos )
 
          If lnCantComillas % 2 <> 0  && Valido que las comillas "" sean pares
-            *ERROR "Error de datos: No se puede parsear porque las comillas no son pares en la l√≠nea [" + lcMetadatos + "]"
+            *ERROR "Error de datos: No se puede parsear porque las comillas no son pares en la lÌnea [" + lcMetadatos + "]"
             Error (Textmerge(loLang.C_DATA_ERROR_CANT_PARSE_UNPAIRING_DOUBLE_QUOTES_LOC))
          Endif
 
@@ -747,7 +747,7 @@ Define Class c_conversor_base As Custom
          *-------------------------------------------------------------------------------------
          * IMPORTANTE!!
          * ------------
-         * SI SE SEPARAN LAS IGUALDADES CON ESPACIOS, √âSTAS DEJAN DE RECONOCERSE!!  (prop = "valor" en vez de prop="valor")
+         * SI SE SEPARAN LAS IGUALDADES CON ESPACIOS, …STAS DEJAN DE RECONOCERSE!!  (prop = "valor" en vez de prop="valor")
          * TENER EN CUENTA AL GENERAR EL TEXTO O AL MODIFICARLO MANUALMENTE AL MERGEAR
          *-------------------------------------------------------------------------------------
          For I = 1 To lnCantComillas Step 2
@@ -786,10 +786,10 @@ Define Class c_conversor_base As Custom
 
    Procedure get_SeparatedLineAndComment
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) L√≠nea a separar del comentario
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) LÌnea a separar del comentario
       * tcComment                 (@?    OUT) Comentario
-      * tlDeepCommentAnalysis     (v? IN    ) Indica realizar un an√°lisis profundo de comentarios (para detectar casos complejos de c√≥digo con '&&' embebido)
+      * tlDeepCommentAnalysis     (v? IN    ) Indica realizar un an·lisis profundo de comentarios (para detectar casos complejos de cÛdigo con '&&' embebido)
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine As String, tcComment As String, tlDeepCommentAnalysis As Boolean
       Local ln_AT_Cmt
@@ -800,7 +800,7 @@ Define Class c_conversor_base As Custom
          If tlDeepCommentAnalysis Then
             Local laSeparador(3,3), lcSeparadoresIzq, lcSeparadoresDer, lcStr, lnAT_Amp, lnAT1, lnAT2, lnLen, I, X
 
-            lcStr   = tcLine    &&EVL(tcStr, [DEFINE BAR 2 OF Opci√≥nAsub PROMPT "Opci√≥n A&]+[&2" &]+[& Comentario Opci√≥n A-2])
+            lcStr   = tcLine    &&EVL(tcStr, [DEFINE BAR 2 OF OpciÛnAsub PROMPT "OpciÛn A&]+[&2" &]+[& Comentario OpciÛn A-2])
             laSeparador(1,1)    = '"'
             laSeparador(1,2)    = '"'
             laSeparador(1,3)    = 2
@@ -819,16 +819,16 @@ Define Class c_conversor_base As Custom
             lnAT1   = At(laSeparador(m.X,1), lcStr)
 
             *-- Funcionamiento:
-            *-- La anulaci√≥n de subcadenas se hace comenzando desde la primer comilla doble ["], y luego se va
-            *-- cancelando hasta la siguiente. A partir de ahi, se busca car√°cter a car√°cter el siguiente separador
+            *-- La anulaciÛn de subcadenas se hace comenzando desde la primer comilla doble ["], y luego se va
+            *-- cancelando hasta la siguiente. A partir de ahi, se busca car·cter a car·cter el siguiente separador
             *-- izquierdo de cadena ( '"[ ), se busca su pareja derecha y se cancela el texto entre ambos.
-            *-- La anulaci√≥n de subcadenas es temporal, solo para determinar la verdadera posici√≥n del comentario,
+            *-- La anulaciÛn de subcadenas es temporal, solo para determinar la verdadera posiciÛn del comentario,
             *-- por ejemplo, esto:
-            *-- DEFINE BAR 2 OF Opci√≥nAsub PROMPT ""+var+'aa'+["bb]+"Opci√≥n A&&2" && Comentario Opci√≥n A-2
+            *-- DEFINE BAR 2 OF OpciÛnAsub PROMPT ""+var+'aa'+["bb]+"OpciÛn A&&2" && Comentario OpciÛn A-2
             *-- se convierte temporalmente en esto:
-            *-- DEFINE BAR 2 OF Opci√≥nAsub PROMPT XX+var+XXXX+XXXXX+XXXXXXXXXXXXX && Comentario Opci√≥n A-2
+            *-- DEFINE BAR 2 OF OpciÛnAsub PROMPT XX+var+XXXX+XXXXX+XXXXXXXXXXXXX && Comentario OpciÛn A-2
             *-- lo que facilita encontrar el comentario '&&' real.
-            *-- Si se encuentra alg√∫n separador de cadena que no cierre, se genera un error 10 (Syntax Error).
+            *-- Si se encuentra alg˙n separador de cadena que no cierre, se genera un error 10 (Syntax Error).
             If lnAT1 > 0 Then
                For I = lnAT1+1 To lnLen
                   If m.X > 0 Then
@@ -840,7 +840,7 @@ Define Class c_conversor_base As Custom
                         ln_AT_Cmt   = At( '&'+'&', lcStr)
 
                         If ln_AT_Cmt = 0 Or ln_AT_Cmt < lnAT1
-                           *-- No tiene comentario '&&' real, o s√≠ lo tiene y adem√°s contiene un delimitador de cadena como parte del comentario
+                           *-- No tiene comentario '&&' real, o sÌ lo tiene y adem·s contiene un delimitador de cadena como parte del comentario
                            Exit
                         Else
                            Error 'Closing string delimiter <' + laSeparador(m.X,2) + '> not found: ' + tcLine
@@ -848,7 +848,7 @@ Define Class c_conversor_base As Custom
                      Endif
                   Endif
 
-                  *-- Verifico si el car√°cter es un separador de cadenas: '"[
+                  *-- Verifico si el car·cter es un separador de cadenas: '"[
                   X   = At( Substr(lcStr, m.I, 1), lcSeparadoresIzq)
 
                   If m.X > 0 Then
@@ -873,16 +873,16 @@ Define Class c_conversor_base As Custom
 
    Procedure get_SeparatedPropAndValue
       *-- Devuelve el valor separado de la propiedad.
-      *-- Si se indican m√°s de 3 par√°metros, eval√∫a el valor completo a trav√©s de las l√≠neas de c√≥digo (valores multi-l√≠nea)
+      *-- Si se indican m·s de 3 par·metros, eval˙a el valor completo a travÈs de las lÌneas de cÛdigo (valores multi-lÌnea)
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcAsignacion              (v! IN    ) Asignaci√≥n completa con variable, igualdad y valor
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcAsignacion              (v! IN    ) AsignaciÛn completa con variable, igualdad y valor
       * tcPropName                (@!    OUT) Nombre de la variable
       * tcValue                   (@?    OUT) Valor
       * toClase                   (v! IN    )
-      * taCodeLines               (@! IN    ) L√≠neas de c√≥digo a analizar
-      * tnCodeLines               (v! IN    ) Cantidad de l√≠neas de c√≥digo
-      * I                         (@! IN/OUT) L√≠nea actual
+      * taCodeLines               (@! IN    ) LÌneas de cÛdigo a analizar
+      * tnCodeLines               (v! IN    ) Cantidad de lÌneas de cÛdigo
+      * I                         (@! IN/OUT) LÌnea actual
       *--------------------------------------------------------------------------------------------------------------
       Lparameters tcAsignacion, tcPropName, tcValue, toClase, taCodeLines, tnCodeLines, I
       External Array taCodeLines
@@ -890,7 +890,7 @@ Define Class c_conversor_base As Custom
 
       Store '' To tcPropName, tcValue
 
-      *-- EVALUAR UNA ASIGNACI√ìN ESPEC√çFICA INLINE
+      *-- EVALUAR UNA ASIGNACI”N ESPECÕFICA INLINE
       If '=' $ tcAsignacion
          ln_AT_Cmt       = At( '=', tcAsignacion)
          tcPropName      = Alltrim( Left( tcAsignacion, ln_AT_Cmt - 2 ), 0, ' ', Chr(9) )    && Quito espacios y TABS
@@ -911,7 +911,7 @@ Define Class c_conversor_base As Custom
          *!* /Changed by: LScheffler 16.3.2023
 
          If Pcount() > 3
-            *-- EVALUAR UNA ASIGNACI√ìN QUE PUEDE SER MULTIL√çNEA (memberdata, fb2p_value, etc)
+            *-- EVALUAR UNA ASIGNACI”N QUE PUEDE SER MULTILÕNEA (memberdata, fb2p_value, etc)
             With This As c_conversor_base Of 'c_conversor_base.prg'
                Do Case
                Case .analyzeAssignmentOf_TAG( @tcPropName, @tcValue, @taCodeLines, tnCodeLines, @m.I ;
@@ -960,15 +960,15 @@ Define Class c_conversor_base As Custom
 
    Procedure identifyExclusionBlocks
       Lparameters taCodeLines, tnCodeLines, ta_ID_Bloques, taLineasExclusion, tnBloquesExclusion, taBloquesExclusion
-      * LOS BLOQUES DE EXCLUSI√ìN SON AQUELLOS QUE TIENEN TEXT/ENDTEXT OF #IF/#ENDIF Y SE USAN PARA NO BUSCAR
+      * LOS BLOQUES DE EXCLUSI”N SON AQUELLOS QUE TIENEN TEXT/ENDTEXT OF #IF/#ENDIF Y SE USAN PARA NO BUSCAR
       * INSTRUCCIONES COMO "DEFINE CLASS" O "PROCEDURE" EN LOS MISMOS.
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * taCodeLines               (!@ IN    ) El array con las l√≠neas del c√≥digo de texto donde buscar
-      * tnCodeLines               (@? IN    ) Cantidad de l√≠neas de c√≥digo
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taCodeLines               (!@ IN    ) El array con las lÌneas del cÛdigo de texto donde buscar
+      * tnCodeLines               (@? IN    ) Cantidad de lÌneas de cÛdigo
       * ta_ID_Bloques             (@? IN    ) Array de pares de identificadores (2 cols). Ej: '#IF .F.','#ENDI' ; 'TEXT','ENDTEXT' ; etc
-      * taLineasExclusion         (@?    OUT) Array unidimensional con un .T. o .F. seg√∫n la l√≠nea sea de exclusi√≥n o no
-      * tnBloquesExclusion        (@?    OUT) Cantidad de bloques de exclusi√≥n
+      * taLineasExclusion         (@?    OUT) Array unidimensional con un .T. o .F. seg˙n la lÌnea sea de exclusiÛn o no
+      * tnBloquesExclusion        (@?    OUT) Cantidad de bloques de exclusiÛn
       *--------------------------------------------------------------------------------------------------------------
       External Array ta_ID_Bloques, taLineasExclusion, taCodeLines
 
@@ -993,7 +993,7 @@ Define Class c_conversor_base As Custom
                lnID_Bloques_Count  = Alen( ta_ID_Bloques, 1 )
             Endif
 
-            *-- B√∫squeda del ID de inicio de bloque
+            *-- B˙squeda del ID de inicio de bloque
             With This As c_conversor_base Of 'c_conversor_base.prg'
                For I = 1 To tnCodeLines
                   * Reduzco los espacios. Ej: '#IF  .F. && cmt' ==> '#IF .F.&&cmt'
@@ -1001,7 +1001,7 @@ Define Class c_conversor_base As Custom
                   lcLine      = Ltrim( taCodeLines(m.I), 0, Chr(9), ' ' )
 
                   If .lineIsOnlyCommentAndNoMetadata( @lcLine )
-                     *-- Optimizaci√≥n: Excluyo las l√≠neas que solo son comentarios
+                     *-- OptimizaciÛn: Excluyo las lÌneas que solo son comentarios
                      taLineasExclusion(m.I)  = .T.
                      *--
                      Loop
@@ -1026,7 +1026,7 @@ Define Class c_conversor_base As Custom
                      taBloquesExclusion(tnBloquesExclusion,1)    = m.I
                      taLineasExclusion(m.I)  = .T.
 
-                     * B√∫squeda del ID de fin de bloque
+                     * B˙squeda del ID de fin de bloque
                      For I = m.I + 1 To tnCodeLines
                         * Reduzco los espacios. Ej: '#IF  .F. && cmt' ==> '#IF .F.&&cmt'
                         *lcLine = LTRIM( STRTRAN( STRTRAN( CHRTRAN( taCodeLines(m.I), CHR(9), ' ' ), '  ', ' ' ), '  ', ' ' ) )
@@ -1057,11 +1057,11 @@ Define Class c_conversor_base As Custom
                         Endcase
                      Endfor
 
-                     *-- Validaci√≥n
+                     *-- ValidaciÛn
                      If Empty(taBloquesExclusion(tnBloquesExclusion,2))
                         *ERROR 'No se ha encontrado el marcador de fin [' + ta_ID_Bloques(lnPrimerID,2) ;
                         + '] que cierra al marcador de inicio [' + ta_ID_Bloques(lnPrimerID,1) ;
-                        + '] de la l√≠nea ' + TRANSFORM(taBloquesExclusion(tnBloquesExclusion,1))
+                        + '] de la lÌnea ' + TRANSFORM(taBloquesExclusion(tnBloquesExclusion,1))
                         .n_Methods_LineNo = taBloquesExclusion(tnBloquesExclusion,1)
                         Error (Textmerge(loLang.C_END_MARKER_NOT_FOUND_LOC))
                      Endif
@@ -1097,13 +1097,13 @@ Define Class c_conversor_base As Custom
 
    Procedure lineIsOnlyCommentAndNoMetadata
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                        (!@ IN/OUT) L√≠nea a separar del comentario
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                        (!@ IN/OUT) LÌnea a separar del comentario
       * tcComment                     (@?    OUT) Comentario
-      * tlDoNotSeparateLineAndComment (v? IN    ) Indica o separar la l√≠nea de c√≥digo del comentario
-      * tlDeepCommentAnalysis         (v? IN    ) Indica realizar un an√°lisis profundo de comentarios (para detectar casos complejos de c√≥digo con '&&' embebido)
+      * tlDoNotSeparateLineAndComment (v? IN    ) Indica o separar la lÌnea de cÛdigo del comentario
+      * tlDeepCommentAnalysis         (v? IN    ) Indica realizar un an·lisis profundo de comentarios (para detectar casos complejos de cÛdigo con '&&' embebido)
       *---------------------------------------------------------------------------------------------------
-      * NOTA: Recordar que esta funci√≥n suele usarse junto a Set_Line(), que quita TABS y espacios a la izquierda.
+      * NOTA: Recordar que esta funciÛn suele usarse junto a Set_Line(), que quita TABS y espacios a la izquierda.
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine As String, tcComment As String, tlDoNotSeparateLineAndComment As Boolean, tlDeepCommentAnalysis As Boolean
       Local lllineIsOnlyCommentAndNoMetadata, ln_AT_Cmt
@@ -1120,7 +1120,7 @@ Define Class c_conversor_base As Custom
             tcComment   = tcLine
 
          Case Empty(tcLine) Or Left(tcLine, 1) == '*' ;
-               OR Upper(Left(tcLine + ' ', 5)) == 'NOTE ' ; && Vac√≠a o Comentarios
+               OR Upper(Left(tcLine + ' ', 5)) == 'NOTE ' ; && VacÌa o Comentarios
             And Not Upper(Left(tcLine + ' ', 6)) == 'NOTE =' && Excluir asignaciones
             *
             lllineIsOnlyCommentAndNoMetadata = .T.
@@ -1136,9 +1136,9 @@ Define Class c_conversor_base As Custom
 
    Procedure loadModule
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (!@    OUT) Objeto generado de clase correspondiente con la informaci√≥n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (!@    OUT) Objeto generado de clase correspondiente con la informaciÛn leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (!@ IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -1172,7 +1172,7 @@ Define Class c_conversor_base As Custom
 
 
    Procedure normalizePropertyValue
-      *-- Este m√©todo se ejecuta cuando se genera el tx2 desde el binario
+      *-- Este mÈtodo se ejecuta cuando se genera el tx2 desde el binario
       Lparameters tcProp, tcValue, tcComentario
       Local lcValue, I
       tcComentario    = ''
@@ -1219,7 +1219,7 @@ Define Class c_conversor_base As Custom
 
    Procedure normalizeXMLValue
       Lparameters tcValor
-      *-- NORMALIZA EL TEXTO INDICADO, COMPRIMIENDO LOS S√çMBOLOS XML ESPECIALES.
+      *-- NORMALIZA EL TEXTO INDICADO, COMPRIMIENDO LOS SÕMBOLOS XML ESPECIALES.
       tcValor = Strtran(tcValor, Chr(38), Chr(38) + 'amp;')   && reemplaza &  por  &amp;      &&
       tcValor = Strtran(tcValor, Chr(39), Chr(38) + 'apos;')  && reemplaza '  por  &apos;     &&
       tcValor = Strtran(tcValor, Chr(34), Chr(38) + 'quot;')  && reemplaza "  por  &quot;     &&
@@ -1267,8 +1267,8 @@ Define Class c_conversor_base As Custom
 
    Procedure sortPropsAndValues_SetAndGetSCXPropNames
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcOperation               (v! IN    ) Operaci√≥n a realizar ("SETNAME" o "GETNAME")
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcOperation               (v! IN    ) OperaciÛn a realizar ("SETNAME" o "GETNAME")
       * tcPropName                (v! IN    ) Nombre de la propiedad
       *--------------------------------------------------------------------------------------------------------------
       Lparameters tcOperation, tcPropName
@@ -1292,11 +1292,11 @@ Define Class c_conversor_base As Custom
                lcPropName  = 'A999' + lcPropName
 
           Otherwise
-               *-- Soporte de evaluaci√≥n de propiedades por clase evaluada
+               *-- Soporte de evaluaciÛn de propiedades por clase evaluada
                This.ensureSpecialProps()
                lnPos = This.o_SpecialProps.getPropSortIndex( This.c_ClaseActual, lcPropName )
 
-               *-- Genera una propiedad con el formato "A nnn Propiedad", donde los valores m√°s altos quedan al final,
+               *-- Genera una propiedad con el formato "A nnn Propiedad", donde los valores m·s altos quedan al final,
                *-- de modo que primero van las props nativas, luego las del usuario y al final "name", que es especial.
                *-- Ej: "A004ScaleMode", ..., "A998UserProp", "A999Name"
                lcPropName  = 'A' + Padl( Evl(lnPos,998), 3, '0' ) + lcPropName
@@ -1319,17 +1319,17 @@ Define Class c_conversor_base As Custom
 
    Procedure sortPropsAndValues
       * KNOWLEDGE BASE:
-      * 02/12/2013    FDBOZZO     Fidel Charny me pas√≥ un ejemplo donde se pierden propiedades f√≠sicamente
-      *                           si se ordenan alfab√©ticamente en un ADD OBJECT. Pierde "picture" y otras m√°s.
-      *                           Pareciera que la √∫ltima debe ser "Name".
+      * 02/12/2013    FDBOZZO     Fidel Charny me pasÛ un ejemplo donde se pierden propiedades fÌsicamente
+      *                           si se ordenan alfabÈticamente en un ADD OBJECT. Pierde "picture" y otras m·s.
+      *                           Pareciera que la ˙ltima debe ser "Name".
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * taPropsAndValues          (!@ IN    ) El array con las propiedades y valores del objeto o clase
       * tnPropsAndValues_Count    (v! IN    ) Cantidad de propiedades
       * tnSortType                (v! IN    ) Tipo de sort:
       *                                           0=Solo separar propiedades de clase y de objetos (.)
-      *                                           1=Sort completo de propiedades (para la versi√≥n TEXTO)
-      *                                           2=Sort completo de propiedades con "Name" al final (para la versi√≥n BIN)
+      *                                           1=Sort completo de propiedades (para la versiÛn TEXTO)
+      *                                           2=Sort completo de propiedades con "Name" al final (para la versiÛn BIN)
       *--------------------------------------------------------------------------------------------------------------
       Lparameters taPropsAndValues, tnPropsAndValues_Count, tnSortType
 
@@ -1348,15 +1348,15 @@ Define Class c_conversor_base As Custom
                * CON SORT:
                * - A las que no tienen '.' les pongo 'A' por delante, y al resto 'B' por delante para que queden al final
 
-               * ATENCI√ìN:  10/07/2018
+               * ATENCI”N:  10/07/2018
                * Cuando hay ADD OBJECT multicontenedor (obj.obj.obj...), el reordenamiento
-               * puede producir da√±os colaterales, como objetos mal colocados.
-               * (Era de esperar: No todo se puede ordenar alfab√©ticamente)
-               * Un soluci√≥n de compromiso podr√≠a ser al menos mantener juntos los objetos de mismo nombre,
-               * que en la pr√°ctica pueden estar todos mezclados. Al menos eso no romper√≠a nada.
+               * puede producir daÒos colaterales, como objetos mal colocados.
+               * (Era de esperar: No todo se puede ordenar alfabÈticamente)
+               * Un soluciÛn de compromiso podrÌa ser al menos mantener juntos los objetos de mismo nombre,
+               * que en la pr·ctica pueden estar todos mezclados. Al menos eso no romperÌa nada.
                * VER: https://github.com/fdbozzo/foxbin2prg/issues/28
                *
-               * PASO 1: Obtener los nombres √∫nicos y asignarles un c√≥digo de orden
+               * PASO 1: Obtener los nombres ˙nicos y asignarles un cÛdigo de orden
                Create Cursor C_OBJ (OBJNAME C(50), IORDER I Autoinc)
                Index On OBJNAME Tag OBJNAME
 
@@ -1402,7 +1402,7 @@ Define Class c_conversor_base As Custom
                   Endif
                Endfor
 
-               * Paso 3: Ordenar seg√∫n la prioridad previa
+               * Paso 3: Ordenar seg˙n la prioridad previa
                If .l_PropSort_Enabled
                   Asort( laPropsAndValues, 1, -1, 0, 1)
                Endif
@@ -1458,7 +1458,7 @@ Define Class c_conversor_base As Custom
                   Endif
                Endfor
 
-               *-- LUEGO las dem√°s props.
+               *-- LUEGO las dem·s props.
                For I = 1 To m.tnPropsAndValues_Count
                   If Empty( laPropsAndValues(m.I,1) )
                      Loop
@@ -1518,10 +1518,10 @@ Define Class c_conversor_base As Custom
 
       Try
          With This As c_conversor_base Of 'c_conversor_base.prg'
-            *-- Seg√∫n el valor de nTimestamp:
+            *-- Seg˙n el valor de nTimestamp:
             *-- 0 = Sin timestamp
             *-- 1 = Timestamp por delante
-            *-- 2 = Timestamp por detr√°s
+            *-- 2 = Timestamp por detr·s
             .c_TextLog  = .c_TextLog ;
                + Iif( Evl(tnTimeStamp,0) = 1, Ttoc(Datetime(),3) + '  ', '' ) ;
                + Evl(tcText,'') ;
@@ -1549,8 +1549,8 @@ Define Class c_conversor_base As Custom
 
    Procedure makeDirTree
       *---------------------------------------------------------------------------------------------------
-      * Crea recursivamente el √°rbol de directorios indicado (si no existe).
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * Crea recursivamente el ·rbol de directorios indicado (si no existe).
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcDir                     (v! IN    ) Carpeta a crear (puede incluir varios niveles inexistentes)
       *---------------------------------------------------------------------------------------------------
       Lparameters tcDir
@@ -1578,7 +1578,7 @@ Define Class c_conversor_base As Custom
             lcPartial   = lcPartial + '\' + laParts(m.I)
          Endif
 
-         *-- Salto el prefijo de unidad ("C:") y los segmentos vac√≠os de rutas UNC (\\server)
+         *-- Salto el prefijo de unidad ("C:") y los segmentos vacÌos de rutas UNC (\\server)
          If Right(lcPartial,1) == ':' Or Empty(laParts(m.I))
             Loop
          Endif
@@ -1609,11 +1609,11 @@ Define Class c_conversor_base As Custom
    Procedure get_MirroredOutputFile
       *---------------------------------------------------------------------------------------------------
       * Devuelve la ruta de salida final aplicando cOutputFolder.
-      *   - Si cInputRoot est√° indicado y el archivo cuelga de esa ra√≠z, se REPLICA la subestructura
-      *     de carpetas bajo cOutputFolder (√°rbol espejo).
-      *   - Si no, se usa el comportamiento hist√≥rico: aplanar con FORCEPATH.
-      * Adem√°s crea el √°rbol de directorios destino si no existe.
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      *   - Si cInputRoot est· indicado y el archivo cuelga de esa raÌz, se REPLICA la subestructura
+      *     de carpetas bajo cOutputFolder (·rbol espejo).
+      *   - Si no, se usa el comportamiento histÛrico: aplanar con FORCEPATH.
+      * Adem·s crea el ·rbol de directorios destino si no existe.
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcOutputFile              (v! IN    ) Ruta de salida original (misma carpeta que el origen)
       *---------------------------------------------------------------------------------------------------
       Lparameters tcOutputFile
@@ -1630,12 +1630,12 @@ Define Class c_conversor_base As Custom
 
       Do Case
       Case Not Empty(This.cInputRoot) And Left( lcDir, Len(lcRoot) ) == lcRoot
-         *-- El archivo cuelga de la ra√≠z del proyecto: conservo su subruta relativa
+         *-- El archivo cuelga de la raÌz del proyecto: conservo su subruta relativa
          lcRel       = Substr( lcDir, Len(lcRoot) )
          lcResult    = Addbs( This.cOutputFolder ) + Iif( Empty(lcRel), '', lcRel ) + Justfname(tcOutputFile)
 
       Otherwise
-         *-- Sin ra√≠z, o el archivo est√° fuera de ella: comportamiento hist√≥rico (aplanado)
+         *-- Sin raÌz, o el archivo est· fuera de ella: comportamiento histÛrico (aplanado)
          lcResult    = Forcepath( tcOutputFile, This.cOutputFolder )
 
       Endcase

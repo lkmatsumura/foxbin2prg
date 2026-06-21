@@ -9,9 +9,9 @@ Define Class c_conversor_mem_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PARÃMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toMacro                   (!@    OUT) Objeto generado de clase CL_MACRO con la informaciÃ³n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaciÃ³n del error
+      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toMacro                   (!@    OUT) Objeto generado de clase CL_MACRO con la información leida del texto
+      * toEx                      (!@    OUT) Objeto con información del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toMemVar, toEx As Exception, toFoxBin2Prg
@@ -38,7 +38,7 @@ Define Class c_conversor_mem_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
                .updateProgressbar( 'Analyzing MEM...', 1, 2, 1 )
 
-               *-- VerificaciÃ³n de archivo de macros vÃ¡lido
+               *-- Verificación de archivo de macros válido
                *IF FCOUNT() < 25 OR EMPTY(FIELD("RESNAME")) OR EMPTY(FIELD("SYSRES"))
                *   *ERROR 'Menu [' + (.c_InputFile) + '] is NOT VFP 9 Format! - Please convert to VFP 9 with MODIFY MENU ' + JUSTFNAME((.c_InputFile))
                *   ERROR (TEXTMERGE(loLang.C_MENU_NOT_IN_VFP9_FORMAT_LOC))

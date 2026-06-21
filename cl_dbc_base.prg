@@ -37,13 +37,13 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'cl_cus_base.prg'
    __ObjectID      = 0
    _DBC            = ''
    _Name           = ''
-   _Saved          = .F.       && Indica si la informaci√≥n fue leida y guardada en las propiedades.
+   _Saved          = .F.       && Indica si la informaciÛn fue leida y guardada en las propiedades.
    _ToText         = ''        && Propiedades pasadas a Texto para guardar en archivo externo xx2
 
 
    Function add_Property
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcPropertyName            (v! IN    ) Nombre de la propiedad a agregar o modificar
       * teValue                   (v! IN    ) Valor de la propiedad
       *---------------------------------------------------------------------------------------------------
@@ -98,11 +98,11 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'cl_cus_base.prg'
 
    Procedure analyzeCodeBlock_Comment
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -122,7 +122,7 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'cl_cus_base.prg'
                      lcValue = lcValue + CR_LF + Left( taCodeLines(m.I), At( '</Comment>', taCodeLines(m.I) ) - 1 )
                      Exit
 
-                  Otherwise   && L√≠nea de Stored Procedure
+                  Otherwise   && LÌnea de Stored Procedure
                      lcValue = lcValue + CR_LF + taCodeLines(m.I)
                   Endcase
                Endfor
@@ -136,7 +136,7 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'cl_cus_base.prg'
 
    Procedure getAllPropertiesFromObjectname
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcName                    (v! IN    ) Nombre del objeto
       * tcType                    (v! IN    ) Tipo de objeto (Table, Index, Field, View, Relation)
       * taProperties              (!@    OUT) Array con las propiedades encontradas y sus valores
@@ -258,7 +258,7 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'cl_cus_base.prg'
 
    Procedure getDBCPropertyIDByName
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcPropertyName            (v! IN    ) Nombre de la propiedad
       * tlRethrowError            (v? IN    ) Indica si se debe relanzar el error o solo devolver -1
       *---------------------------------------------------------------------------------------------------
@@ -411,7 +411,7 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'cl_cus_base.prg'
 
    Procedure getDBCPropertyNameByID
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcPropertyID              (v! IN    ) Nombre de la propiedad
       * tlRethrowError            (v? IN    ) Indica si se debe relanzar el error o solo devolver -1
       *---------------------------------------------------------------------------------------------------
@@ -563,7 +563,7 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'cl_cus_base.prg'
 
    Procedure getDBCPropertyValueTypeByPropertyID
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tnPropertyID              (v! IN    ) ID de la Propiedad
       *---------------------------------------------------------------------------------------------------
       Lparameters tnPropertyID
@@ -600,7 +600,7 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'cl_cus_base.prg'
       *---------------------------------------------------------------------------------------------------
       * Emula el comando DBGETPROP interno de VFP
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcName                    (v! IN    ) Nombre del objeto
       * tcType                    (v! IN    ) Tipo de objeto (Table, Index, Field, View, Relation)
       * tcProperty                (v! IN    ) Nombre de la propiedad
@@ -687,7 +687,7 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'cl_cus_base.prg'
       *---------------------------------------------------------------------------------------------------
       * Emula el comando DBSETPROP interno de VFP
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcName                    (v! IN    ) Nombre del objeto
       * tcType                    (v! IN    ) Tipo de objeto (Table, Index, Field, View, Relation)
       * tcProperty                (v! IN    ) Nombre de la propiedad
@@ -752,15 +752,15 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'cl_cus_base.prg'
 
    Hidden Procedure DBPROP_INFO_RECNO
       *---------------------------------------------------------------------------------------------------
-      * Devuelve el campo property y el n√∫mero de registro donde lo encontr√≥
+      * Devuelve el campo property y el n˙mero de registro donde lo encontrÛ
       * para ser usado por DBGETPROP y DBSETPROP
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcName                    (v! IN    ) Nombre del objeto
       * tcType                    (v! IN    ) Tipo de objeto (Table, Index, Field, View, Relation)
       * tcProperty                (v! IN    ) Nombre de la propiedad
-      * tcInfo                    (@!    OUT) Informaci√≥n del campo memo "Property" que contiene el dato indicado
-      * tnRecno                   (@!    OUT) N√∫mero de registro del campo encontrado
+      * tcInfo                    (@!    OUT) InformaciÛn del campo memo "Property" que contiene el dato indicado
+      * tnRecno                   (@!    OUT) N˙mero de registro del campo encontrado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcName, tcType, tcProperty, tcInfo, tnRecno
 
@@ -815,13 +815,13 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'cl_cus_base.prg'
 
    Hidden Procedure DBGETPROP_POS_AND_LEN
       *---------------------------------------------------------------------------------------------------
-      * Devuelve la posici√≥n y longitud del dato asociado a la propiedad indicada
+      * Devuelve la posiciÛn y longitud del dato asociado a la propiedad indicada
       * para ser usado por DBGETPROP y DBSETPROP
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcProperty                (v! IN    ) Nombre de la propiedad
-      * tcInfo                    (@! IN    ) Informaci√≥n del campo memo "Property" que contiene el dato indicado
-      * tnLastPos                 (@!    OUT) Posici√≥n del campo Property donde se encontr√≥ el dato
+      * tcInfo                    (@! IN    ) InformaciÛn del campo memo "Property" que contiene el dato indicado
+      * tnLastPos                 (@!    OUT) PosiciÛn del campo Property donde se encontrÛ el dato
       * tnRecordLen               (@!    OUT) Longitud del registro del dato
       * tcBinRecord               (@!    OUT) Registro de datos de la propiedad indicada
       * tnLenCCode                (@!    OUT) Longitud del valor de la propiedad indicada
@@ -873,7 +873,7 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'cl_cus_base.prg'
    Procedure getBinPropertyDataRecord
       Lparameters teData, tnPropertyID
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * teData                    (v! IN    ) Dato a codificar
       * tnPropertyID              (v! IN    ) ID de la propiedad a la que pertenece
       *---------------------------------------------------------------------------------------------------
@@ -1058,9 +1058,9 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'cl_cus_base.prg'
 
    Procedure updateDBC
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tc_OutputFile             (v! IN    ) Nombre del archivo de salida
-      * tnLastID                  (!@ IN    ) √öltimo n√∫mero de ID usado
+      * tnLastID                  (!@ IN    ) ⁄ltimo n˙mero de ID usado
       * tnParentID                (v! IN    ) ID del objeto Padre
       *---------------------------------------------------------------------------------------------------
       Lparameters tc_OutputFile, tnLastID, tnParentID

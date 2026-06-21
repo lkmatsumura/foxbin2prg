@@ -38,7 +38,7 @@ Define Class CL_MEMVAR_RECORD As CL_CUS_BASE Of 'cl_cus_base.prg'
 
    Procedure ReadNextMemVar(tnHandle As Integer)
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tnHandle                  (!v IN    ) FKY file handle
       *---------------------------------------------------------------------------------------------------
       Local lnVarLength, lnVarDec, lnVarNameLength, lcVarNameLength, llVarTypeIsChar
@@ -224,7 +224,7 @@ Define Class CL_MEMVAR_RECORD As CL_CUS_BASE Of 'cl_cus_base.prg'
 
    Procedure toText As String
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       *---------------------------------------------------------------------------------------------------
       Local lcText, lcVarName, lcVarType, lnVarLen, lnVarDec, lcPrecision, lnLenName ;
          , loField As CL_MACRO_RECORD Of 'cl_macro_record.prg'

@@ -6,7 +6,7 @@ Define Class CL_CUS_BASE As Custom
       , Height, HelpContextID, Left, Name ;
       , ParentClass, Picture, Tag, WhatsThisHelpID
 
-   *-- MÃ©todos (Se preservan: INIT, DESTROY, ERROR, ADDPROPERTY)
+   *-- Métodos (Se preservan: INIT, DESTROY, ERROR, ADDPROPERTY)
    *   HIDDEN ADDOBJECT, NEWOBJECT, READEXPRESSION, READMETHOD, REMOVEOBJECT ;
    *  , RESETTODEFAULT, SAVEASCLASS, SHOWWHATSTHIS, WRITEEXPRESSION, WRITEMETHOD
 
@@ -44,10 +44,10 @@ Define Class CL_CUS_BASE As Custom
 
    Procedure set_Line
       *---------------------------------------------------------------------------------------------------
-      * PARÃMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@    OUT) Contenido de la lÃ­nea en anÃ¡lisis
-      * taCodeLines               (!@ IN    ) Array de lÃ­neas del programa analizado
-      * I                         (v! IN    ) NÃºmero de lÃ­nea en anÃ¡lisis
+      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@    OUT) Contenido de la línea en análisis
+      * taCodeLines               (!@ IN    ) Array de líneas del programa analizado
+      * I                         (v! IN    ) Número de línea en análisis
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I
       EXTERNAL ARRAY taCodeLines
@@ -62,7 +62,7 @@ Define Class CL_CUS_BASE As Custom
       tc_InputFile    = Evl(tc_InputFile,'')
 
       If Not Empty( Justext(tc_FullPath) ) Then
-         *-- Se indicÃ³ PATH+archivo.ext
+         *-- Se indicó PATH+archivo.ext
          tc_FullPath = Justpath(tc_FullPath)
       Endif
 
@@ -80,10 +80,10 @@ Define Class CL_CUS_BASE As Custom
 
    Procedure get_SeparatedLineAndComment
       *---------------------------------------------------------------------------------------------------
-      * PARÃMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) LÃ­nea a separar del comentario
+      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Línea a separar del comentario
       * tcComment                 (@?    OUT) Comentario
-      * tlDeepCommentAnalysis     (v? IN    ) Indica realizar un anÃ¡lisis profundo de comentarios (para detectar casos complejos de cÃ³digo con '&&' embebido)
+      * tlDeepCommentAnalysis     (v? IN    ) Indica realizar un análisis profundo de comentarios (para detectar casos complejos de código con '&&' embebido)
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine As String, tcComment As String, tlDeepCommentAnalysis As Boolean
       Local ln_AT_Cmt
@@ -94,7 +94,7 @@ Define Class CL_CUS_BASE As Custom
          If tlDeepCommentAnalysis Then
             Local laSeparador(3,3), lcSeparadoresIzq, lcSeparadoresDer, lcStr, lnAT_Amp, lnAT1, lnAT2, lnLen, I, X
 
-            lcStr   = tcLine    &&EVL(tcStr, [DEFINE BAR 2 OF OpciÃ³nAsub PROMPT "OpciÃ³n A&]+[&2" &]+[& Comentario OpciÃ³n A-2])
+            lcStr   = tcLine    &&EVL(tcStr, [DEFINE BAR 2 OF OpciónAsub PROMPT "Opción A&]+[&2" &]+[& Comentario Opción A-2])
             laSeparador(1,1)    = '"'
             laSeparador(1,2)    = '"'
             laSeparador(1,3)    = 2
@@ -113,16 +113,16 @@ Define Class CL_CUS_BASE As Custom
             lnAT1   = At(laSeparador(m.X,1), lcStr)
 
             *-- Funcionamiento:
-            *-- La anulaciÃ³n de subcadenas se hace comenzando desde la primer comilla doble ["], y luego se va
-            *-- cancelando hasta la siguiente. A partir de ahi, se busca carÃ¡cter a carÃ¡cter el siguiente separador
+            *-- La anulación de subcadenas se hace comenzando desde la primer comilla doble ["], y luego se va
+            *-- cancelando hasta la siguiente. A partir de ahi, se busca carácter a carácter el siguiente separador
             *-- izquierdo de cadena ( '"[ ), se busca su pareja derecha y se cancela el texto entre ambos.
-            *-- La anulaciÃ³n de subcadenas es temporal, solo para determinar la verdadera posiciÃ³n del comentario,
+            *-- La anulación de subcadenas es temporal, solo para determinar la verdadera posición del comentario,
             *-- por ejemplo, esto:
-            *-- DEFINE BAR 2 OF OpciÃ³nAsub PROMPT ""+var+'aa'+["bb]+"OpciÃ³n A&&2" && Comentario OpciÃ³n A-2
+            *-- DEFINE BAR 2 OF OpciónAsub PROMPT ""+var+'aa'+["bb]+"Opción A&&2" && Comentario Opción A-2
             *-- se convierte temporalmente en esto:
-            *-- DEFINE BAR 2 OF OpciÃ³nAsub PROMPT XX+var+XXXX+XXXXX+XXXXXXXXXXXXX && Comentario OpciÃ³n A-2
+            *-- DEFINE BAR 2 OF OpciónAsub PROMPT XX+var+XXXX+XXXXX+XXXXXXXXXXXXX && Comentario Opción A-2
             *-- lo que facilita encontrar el comentario '&&' real.
-            *-- Si se encuentra algÃºn separador de cadena que no cierre, se genera un error 10 (Syntax Error).
+            *-- Si se encuentra algún separador de cadena que no cierre, se genera un error 10 (Syntax Error).
             If lnAT1 > 0 Then
                For I = lnAT1+1 To lnLen
                   If m.X > 0 Then
@@ -134,7 +134,7 @@ Define Class CL_CUS_BASE As Custom
                         ln_AT_Cmt   = At( '&'+'&', lcStr)
 
                         If ln_AT_Cmt = 0 Or ln_AT_Cmt < lnAT1
-                           *-- No tiene comentario '&&' real, o sÃ­ lo tiene y ademÃ¡s contiene un delimitador de cadena como parte del comentario
+                           *-- No tiene comentario '&&' real, o sí lo tiene y además contiene un delimitador de cadena como parte del comentario
                            Exit
                         Else
                            Error 'Closing string delimiter <' + laSeparador(m.X,2) + '> not found: ' + tcLine
@@ -142,7 +142,7 @@ Define Class CL_CUS_BASE As Custom
                      Endif
                   Endif
 
-                  *-- Verifico si el carÃ¡cter es un separador de cadenas: '"[
+                  *-- Verifico si el carácter es un separador de cadenas: '"[
                   X   = At( Substr(lcStr, m.I, 1), lcSeparadoresIzq)
 
                   If m.X > 0 Then

@@ -63,9 +63,9 @@ Define Class CL_DBF_UTILS As Session
 
    Procedure getDBFmetadata
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tc_FileName               (v! IN    ) Nombre del DBF a analizar
-      * tn_HexFileType            (@?    OUT) Tipo de archivo en hexadecimal (Est√° detallado en la ayuda de Fox)
+      * tn_HexFileType            (@?    OUT) Tipo de archivo en hexadecimal (Est· detallado en la ayuda de Fox)
       * tl_FileHasCDX             (@?    OUT) Indica si el archivo tiene CDX asociado
       * tl_FileHasMemo            (@?    OUT) Indica si el archivo tiene archivo MEMO asociado
       * tl_FileIsDBC              (@?    OUT) Indica si el archivo es un DBC (base de datos)
@@ -193,8 +193,8 @@ Define Class CL_DBF_UTILS As Session
 
    Procedure fileTypeDescription
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tn_HexFileType            (@? IN    ) Tipo de archivo en hexadecimal (Est√° detallado en la ayuda de Fox)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tn_HexFileType            (@? IN    ) Tipo de archivo en hexadecimal (Est· detallado en la ayuda de Fox)
       *---------------------------------------------------------------------------------------------------
       Lparameters tn_HexFileType
       Local lcFileType
@@ -252,10 +252,10 @@ Define Class CL_DBF_UTILS As Session
 
    Procedure getCodePageInfo
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tnHexCodePage             (v! IN    ) C√≥digo de p√°gina en hexadecimal (Est√° detallado en la ayuda de Fox)
-      * tnCodePage                (@?    OUT) C√≥digo de p√°gina normal
-      * tcDescrip                 (@?    OUT) Descripci√≥n del c√≥digo de p√°gina
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tnHexCodePage             (v! IN    ) CÛdigo de p·gina en hexadecimal (Est· detallado en la ayuda de Fox)
+      * tnCodePage                (@?    OUT) CÛdigo de p·gina normal
+      * tcDescrip                 (@?    OUT) DescripciÛn del cÛdigo de p·gina
       *---------------------------------------------------------------------------------------------------
       Lparameters tnHexCodePage, tnCodePage, tcDescrip
 
@@ -381,7 +381,7 @@ Define Class CL_DBF_UTILS As Session
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       *---------------------------------------------------------------------------------------------------
       Local lcText, loField As CL_DBF_UTILS_FIELD Of 'cl_dbf_utils_field.prg'
       lcText  = ''
@@ -435,10 +435,10 @@ Define Class CL_DBF_UTILS As Session
 
    Procedure write_DBC_BackLink
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tc_FileName               (v! IN    ) Nombre del DBF a analizar
       * tcDBC_Name                (v! IN    ) Nombre del DBC a asociar
-      * tdLastUpdate              (v! IN    ) Fecha de √∫ltima actualizaci√≥n
+      * tdLastUpdate              (v! IN    ) Fecha de ˙ltima actualizaciÛn
       *---------------------------------------------------------------------------------------------------
       Lparameters tc_FileName, tcDBC_Name, tdLastUpdate
 

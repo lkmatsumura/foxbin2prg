@@ -73,7 +73,7 @@ Define Class CL_MEMVAR As CL_COL_BASE Of 'cl_col_base.prg'
 
    c_InputFile         = ''
    _Debug              = .F.
-   _MemVars            = .Null.        && Colecci√≥n de variables de memoria
+   _MemVars            = .Null.        && ColecciÛn de variables de memoria
 
 
 
@@ -85,7 +85,7 @@ Define Class CL_MEMVAR As CL_COL_BASE Of 'cl_col_base.prg'
 
    Procedure get_DataFromMEM(tcInputFile As String, toFoxBin2Prg)
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcInputFile               (!v IN    ) Archivo de entrada
       * toFoxBin2Prg              (!@ IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
@@ -119,7 +119,7 @@ Define Class CL_MEMVAR As CL_COL_BASE Of 'cl_col_base.prg'
             Endif
 
             *IF lnFileLen < 17 + 25 * lnNumberOfMacros
-            *   * 25 caracteres es el tama√±o m√≠nimo de una macro sin teclas guardadas (solo la estructura)
+            *   * 25 caracteres es el tamaÒo mÌnimo de una macro sin teclas guardadas (solo la estructura)
             *   ERROR 'Invalid FKY Macro File size'
             *ENDIF
 
@@ -135,7 +135,7 @@ Define Class CL_MEMVAR As CL_COL_BASE Of 'cl_col_base.prg'
                   loMVRec = .Null.
                Enddo
 
-               * Ordenar alfab√©ticamente por nombre de variable
+               * Ordenar alfabÈticamente por nombre de variable
                loColl.KeySort = 2
             Endif
 
@@ -162,7 +162,7 @@ Define Class CL_MEMVAR As CL_COL_BASE Of 'cl_col_base.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       *---------------------------------------------------------------------------------------------------
       Local lcText, loMVRec As CL_MEMVAR_RECORD Of 'cl_memvar_record.prg'
       lcText  = ''

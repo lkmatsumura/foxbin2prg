@@ -156,13 +156,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    o_Conversor                     = .NULL.
    o_Frm_Avance                    = .NULL.
    o_WSH                           = .NULL.
-   o_FSO                           = .NULL.            && Scripting.FileSystemObject
-   o_FileUtils                     = .NULL.            && cl_file_utils (Win32 / path helpers)
-   o_Mirror                        = .NULL.            && cl_fb2prg_mirror (mirrored project tree)
-   o_Cfg                           = .NULL.            && cl_fb2prg_cfg (configuration manager)
-   o_SpecialProps                  = .NULL.            && cl_fb2prg_special_props (property sort order)
-   o_TextStream                    = .NULL.            && Scripting.TextStream
-   o_FNC                           = .NULL.            && Filename_caps object
+   o_FSO                           = .NULL.        && Scripting.FileSystemObject
+   o_FileUtils                     = .NULL.        && cl_file_utils (Win32 / path helpers)
+   o_Mirror                        = .NULL.        && cl_fb2prg_mirror (mirrored project tree)
+   o_Cfg                           = .NULL.        && cl_fb2prg_cfg (configuration manager)
+   o_SpecialProps                  = .NULL.        && cl_fb2prg_special_props (property sort order)
+   o_TextStream                    = .NULL.        && Scripting.TextStream
+   o_FNC                           = .NULL.        && Filename_caps object
 
    run_AfterCreateTable            = ''
    run_AfterCreate_DB2             = ''
@@ -303,9 +303,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          ENDIF
          This.o_WSH              = .NULL.
          This.o_FSO              = .NULL.
-         IF VARTYPE(_SCREEN.o_FoxBin2Prg_Lang) = "O" THEN
-            _SCREEN.o_FoxBin2Prg_Lang = .NULL.
-         ENDIF
+
       CATCH
 
       FINALLY
@@ -317,6 +315,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          ENDIF
          This.o_FileUtils = .NULL.
          This.o_Mirror = .NULL.
+
+         IF ! VARTYPE(_SCREEN.o_FoxBin2Prg_Lang) == "U" THEN
+            _SCREEN.o_FoxBin2Prg_Lang = .NULL.
+            RemoveProperty(_Screen , 'o_FoxBin2Prg_Lang' )
+         ENDIF
+
+         IF VARTYPE(_SCREEN.o_FoxBin2Prg_Lang) == "U" THEN
+            RemoveProperty(_Screen , 'c_FB2PRG_EXE_Version' )
+         ENDIF
 
       ENDTRY
 
@@ -3505,9 +3512,9 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       loCfg        = .NULL.
       IF VARTYPE(toCfg) = 'O' AND !ISNULL(toCfg)
          IF This.isCfg( toCfg )
-            loCfg   = toCfg
+            loCfg = toCfg
          ELSE
-            loCfg   = This.configFromObject(toCfg)
+            loCfg = This.configFromObject(toCfg)
          ENDIF
       ELSE
          IF VARTYPE(toCfg) = 'C' AND !EMPTY(toCfg)
@@ -3520,10 +3527,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
       *-- '*' => processes the complete project (including the PJ2/PJX itself)
       *-- CFG is passed through the official channel (execute tcCFG_File parameter: object or path)
-      RETURN This.execute( tcMirrorProjectFile, '*'  , .F. , .F. , ''   ;
-                         , ''           , ''   , .NULL., @loEx, .F.  ;
-                         , ''           , ''   , ''  , .F. , .F.  ;
-                         , .F.          , loCfg )
+      RETURN This.execute( tcMirrorProjectFile, '*', .F. , .F. , '' ;
+                         , ''  , ''    , .NULL., @loEx, .F.  ;
+                         , ''  , ''    , ''    , .F.  , .F.  ;
+                         , .F. , loCfg )
    ENDPROC
 
 

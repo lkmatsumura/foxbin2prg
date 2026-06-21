@@ -9,7 +9,7 @@
 * To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/.
 *
 * LICENCIA (ES):
-* Esta obra est√° sujeta a la licencia Reconocimiento-CompartirIgual 4.0 Internacional de Creative Commons.
+* Esta obra est· sujeta a la licencia Reconocimiento-CompartirIgual 4.0 Internacional de Creative Commons.
 * Para ver una copia de esta licencia, visite http://creativecommons.org/licenses/by-sa/4.0/deed.es_ES.
 *
 *---------------------------------------------------------------------------------------------------

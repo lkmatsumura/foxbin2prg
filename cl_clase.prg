@@ -137,7 +137,7 @@ Define Class CL_CLASE As CL_CUS_BASE OF 'cl_cus_base.prg'
         #Endif
 
         With This As CL_CLASE Of 'cl_clase.prg'
-*-- VerificaciÃ³n de Procedure repetido
+*-- Verificación de Procedure repetido
             If ._Procedure_Count > 0 And Ascan( ._aProcNames, toProcedure._Nombre, 1, 0, 0, 1+2+4 ) > 0 Then
                 .writeErrorLog( '* Duplicated Method "' + toProcedure._Nombre + '" of class "' ;
                     + ._Nombre + '" @line ' + Transform(toProcedure._Inicio) )
