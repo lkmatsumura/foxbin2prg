@@ -10,10 +10,10 @@ lcF2bExe  = 'foxbin2prg.prg'
 
 IF File( '.gitignore' )
    lcSrcRoot = Addbs( FullPath( JustPath( Sys(16) ) ) )
-   lcPjxRoot = Addbs( FullPath( lcSrcRoot + '..\' ) )  
+   lcPjxRoot = Addbs( FullPath( lcSrcRoot + '..\' ) )
 ELSE
    lcSrcRoot = Addbs( FullPath( JustPath( Sys(16) ) ) ) + 'scm\'
-   lcPjxRoot = Addbs( FullPath( JustPath( Sys(16) ) ) )  
+   lcPjxRoot = Addbs( FullPath( JustPath( Sys(16) ) ) )
 ENDIF
 
 ? 'Directories'
@@ -50,6 +50,7 @@ IF lOk
    *-- Form export behahior
    loCfg.l_UseFormSettings           = 1
    loCfg.n_UseFormPerFile            = 0
+   loCfg.l_UseFormsPerDir            = .F.
    loCfg.l_FormPerFileCheck          = 0
    loCfg.n_RedirectFormType          = 0
    loCfg.l_RedirectFormPerFileToMain = 0
