@@ -27,7 +27,8 @@ Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
       Try
          If toFoxBin2Prg.l_ProcessFiles Then
             Local lnCodError, lcStr, lnPos, lnLen, lnServerCount, loReg, lnLen ;
-               , lcStrPJM, laLines(1), laProps(1) ;
+               , lcStrPJM, lcPjxName ;
+               , laLines(1), laProps(1) ;
                , loEx As Exception ;
                , loProject As CL_PROJECT Of 'cl_project.prg' ;
                , loServerHead As CL_PROJ_SRV_HEAD Of 'cl_proj_srv_head.prg' ;
@@ -184,6 +185,8 @@ Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
             With This As c_conversor_pjm_a_prg Of 'c_conversor_pjm_a_prg.prg'
 
+               lcPjxName = LOWER( JUSTFNAME( EVL( .c_OriginalFileName, .c_InputFile ) ) )
+
                *-- Generación del proyecto
                *** DH 2021-03-04: only output HomeDir if we're supposed to
                If toFoxBin2Prg.getCfgValue('n_HomeDir') = 1
@@ -204,7 +207,7 @@ Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                         ENDFOR
                         <<>>
                         STRTOFILE( '', '__newproject.f2b' )
-                        BUILD PROJECT <<JUSTFNAME( EVL( .c_OriginalFileName, .c_InputFile ) )>> FROM '__newproject.f2b'
+                        BUILD PROJECT <<lcPjxName>> FROM '__newproject.f2b'
                ENDTEXT
 
 
@@ -214,9 +217,9 @@ Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                         <<Chr(9)>>loProject.Close()
                         ENDFOR
                         <<>>
-                        MODIFY PROJECT '<<JUSTFNAME( EVL( .c_OriginalFileName, .c_InputFile ) )>>' NOWAIT NOSHOW NOPROJECTHOOK
+                        MODIFY PROJECT '<<lcPjxName>>' NOWAIT NOSHOW NOPROJECTHOOK
                         <<>>
-                        loProject = _VFP.Projects('<<JUSTFNAME( EVL( .c_OriginalFileName, .c_InputFile ) )>>')
+                        loProject = _VFP.Projects('<<lcPjxName>>')
                         <<>>
                         WITH loProject.FILES
                ENDTEXT
@@ -339,7 +342,7 @@ Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                *-- Build y cierre
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                         <<>>
-                        _VFP.Projects('<<JUSTFNAME( EVL( .c_OriginalFileName, .c_InputFile ) )>>').Close()
+                        _VFP.Projects('<<lcPjxName>>').Close()
                ENDTEXT
 
                *-- Restauro Directorio de inicio
