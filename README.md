@@ -1,6 +1,14 @@
 # FoxBin2Prg (refactored SCM fork)
 
-**Binary/text conversion for Microsoft Visual FoxPro 9** — modular source tree derived from the original FoxBin2Prg project.
+**Binary/text conversion for Microsoft Visual FoxPro 9** — modular source tree derived from the original [FoxBin2Prg](https://github.com/fdbozzo/foxbin2prg) project.
+
+---
+
+## What is FoxBin2Prg?
+
+FoxBin2Prg converts Visual FoxPro binary artifacts (VCX, SCX, PJX, DBC, DBF, FRX, MNX, and others) into PRG-style text files (VC2, SC2, PJ2, DC2, DB2, FR2, MN2, …) suitable for source control, diff, and merge. The text format is not compilable code, but it can be edited and compared like a PRG, and the original binaries can be regenerated from it.
+
+It is intended for use with SCM/DVCS tools (Git, SVN, Mercurial, etc.) or as a standalone diff/merge helper, and can substitute for tools such as SccText/X and TwoFox.
 
 ---
 
@@ -18,7 +26,7 @@ Thank you to Fernando for creating FoxBin2Prg and to Lutz for continuing its mai
 
 ### Licence
 
-This work is licensed under the [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/).
+This work is licensed under the MIT License.
 
 ---
 
@@ -29,6 +37,9 @@ The upstream FoxBin2Prg shipped as a single `foxbin2prg.prg` with more than **35
 This fork is a **readability refactor**: the monolith was split into many `.prg` files so each class and concern lives in its own module. The goal is to make the codebase easier to navigate, adapt, or mine for pieces that fit custom tooling.
 
 During the refactor, the main use case that emerged was **mirrored-tree export**: keeping VFP binary sources in one folder while maintaining a separate text tree in Git, driven by `.PJX` project membership rather than only single-file conversion.
+
+Please show your support for the original project's repository.
+This fork was created to meet my specific needs, but if you find it useful, feel free to use it and suggest improvements.
 
 ---
 
@@ -173,11 +184,6 @@ After a `git pull` that changes text sources, re-run `mirror.prg` (import) and t
 
 ---
 
-## What is FoxBin2Prg?
-
-FoxBin2Prg converts Visual FoxPro binary artifacts (VCX, SCX, PJX, DBC, DBF, FRX, MNX, and others) into PRG-style text files (VC2, SC2, PJ2, DC2, DB2, FR2, MN2, …) suitable for source control, diff, and merge. The text format is not compilable code, but it can be edited and compared like a PRG, and the original binaries can be regenerated from it.
-
-It is intended for use with SCM/DVCS tools (Git, SVN, Mercurial, etc.) or as a standalone diff/merge helper, and can substitute for tools such as SccText/X and TwoFox.
 
 ### Further documentation
 
