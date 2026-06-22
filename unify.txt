@@ -56,6 +56,7 @@ cl_dbf_records.prg
 cl_dbf_table.prg
 cl_dbf_utils_field.prg
 cl_dbf_utils.prg
+cl_cfg.prg
 cl_fb2prg_cfg.prg
 cl_fb2prg_mirror.prg
 cl_fb2prg_special_props.prg
