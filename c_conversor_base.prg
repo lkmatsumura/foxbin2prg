@@ -146,6 +146,7 @@ Define Class c_conversor_base As Custom
       Endif
 
       This.oFSO   = .Null.
+      This.o_SpecialProps = .Null.
    Endproc
 
 

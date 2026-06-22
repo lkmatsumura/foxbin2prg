@@ -80,7 +80,6 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       + [<memberdata name="normalizefilecapitalization" display="normalizeFileCapitalization"/>] ;
       + [<memberdata name="o_cfg" display="o_Cfg"/>] ;
       + [<memberdata name="o_specialprops" display="o_SpecialProps"/>] ;
-      + [<memberdata name="o_conversor" display="o_Conversor"/>] ;
       + [<memberdata name="o_frm_avance" display="o_Frm_Avance"/>] ;
       + [<memberdata name="o_fso" display="o_FSO"/>] ;
       + [<memberdata name="o_wsh" display="o_WSH"/>] ;
@@ -153,7 +152,6 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    n_ProcessedFiles                = 0             && Counter used for file.class.ext files
    n_ProcessedFilesCount           = 0             && Generic processed counter
 
-   o_Conversor                     = .NULL.
    o_Frm_Avance                    = .NULL.
    o_WSH                           = .NULL.
    o_FSO                           = .NULL.        && Scripting.FileSystemObject
@@ -295,14 +293,6 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          This.writeLog( )
          This.writeLog_Flush()
          This.unloadProgressbarForm()
-         IF VARTYPE(This.o_Cfg) = 'O' AND !ISNULL(This.o_Cfg)
-            This.o_Cfg = .NULL.
-         ENDIF
-         IF VARTYPE(This.o_SpecialProps) = 'O' AND !ISNULL(This.o_SpecialProps)
-            This.o_SpecialProps = .NULL.
-         ENDIF
-         This.o_WSH              = .NULL.
-         This.o_FSO              = .NULL.
 
       CATCH
 
@@ -315,6 +305,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          ENDIF
          This.o_FileUtils = .NULL.
          This.o_Mirror = .NULL.
+         This.o_SpecialProps = .NULL.
+         This.o_Cfg = .NULL.
 
          IF ! VARTYPE(_SCREEN.o_FoxBin2Prg_Lang) == "U" THEN
             _SCREEN.o_FoxBin2Prg_Lang = .NULL.
