@@ -1,122 +1,65 @@
-# How to contribute to FoxBin2Prg
+# Contributing to this fork
 
-## Bug report?
-- Please check  [issues](https://github.com/fdbozzo/foxbin2prg/issues) if the bug is reported
-- If you're unable to find an open issue addressing the problem, open a new one. Be sure to include a title and clear description, as much relevant information as possible, and a code sample or an executable test case demonstrating the expected behavior that is not occurring.
-- Please add your current configuration creating a config file via   
-```
-CD 'path-to-source'
-DO FOXBIN2PRG.PRG WITH '-C','FoxBin.cfg'
-```   
-**Do not include your normal config**
+This repository is a **readability refactor** of [FoxBin2Prg](https://github.com/fdbozzo/foxbin2prg), maintained upstream by **Lutz Scheffler**. The development workflow here **differs from upstream** in several important ways. Read [README.md](../README.md) before making changes.
 
-### Did you write a patch that fixes a bug?
-- Open a new GitHub merge request with the patch.
-- Ensure the PR description clearly describes the problem and solution.
-  - Include the relevant version number if applicable.
-- See [New version](#new-version) for additional tasks
+## How this fork differs from upstream
+
+| Topic | Upstream | This fork |
+|-------|----------|-----------|
+| Source layout | Primarily one `foxbin2prg.prg` | Many modular `.prg` files under `scm/` |
+| Primary goal | Full FoxBin2Prg distribution (EXE, Thor, VFPX) | Readable source, mirrored-tree SCM workflow |
+| After clone | `DO ReCreate_FoxBin2Prg.prg` in the project root | `DO mirror.prg` (import) then `DO ReCreate_FoxBin2Prg.prg` — see README |
+| Config focus | `FoxBin2Prg.cfg` file inheritance | Programmatic CFG objects plus fork-specific mirrored-tree settings |
+| Source encoding | VFP defaults | PRG sources in **Windows-1252 (CP1252)**; converted output may use UTF-8 via `l_ExportUtf8` |
+| Release process | Thor / VFPXDeployment, version bumps in monolith | No Thor release from this repo; optional `unify.prg` to rebuild a monolithic `foxbin2prg.prg` |
+
+Do **not** assume upstream CONTRIBUTING steps (Thor updater, `Create_FoxBin2Prg.prg` text export of a monolith only, VFPX zip packaging) apply here without checking the README and project layout first.
+
+## Suggested workflow for contributors
+
+1. Fork and clone [github.com/lkmatsumura/foxbin2prg](https://github.com/lkmatsumura/foxbin2prg).
+2. Set up the binary + `scm` layout described in [README.md — Regenerate after download](../README.md#regenerate-after-download--clone--pull).
+3. Edit the modular `.prg` sources in `scm/` (not a stale generated `foxbin2prg.prg` unless you intentionally use `unify.prg`).
+4. Test in VFP: import with `mirror.prg` if needed, then `DO ReCreate_FoxBin2Prg.prg`.
+5. Open a pull request against this repository with a clear description of the problem and solution.
+
+For mirrored-tree behaviour and fork-specific settings, see [docs/export_import_mirror.md](../docs/export_import_mirror.md) and [create_mirrored.prg](../create_mirrored.prg).
+
+## Bug reports and pull requests
+
+- Open issues and PRs on **this** repository: [github.com/lkmatsumura/foxbin2prg](https://github.com/lkmatsumura/foxbin2prg).
+- Bugs that belong to upstream FoxBin2Prg itself should be reported to the [upstream project](https://github.com/fdbozzo/foxbin2prg) separately.
+
+When reporting a bug, include VFP version, relevant CFG settings, and steps to reproduce. Attach a minimal sample project when possible.
 
 ## Coding conventions
-Start reading our code and you'll get the hang of it. We optimize for readability:
 
-- Beautification is done like:
-  - Keywords: Mixed case 
-  - Symbols: First occurence
-  - Indentation Tabs, 1
-  - Indent anything then Comments
-- Please do not run BeautifyX with mDots insertion against the code. 
-- We ALWAYS put spaces after list items and method parameters (`[1, 2, 3]`, not `[1,2,3]`), around operators (`x = 1`, not `x=1`).
-- This is open source software. Consider the people who will read your code, and make it look nice for them. It's sort of like driving a car: Perhaps you love doing donuts when you're alone, but with passengers the goal is to make the ride as smooth as possible.
-- Please kindly add comments where and what you change
+Match the style already used in the modular sources:
 
-## New version
-Please note, there are some tasks to set up a new version.
-Stuff is a bit scattered, so this is where to look up.
-- New fork
-  1. Please create a fork at github
-     - See this [guide](https://www.dataschool.io/how-to-contribute-on-github/) for setting up and using a fork
-  2. clone your fork to your computer
-- Existing fork
-  1. If already forked, gather the recent state of the master to your fork (for example: "Sync fork" in github on top of your repository)
-  2. Pull the recent state,
-  3. or get most recent version otherwise.
-**Note: You must run FoxBin2Prg against itself to create the binaries and exes:**
-```
-CD "path_to_FoxBin2Prg"
-*This uses a special configuration
-DO ReCreate_FoxBin2Prg.prg
-```   
-**Note: Do not run FoxBin2Prg.prg directly.**   
-3. Do your changes
-4. On top of _FoxBin2Prg.prg_ there are two version numbers:   
-```
-#DEFINE DN_FB2PRG_VERSION       1.21
-#DEFINE DC_FB2PRG_VERSION_REAL '1.21.01'
-```   
-5. Please set the **minor** part of _DC_FB2PRG_VERSION_REAL_ to a new number.   
-   **Do not** alter the **1.21** part. This is written to the text files.
-   Alteration might force that the files must be newly commited, what is not everybodies taste.   
-   The value might be altered, if the file structure of the text files is changed.
-6. Add a meaningful description of the change in the changes list on top of _FoxBin2Prg.prg_.
-   The most recent entries for changes in the middle of this section around _* </HISTORIAL DE CAMBIOS Y NOTAS IMPORTANTES>_,   
-   The most recent bugs are listed above _* </TESTEO Y REPORTE DE BUGS (AGRADECIMIENTOS)>_
-7. Alter version in _README.md_
-8. Add a description to _docs\ChangeLog.md_
-9. If a change to the config files is made, please add the description to the various properties (multi lang)
-   - _C_FOXBIN2PRG_SYNTAX_INFO_EXAMPLE_LOC_cfg:_ for general settings
-   - _C_FOXBIN2PRG_SYNTAX_INFO_EXAMPLE_LOC_tab_cfg:_ for settings per table
-10. If a change to the parameters is made, change _C_FOXBIN2PRG_SYNTAX_INFO_EXAMPLE_LOC_ properties.
-11. For changed functionality, add descriptive text on the appropriate _.md_ file in _docs_ folder.
-12. Please alter the footer of \*.md files touched to recent date.
-13. Alter the version number for the EXE to the version used above.
-14. Create the text representation of the binary sources running like
-```
-CD "path_to_FoxBin2Prg"
-*This uses a special configuration
-DO Create_FoxBin2Prg.prg
-```   
-**Note: Do not run FoxBin2Prg.prg directly.**   
-15. **The following steps are not neccesary, if you use *VPXDeployment* to create a new version that is applicable for Thor use.**   
-16. Compile to EXE **in VFP9 SP2**   
-17. Change Thor ([see below](#thor-conventions))   
-18. commit   
-19. push to your fork   
-20. Create a pull request
+- Keywords in mixed case; spaces around operators and after commas in lists.
+- Tabs for indentation (width 1).
+- Edit the `.prg` file that owns the class or routine you are changing.
+- Preserve **CP1252** encoding in source PRGs; avoid saving files as UTF-8 unless you are deliberately working on UTF-8 export/import paths.
+- Add brief comments only where the change is not obvious.
 
-## Thor conventions
-This project is part of [VFPX](https://vfpx.github.io/) and published via [Thor](https://github.com/VFPX/Thor).   
-Some steps must be done to create the information for Thor
-### Using VFPXDeployment
-The standard procedure to create the Thor files is runing VFPXDeployment via Thor.   
-<comment>1. If you add or remove files to FoxBin2Prg, that you need in the release: 
-  - alter *BuildProcess/installedfiles.txt*, see [here](https://github.com/VFPX/VFPXDeployment/blob/main/docs/Documentation.md#installedfilestxt)
-  - open the *Helper/Clean_ThorFolder.prg* file
-  - navigate to *Get_CompareFiles procedure*
-  - alter the TEXT .. ENDTEXT section to remove all files deleted and add new files, check the block for examples.
-  - There is a programm *Helper/GetRevisions.prg* to create the list, but this need to run VFPXDeployment one time to create the INSTALLEDFILES directory before.</comment>
-2. Run VFPXDeployment. It will set version number to EXE, compile, set several documentation and create the files for Thor.
-3. commit
-4. push to your fork
-5. create a pull request
+## Version and changelog
 
-### Without VFPXDeployment
-If you do not use VFPXDeployment
-There are some considerations to make to add a new version to Thor.   
-Please check [Supporting Thor Updater](https://vfpx.github.io/thorupdate/)
-In special:
-- Update _Project.txt_, in special the version number
-<comment>- update the *Helper/Clean_ThorFolder.prg* file, see above
-- add files to _FoxBin2Prg.zip_, namely
-  - FoxBin2Prg.prg,
-  - FoxBin2Prg.exe,
-  - the config files templates
-  - Clean_ThorFolder.prg
-- Update the version number in _FoxBin2PrgVersion.txt_
-- Update the changelog in _FoxBin2PrgVersion.txt_
-- The use of CreateThorUpdate.ps1 is not longer recommended.</comment>
-- Right-click CreateThorUpdate.ps1 in the ThorUpdater folder and choose *Run with PowerShell*.
+If your change affects released behaviour or text file format:
 
-Thanks
+- Update version defines in [foxbin2prg.h](../foxbin2prg.h) when appropriate.
+- Add an entry to [docs/ChangeLog.md](../docs/ChangeLog.md).
+- Update the README footer date if you touch README.md.
 
-----
-Last changed: _2023/12/05_ ![Picture](../docs/pictures/vfpxpoweredby_alternative.gif)
+## Contributing back to upstream
+
+Improvements that are not fork-specific (bug fixes, general FoxBin2Prg features) may be welcome in Lutz Scheffler's upstream tree. Coordinate separately; this fork does not automatically sync with upstream.
+
+---
+
+## Upstream contributing guide (reference only)
+
+The original FoxBin2Prg project documents Thor, VFPXDeployment, monolithic version bumps, and EXE packaging in the upstream repository. That process is **not** the default workflow for this fork. For upstream conventions, see the [fdbozzo/foxbin2prg contributing guide](https://github.com/fdbozzo/foxbin2prg/blob/master/.github/CONTRIBUTING.md).
+
+---
+
+Last updated: _2026/06/22_

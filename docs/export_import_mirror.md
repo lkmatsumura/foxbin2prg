@@ -13,7 +13,7 @@ The optional `toCfg` parameter accepts:
 - any object with compatible properties (duck-typing via `configFromObject`);
 - a `.cfg` file path (string), read before export/import.
 
-Full example: [`create_mirrored.prg`](../create_mirrored.prg). Technical overview: [ARQUITETURA.md — Mirrored tree](ARQUITETURA.md#mirrored-tree).
+Full example: [`create_mirrored.prg`](../create_mirrored.prg). Technical overview: [arquitetura.md — Mirrored tree](arquitetura.md#mirrored-tree).
 
 ### Command line (`MAIN.PRG`)
 

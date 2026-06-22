@@ -1,179 +1,191 @@
-# FoxBin2Prg
-## Version 1.21.04
-**Binary/Text Converting program for Microsoft Visual FoxPro**
+# FoxBin2Prg (refactored SCM fork)
 
-## Lutz Scheffler
+**Binary/text conversion for Microsoft Visual FoxPro 9** — modular source tree derived from the original FoxBin2Prg project.
 
-This is the perpetuation of [Fernando D. Bozzo](https://github.com/fdbozzo) foxbin2prg.  
+---
 
-The spanish documentation is not longer maintained.
-Remind yourself to compile the exe first.   
+## Credits and lineage
+
+This repository is a **fork** of [FoxBin2Prg](https://github.com/fdbozzo/foxbin2prg) by [Fernando D. Bozzo](https://github.com/fdbozzo). The original project is perpetuated and maintained upstream by **Lutz Scheffler**.
+
+| Role | Who |
+|------|-----|
+| Original author | [Fernando D. Bozzo](https://github.com/fdbozzo/foxbin2prg) |
+| Upstream maintainer | **Lutz Scheffler** |
+| This fork | **Luiz Matsumura** — [github.com/lkmatsumura/foxbin2prg](https://github.com/lkmatsumura/foxbin2prg) |
+
+Thank you to Fernando for creating FoxBin2Prg and to Lutz for continuing its maintenance.
+
+### Licence
+
+This work is licensed under the [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/).
+
+---
+
+## About this fork
+
+The upstream FoxBin2Prg shipped as a single `foxbin2prg.prg` with more than **35,000 lines** of code. That made it hard to explore the structure, understand how configuration propagated through the routines, or reuse parts of the tool in simpler, project-specific workflows.
+
+This fork is a **readability refactor**: the monolith was split into many `.prg` files so each class and concern lives in its own module. The goal is to make the codebase easier to navigate, adapt, or mine for pieces that fit custom tooling.
+
+During the refactor, the main use case that emerged was **mirrored-tree export**: keeping VFP binary sources in one folder while maintaining a separate text tree in Git, driven by `.PJX` project membership rather than only single-file conversion.
+
+---
+
+## Refactoring overview
+
+The work proceeded in stages:
+
+1. **One class per file** — every class definition was moved to its own `.prg`, which alone improved navigation.
+2. **Configuration extraction** — `c_foxbin2prg` was overloaded with settings; relevant properties were collected in `cl_cfg`, and `cl_fb2prg_cfg` was added to manage per-directory configuration inheritance.
+3. **Special properties singleton** — `cl_fb2prg_special_props` loads the `a_SpecialProps*` arrays once and shares them across all `c_conversor_*` instances (previously reloaded on every converter instantiation).
+4. **File utilities** — `cl_file_utils` separates file I/O from the orchestrator.
+5. **Mirrored tree** — `cl_fb2prg_mirror` plus `exportProjectTree` / `importProjectTree` support full-project export/import with replicated subfolder structure.
+
+```mermaid
+flowchart LR
+    monolith["foxbin2prg.prg\n35k+ lines"]
+    split["One class per .prg"]
+    cfg["cl_cfg + cl_fb2prg_cfg"]
+    props["cl_fb2prg_special_props"]
+    files["cl_file_utils"]
+    mirror["cl_fb2prg_mirror\n+ create_mirrored.prg"]
+
+    monolith --> split --> cfg --> props --> files --> mirror
+```
+
+| Module | File | Purpose |
+|--------|------|---------|
+| Orchestrator (slimmed) | [c_foxbin2prg.prg](c_foxbin2prg.prg) (~3,800 lines) | Coordinates conversion; delegates configuration |
+| Config schema | [cl_cfg.prg](cl_cfg.prg) | Property definitions and `_MemberData`; keeps `c_foxbin2prg` memberdata manageable |
+| Config manager | [cl_fb2prg_cfg.prg](cl_fb2prg_cfg.prg) | Per-directory CFG inheritance, `newConfig()`, file parsing |
+| Special props (singleton) | [cl_fb2prg_special_props.prg](cl_fb2prg_special_props.prg) | Loads `a_SpecialProps*` once for all converters |
+| File helpers | [cl_file_utils.prg](cl_file_utils.prg) | File I/O separation |
+| Mirror tree API | [cl_fb2prg_mirror.prg](cl_fb2prg_mirror.prg) | `exportProjectTree` / `importProjectTree` |
+| Converters | [c_conversor_*.prg](c_conversor_base.prg) | All derive from `c_conversor_base` |
+
+Further reading: [docs/arquitetura.md](docs/arquitetura.md), [docs/export_import_mirror.md](docs/export_import_mirror.md).
+
+---
+
+## Mirrored tree usage
+
+The mirrored-tree workflow exports an entire VFP project (`.PJX` and all members) into a destination folder, replicating the project's subfolder layout. The same configuration can import the text tree back into binaries.
+
+**Programmatic API** (see [create_mirrored.prg](create_mirrored.prg) for full examples):
+
+```foxpro
+loFb2p = NewObject('c_foxbin2prg', 'c_foxbin2prg.prg')
+loCfg  = loFb2p.newConfig()
+*-- configure loCfg properties (see below)
+loFb2p.exportProjectTree('d:\src\app\app.pjx', 'd:\export\app', loCfg)
+loFb2p.importProjectTree('d:\export\app\app.pj2', 'd:\src\app', loCfg)
+```
+
+**Interactive driver for this repository** — [mirror.prg](mirror.prg) batch-processes the projects bundled here (`foxbin2prg`, `Others`, `Fb2P_Diff`, `FileName_Caps`, `dont_convert`) between the `scm` text tree and the parent binary folder.
+
+---
+
+## Fork-specific settings
+
+These settings were added or are central to the mirrored-tree workflow in this fork. They can be set on a CFG object (`loCfg.l_UseClassPerDir = .T.`) or in a `.cfg` file (keys shown in the first column).
+
+| `.cfg` key / property | Purpose |
+|-----------------------|---------|
+| `UseClassPerDir` / `l_UseClassPerDir` | When `UseClassPerFile` > 0, create a subdirectory named after the class library for per-class files |
+| `UseFormsPerDir` / `l_UseFormsPerDir` | Same concept for forms |
+| `CopyExcludedPjxFiles` / `l_CopyExcludedPjxFiles` | Export/import PJX members marked **Exclude** |
+| `CopyNonConvertible` / `l_CopyNonConvertible` | Copy non-convertible files (PJX, VCX, SCX, etc.) into the mirrored tree |
+| `CopyLowercaseNames` / `l_CopyLowercaseNames` | Copy non-converted files with lowercase names |
+| `ExcludedSubdirs` / `c_ExcludedSubdirs` | Skip listed subpaths (`;` or `,` separated, relative to project root) |
+| `ExportUtf8` / `l_ExportUtf8` | Write converted text as UTF-8; text files matched by `isTextFileForEncoding()` use `strconv(str, 9)` on export and `strconv(str, 11)` on import |
+
+> **Note:** Lutz Scheffler pointed out that some of these behaviors overlap with existing upstream options. This fork currently relies on the settings above for the mirrored-tree mode and does not aim to use every upstream CFG feature.
+
+---
+
+## Encoding, Git, and naming conventions
+
+**Source PRGs in this repository** are saved as **Windows-1252 (CP1252)** for Visual FoxPro compatibility. Editors and AI tools that default to UTF-8 caused accent and encoding problems during development; it is unclear whether the original FoxBin2Prg would accept PRG sources in another code page.
+
+**Converted output** can be written as UTF-8 when `l_ExportUtf8` is enabled, which plays better with Git and modern editors.
+
+**Lowercase names** — this fork forces lowercase file names and extensions on export (e.g. `projeto.pj2` instead of `projeto.PJ2`) and lowercase directory names. That is a personal preference for SCM consistency.
+
+**Git history** — many commits reflect line-ending or code-page normalization rather than functional code changes. See [.gitattributes](.gitattributes) for encoding and line-ending rules applied in this repo.
+
+---
+
+## Rebuilding the monolithic `foxbin2prg.prg` (optional)
+
+Normal development uses the modular [main.prg](main.prg) entry point. To produce a single-file distribution, run [unify.prg](unify.prg):
+
+- Reads the module list in [unify.txt](unify.txt) (79 files).
+- Concatenates them into `foxbin2prg.prg`.
+- Inlines `foxbin2prg.h` and rewrites `NewObject` / `AddObject` references for monolithic use.
+
+`cl_cfg.prg` is not listed in `unify.txt` because it serves mainly as a schema/reference class; add it to `unify.txt` only if the monolith must be fully self-contained.
+
+---
 
 ## Regenerate after download / clone / pull
-**Note: If you have cloned or pulled the project, you must run it against itself to create the binaries and exes.**
-Run   
-```
-CD "path_to_FoxBin2Prg"
-*This uses a special configuration
-DO ReCreate_FoxBin2Prg.prg
-```   
-**Note: Do not run FoxBin2Prg.prg directly.**
 
----
-If you like to value my work, support the Geeks at 
-[![Virtual Fox Fest!](https://virtualfoxfest.com/images/ZoomFoxSmall.png)](https://virtualfoxfest.com/) or [![Southwest Fox!](http://www.swfox.net/images/KokoWhite.jpg)](https://www.swfox.net).  
-I also do not reject invitations to a beer, next time in Arizona.
+After cloning or pulling this repository, you must rebuild the binary artifacts and executables from the text sources.
 
----
-If you like to see Fernandos blog, or value his work:   
-- Blog: http://fdbozzo.blogspot.com.es/
-- [![DONATE!](http://www.pngall.com/wp-content/uploads/2016/05/PayPal-Donate-Button-PNG-File-180x100.png)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=fdbozzo%40gmail%2ecom&amp;lc=ES&amp;item_name=FoxBin2Prg&amp;item_number=FoxBin2Prg&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted) 
+**Note: Do not run a stale `FoxBin2Prg.prg` directly before regeneration.**
 
-    Thank you for your support!
-
-----
-## Important Note
-To fix a bug, this version changes the text file header.
-It is suggested to create all text files and commit in one step.
-
-----
-## Contribution
-See [contribution](./.github/CONTRIBUTING.md)
-
----
-
-## What is FOXBIN2PRG?
-It is a program intended to be used with **SCM tools** (Source Code Managers, like VSS, CVS, SVN)
-and *DVCS tools* (Version Control Systems such as Git, Mercurial, Plastic, and others),
-or as **standalone** program for **Diff** (viewing differences) and **Merge** operations.
-Foxbin2prg can substitute for **SccText/X**, **TwoFox** and others,
-and enhance their functionality, generating bidirectional PRG-Style versions of Foxpro binary files that allow recreating the original binary file.
-
-## Advantages:
-
-* It generates "PRG" _style_ text files from Foxpro binary files for use in SCM and VCS systems and for visual comparison.
-
-    (it's not really a prg, and can not be compiled, but it reads like one to Foxpro developers.)
-* It enables the change of the Text version as easy as modifying a PRG.
-* All the program code for any binary file (a form, a report, a class) is in just one text file, to simplify its maintainability.
-* You can regenerate the original binaries from the text files, so it is useful as backup
-* The extensions are configurable if you create a FOXBIN2PRG.CFG file
-* Inheritance of CFG configuration files between directories
-* Methods and properties of Text versions are alphabetically sorted for easy comparison
-* You can set the "UseClassPerFile" setting to create individual files by class or DBC member. 
-
-    (Which violates number three above, but it may be what you want.) 
-* Takes advantage of the Win32 API using foxbin2prg as an object
-* It has compatibility with SccText/X at the parameter level so that it can be used as substitute for SccText with SourceSafe. (Not that we recommend SourceSafe.)
-* Productivity: You can create a shortcut in the "SendTo" folder on your user Windows Profile, so you can "send" the selected file (pjx,pj2,etc) to Foxbin2prg.exe and make on-the-fly conversions
-* You can modify the TX2 Prg-Style versions of your objects with MODIFY COMMAND (without compile) to see colored syntax, or even use the Document View to navigate the procedures
-* Get back your SourceSafe projects (.pjx) from their .pjm file
-
-The program supports conversions between PJX,SCX,VCX,FRX,LBX,DBC,DBF and MNX files, for which it generates TEXT versions with extension PJ2,SC2,VC2,FR2,LB2,DC2,DB2 and MN2. If you want, the created text file extensions can be reconfigured to be compatibilize with SourceSafe.
-
-## Examples
-### Redefine extensions of _Text_ 
-Here is an example of a FOXBIN2PRG.CFG configuration file if you need to change extensions for using it with a specific VSS (SourceSafe)
-```
-extension: SC2=SCA
-extension: VC2=VCA
-extension: PJ2=PJA
-extension: MN2=MNA
-extension: FR2=FRA
-extension: LB2=LBA
-extension: DB2=DBA
-extension: DC2=DCA
-```
-
-### Use FoxBin2Prg
-```
-DO FOXBIN2PRG.EXE WITH "<path>\archivo.scx"     ==> Generates the TEXT version sc2 extension
-DO FOXBIN2PRG.EXE WITH "<path>\archivo.sc2"     ==> Regenerates the binary version with scx extension
-
-DO FOXBIN2PRG.EXE WITH "<path>","Prg2Bin"     ==> Generates the TEXT of the path, that is directory or file
-DO FOXBIN2PRG.EXE WITH "<path>","Bin2Prg"     ==> Regenerates the binary version of the path, that is directory or file
-
-DO FOXBIN2PRG.EXE WITH "-c","template.cfg"      ==> Generates a template for FoxBin2Prg.cfg config file with newest settings
-DO FOXBIN2PRG.EXE WITH "-t","template.dbf.cfg"  ==> Generates a template for table.dbf.cfg per table config file with newest settings
-```
-Or substitue `DO FOXBIN2PRG.EXE`  with `DO MAIN.PRG` if you prefer to run without building the exe file.
-
-### Interactive list of options
-```
-DO FOXBIN2PRG.EXE WITH "?"
-```
-
-### Use with MS Windows SendTo
-You can create up to three different shortcuts pointing to FoxBin2Prg.exe and in your "SendTo" folder in your Windows profile. This allows you to "send" a selected file (pjx,pj2,etc) to the selected option, and make on-the-fly conversions. (Make sure you have the option for seeing known file extensions turned on!):
-
-#### Process directories or individual files to _Text_
-- Name:  
-  `FoxBin2Prg - Binary2Text.lnk`   
-- Right-click/Properties/destination_    
-  `<path>\foxbin2prg.exe "BIN2PRG-SHOWMSG"` 
-#### Process directories or individual files to _Binary_
-- Name:  
-  `FoxBin2Prg - Text2Binary.lnk`   
-- Right-click/Properties/destination_    
-  `<path>\foxbin2prg.exe "PRG2BIN-SHOWMSG"` 
-#### Process individual files or directories asking what to convert
-- Name:  
-  `FoxBin2Prg.lnk`   
-- Right-click/Properties/destination_    
-  `<path>\foxbin2prg.exe "INTERACTIVE-SHOWMSG"` 
-
-##### How to use the links
-Select a file, right-click, SendTo -> FoxBin2Prg
-
-## LOCALIZATION:
-Is automatic starting at v1.19.38 (Languages: EN,ES,FR,DE)
-
-## FINAL NOTE:
-This program is Open Source and "libre", and I don't make any guaranties that it fulfills your expectations or that it will be free of bugs.
-I will try to fix bugs if my obligations let me do it.
-
-## LICENCE:
-This work is licensed under the Creative Commons Attribution 4.0 International License.
-To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/.
-
----
-## Changes
-See [Changes](./docs/ChangeLog.md)
-
-### Changes to Settings
-To get the new settings in config file, use the new create-a-template function:
+### Directory layout
 
 ```
-DO FOXBIN2PRG.EXE WITH "-c","template.cfg"      ==> Generates a template for FoxBin2Prg.cfg config file with newest default settings
-DO FOXBIN2PRG.EXE WITH "-C","template.cfg"      ==> Generates a template for FoxBin2Prg.cfg config file with active settings
-DO FOXBIN2PRG.EXE WITH "-t","template.dbf.cfg"  ==> Generates a template for table.dbf.cfg per table config file with newest settings
+foxbin2prg/          ← binary (VFP) working tree
+  scm/               ← this repository (text PRGs)
 ```
 
-----
-## Limitations
-If dealing with project files, FoxBin2Prg will fail if files of the project are not stored on the drive of the project.
-See [issue #93](https://github.com/fdbozzo/foxbin2prg/issues/93).
+### Steps
 
-----
-## Usage
-For usage see [documentation](./docs/FoxBin2Prg.md)
+1. Create the binary working folder, for example:
+   ```
+   mkdir foxbin2prg
+   ```
+2. Clone this repository into `foxbin2prg\scm`.
+3. In Visual FoxPro, `CD` to the `scm` folder and run:
+   ```foxpro
+   DO mirror.prg
+   ```
+4. Verify the paths displayed:
+   - **Source (scm)** — the `scm` folder (text PRGs)
+   - **Binary** — the parent `foxbin2prg` folder
 
-----
+   If the paths are wrong, adjust the logic at the top of [mirror.prg](mirror.prg) and/or your folder layout.
 
-## Helping with FoxBin2PRG
-See [contribution](./.github/CONTRIBUTING.md)
+   On **first setup**, answer **Yes** to *Import from scm (Convert PRG → BIN)* and **No** to *Export to scm (Convert BIN → PRG)*.
+
+5. `CD ..` back to the binary root (`foxbin2prg`).
+6. Regenerate executables from `scm`:
+   ```foxpro
+   CD scm
+   DO ReCreate_FoxBin2Prg.prg
+   ```
+
+   Equivalent commands from [ReCreate_FoxBin2Prg.prg](ReCreate_FoxBin2Prg.prg): `DO Main.PRG ... Prg2Bin` followed by `BUILD EXE`.
+
+After a `git pull` that changes text sources, re-run `mirror.prg` (import) and then `ReCreate_FoxBin2Prg.prg`.
 
 ---
 
-## Note
-The spanish documentation is not longer maintained - it would fade.
-For fast access a quick run is [introduced](#use-foxbin2prg), more [complex](./docs/FoxBin2Prg_Run.md#usage-1), and a large [documentation](./docs/FoxBin2Prg.md) exists too.
-If you do not access FoxBin2Prg via [Thor](https://github.com/VFPX/Thor) remind yourself to compile the exe first.   
+## What is FoxBin2Prg?
 
-If you like to see Fernando's blog, or value his work:   
-- Blog: http://fdbozzo.blogspot.com.es/
-- [![DONATE!](http://www.pngall.com/wp-content/uploads/2016/05/PayPal-Donate-Button-PNG-File-180x100.png)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=fdbozzo%40gmail%2ecom&amp;lc=ES&amp;item_name=FoxBin2Prg&amp;item_number=FoxBin2Prg&amp;currency_code=USD&amp;bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted) 
+FoxBin2Prg converts Visual FoxPro binary artifacts (VCX, SCX, PJX, DBC, DBF, FRX, MNX, and others) into PRG-style text files (VC2, SC2, PJ2, DC2, DB2, FR2, MN2, …) suitable for source control, diff, and merge. The text format is not compilable code, but it can be edited and compared like a PRG, and the original binaries can be regenerated from it.
 
-----
+It is intended for use with SCM/DVCS tools (Git, SVN, Mercurial, etc.) or as a standalone diff/merge helper, and can substitute for tools such as SccText/X and TwoFox.
 
-Last changed: _2024/08/26_ ![Picture](./docs/pictures/vfpxpoweredby_alternative.gif)
+### Further documentation
+
+- [docs/FoxBin2Prg.md](docs/FoxBin2Prg.md) — full usage
+- [docs/FoxBin2Prg_Run.md](docs/FoxBin2Prg_Run.md) — run modes and parameters
+- [docs/ChangeLog.md](docs/ChangeLog.md) — change history
+- [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) — contribution guidelines
+
+---
+
+Last updated: _2026/06/22_ ![Picture](./docs/pictures/vfpxpoweredby_alternative.gif)

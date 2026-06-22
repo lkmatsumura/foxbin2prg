@@ -649,6 +649,6 @@ fox2/
 |-- props/                      # Property sort data
 |-- tools/                      # Maintenance and encoding scripts
 |-- docs/
-    |-- ARQUITETURA.md          # This document (English)
+    |-- arquitetura.md          # This document (English)
     |-- EXPORT_IMPORT_MIRROR.md # Mirrored tree guide (English)
 ```
