@@ -10,8 +10,5 @@
 *.mn2 text eol=crlf
 *.lb2 text eol=crlf
 *.lb2d text eol=crlf
-
 *.prg text eol=crlf
 *.h   text eol=crlf
-*.ini text eol=crlf
-*.xml text eol=crlf

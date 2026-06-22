@@ -1,4 +1,4 @@
-# exclude general
+# Fox Binaries
 *.pj[xt]
 *.sc[xt]
 *.fx[xt]
@@ -8,7 +8,10 @@
 *.db[ft]
 *.dbc
 *.dct
+*.dcx
 *.cdx
 *.fxp
 *.exe
+
+# diverse
 *.bak
