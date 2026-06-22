@@ -2,6 +2,7 @@
 # disable newline conversion on checkout with no conversion on check-in for all files
 * -text
 
+# Foxbin2prg text files
 *.pj2 text eol=crlf
 *.vc2 text eol=crlf
 *.sc2 text eol=crlf
@@ -10,5 +11,21 @@
 *.mn2 text eol=crlf
 *.lb2 text eol=crlf
 *.lb2d text eol=crlf
+*.db2 text eol=crlf
+*.dc2 text eol=crlf
+*.th2 text eol=crlf
+*.kl2 text eol=crlf
 *.prg text eol=crlf
+*.mpr text eol=crlf
 *.h   text eol=crlf
+*.inc text eol=crlf
+*.cfg text eol=crlf
+*.txt text eol=crlf
+
+*.bmp binary -diff
+*.ico binary -diff
+*.exe binary -diff
+*.dll binary -diff
+*.lib binary -diff
+*.ocx binary -diff
+*.krt binary -diff
