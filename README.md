@@ -72,7 +72,7 @@ flowchart LR
 | Config manager | [cl_fb2prg_cfg.prg](cl_fb2prg_cfg.prg) | Per-directory CFG inheritance, `newConfig()`, file parsing |
 | Special props (singleton) | [cl_fb2prg_special_props.prg](cl_fb2prg_special_props.prg) | Loads `a_SpecialProps*` once for all converters |
 | File helpers | [cl_file_utils.prg](cl_file_utils.prg) | File I/O separation |
-| Mirror tree API | [cl_fb2prg_mirror.prg](cl_fb2prg_mirror.prg) | `exportProjectTree` / `importProjectTree` |
+| Mirror tree API | [cl_fb2prg_mirror.prg](cl_fb2prg_mirror.prg) | Used by `exportProjectTree` / `importProjectTree` in c_foxbin2prg |
 | Converters | [c_conversor_*.prg](c_conversor_base.prg) | All derive from `c_conversor_base` |
 
 Further reading: [docs/arquitetura.md](docs/arquitetura.md), [docs/export_import_mirror.md](docs/export_import_mirror.md).
@@ -181,6 +181,7 @@ foxbin2prg/          ← binary (VFP) working tree
    Equivalent commands from [ReCreate_FoxBin2Prg.prg](ReCreate_FoxBin2Prg.prg): `DO Main.PRG ... Prg2Bin` followed by `BUILD EXE`.
 
 After a `git pull` that changes text sources, re-run `mirror.prg` (import) and then `ReCreate_FoxBin2Prg.prg`.
+If you change binary source export the changes to the scm with `mirror.prg`
 
 ---
 
