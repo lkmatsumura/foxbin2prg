@@ -30,8 +30,6 @@ _AutoIncrement = "0"
 *</DevInfo>
 
 
-*<BuildProj>
-
 FOR EACH loProject IN _VFP.Projects FOXOBJECT
 	loProject.Close()
 ENDFOR
@@ -47,6 +45,7 @@ MODIFY PROJECT 'others.pjx' NOWAIT NOSHOW NOPROJECTHOOK
 loProject = _VFP.Projects('others.pjx')
 
 WITH loProject.FILES
+	*<BuildProj>
 	.ADD('create_foxbin2prg.prg')		&& *< FileMetadata: Type="P" Cpid="1252" Timestamp="0" ID="0" ObjRev="0" User="" />
 	.ADD('create_mirrored.prg')		&& *< FileMetadata: Type="P" Cpid="1252" Timestamp="0" ID="0" ObjRev="0" User="" />
 	.ADD('mirror.prg')		&& *< FileMetadata: Type="P" Cpid="1252" Timestamp="0" ID="0" ObjRev="0" User="" />

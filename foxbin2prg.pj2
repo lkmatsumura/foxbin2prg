@@ -30,8 +30,6 @@ _AutoIncrement = "0"
 *</DevInfo>
 
 
-*<BuildProj>
-
 FOR EACH loProject IN _VFP.Projects FOXOBJECT
 	loProject.Close()
 ENDFOR
@@ -47,6 +45,7 @@ MODIFY PROJECT 'foxbin2prg.pjx' NOWAIT NOSHOW NOPROJECTHOOK
 loProject = _VFP.Projects('foxbin2prg.pjx')
 
 WITH loProject.FILES
+	*<BuildProj>
 	.ADD('c_conversor_base.prg')		&& *< FileMetadata: Type="P" Cpid="1252" Timestamp="0" ID="0" ObjRev="544" User="" />
 	.ADD('c_conversor_bin_a_prg.prg')		&& *< FileMetadata: Type="P" Cpid="1252" Timestamp="0" ID="0" ObjRev="544" User="" />
 	.ADD('c_conversor_dbc_a_prg.prg')		&& *< FileMetadata: Type="P" Cpid="1252" Timestamp="0" ID="0" ObjRev="544" User="" />
