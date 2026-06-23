@@ -27,7 +27,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
          Local lnCodError, loRegClass, loRegObj  , lnMethodCount, lnLen, lnObjCount, lnLastClass, lnRecno ;
              , lcMethods, lcObjName, I, lnPropsAndValues_Count, lnPropsAndComments_Count, lnProtected_Count ;
              , lcCodigo , lnClassCount, lcOutputFile, lcExternalHeader, lnClassTotal, lnStepCount, lnStep ;
-             , lcObjPathInsideClass, lnPos, lcSc2Ext, llUseFormsPerDir, lnUseFormPerFile
+             , lcObjPathInsideClass, lnPos, lcSc2Ext, llUseFormPerDir, lnUseFormPerFile
 
          LOCAL loLang As CL_LANG Of 'cl_lang.prg'
 
@@ -327,31 +327,31 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                *toModulo   = lcCodigo
             Else
                lcSc2Ext            = toFoxBin2Prg.getCfgValue('c_SC2')
-               llUseFormsPerDir    = toFoxBin2Prg.getCfgFlag('l_UseFormsPerDir')
+               llUseFormPerDir    = toFoxBin2Prg.getCfgFlag('l_UseFormPerDir')
                lnUseFormPerFile    = toFoxBin2Prg.getCfgInt('n_UseFormPerFile')
 
                *-- En árbol espejo, ensurePerFileDir se aplica en destino dentro de write_OutputFile/get_MirroredOutputFile
                If lnUseFormPerFile > 0 And Empty(.cOutputFolder) Then
-                  toFoxBin2Prg.ensurePerFileDir( .c_InputFile, lcSc2Ext, llUseFormsPerDir, lnUseFormPerFile )
+                  toFoxBin2Prg.ensurePerFileDir( .c_InputFile, lcSc2Ext, llUseFormPerDir, lnUseFormPerFile )
                Endif
 
                Do Case
                Case toFoxBin2Prg.getCfgValue('n_UseFormPerFile') = 1  && LibName.ClassName.SC2
-                  lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, '', lcSc2Ext, llUseFormsPerDir, lnUseFormPerFile )
+                  lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, '', lcSc2Ext, llUseFormPerDir, lnUseFormPerFile )
                   .write_OutputFile( @lcCodigo, lcOutputFile, @toFoxBin2Prg )
 
                   For I = 1 To lnClassCount
-                     lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, laClasses(m.I,1), lcSc2Ext, llUseFormsPerDir, lnUseFormPerFile )
+                     lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, laClasses(m.I,1), lcSc2Ext, llUseFormPerDir, lnUseFormPerFile )
                      lcCodigo        = toFoxBin2Prg.get_PROGRAM_HEADER() + laClasses(m.I,2)
                      .write_OutputFile( @lcCodigo, lcOutputFile, @toFoxBin2Prg )
                   Endfor
 
                Case toFoxBin2Prg.getCfgValue('n_UseFormPerFile') = 2  && LibName.BaseClass.ClassName.SC2
-                  lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, '', lcSc2Ext, llUseFormsPerDir, lnUseFormPerFile )
+                  lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, '', lcSc2Ext, llUseFormPerDir, lnUseFormPerFile )
                   .write_OutputFile( @lcCodigo, lcOutputFile, @toFoxBin2Prg )
 
                   For I = 1 To lnClassCount
-                     lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, laClasses(m.I,3) + '.' + laClasses(m.I,1), lcSc2Ext, llUseFormsPerDir, lnUseFormPerFile )
+                     lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, laClasses(m.I,3) + '.' + laClasses(m.I,1), lcSc2Ext, llUseFormPerDir, lnUseFormPerFile )
                      lcCodigo        = toFoxBin2Prg.get_PROGRAM_HEADER() + laClasses(m.I,2)
                      .write_OutputFile( @lcCodigo, lcOutputFile, @toFoxBin2Prg )
                   Endfor

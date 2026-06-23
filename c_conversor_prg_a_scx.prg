@@ -41,7 +41,7 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
             If toFoxBin2Prg.getCfgValue('n_UseFormPerFile') > 0 And toFoxBin2Prg.getCfgValue('l_RedirectFormPerFileToMain')
                lcHeader = toFoxBin2Prg.getPerFileOutputPath( Forceext(.c_InputFile, 'SCX'), '', toFoxBin2Prg.getCfgValue('c_SC2'), ;
-                  toFoxBin2Prg.getCfgFlag('l_UseFormsPerDir'), toFoxBin2Prg.getCfgInt('n_UseFormPerFile') )
+                  toFoxBin2Prg.getCfgFlag('l_UseFormPerDir'), toFoxBin2Prg.getCfgInt('n_UseFormPerFile') )
                If File(lcHeader)
                   .c_InputFile = lcHeader
                Endif
@@ -56,7 +56,7 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
                *-- MÁSCARA DE BÚSQUEDA
                lcSearchDir         = toFoxBin2Prg.getPerFileSearchDir( .c_InputFile, Justext(.c_InputFile), ;
-                  toFoxBin2Prg.getCfgFlag('l_UseFormsPerDir'), toFoxBin2Prg.getCfgInt('n_UseFormPerFile') )
+                  toFoxBin2Prg.getCfgFlag('l_UseFormPerDir'), toFoxBin2Prg.getCfgInt('n_UseFormPerFile') )
 
                If toFoxBin2Prg.getCfgValue('n_UseFormPerFile') = 1 Then
                   *-- Esto crea la máscara de búsqueda "filename.*.ext" para encontrar las partes

@@ -46,13 +46,13 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'cl_col_base.prg'
       + [<memberdata name="_user" display="_User"/>] ;
       + [<memberdata name="decode_specialcodes_cr_lf" display="decode_SpecialCodes_CR_LF"/>] ;
       + [<memberdata name="encode_specialcodes_cr_lf" display="encode_SpecialCodes_CR_LF"/>] ;
-      + [<memberdata name="getformatteddeviceinfotext" display="getFormattedDeviceInfoText"/>] ;
+      + [<memberdata name="getformatteddevinfotext" display="getFormattedDevInfoText"/>] ;
       + [<memberdata name="getfilesnotfound" display="getFilesNotFound"/>] ;
-      + [<memberdata name="parsedeviceinfo" display="parseDeviceInfo"/>] ;
+      + [<memberdata name="parseDevInfo" display="parseDevInfo"/>] ;
       + [<memberdata name="parsenullterminatedvalue" display="parseNullTerminatedValue"/>] ;
       + [<memberdata name="setparsedinfoline" display="setParsedInfoLine"/>] ;
       + [<memberdata name="setparsedprojinfoline" display="setParsedProjInfoLine"/>] ;
-      + [<memberdata name="getrowdeviceinfo" display="getRowDeviceInfo"/>] ;
+      + [<memberdata name="getRowDevInfo" display="getRowDevInfo"/>] ;
       + [</VFPData>]
 
 
@@ -194,7 +194,7 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'cl_col_base.prg'
 
 
 
-   Procedure parseDeviceInfo
+   Procedure parseDevInfo
       Lparameters tcDevInfo
 
       Try
@@ -232,7 +232,7 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'cl_col_base.prg'
 
 
 
-   Procedure getRowDeviceInfo
+   Procedure getRowDevInfo
       Lparameters tcDevInfo
 
       Try
@@ -278,7 +278,7 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'cl_col_base.prg'
 
 
 
-   Procedure getFormattedDeviceInfoText
+   Procedure getFormattedDevinfoText
       Try
          Local lcText
          lcText      = ''

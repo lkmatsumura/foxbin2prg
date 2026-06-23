@@ -30,14 +30,13 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'cl_cus_base.prg'
 
    *-- Server Head info
    Dimension _Servers[1]
-   _ServerCount        = 0
-   _LibraryName        = ''
-   _InternalName       = ''
-   _ProjectName        = ''
-   _TypeLibDesc        = ''
-   _ServerType         = ''
-   _TypeLib            = ''
-
+   _ServerCount  = 0
+   _LibraryName  = ''
+   _InternalName = ''
+   _ProjectName  = ''
+   _TypeLibDesc  = ''
+   _ServerType   = ''
+   _TypeLib      = ''
 
 
    Procedure decode_SpecialCodes_CR_LF
@@ -51,7 +50,6 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'cl_cus_base.prg'
    Endproc
 
 
-
    Procedure encode_SpecialCodes_CR_LF
       *---------------------------------------------------------------------------------------------------
       * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
@@ -63,12 +61,10 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'cl_cus_base.prg'
    Endproc
 
 
-
    Procedure setParsedHeadInfoLine
       Lparameters tcHeadInfoLine
       This.setParsedInfoLine( This, tcHeadInfoLine )
    Endproc
-
 
 
    Procedure setParsedInfoLine
@@ -78,9 +74,9 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'cl_cus_base.prg'
 
       Try
          If Left(tcInfoLine,1) == '.'
-            lcAsignacion    = 'toObject' + tcInfoLine
+            lcAsignacion = 'toObject' + tcInfoLine
          Else
-            lcAsignacion    = 'toObject.' + tcInfoLine
+            lcAsignacion = 'toObject.' + tcInfoLine
          Endif
 
          lcValue = Getwordnum(lcAsignacion, 2, '=')
@@ -100,7 +96,6 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'cl_cus_base.prg'
    Endproc
 
 
-
    Procedure add_Server
       Lparameters toServerData
 
@@ -116,7 +111,6 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'cl_cus_base.prg'
    Endproc
 
 
-
    Procedure getDataFromPair_LenData_Structure
       Lparameters tcData, tnPos, tnLen
       Local lcData, lnLen
@@ -130,7 +124,6 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'cl_cus_base.prg'
    Procedure getServerDataObject
       Return NewObject('CL_PROJ_SRV_DATA', 'cl_proj_srv_data.prg')
    Endproc
-
 
 
    Procedure parseServerInfo
@@ -190,7 +183,6 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'cl_cus_base.prg'
    Endproc
 
 
-
    Procedure getRowServerInfo
       Try
          Local lcStr, lnLenH, lnLen, lnPos ;
@@ -200,26 +192,26 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'cl_cus_base.prg'
 
          With This As CL_PROJ_SRV_HEAD Of 'cl_proj_srv_head.prg'
             If ._ServerCount > 0
-               lnPos       = 1
-               lnLen       = 4
-               lnLenH      = 103 && Al final es una constante fija :(    4 + 8 + 4 + LEN(._LibraryName) + 4 + LEN(._InternalName) + 4 + LEN(._ProjectName) + 4 + LEN(._TypeLibDesc) - 1
+               lnPos  = 1
+               lnLen  = 4
+               lnLenH = 103 && Al final es una constante fija :(    4 + 8 + 4 + LEN(._LibraryName) + 4 + LEN(._InternalName) + 4 + LEN(._ProjectName) + 4 + LEN(._TypeLibDesc) - 1
 
                *-- Header
-               lcStr       = lcStr + Padl( 4, 4, ' ' ) + Padl( lnLenH, 4, ' ' )
-               lcStr       = lcStr + Padl( 4, 4, ' ' ) + Padl( ._ServerCount, 4, ' ' )
-               lcStr       = lcStr + Padl( Len(._LibraryName), 4, ' ' ) + ._LibraryName
-               lcStr       = lcStr + Padl( Len(._InternalName), 4, ' ' ) + ._InternalName
-               lcStr       = lcStr + Padl( Len(._ProjectName), 4, ' ' ) + ._ProjectName
-               lcStr       = lcStr + Padl( Len(._TypeLibDesc), 4, ' ' ) + ._TypeLibDesc
-               lcStr       = lcStr + Padl( Len(._ServerType), 4, ' ' ) + ._ServerType
-               lcStr       = lcStr + Padl( Len(._TypeLib), 4, ' ' ) + ._TypeLib
+               lcStr = lcStr + Padl( 4, 4, ' ' ) + Padl( lnLenH, 4, ' ' )
+               lcStr = lcStr + Padl( 4, 4, ' ' ) + Padl( ._ServerCount, 4, ' ' )
+               lcStr = lcStr + Padl( Len(._LibraryName), 4, ' ' ) + ._LibraryName
+               lcStr = lcStr + Padl( Len(._InternalName), 4, ' ' ) + ._InternalName
+               lcStr = lcStr + Padl( Len(._ProjectName), 4, ' ' ) + ._ProjectName
+               lcStr = lcStr + Padl( Len(._TypeLibDesc), 4, ' ' ) + ._TypeLibDesc
+               lcStr = lcStr + Padl( Len(._ServerType), 4, ' ' ) + ._ServerType
+               lcStr = lcStr + Padl( Len(._TypeLib), 4, ' ' ) + ._TypeLib
 
                For I = 1 To ._ServerCount
                   loServerData    = ._Servers(m.I)
                   lcStr       = lcStr + loServerData.getRowServerInfo()
                Endfor
             Endif
-         Endwith && THIS
+         Endwith
 
       Catch To loEx
          If This.n_Debug > 0 And _vfp.StartMode = 0
@@ -238,7 +230,6 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'cl_cus_base.prg'
    Endproc
 
 
-
    Procedure getFormattedServerText
       Try
          Local lcText ;
@@ -248,23 +239,23 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'cl_cus_base.prg'
 
          With This As CL_PROJ_SRV_HEAD Of 'cl_proj_srv_head.prg'
             TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                    <<C_SRV_HEAD_I>>
-                    _LibraryName = '<<._LibraryName>>'
-                    _InternalName = '<<._InternalName>>'
-                    _ProjectName = '<<._ProjectName>>'
-                    _TypeLibDesc = '<<._TypeLibDesc>>'
-                    _ServerType = '<<._ServerType>>'
-                    _TypeLib = '<<._TypeLib>>'
-                    <<C_SRV_HEAD_F>>
+               <<C_SRV_HEAD_I>>
+               _LibraryName = '<<._LibraryName>>'
+               _InternalName = '<<._InternalName>>'
+               _ProjectName = '<<._ProjectName>>'
+               _TypeLibDesc = '<<._TypeLibDesc>>'
+               _ServerType = '<<._ServerType>>'
+               _TypeLib = '<<._TypeLib>>'
+               <<C_SRV_HEAD_F>>
             ENDTEXT
 
             *-- Recorro los servidores
             For I = 1 To ._ServerCount
-               loServerData    = ._Servers(m.I)
-               lcText          = lcText + loServerData.getFormattedServerText()
-               loServerData    = .Null.
+               loServerData = ._Servers(m.I)
+               lcText       = lcText + loServerData.getFormattedServerText()
+               loServerData = .Null.
             Endfor
-         Endwith && THIS
+         Endwith
 
       Catch To loEx
          If This.n_Debug > 0 And _vfp.StartMode = 0

@@ -1417,7 +1417,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
       CASE INLIST(lcExt, 'SCX', UPPER(This.getCfgValue('c_SC2')))
          lnPerFile   = This.getCfgInt('n_UseFormPerFile')
-         llPerDir    = This.getCfgFlag('l_UseFormsPerDir')
+         llPerDir    = This.getCfgFlag('l_UseFormPerDir')
          lcTextExt   = This.getCfgValue('c_SC2')
          IF lnPerFile > 0
             lcHeader = This.getPerFileOutputPath(tcBinFile, '', lcTextExt, llPerDir, lnPerFile)
@@ -1490,7 +1490,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
       CASE INLIST(lcExt, 'SCX', UPPER(This.getCfgValue('c_SC2')))
          lnPerFile   = This.getCfgInt('n_UseFormPerFile')
-         llPerDir    = This.getCfgFlag('l_UseFormsPerDir')
+         llPerDir    = This.getCfgFlag('l_UseFormPerDir')
          lcTextExt   = This.getCfgValue('c_SC2')
 
       CASE INLIST(lcExt, 'DBC', UPPER(This.getCfgValue('c_DC2')))
@@ -2016,7 +2016,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                *                       IF .ATC(lcExt,c_SC2,"SCX")
                IF INLIST(lcExt,.getCfgValue('c_SC2'),"SCX")
                   IF .getCfgValue('n_UseFormPerFile') = 2
-                     tc_InputFile        = ADDBS( .getPerFileDir( tc_InputFile, .getCfgValue('c_SC2'), .getCfgFlag('l_UseFormsPerDir'), .getCfgInt('n_UseFormPerFile') ) ) ;
+                     tc_InputFile        = ADDBS( .getPerFileDir( tc_InputFile, .getCfgValue('c_SC2'), .getCfgFlag('l_UseFormPerDir'), .getCfgInt('n_UseFormPerFile') ) ) ;
                         + JUSTSTEM(tc_InputFile) + '.*.' + .c_ClassToConvert + '.' + .getCfgValue('c_SC2')
 
                      IF ADIR(laFiles, tc_InputFile) = 1
@@ -2025,7 +2025,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
                   ELSE && Asumo .getCfgValue('n_UseFormPerFile') = 1
                      tc_InputFile        = .getPerFileOutputPath( tc_InputFile, .c_ClassToConvert, .getCfgValue('c_SC2'), ;
-                        .getCfgFlag('l_UseFormsPerDir'), .getCfgInt('n_UseFormPerFile') )
+                        .getCfgFlag('l_UseFormPerDir'), .getCfgInt('n_UseFormPerFile') )
 
                   ENDIF
                ENDIF
@@ -2288,8 +2288,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                laOptions(56,1) = "*FormPerFileCheck:"                  && 0,1 1=.t. 0=Don't check Form.Obj.sc2 inclusion, 1=Check Form.Obj.sc2 inclusion
                laOptions(56,2) = ".getCfgValue('l_FormPerFileCheck')"
                laOptions(56,3) = 1
-               laOptions(57,1) = "*UseFormsPerDir:"                    && 0,1 0=flat layout, 1=subdir layout (requires UseFormPerFile>0)
-               laOptions(57,2) = ".getCfgValue('l_UseFormsPerDir')"
+               laOptions(57,1) = "*UseFormPerDir:"                    && 0,1 0=flat layout, 1=subdir layout (requires UseFormPerFile>0)
+               laOptions(57,2) = ".getCfgValue('l_UseFormPerDir')"
                laOptions(57,3) = 1
                laOptions(58,1) = "*extension: fr2d="                   && ext Text file to Fox 2.x FRX
                laOptions(58,2) = ".getCfgValue('c_FR2D')"
@@ -3511,7 +3511,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_SC2') )
                loConversor     = CreateObject( 'c_conversor_scx_a_prg'   )
-               IF .getCfgInt('n_UseFormPerFile') > 0 AND .getCfgFlag('l_UseFormsPerDir')
+               IF .getCfgInt('n_UseFormPerFile') > 0 AND .getCfgFlag('l_UseFormPerDir')
                   .changeFileAttribute( .getPerFileOutputPath( .c_InputFile, '', .getCfgValue('c_SC2'), .T., .getCfgInt('n_UseFormPerFile') ), lcForceAttribs )
                ELSE
                   .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_SC2') ), lcForceAttribs )
@@ -3627,7 +3627,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = .getPerFileBinaryOutputPath( .c_InputFile, 'SCX', .getCfgValue('c_SC2'), ;
-                  .getCfgFlag('l_UseFormsPerDir'), .getCfgInt('n_UseFormPerFile') )
+                  .getCfgFlag('l_UseFormPerDir'), .getCfgInt('n_UseFormPerFile') )
                loConversor     = CreateObject( 'c_conversor_prg_a_scx'  )
                .changeFileAttribute( .c_OutputFile, lcForceAttribs )
                .changeFileAttribute( FORCEEXT( .c_OutputFile, 'SCT' ), lcForceAttribs )
@@ -4075,7 +4075,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
       * tcBinaryFile              (v! IN    ) VCX/SCX path (or base path without class suffix)
       * tcTextExt                 (v! IN    ) Text extension (c_VC2 or c_SC2)
-      * tlUsePerDir               (v! IN    ) UseClassPerDir or UseFormsPerDir flag
+      * tlUsePerDir               (v! IN    ) UseClassPerDir or UseFormPerDir flag
       * lnUsePerFile              (v! IN    ) UseClassPerFile or UseFormPerFile value
       * RETURN                    (v?    OUT) Directory for per-file text output/search
       *---------------------------------------------------------------------------------------------------
@@ -10686,7 +10686,7 @@ Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
 
             *-- Información del programa
-            C_FB2PRG_CODE   = C_FB2PRG_CODE + loProject.getFormattedDeviceInfoText() + CR_LF
+            C_FB2PRG_CODE   = C_FB2PRG_CODE + loProject.getFormattedDevinfoText() + CR_LF
 
 
             *-- Información de los Servidores definidos
@@ -10977,11 +10977,11 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                Endif
 
                .updateProgressbar( 'Processing Project info...', 2, 3, 1 )
-               loProject       = toModulo
-               loServerHead    = loProject._ServerHead
-               lcPjxName       = LOWER( JUSTFNAME( EVL( .c_OriginalFileName, .c_InputFile ) ) )
+               loProject     = toModulo
+               loServerHead  = loProject._ServerHead
+               lcPjxName     = LOWER( JUSTFNAME( EVL( .c_OriginalFileName, .c_InputFile ) ) )
 
-               C_FB2PRG_CODE   = C_FB2PRG_CODE + toFoxBin2Prg.get_PROGRAM_HEADER()
+               C_FB2PRG_CODE = C_FB2PRG_CODE + toFoxBin2Prg.get_PROGRAM_HEADER()
 
                *!* <pdm>
                *!* <change date="{^2023-03-19,17:16:00}">Changed by: LScheffler<br />
@@ -11022,15 +11022,15 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
                *-- Directorio de inicio
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        LPARAMETERS tcDir
-                        <<>>
-                        lcCurdir = SYS(5)+CURDIR()
-                        CD ( EVL( tcDir, JUSTPATH( SYS(16) ) ) )
+                  LPARAMETERS tcDir
+                  <<>>
+                  lcCurdir = SYS(5)+CURDIR()
+                  CD ( EVL( tcDir, JUSTPATH( SYS(16) ) ) )
                         <<>>
                ENDTEXT
 
                *-- Información del programa
-               C_FB2PRG_CODE   = C_FB2PRG_CODE + loProject.getFormattedDeviceInfoText() + CR_LF
+               C_FB2PRG_CODE   = C_FB2PRG_CODE + loProject.getFormattedDevInfoText()
 
                *-- Información de los Servidores definidos
                If Not Empty(loProject._ServerInfo)
@@ -11042,85 +11042,83 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                If toFoxBin2Prg.getCfgValue('n_HomeDir') = 1
                   * only output HomeDir if we're supposed to
                   TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                            <<C_BUILDPROJ_I>>
-                            <<>>*<.HomeDir = <<loProject._HomeDir>> />
+                     <<>>*<.HomeDir = <<loProject._HomeDir>> />
                   ENDTEXT
-               Else
-                  TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                            <<C_BUILDPROJ_I>>
-                  ENDTEXT
-               Endif toFoxBin2Prg.getCfgValue('n_HomeDir') = 1
+               ENDIF
 
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>
-                        FOR EACH loProject IN _VFP.Projects FOXOBJECT
-                        <<Chr(9)>>loProject.Close()
-                        ENDFOR
-                        <<>>
-                        STRTOFILE( '', '__newproject.f2b' )
-                        BUILD PROJECT <<lcPjxName>> FROM '__newproject.f2b'
+                  <<>>
+                  FOR EACH loProject IN _VFP.Projects FOXOBJECT
+                  <<Chr(9)>>loProject.Close()
+                  ENDFOR
+                  <<>>
+                  STRTOFILE( '', '__newproject.f2b' )
+                  BUILD PROJECT <<lcPjxName>> FROM '__newproject.f2b'
                ENDTEXT
-
 
                *-- Abro el proyecto
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        FOR EACH loProject IN _VFP.Projects FOXOBJECT
-                        <<Chr(9)>>loProject.Close()
-                        ENDFOR
-                        <<>>
-                        MODIFY PROJECT '<<lcPjxName>>' NOWAIT NOSHOW NOPROJECTHOOK
-                        <<>>
-                        loProject = _VFP.Projects('<<lcPjxName>>')
-                        <<>>
-                        WITH loProject.FILES
+                  FOR EACH loProject IN _VFP.Projects FOXOBJECT
+                  <<Chr(9)>>loProject.Close()
+                  ENDFOR
+                  <<>>
+                  MODIFY PROJECT '<<lcPjxName>>' NOWAIT NOSHOW NOPROJECTHOOK
+                  <<>>
+                  loProject = _VFP.Projects('<<lcPjxName>>')
+                  <<>>
+                  WITH loProject.FILES
                ENDTEXT
 
 
                *-- Definir archivos del proyecto y metadata: CPID, Timestamp, ID, etc.
                loProject.KeySort = 2
 
+               TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
+                  <<Chr(9)>><<C_BUILDPROJ_I>>
+               ENDTEXT
+
                For Each loReg In loProject &&FOXOBJECT
                   TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                            <<Chr(9)>>.ADD('<<loReg.NAME>>')
+                     <<Chr(9)>>.ADD('<<loReg.NAME>>')
                   ENDTEXT
 
                   Do Case
                   Case toFoxBin2Prg.getCfgValue('n_BodyDevInfo')=1
                      * Generates an extra DevInfo tag for each body PJX record
                      TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2+4+8
-                                    <<Chr(9)+Chr(9)>><<'&'>><<'&'>> <<C_FILE_META_I>>
-                                    Type="<<loReg.TYPE>>"
-                                    Cpid="<<INT( loReg.CPID )>>"
-                                    Timestamp="<<INT( loReg.TIMESTAMP )>>"
-                                    ID="<<INT( loReg.ID )>>"
-                                    ObjRev="<<INT( loReg.OBJREV )>>"
-                                    User="<<STRCONV(loReg.USER,13)>>"
-                                    DevInfo="<<STRCONV(loReg.DEVINFO,13)>>"
-                                    <<C_FILE_META_F>>
+                        <<Chr(9)+Chr(9)>><<'&&'>> <<C_FILE_META_I>>
+                        Type="<<loReg.TYPE>>"
+                        Cpid="<<INT( loReg.CPID )>>"
+                        Timestamp="<<INT( loReg.TIMESTAMP )>>"
+                        ID="<<INT( loReg.ID )>>"
+                        ObjRev="<<INT( loReg.OBJREV )>>"
+                        User="<<STRCONV(loReg.USER,13)>>"
+                        DevInfo="<<STRCONV(loReg.DEVINFO,13)>>"
+                        <<C_FILE_META_F>>
                      ENDTEXT
 
                   Case toFoxBin2Prg.getCfgValue('n_BodyDevInfo')=2
                      * BodyDevInfo = 2 omit DEVINFO and OBJREV
                      TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2+4+8
-                                    <<Chr(9)+Chr(9)>><<'&'>><<'&'>> <<C_FILE_META_I>>
-                                    Type="<<loReg.TYPE>>"
-                                    Cpid="<<INT( loReg.CPID )>>"
-                                    Timestamp="<<INT( loReg.TIMESTAMP )>>"
-                                    ID="<<INT( loReg.ID )>>"
-                                    User="<<STRCONV(loReg.USER,13)>>"
-                                    <<C_FILE_META_F>>
+                        <<Chr(9)+Chr(9)>><<'&&'>> <<C_FILE_META_I>>
+                        Type="<<loReg.TYPE>>"
+                        Cpid="<<INT( loReg.CPID )>>"
+                        Timestamp="<<INT( loReg.TIMESTAMP )>>"
+                        ID="<<INT( loReg.ID )>>"
+                        User="<<STRCONV(loReg.USER,13)>>"
+                        <<C_FILE_META_F>>
                      ENDTEXT
 
                   Otherwise
                      TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2+4+8
-                                    <<Chr(9)+Chr(9)>><<'&'>><<'&'>> <<C_FILE_META_I>>
-                                    Type="<<loReg.TYPE>>"
-                                    Cpid="<<INT( loReg.CPID )>>"
-                                    Timestamp="<<INT( loReg.TIMESTAMP )>>"
-                                    ID="<<INT( loReg.ID )>>"
-                                    ObjRev="<<INT( loReg.OBJREV )>>"
-                                    User="<<STRCONV(loReg.USER,13)>>"
-                                    <<C_FILE_META_F>>
+                        <<Chr(9)+Chr(9)>><<'&&'>> <<C_FILE_META_I>>
+                        Type="<<loReg.TYPE>>"
+                        Cpid="<<INT( loReg.CPID )>>"
+                        Timestamp="<<INT( loReg.TIMESTAMP )>>"
+                        ID="<<INT( loReg.ID )>>"
+                        ObjRev="<<INT( loReg.OBJREV )>>"
+                        User="<<STRCONV(loReg.USER,13)>>"
+                        <<C_FILE_META_F>>
                      ENDTEXT
                   Endcase
 
@@ -11128,15 +11126,15 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                Endfor
 
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<Chr(9)>><<C_BUILDPROJ_F>>
-                        <<>>
-                        <<Chr(9)>>.ITEM('__newproject.f2b').Remove()
-                        <<>>
+                  <<Chr(9)>><<C_BUILDPROJ_F>>
+                  <<>>
+                  <<Chr(9)>>.ITEM('__newproject.f2b').Remove()
+                  <<>>
                ENDTEXT
 
 
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<Chr(9)>><<C_FILE_CMTS_I>>
+                  <<Chr(9)>><<C_FILE_CMTS_I>>
                ENDTEXT
 
 
@@ -11145,7 +11143,6 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
                For Each loReg In loProject &&FOXOBJECT
                   If Not Empty(loReg.COMMENTS)
-                     *                               C_FB2PRG_CODE = C_FB2PRG_CODE + Chr(13) + Chr(10) + Chr(9) + ".ITEM(lcCurdir + '" + loReg.Name + "').Description = '" + loReg.COMMENTS + "'"
                      C_FB2PRG_CODE = C_FB2PRG_CODE + Chr(13) + Chr(10) + Chr(9) + ".ITEM(" +;
                         THIS.GetPathFromHome(m.loReg.Name, m.lcStr, "lcCurdir + '", "'", toFoxBin2Prg) +;
                         ").Description = '" + loReg.COMMENTS + "'"
@@ -11156,9 +11153,9 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
                *-- Exclusiones
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<Chr(9)>><<C_FILE_CMTS_F>>
-                        <<>>
-                        <<Chr(9)>><<C_FILE_EXCL_I>>
+                  <<Chr(9)>><<C_FILE_CMTS_F>>
+                  <<>>
+                  <<Chr(9)>><<C_FILE_EXCL_I>>
                ENDTEXT
 
                loProject.KeySort = 2
@@ -11176,9 +11173,9 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
                *-- Tipos de archivos especiales
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<Chr(9)>><<C_FILE_EXCL_F>>
-                        <<>>
-                        <<Chr(9)>><<C_FILE_TXT_I>>
+                  <<Chr(9)>><<C_FILE_EXCL_F>>
+                  <<>>
+                  <<Chr(9)>><<C_FILE_TXT_I>>
                ENDTEXT
 
                loProject.KeySort = 2
@@ -11196,11 +11193,11 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
                *-- ProjectHook, Debug, Encrypt, Build y cierre
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<Chr(9)>><<C_FILE_TXT_F>>
-                        <<C_ENDWITH>>
-                        <<>>
-                        <<C_WITH>> loProject
-                        <<Chr(9)>><<C_PROJPROPS_I>>
+                  <<Chr(9)>><<C_FILE_TXT_F>>
+                  <<C_ENDWITH>>
+                  <<>>
+                  <<C_WITH>> loProject
+                  <<Chr(9)>><<C_PROJPROPS_I>>
                ENDTEXT
 
                If Not Empty(loProject._MainProg)
@@ -11219,30 +11216,30 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                Endif
 
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<Chr(9)>>.Debug = <<loProject._Debug>>
-                        <<Chr(9)>>.Encrypted = <<loProject._Encrypted>>
-                        <<Chr(9)>>*<.CmntStyle = <<loProject._CmntStyle>> />
-                        <<Chr(9)>>*<.NoLogo = <<loProject._NoLogo>> />
-                        <<Chr(9)>>*<.SaveCode = <<loProject._SaveCode>> />
-                        <<Chr(9)>>*<.User = '<<STRCONV(loProject._User,13)>>' />
-                        <<Chr(9)>>.ProjectHookLibrary = '<<loProject._ProjectHookLibrary>>'
-                        <<Chr(9)>>.ProjectHookClass = '<<loProject._ProjectHookClass>>'
-                        <<Chr(9)>><<C_PROJPROPS_F>>
-                        <<C_ENDWITH>>
-                        <<>>
+                  <<Chr(9)>>.Debug = <<loProject._Debug>>
+                  <<Chr(9)>>.Encrypted = <<loProject._Encrypted>>
+                  <<Chr(9)>>*<.CmntStyle = <<loProject._CmntStyle>> />
+                  <<Chr(9)>>*<.NoLogo = <<loProject._NoLogo>> />
+                  <<Chr(9)>>*<.SaveCode = <<loProject._SaveCode>> />
+                  <<Chr(9)>>*<.User = '<<STRCONV(loProject._User,13)>>' />
+                  <<Chr(9)>>.ProjectHookLibrary = '<<loProject._ProjectHookLibrary>>'
+                  <<Chr(9)>>.ProjectHookClass = '<<loProject._ProjectHookClass>>'
+                  <<Chr(9)>><<C_PROJPROPS_F>>
+                  <<C_ENDWITH>>
+                  <<>>
                ENDTEXT
 
                *-- Build y cierre
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>
-                        _VFP.Projects('<<lcPjxName>>').Close()
+                  <<>>
+                  _VFP.Projects('<<lcPjxName>>').Close()
                ENDTEXT
 
                *-- Restauro Directorio de inicio
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        *ERASE '__newproject.f2b'
-                        CD (lcCurdir)
-                        RETURN
+                  *ERASE '__newproject.f2b'
+                  CD (lcCurdir)
+                  RETURN
                ENDTEXT
 
             Endif
@@ -11260,7 +11257,6 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
             Endif
 
             toFoxBin2Prg.updateProcessedFile()
-
 
             *-- Genero el PJ2
             .updateProgressbar( 'Writing ' + toFoxBin2Prg.getCfgValue('c_PJ2') + '...', 3, 3, 1 )
@@ -11365,7 +11361,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
             loProject._Debug        = loReg.Debug
             loProject._Encrypted    = loReg.Encrypt
             loProject._User         = loReg.User
-            loProject.parseDeviceInfo( loReg.DEVINFO )
+            loProject.parseDevInfo( loReg.DEVINFO )
 
             *-- Información de los Servidores definidos
             If Not Empty(loProject._ServerInfo)
@@ -11755,7 +11751,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
          , toProject._NoLogo ;
          , toProject._CmntStyle ;
          , 260 ;
-         , toProject.getRowDeviceInfo() ;
+         , toProject.getRowDevInfo() ;
          , Lower(toProject._HomeDir) + Chr(0) ;
          , Upper( Forcepath( Evl(This.c_OriginalFileName,This.c_OutputFile), toProject._HomeDir) ) + Chr(0) ;
          , toProject._ServerHead.getRowServerInfo() ;
@@ -15870,8 +15866,8 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
       + [<memberdata name="analyzecodeblock_textfiles" display="analyzeCodeBlock_TextFiles"/>] ;
       + [<memberdata name="analyzecodeblock_projectproperties" display="analyzeCodeBlock_ProjectProperties"/>] ;
       + [</VFPData>]
-   c_Type                  = 'PJ2'
 
+   c_Type = 'PJ2'
 
 
    Procedure convert
@@ -15946,6 +15942,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
       Finally
          Use In (Select("TABLABIN"))
          Release laCodeLines, lnCodeLines, laLineasExclusion, lnBloquesExclusion, I
+
       Endtry
 
       Return
@@ -16091,7 +16088,6 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
    Endproc
 
 
-
    Procedure identifyCodeBlocks
       Lparameters taCodeLines, tnCodeLines, taLineasExclusion, tnBloquesExclusion, toProject, toFoxBin2Prg
       *--------------------------------------------------------------------------------------------------------------
@@ -16114,9 +16110,10 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
       #Endif
 
       Try
-         Local I, lc_Comentario, lcLine, llBuildProj_Completed, llDevInfo_Completed ;
-            , llServerHead_Completed, llFileComments_Completed, llFoxBin2Prg_Completed ;
-            , llExcludedFiles_Completed, llTextFiles_Completed, llProjectProperties_Completed
+         Local I, lc_Comentario, lcLine
+         LOCAL llBuildProj_Completed    , llDevInfo_Completed     , llHomedir_Completed ;
+             , llServerHead_Completed   , llFileComments_Completed, llFoxBin2Prg_Completed ;
+             , llExcludedFiles_Completed, llTextFiles_Completed, llProjectProperties_Completed
 
          With This As c_conversor_prg_a_pjx Of 'foxbin2prg.prg'
             Store 0 To I
@@ -16130,35 +16127,58 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                   .set_Line( @lcLine, @taCodeLines, m.I )
 
                   Do Case
-                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && Vacía o solo Comentarios
-                     Loop
+                   Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) 
+                        && Vacía o solo Comentarios
+                        Loop
 
-                  Case Not llFoxBin2Prg_Completed And .analyzeCodeBlock_FoxBin2Prg( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
-                     llFoxBin2Prg_Completed  = .T.
+                   Case Not llFoxBin2Prg_Completed ;
+                        And .analyzeCodeBlock_FoxBin2Prg( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
+                        llFoxBin2Prg_Completed  = .T.
 
-                  Case Not llDevInfo_Completed And .analyzeCodeBlock_DevInfo( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
-                     llDevInfo_Completed = .T.
+                   Case Not llDevInfo_Completed ;
+                        And .analyzeCodeBlock_DevInfo( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
+                        llDevInfo_Completed = .T.
 
-                  Case Not llServerHead_Completed And .analyzeCodeBlock_ServerHead( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
-                     llServerHead_Completed  = .T.
+                   Case NOT llServerHead_Completed ;
+                        AND .analyzeCodeBlock_ServerData( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
+                        * Puede haber varios servidores, por eso se siguen valuando
+                        DO WHILE .T.
+                           DO CASE
+                            CASE .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario )
+                                 LOOP
 
-                  Case .analyzeCodeBlock_ServerData( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
-                     *-- Puede haber varios servidores, por eso se siguen valuando
+                            CASE .analyzeCodeBlock_ServerData( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
+                            
+                            OTHERWISE
+                                 EXIT
 
-                  Case Not llBuildProj_Completed And .analyzeCodeBlock_BuildProj( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines, @toFoxBin2Prg )
-                     llBuildProj_Completed   = .T.
+                           ENDCASE
+                        ENDDO
+                        llServerHead_Completed  = .T.
 
-                  Case Not llFileComments_Completed And .analyzeCodeBlock_FileComments( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
-                     llFileComments_Completed    = .T.
+                   Case Not llHomedir_Completed ;
+                        And .analyzeCodeBlock_Homedir( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
+                        llHomedir_Completed = .T.
 
-                  Case Not llExcludedFiles_Completed And .analyzeCodeBlock_ExcludedFiles( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
-                     llExcludedFiles_Completed   = .T.
+                   Case Not llBuildProj_Completed ;
+                        And .analyzeCodeBlock_BuildProj( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines, @toFoxBin2Prg )
+                        llBuildProj_Completed   = .T.
 
-                  Case Not llTextFiles_Completed And .analyzeCodeBlock_TextFiles( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
-                     llTextFiles_Completed   = .T.
+                   Case Not llFileComments_Completed ;
+                        And .analyzeCodeBlock_FileComments( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
+                        llFileComments_Completed    = .T.
 
-                  Case Not llProjectProperties_Completed And .analyzeCodeBlock_ProjectProperties( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
-                     llProjectProperties_Completed   = .T.
+                   Case Not llExcludedFiles_Completed ;
+                        And .analyzeCodeBlock_ExcludedFiles( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
+                        llExcludedFiles_Completed   = .T.
+
+                   Case Not llTextFiles_Completed ;
+                        And .analyzeCodeBlock_TextFiles( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
+                        llTextFiles_Completed   = .T.
+
+                   Case Not llProjectProperties_Completed ;
+                        And .analyzeCodeBlock_ProjectProperties( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
+                        llProjectProperties_Completed   = .T.
 
                   Endcase
 
@@ -16181,6 +16201,45 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
       Endtry
 
       Return
+   Endproc
+
+
+   Procedure analyzeCodeBlock_Homedir
+      *--------------------------------------------------------------------------------------------------------------
+      * Analiza el bloque <HomeDir>
+      *--------------------------------------------------------------------------------------------------------------
+      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toProject                 (@?    OUT) Objeto con toda la información del proyecto analizado
+      * tcLine                    (@! IN    ) Línea de datos en evaluación
+      * taCodeLines               (@! IN    ) El array con las líneas del código donde buscar
+      * tnCodeLines               (@! IN    ) Cantidad de líneas de código
+      *--------------------------------------------------------------------------------------------------------------
+      Lparameters toProject, tcLine, taCodeLines, I, tnCodeLines
+      External Array taCodeLines
+
+      #If .F.
+         Local toProject As CL_PROJECT Of 'foxbin2prg.prg'
+      #Endif
+
+      Try
+         Local llBloqueEncontrado
+
+         If Upper( Left( tcLine, 10 ) ) == Upper( '*<.HomeDir' )
+            toProject._HomeDir  = Strextract( tcLine, "'", "'" )
+    
+            llBloqueEncontrado  = .T.
+         Endif
+
+      Catch To loEx
+         If This.n_Debug > 0 And _vfp.StartMode = 0
+            Set Step On
+         Endif
+
+         Throw
+
+      Endtry
+
+      Return llBloqueEncontrado
    Endproc
 
 
@@ -16218,43 +16277,37 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                   .set_Line( @tcLine, @taCodeLines, m.I )
 
                   Do Case
-                  Case Left( tcLine, Len(C_BUILDPROJ_F) ) == C_BUILDPROJ_F
-                     I = m.I + 1
-                     Exit
+                   Case Left( tcLine, Len(C_BUILDPROJ_F) ) == C_BUILDPROJ_F
+                        I = m.I + 1
+                        Exit
 
-                  Case .lineIsOnlyCommentAndNoMetadata( @tcLine, @lcComment )
-                     Loop    && Saltear comentarios
+                   Case .lineIsOnlyCommentAndNoMetadata( @tcLine, @lcComment )
+                        Loop    && Saltear comentarios
 
-                  Case Upper( Left( tcLine, 14 ) ) == 'BUILD PROJECT '
-                     Loop
+                   Case Upper( Left( tcLine, 5 ) ) == '.ADD('
+                        * loFile: NAME,TYPE,EXCLUDE,COMMENTS
+                        tcLine          = Chrtran( tcLine, ["] + '[]', "'''" )  && Convierto "[] en '
+                        Store .Null. To loFile
+                        loFile          = CreateObject('CL_PROJ_FILE' )
+                        loFile._Name    = Alltrim( Strextract( tcLine, ['], ['] ) )
 
-                  Case Upper( Left( tcLine, 5 ) ) == '.ADD('
-                     * loFile: NAME,TYPE,EXCLUDE,COMMENTS
-                     tcLine          = Chrtran( tcLine, ["] + '[]', "'''" )  && Convierto "[] en '
-                     Store .Null. To loFile
-                     loFile          = CreateObject('CL_PROJ_FILE' )
-                     loFile._Name    = Alltrim( Strextract( tcLine, ['], ['] ) )
+                        *-- Obtengo metadatos de los comentarios de FileMetadata:
+                        *< FileMetadata: Type="V" Cpid="1252" Timestamp="1131901580" ID="1129207528" ObjRev="544" />
+                        .get_ListNamesWithValuesFrom_InLine_MetadataTag( @lcComment, @laPropsAndValues ;
+                           , @lnPropsAndValues_Count, C_FILE_META_I, C_FILE_META_F )
 
-                     *-- Obtengo metadatos de los comentarios de FileMetadata:
-                     *< FileMetadata: Type="V" Cpid="1252" Timestamp="1131901580" ID="1129207528" ObjRev="544" />
-                     .get_ListNamesWithValuesFrom_InLine_MetadataTag( @lcComment, @laPropsAndValues ;
-                        , @lnPropsAndValues_Count, C_FILE_META_I, C_FILE_META_F )
+                        loFile._Type        = .get_ValueByName_FromListNamesWithValues( 'Type'     , 'C', @laPropsAndValues )
+                        loFile._CPID        = .get_ValueByName_FromListNamesWithValues( 'CPID'     , 'I', @laPropsAndValues )
+                        loFile._TimeStamp   = .get_ValueByName_FromListNamesWithValues( 'Timestamp', 'I', @laPropsAndValues )
+                        loFile._ID          = .get_ValueByName_FromListNamesWithValues( 'ID'       , 'I', @laPropsAndValues )
+                        loFile._ObjRev      = .get_ValueByName_FromListNamesWithValues( 'ObjRev'   , 'I', @laPropsAndValues )
+                        loFile._User        = .get_ValueByName_FromListNamesWithValues( 'User'     , 'C', @laPropsAndValues )
 
-                     loFile._Type        = .get_ValueByName_FromListNamesWithValues( 'Type', 'C', @laPropsAndValues )
-                     loFile._CPID        = .get_ValueByName_FromListNamesWithValues( 'CPID', 'I', @laPropsAndValues )
-                     loFile._TimeStamp   = .get_ValueByName_FromListNamesWithValues( 'Timestamp', 'I', @laPropsAndValues )
-                     loFile._ID          = .get_ValueByName_FromListNamesWithValues( 'ID', 'I', @laPropsAndValues )
-                     loFile._ObjRev      = .get_ValueByName_FromListNamesWithValues( 'ObjRev', 'I', @laPropsAndValues )
-                     loFile._User        = .get_ValueByName_FromListNamesWithValues( 'User', 'C', @laPropsAndValues )
+                        If toFoxBin2Prg.getCfgValue('n_BodyDevInfo') = 1
+                           loFile._DevInfo  = .get_ValueByName_FromListNamesWithValues( 'DevInfo'  , 'C', @laPropsAndValues )
+                        Endif
 
-                     If toFoxBin2Prg.getCfgValue('n_BodyDevInfo') = 1
-                        loFile._DevInfo     = .get_ValueByName_FromListNamesWithValues( 'DevInfo', 'C', @laPropsAndValues )
-                     Endif
-
-                     toProject.Add( loFile, loFile._Name )
-
-                  Case Upper( Left( tcLine, 10 ) ) == Upper( '*<.HomeDir' )
-                     toProject._HomeDir  = Strextract( tcLine, "'", "'" )
+                        toProject.Add( loFile, loFile._Name )
 
                   Endcase
                Endfor
@@ -16278,7 +16331,6 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
       Return llBloqueEncontrado
    Endproc
-
 
 
    Procedure analyzeCodeBlock_DevInfo
@@ -16330,7 +16382,6 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
       Return llBloqueEncontrado
    Endproc
-
 
 
    Procedure analyzeCodeBlock_ServerHead
@@ -16390,7 +16441,6 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
       Return llBloqueEncontrado
    Endproc
-
 
 
    Procedure analyzeCodeBlock_ServerData
@@ -16453,7 +16503,6 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
       Return llBloqueEncontrado
    Endproc
-
 
 
    Procedure analyzeCodeBlock_FileComments
@@ -16519,7 +16568,6 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
    Endproc
 
 
-
    Procedure analyzeCodeBlock_ExcludedFiles
       *------------------------------------------------------
       *-- Analiza el bloque <ExcludedFiles>
@@ -16583,7 +16631,6 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
    Endproc
 
 
-
    Procedure analyzeCodeBlock_TextFiles
       *------------------------------------------------------
       *-- Analiza el bloque <TextFiles>
@@ -16645,7 +16692,6 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
       Return llBloqueEncontrado
    Endproc
-
 
 
    Procedure analyzeCodeBlock_ProjectProperties
@@ -16755,7 +16801,7 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
             If toFoxBin2Prg.getCfgValue('n_UseFormPerFile') > 0 And toFoxBin2Prg.getCfgValue('l_RedirectFormPerFileToMain')
                lcHeader = toFoxBin2Prg.getPerFileOutputPath( Forceext(.c_InputFile, 'SCX'), '', toFoxBin2Prg.getCfgValue('c_SC2'), ;
-                  toFoxBin2Prg.getCfgFlag('l_UseFormsPerDir'), toFoxBin2Prg.getCfgInt('n_UseFormPerFile') )
+                  toFoxBin2Prg.getCfgFlag('l_UseFormPerDir'), toFoxBin2Prg.getCfgInt('n_UseFormPerFile') )
                If File(lcHeader)
                   .c_InputFile = lcHeader
                Endif
@@ -16770,7 +16816,7 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
                *-- MÁSCARA DE BÚSQUEDA
                lcSearchDir         = toFoxBin2Prg.getPerFileSearchDir( .c_InputFile, Justext(.c_InputFile), ;
-                  toFoxBin2Prg.getCfgFlag('l_UseFormsPerDir'), toFoxBin2Prg.getCfgInt('n_UseFormPerFile') )
+                  toFoxBin2Prg.getCfgFlag('l_UseFormPerDir'), toFoxBin2Prg.getCfgInt('n_UseFormPerFile') )
 
                If toFoxBin2Prg.getCfgValue('n_UseFormPerFile') = 1 Then
                   *-- Esto crea la máscara de búsqueda "filename.*.ext" para encontrar las partes
@@ -17760,7 +17806,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
          Local lnCodError, loRegClass, loRegObj  , lnMethodCount, lnLen, lnObjCount, lnLastClass, lnRecno ;
              , lcMethods, lcObjName, I, lnPropsAndValues_Count, lnPropsAndComments_Count, lnProtected_Count ;
              , lcCodigo , lnClassCount, lcOutputFile, lcExternalHeader, lnClassTotal, lnStepCount, lnStep ;
-             , lcObjPathInsideClass, lnPos, lcSc2Ext, llUseFormsPerDir, lnUseFormPerFile
+             , lcObjPathInsideClass, lnPos, lcSc2Ext, llUseFormPerDir, lnUseFormPerFile
 
          LOCAL loLang As CL_LANG Of 'foxbin2prg.prg'
 
@@ -18060,31 +18106,31 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                *toModulo   = lcCodigo
             Else
                lcSc2Ext            = toFoxBin2Prg.getCfgValue('c_SC2')
-               llUseFormsPerDir    = toFoxBin2Prg.getCfgFlag('l_UseFormsPerDir')
+               llUseFormPerDir    = toFoxBin2Prg.getCfgFlag('l_UseFormPerDir')
                lnUseFormPerFile    = toFoxBin2Prg.getCfgInt('n_UseFormPerFile')
 
                *-- En árbol espejo, ensurePerFileDir se aplica en destino dentro de write_OutputFile/get_MirroredOutputFile
                If lnUseFormPerFile > 0 And Empty(.cOutputFolder) Then
-                  toFoxBin2Prg.ensurePerFileDir( .c_InputFile, lcSc2Ext, llUseFormsPerDir, lnUseFormPerFile )
+                  toFoxBin2Prg.ensurePerFileDir( .c_InputFile, lcSc2Ext, llUseFormPerDir, lnUseFormPerFile )
                Endif
 
                Do Case
                Case toFoxBin2Prg.getCfgValue('n_UseFormPerFile') = 1  && LibName.ClassName.SC2
-                  lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, '', lcSc2Ext, llUseFormsPerDir, lnUseFormPerFile )
+                  lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, '', lcSc2Ext, llUseFormPerDir, lnUseFormPerFile )
                   .write_OutputFile( @lcCodigo, lcOutputFile, @toFoxBin2Prg )
 
                   For I = 1 To lnClassCount
-                     lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, laClasses(m.I,1), lcSc2Ext, llUseFormsPerDir, lnUseFormPerFile )
+                     lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, laClasses(m.I,1), lcSc2Ext, llUseFormPerDir, lnUseFormPerFile )
                      lcCodigo        = toFoxBin2Prg.get_PROGRAM_HEADER() + laClasses(m.I,2)
                      .write_OutputFile( @lcCodigo, lcOutputFile, @toFoxBin2Prg )
                   Endfor
 
                Case toFoxBin2Prg.getCfgValue('n_UseFormPerFile') = 2  && LibName.BaseClass.ClassName.SC2
-                  lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, '', lcSc2Ext, llUseFormsPerDir, lnUseFormPerFile )
+                  lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, '', lcSc2Ext, llUseFormPerDir, lnUseFormPerFile )
                   .write_OutputFile( @lcCodigo, lcOutputFile, @toFoxBin2Prg )
 
                   For I = 1 To lnClassCount
-                     lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, laClasses(m.I,3) + '.' + laClasses(m.I,1), lcSc2Ext, llUseFormsPerDir, lnUseFormPerFile )
+                     lcOutputFile    = toFoxBin2Prg.getPerFileOutputPath( .c_InputFile, laClasses(m.I,3) + '.' + laClasses(m.I,1), lcSc2Ext, llUseFormPerDir, lnUseFormPerFile )
                      lcCodigo        = toFoxBin2Prg.get_PROGRAM_HEADER() + laClasses(m.I,2)
                      .write_OutputFile( @lcCodigo, lcOutputFile, @toFoxBin2Prg )
                   Endfor
@@ -27252,11 +27298,11 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
                            This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > FormPerFileCheck:           ' + Transform(lcValue) )
                         Endif
 
-                     Case Left( laConfig(m.I), 15 ) == Lower('UseFormsPerDir:')
+                     Case Left( laConfig(m.I), 15 ) == Lower('UseFormPerDir:')
                         lcValue = Alltrim( Substr( laConfig(m.I), 16 ) )
                         If lo_CFG.l_UseFormSettings And Inlist( lcValue, '0', '1' ) Then
-                           lo_CFG.l_UseFormsPerDir  = ( Transform(lcValue) == '1' )
-                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > UseFormsPerDir:             ' + Transform(lcValue) )
+                           lo_CFG.l_UseFormPerDir  = ( Transform(lcValue) == '1' )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > UseFormPerDir:             ' + Transform(lcValue) )
                         Endif
                         */Forms
 
@@ -27566,7 +27612,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
                This.o_Host.writeLog( C_TAB + 'FormPerFileCheck:           ' + TRANSFORM(.getCfgValue('l_FormPerFileCheck')) )
                This.o_Host.writeLog( C_TAB + 'RedirectFormPerFileToMain:  ' + TRANSFORM(.getCfgValue('l_RedirectFormPerFileToMain')) )
                This.o_Host.writeLog( C_TAB + 'RedirectFormType:           ' + TRANSFORM(.getCfgValue('n_RedirectFormType')) )
-               This.o_Host.writeLog( C_TAB + 'UseFormsPerDir:             ' + TRANSFORM(IIF(.getCfgFlag('l_UseFormsPerDir'), 1, 0)) )
+               This.o_Host.writeLog( C_TAB + 'UseFormPerDir:             ' + TRANSFORM(IIF(.getCfgFlag('l_UseFormPerDir'), 1, 0)) )
 
                *Databases
                * additional options controlling
@@ -27751,7 +27797,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       AddProperty(loCfg, 'l_RedirectFormPerFileToMain', .F.)
       AddProperty(loCfg, 'n_RedirectFormType', 0)
       AddProperty(loCfg, 'l_FormPerFileCheck', .F.)
-      AddProperty(loCfg, 'l_UseFormsPerDir', .F.)
+      AddProperty(loCfg, 'l_UseFormPerDir', .F.)
       AddProperty(loCfg, 'n_CheckFileInPath', 0)
       AddProperty(loCfg, 'l_OldFilesPerDBC', .T.)
       AddProperty(loCfg, 'n_UseFilesPerDBC', 0)
@@ -27795,7 +27841,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       AddProperty(loCfg, 'c_ExcludedSubdirs', '')
       AddProperty(loCfg, 'c_BackgroundImage', '')
       AddProperty(loCfg, 'n_PRG_Compat_Level', 0)
-      AddProperty(loCfg, 'n_HomeDir', 1)
+      AddProperty(loCfg, 'n_HomeDir', 0)
       AddProperty(loCfg, 'l_AllowFolder', .T.)
 
       RETURN loCfg
@@ -29558,7 +29604,7 @@ Define Class CL_LANG As Custom
                         <<>>                               && 1 Check Form[.baseclass].Obj.sc2 inclusion
                         <<>>                               &&   Only used if import file is in Form[.baseclass].Obj.sc2 syntax
                         <<>>                               &&   Ignored for RedirectFormType: 2
-                        <<>>UseFormsPerDir: 0              && 0=flat Form.Obj.ext layout (default)
+                        <<>>UseFormPerDir: 0              && 0=flat Form.Obj.ext layout (default)
                         <<>>                               && 1=store under Form.ext/ subdirectory (requires UseFormPerFile>0)
                         <<>>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                         <<>>
@@ -29920,7 +29966,7 @@ Define Class CL_LANG As Custom
                         <<>>                               && 1 Check Form[.baseclass].Obj.sc2 inclusion
                         <<>>                               &&   Only used if import file is in Form[.baseclass].Obj.sc2 syntax
                         <<>>                               &&   Ignored for RedirectFormType: 2
-                        <<>>UseFormsPerDir: 0              && 0=flat Form.Obj.ext layout (default)
+                        <<>>UseFormPerDir: 0              && 0=flat Form.Obj.ext layout (default)
                         <<>>                               && 1=store under Form.ext/ subdirectory (requires UseFormPerFile>0)
                         <<>>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                         <<>>
@@ -30292,7 +30338,7 @@ Define Class CL_LANG As Custom
                         <<>>                               && 1 Teste, ob die Datei Form[.baseclass].Obj.sc2 einbezogen wurde
                         <<>>                               &&   Nur für die  Form[.baseclass].Obj.sc2 Syntax
                         <<>>                               &&   Wird für RedirectFormType: 2 ignoriert
-                        <<>>UseFormsPerDir: 0              && 0=flaches Form.Obj.ext Layout (Standard)
+                        <<>>UseFormPerDir: 0              && 0=flaches Form.Obj.ext Layout (Standard)
                         <<>>                               && 1=unter Form.ext/ Unterverzeichnis speichern (erfordert UseFormPerFile>0)
                         <<>>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                         <<>>
@@ -30671,7 +30717,7 @@ Define Class CL_LANG As Custom
                         <<>>                               && 1 Check Form[.baseclass].Obj.sc2 inclusion
                         <<>>                               &&   Only used if import file is in Form[.baseclass].Obj.sc2 syntax
                         <<>>                               &&   Ignored for RedirectFormType: 2
-                        <<>>UseFormsPerDir: 0              && 0=flat Form.Obj.ext layout (default)
+                        <<>>UseFormPerDir: 0              && 0=flat Form.Obj.ext layout (default)
                         <<>>                               && 1=store under Form.ext/ subdirectory (requires UseFormPerFile>0)
                         <<>>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                         <<>>
@@ -34773,14 +34819,13 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    *-- Server Head info
    Dimension _Servers[1]
-   _ServerCount        = 0
-   _LibraryName        = ''
-   _InternalName       = ''
-   _ProjectName        = ''
-   _TypeLibDesc        = ''
-   _ServerType         = ''
-   _TypeLib            = ''
-
+   _ServerCount  = 0
+   _LibraryName  = ''
+   _InternalName = ''
+   _ProjectName  = ''
+   _TypeLibDesc  = ''
+   _ServerType   = ''
+   _TypeLib      = ''
 
 
    Procedure decode_SpecialCodes_CR_LF
@@ -34794,7 +34839,6 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'foxbin2prg.prg'
    Endproc
 
 
-
    Procedure encode_SpecialCodes_CR_LF
       *---------------------------------------------------------------------------------------------------
       * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
@@ -34806,12 +34850,10 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'foxbin2prg.prg'
    Endproc
 
 
-
    Procedure setParsedHeadInfoLine
       Lparameters tcHeadInfoLine
       This.setParsedInfoLine( This, tcHeadInfoLine )
    Endproc
-
 
 
    Procedure setParsedInfoLine
@@ -34821,9 +34863,9 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'foxbin2prg.prg'
 
       Try
          If Left(tcInfoLine,1) == '.'
-            lcAsignacion    = 'toObject' + tcInfoLine
+            lcAsignacion = 'toObject' + tcInfoLine
          Else
-            lcAsignacion    = 'toObject.' + tcInfoLine
+            lcAsignacion = 'toObject.' + tcInfoLine
          Endif
 
          lcValue = Getwordnum(lcAsignacion, 2, '=')
@@ -34843,7 +34885,6 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'foxbin2prg.prg'
    Endproc
 
 
-
    Procedure add_Server
       Lparameters toServerData
 
@@ -34859,7 +34900,6 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'foxbin2prg.prg'
    Endproc
 
 
-
    Procedure getDataFromPair_LenData_Structure
       Lparameters tcData, tnPos, tnLen
       Local lcData, lnLen
@@ -34873,7 +34913,6 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'foxbin2prg.prg'
    Procedure getServerDataObject
       Return CreateObject('CL_PROJ_SRV_DATA' )
    Endproc
-
 
 
    Procedure parseServerInfo
@@ -34933,7 +34972,6 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'foxbin2prg.prg'
    Endproc
 
 
-
    Procedure getRowServerInfo
       Try
          Local lcStr, lnLenH, lnLen, lnPos ;
@@ -34943,26 +34981,26 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'foxbin2prg.prg'
 
          With This As CL_PROJ_SRV_HEAD Of 'foxbin2prg.prg'
             If ._ServerCount > 0
-               lnPos       = 1
-               lnLen       = 4
-               lnLenH      = 103 && Al final es una constante fija :(    4 + 8 + 4 + LEN(._LibraryName) + 4 + LEN(._InternalName) + 4 + LEN(._ProjectName) + 4 + LEN(._TypeLibDesc) - 1
+               lnPos  = 1
+               lnLen  = 4
+               lnLenH = 103 && Al final es una constante fija :(    4 + 8 + 4 + LEN(._LibraryName) + 4 + LEN(._InternalName) + 4 + LEN(._ProjectName) + 4 + LEN(._TypeLibDesc) - 1
 
                *-- Header
-               lcStr       = lcStr + Padl( 4, 4, ' ' ) + Padl( lnLenH, 4, ' ' )
-               lcStr       = lcStr + Padl( 4, 4, ' ' ) + Padl( ._ServerCount, 4, ' ' )
-               lcStr       = lcStr + Padl( Len(._LibraryName), 4, ' ' ) + ._LibraryName
-               lcStr       = lcStr + Padl( Len(._InternalName), 4, ' ' ) + ._InternalName
-               lcStr       = lcStr + Padl( Len(._ProjectName), 4, ' ' ) + ._ProjectName
-               lcStr       = lcStr + Padl( Len(._TypeLibDesc), 4, ' ' ) + ._TypeLibDesc
-               lcStr       = lcStr + Padl( Len(._ServerType), 4, ' ' ) + ._ServerType
-               lcStr       = lcStr + Padl( Len(._TypeLib), 4, ' ' ) + ._TypeLib
+               lcStr = lcStr + Padl( 4, 4, ' ' ) + Padl( lnLenH, 4, ' ' )
+               lcStr = lcStr + Padl( 4, 4, ' ' ) + Padl( ._ServerCount, 4, ' ' )
+               lcStr = lcStr + Padl( Len(._LibraryName), 4, ' ' ) + ._LibraryName
+               lcStr = lcStr + Padl( Len(._InternalName), 4, ' ' ) + ._InternalName
+               lcStr = lcStr + Padl( Len(._ProjectName), 4, ' ' ) + ._ProjectName
+               lcStr = lcStr + Padl( Len(._TypeLibDesc), 4, ' ' ) + ._TypeLibDesc
+               lcStr = lcStr + Padl( Len(._ServerType), 4, ' ' ) + ._ServerType
+               lcStr = lcStr + Padl( Len(._TypeLib), 4, ' ' ) + ._TypeLib
 
                For I = 1 To ._ServerCount
                   loServerData    = ._Servers(m.I)
                   lcStr       = lcStr + loServerData.getRowServerInfo()
                Endfor
             Endif
-         Endwith && THIS
+         Endwith
 
       Catch To loEx
          If This.n_Debug > 0 And _vfp.StartMode = 0
@@ -34981,7 +35019,6 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'foxbin2prg.prg'
    Endproc
 
 
-
    Procedure getFormattedServerText
       Try
          Local lcText ;
@@ -34991,23 +35028,23 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'foxbin2prg.prg'
 
          With This As CL_PROJ_SRV_HEAD Of 'foxbin2prg.prg'
             TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                    <<C_SRV_HEAD_I>>
-                    _LibraryName = '<<._LibraryName>>'
-                    _InternalName = '<<._InternalName>>'
-                    _ProjectName = '<<._ProjectName>>'
-                    _TypeLibDesc = '<<._TypeLibDesc>>'
-                    _ServerType = '<<._ServerType>>'
-                    _TypeLib = '<<._TypeLib>>'
-                    <<C_SRV_HEAD_F>>
+               <<C_SRV_HEAD_I>>
+               _LibraryName = '<<._LibraryName>>'
+               _InternalName = '<<._InternalName>>'
+               _ProjectName = '<<._ProjectName>>'
+               _TypeLibDesc = '<<._TypeLibDesc>>'
+               _ServerType = '<<._ServerType>>'
+               _TypeLib = '<<._TypeLib>>'
+               <<C_SRV_HEAD_F>>
             ENDTEXT
 
             *-- Recorro los servidores
             For I = 1 To ._ServerCount
-               loServerData    = ._Servers(m.I)
-               lcText          = lcText + loServerData.getFormattedServerText()
-               loServerData    = .Null.
+               loServerData = ._Servers(m.I)
+               lcText       = lcText + loServerData.getFormattedServerText()
+               loServerData = .Null.
             Endfor
-         Endwith && THIS
+         Endwith
 
       Catch To loEx
          If This.n_Debug > 0 And _vfp.StartMode = 0
@@ -35075,13 +35112,13 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'foxbin2prg.prg'
       + [<memberdata name="_user" display="_User"/>] ;
       + [<memberdata name="decode_specialcodes_cr_lf" display="decode_SpecialCodes_CR_LF"/>] ;
       + [<memberdata name="encode_specialcodes_cr_lf" display="encode_SpecialCodes_CR_LF"/>] ;
-      + [<memberdata name="getformatteddeviceinfotext" display="getFormattedDeviceInfoText"/>] ;
+      + [<memberdata name="getformatteddevinfotext" display="getFormattedDevInfoText"/>] ;
       + [<memberdata name="getfilesnotfound" display="getFilesNotFound"/>] ;
-      + [<memberdata name="parsedeviceinfo" display="parseDeviceInfo"/>] ;
+      + [<memberdata name="parseDevInfo" display="parseDevInfo"/>] ;
       + [<memberdata name="parsenullterminatedvalue" display="parseNullTerminatedValue"/>] ;
       + [<memberdata name="setparsedinfoline" display="setParsedInfoLine"/>] ;
       + [<memberdata name="setparsedprojinfoline" display="setParsedProjInfoLine"/>] ;
-      + [<memberdata name="getrowdeviceinfo" display="getRowDeviceInfo"/>] ;
+      + [<memberdata name="getRowDevInfo" display="getRowDevInfo"/>] ;
       + [</VFPData>]
 
 
@@ -35223,7 +35260,7 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'foxbin2prg.prg'
 
 
 
-   Procedure parseDeviceInfo
+   Procedure parseDevInfo
       Lparameters tcDevInfo
 
       Try
@@ -35261,7 +35298,7 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'foxbin2prg.prg'
 
 
 
-   Procedure getRowDeviceInfo
+   Procedure getRowDevInfo
       Lparameters tcDevInfo
 
       Try
@@ -35307,7 +35344,7 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'foxbin2prg.prg'
 
 
 
-   Procedure getFormattedDeviceInfoText
+   Procedure getFormattedDevinfoText
       Try
          Local lcText
          lcText      = ''

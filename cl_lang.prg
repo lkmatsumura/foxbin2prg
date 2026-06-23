@@ -361,7 +361,7 @@ Define Class CL_LANG As Custom
                         <<>>                               && 1 Check Form[.baseclass].Obj.sc2 inclusion
                         <<>>                               &&   Only used if import file is in Form[.baseclass].Obj.sc2 syntax
                         <<>>                               &&   Ignored for RedirectFormType: 2
-                        <<>>UseFormsPerDir: 0              && 0=flat Form.Obj.ext layout (default)
+                        <<>>UseFormPerDir: 0              && 0=flat Form.Obj.ext layout (default)
                         <<>>                               && 1=store under Form.ext/ subdirectory (requires UseFormPerFile>0)
                         <<>>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                         <<>>
@@ -723,7 +723,7 @@ Define Class CL_LANG As Custom
                         <<>>                               && 1 Check Form[.baseclass].Obj.sc2 inclusion
                         <<>>                               &&   Only used if import file is in Form[.baseclass].Obj.sc2 syntax
                         <<>>                               &&   Ignored for RedirectFormType: 2
-                        <<>>UseFormsPerDir: 0              && 0=flat Form.Obj.ext layout (default)
+                        <<>>UseFormPerDir: 0              && 0=flat Form.Obj.ext layout (default)
                         <<>>                               && 1=store under Form.ext/ subdirectory (requires UseFormPerFile>0)
                         <<>>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                         <<>>
@@ -1095,7 +1095,7 @@ Define Class CL_LANG As Custom
                         <<>>                               && 1 Teste, ob die Datei Form[.baseclass].Obj.sc2 einbezogen wurde
                         <<>>                               &&   Nur für die  Form[.baseclass].Obj.sc2 Syntax
                         <<>>                               &&   Wird für RedirectFormType: 2 ignoriert
-                        <<>>UseFormsPerDir: 0              && 0=flaches Form.Obj.ext Layout (Standard)
+                        <<>>UseFormPerDir: 0              && 0=flaches Form.Obj.ext Layout (Standard)
                         <<>>                               && 1=unter Form.ext/ Unterverzeichnis speichern (erfordert UseFormPerFile>0)
                         <<>>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                         <<>>
@@ -1474,7 +1474,7 @@ Define Class CL_LANG As Custom
                         <<>>                               && 1 Check Form[.baseclass].Obj.sc2 inclusion
                         <<>>                               &&   Only used if import file is in Form[.baseclass].Obj.sc2 syntax
                         <<>>                               &&   Ignored for RedirectFormType: 2
-                        <<>>UseFormsPerDir: 0              && 0=flat Form.Obj.ext layout (default)
+                        <<>>UseFormPerDir: 0              && 0=flat Form.Obj.ext layout (default)
                         <<>>                               && 1=store under Form.ext/ subdirectory (requires UseFormPerFile>0)
                         <<>>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                         <<>>

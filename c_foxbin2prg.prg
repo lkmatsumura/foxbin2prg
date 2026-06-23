@@ -880,7 +880,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
       CASE INLIST(lcExt, 'SCX', UPPER(This.getCfgValue('c_SC2')))
          lnPerFile   = This.getCfgInt('n_UseFormPerFile')
-         llPerDir    = This.getCfgFlag('l_UseFormsPerDir')
+         llPerDir    = This.getCfgFlag('l_UseFormPerDir')
          lcTextExt   = This.getCfgValue('c_SC2')
          IF lnPerFile > 0
             lcHeader = This.getPerFileOutputPath(tcBinFile, '', lcTextExt, llPerDir, lnPerFile)
@@ -953,7 +953,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
       CASE INLIST(lcExt, 'SCX', UPPER(This.getCfgValue('c_SC2')))
          lnPerFile   = This.getCfgInt('n_UseFormPerFile')
-         llPerDir    = This.getCfgFlag('l_UseFormsPerDir')
+         llPerDir    = This.getCfgFlag('l_UseFormPerDir')
          lcTextExt   = This.getCfgValue('c_SC2')
 
       CASE INLIST(lcExt, 'DBC', UPPER(This.getCfgValue('c_DC2')))
@@ -1479,7 +1479,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                *                       IF .ATC(lcExt,c_SC2,"SCX")
                IF INLIST(lcExt,.getCfgValue('c_SC2'),"SCX")
                   IF .getCfgValue('n_UseFormPerFile') = 2
-                     tc_InputFile        = ADDBS( .getPerFileDir( tc_InputFile, .getCfgValue('c_SC2'), .getCfgFlag('l_UseFormsPerDir'), .getCfgInt('n_UseFormPerFile') ) ) ;
+                     tc_InputFile        = ADDBS( .getPerFileDir( tc_InputFile, .getCfgValue('c_SC2'), .getCfgFlag('l_UseFormPerDir'), .getCfgInt('n_UseFormPerFile') ) ) ;
                         + JUSTSTEM(tc_InputFile) + '.*.' + .c_ClassToConvert + '.' + .getCfgValue('c_SC2')
 
                      IF ADIR(laFiles, tc_InputFile) = 1
@@ -1488,7 +1488,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
                   ELSE && Asumo .getCfgValue('n_UseFormPerFile') = 1
                      tc_InputFile        = .getPerFileOutputPath( tc_InputFile, .c_ClassToConvert, .getCfgValue('c_SC2'), ;
-                        .getCfgFlag('l_UseFormsPerDir'), .getCfgInt('n_UseFormPerFile') )
+                        .getCfgFlag('l_UseFormPerDir'), .getCfgInt('n_UseFormPerFile') )
 
                   ENDIF
                ENDIF
@@ -1751,8 +1751,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                laOptions(56,1) = "*FormPerFileCheck:"                  && 0,1 1=.t. 0=Don't check Form.Obj.sc2 inclusion, 1=Check Form.Obj.sc2 inclusion
                laOptions(56,2) = ".getCfgValue('l_FormPerFileCheck')"
                laOptions(56,3) = 1
-               laOptions(57,1) = "*UseFormsPerDir:"                    && 0,1 0=flat layout, 1=subdir layout (requires UseFormPerFile>0)
-               laOptions(57,2) = ".getCfgValue('l_UseFormsPerDir')"
+               laOptions(57,1) = "*UseFormPerDir:"                    && 0,1 0=flat layout, 1=subdir layout (requires UseFormPerFile>0)
+               laOptions(57,2) = ".getCfgValue('l_UseFormPerDir')"
                laOptions(57,3) = 1
                laOptions(58,1) = "*extension: fr2d="                   && ext Text file to Fox 2.x FRX
                laOptions(58,2) = ".getCfgValue('c_FR2D')"
@@ -2974,7 +2974,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_SC2') )
                loConversor     = NewObject( 'c_conversor_scx_a_prg' , 'c_conversor_scx_a_prg.prg' )
-               IF .getCfgInt('n_UseFormPerFile') > 0 AND .getCfgFlag('l_UseFormsPerDir')
+               IF .getCfgInt('n_UseFormPerFile') > 0 AND .getCfgFlag('l_UseFormPerDir')
                   .changeFileAttribute( .getPerFileOutputPath( .c_InputFile, '', .getCfgValue('c_SC2'), .T., .getCfgInt('n_UseFormPerFile') ), lcForceAttribs )
                ELSE
                   .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_SC2') ), lcForceAttribs )
@@ -3090,7 +3090,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = .getPerFileBinaryOutputPath( .c_InputFile, 'SCX', .getCfgValue('c_SC2'), ;
-                  .getCfgFlag('l_UseFormsPerDir'), .getCfgInt('n_UseFormPerFile') )
+                  .getCfgFlag('l_UseFormPerDir'), .getCfgInt('n_UseFormPerFile') )
                loConversor     = NewObject( 'c_conversor_prg_a_scx', 'c_conversor_prg_a_scx.prg' )
                .changeFileAttribute( .c_OutputFile, lcForceAttribs )
                .changeFileAttribute( FORCEEXT( .c_OutputFile, 'SCT' ), lcForceAttribs )
@@ -3538,7 +3538,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
       * tcBinaryFile              (v! IN    ) VCX/SCX path (or base path without class suffix)
       * tcTextExt                 (v! IN    ) Text extension (c_VC2 or c_SC2)
-      * tlUsePerDir               (v! IN    ) UseClassPerDir or UseFormsPerDir flag
+      * tlUsePerDir               (v! IN    ) UseClassPerDir or UseFormPerDir flag
       * lnUsePerFile              (v! IN    ) UseClassPerFile or UseFormPerFile value
       * RETURN                    (v?    OUT) Directory for per-file text output/search
       *---------------------------------------------------------------------------------------------------

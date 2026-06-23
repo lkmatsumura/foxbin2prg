@@ -104,7 +104,7 @@ These settings were added or are central to the mirrored-tree workflow in this f
 | `.cfg` key / property | Purpose |
 |-----------------------|---------|
 | `UseClassPerDir` / `l_UseClassPerDir` | When `UseClassPerFile` > 0, create a subdirectory named after the class library for per-class files |
-| `UseFormsPerDir` / `l_UseFormsPerDir` | Same concept for forms |
+| `UseFormPerDir` / `l_UseFormPerDir` | Same concept for forms |
 | `CopyExcludedPjxFiles` / `l_CopyExcludedPjxFiles` | Export/import PJX members marked **Exclude** |
 | `CopyNonConvertible` / `l_CopyNonConvertible` | Copy non-convertible files (PJX, VCX, SCX, etc.) into the mirrored tree |
 | `CopyLowercaseNames` / `l_CopyLowercaseNames` | Copy non-converted files with lowercase names |

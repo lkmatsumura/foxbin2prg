@@ -676,11 +676,11 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
                            This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > FormPerFileCheck:           ' + Transform(lcValue) )
                         Endif
 
-                     Case Left( laConfig(m.I), 15 ) == Lower('UseFormsPerDir:')
+                     Case Left( laConfig(m.I), 15 ) == Lower('UseFormPerDir:')
                         lcValue = Alltrim( Substr( laConfig(m.I), 16 ) )
                         If lo_CFG.l_UseFormSettings And Inlist( lcValue, '0', '1' ) Then
-                           lo_CFG.l_UseFormsPerDir  = ( Transform(lcValue) == '1' )
-                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > UseFormsPerDir:             ' + Transform(lcValue) )
+                           lo_CFG.l_UseFormPerDir  = ( Transform(lcValue) == '1' )
+                           This.o_Host.writeLog( C_TAB + Justfname(lcConfigFile) + ' > UseFormPerDir:             ' + Transform(lcValue) )
                         Endif
                         */Forms
 
@@ -990,7 +990,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
                This.o_Host.writeLog( C_TAB + 'FormPerFileCheck:           ' + TRANSFORM(.getCfgValue('l_FormPerFileCheck')) )
                This.o_Host.writeLog( C_TAB + 'RedirectFormPerFileToMain:  ' + TRANSFORM(.getCfgValue('l_RedirectFormPerFileToMain')) )
                This.o_Host.writeLog( C_TAB + 'RedirectFormType:           ' + TRANSFORM(.getCfgValue('n_RedirectFormType')) )
-               This.o_Host.writeLog( C_TAB + 'UseFormsPerDir:             ' + TRANSFORM(IIF(.getCfgFlag('l_UseFormsPerDir'), 1, 0)) )
+               This.o_Host.writeLog( C_TAB + 'UseFormPerDir:             ' + TRANSFORM(IIF(.getCfgFlag('l_UseFormPerDir'), 1, 0)) )
 
                *Databases
                * additional options controlling
@@ -1175,7 +1175,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       AddProperty(loCfg, 'l_RedirectFormPerFileToMain', .F.)
       AddProperty(loCfg, 'n_RedirectFormType', 0)
       AddProperty(loCfg, 'l_FormPerFileCheck', .F.)
-      AddProperty(loCfg, 'l_UseFormsPerDir', .F.)
+      AddProperty(loCfg, 'l_UseFormPerDir', .F.)
       AddProperty(loCfg, 'n_CheckFileInPath', 0)
       AddProperty(loCfg, 'l_OldFilesPerDBC', .T.)
       AddProperty(loCfg, 'n_UseFilesPerDBC', 0)
@@ -1219,7 +1219,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       AddProperty(loCfg, 'c_ExcludedSubdirs', '')
       AddProperty(loCfg, 'c_BackgroundImage', '')
       AddProperty(loCfg, 'n_PRG_Compat_Level', 0)
-      AddProperty(loCfg, 'n_HomeDir', 1)
+      AddProperty(loCfg, 'n_HomeDir', 0)
       AddProperty(loCfg, 'l_AllowFolder', .T.)
 
       RETURN loCfg

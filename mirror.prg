@@ -50,7 +50,7 @@ IF lOk
    *-- Form export behahior
    loCfg.l_UseFormSettings           = 1
    loCfg.n_UseFormPerFile            = 0
-   loCfg.l_UseFormsPerDir            = .F.
+   loCfg.l_UseFormPerDir            = .F.
    loCfg.l_FormPerFileCheck          = 0
    loCfg.n_RedirectFormType          = 0
    loCfg.l_RedirectFormPerFileToMain = 0
