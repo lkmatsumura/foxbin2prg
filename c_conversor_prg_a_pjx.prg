@@ -14,8 +14,8 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
       + [<memberdata name="analyzecodeblock_textfiles" display="analyzeCodeBlock_TextFiles"/>] ;
       + [<memberdata name="analyzecodeblock_projectproperties" display="analyzeCodeBlock_ProjectProperties"/>] ;
       + [</VFPData>]
-   c_Type                  = 'PJ2'
 
+   c_Type = 'PJ2'
 
 
    Procedure convert
@@ -90,6 +90,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
       Finally
          Use In (Select("TABLABIN"))
          Release laCodeLines, lnCodeLines, laLineasExclusion, lnBloquesExclusion, I
+
       Endtry
 
       Return
@@ -235,7 +236,6 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
    Endproc
 
 
-
    Procedure identifyCodeBlocks
       Lparameters taCodeLines, tnCodeLines, taLineasExclusion, tnBloquesExclusion, toProject, toFoxBin2Prg
       *--------------------------------------------------------------------------------------------------------------
@@ -258,9 +258,10 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
       #Endif
 
       Try
-         Local I, lc_Comentario, lcLine, llBuildProj_Completed, llDevInfo_Completed ;
-            , llServerHead_Completed, llFileComments_Completed, llFoxBin2Prg_Completed ;
-            , llExcludedFiles_Completed, llTextFiles_Completed, llProjectProperties_Completed
+         Local I, lc_Comentario, lcLine
+         LOCAL llBuildProj_Completed    , llDevInfo_Completed     , llHomedir_Completed ;
+             , llServerHead_Completed   , llFileComments_Completed, llFoxBin2Prg_Completed ;
+             , llExcludedFiles_Completed, llTextFiles_Completed, llProjectProperties_Completed
 
          With This As c_conversor_prg_a_pjx Of 'c_conversor_prg_a_pjx.prg'
             Store 0 To I
@@ -274,35 +275,58 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
                   .set_Line( @lcLine, @taCodeLines, m.I )
 
                   Do Case
-                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && Vacía o solo Comentarios
-                     Loop
+                   Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) 
+                        && Vacía o solo Comentarios
+                        Loop
 
-                  Case Not llFoxBin2Prg_Completed And .analyzeCodeBlock_FoxBin2Prg( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
-                     llFoxBin2Prg_Completed  = .T.
+                   Case Not llFoxBin2Prg_Completed ;
+                        And .analyzeCodeBlock_FoxBin2Prg( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
+                        llFoxBin2Prg_Completed  = .T.
 
-                  Case Not llDevInfo_Completed And .analyzeCodeBlock_DevInfo( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
-                     llDevInfo_Completed = .T.
+                   Case Not llDevInfo_Completed ;
+                        And .analyzeCodeBlock_DevInfo( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
+                        llDevInfo_Completed = .T.
 
-                  Case Not llServerHead_Completed And .analyzeCodeBlock_ServerHead( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
-                     llServerHead_Completed  = .T.
+                   Case NOT llServerHead_Completed ;
+                        AND .analyzeCodeBlock_ServerData( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
+                        * Puede haber varios servidores, por eso se siguen valuando
+                        DO WHILE .T.
+                           DO CASE
+                            CASE .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario )
+                                 LOOP
 
-                  Case .analyzeCodeBlock_ServerData( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
-                     *-- Puede haber varios servidores, por eso se siguen valuando
+                            CASE .analyzeCodeBlock_ServerData( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
+                            
+                            OTHERWISE
+                                 EXIT
 
-                  Case Not llBuildProj_Completed And .analyzeCodeBlock_BuildProj( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines, @toFoxBin2Prg )
-                     llBuildProj_Completed   = .T.
+                           ENDCASE
+                        ENDDO
+                        llServerHead_Completed  = .T.
 
-                  Case Not llFileComments_Completed And .analyzeCodeBlock_FileComments( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
-                     llFileComments_Completed    = .T.
+                   Case Not llHomedir_Completed ;
+                        And .analyzeCodeBlock_Homedir( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
+                        llHomedir_Completed = .T.
 
-                  Case Not llExcludedFiles_Completed And .analyzeCodeBlock_ExcludedFiles( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
-                     llExcludedFiles_Completed   = .T.
+                   Case Not llBuildProj_Completed ;
+                        And .analyzeCodeBlock_BuildProj( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines, @toFoxBin2Prg )
+                        llBuildProj_Completed   = .T.
 
-                  Case Not llTextFiles_Completed And .analyzeCodeBlock_TextFiles( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
-                     llTextFiles_Completed   = .T.
+                   Case Not llFileComments_Completed ;
+                        And .analyzeCodeBlock_FileComments( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
+                        llFileComments_Completed    = .T.
 
-                  Case Not llProjectProperties_Completed And .analyzeCodeBlock_ProjectProperties( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
-                     llProjectProperties_Completed   = .T.
+                   Case Not llExcludedFiles_Completed ;
+                        And .analyzeCodeBlock_ExcludedFiles( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
+                        llExcludedFiles_Completed   = .T.
+
+                   Case Not llTextFiles_Completed ;
+                        And .analyzeCodeBlock_TextFiles( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
+                        llTextFiles_Completed   = .T.
+
+                   Case Not llProjectProperties_Completed ;
+                        And .analyzeCodeBlock_ProjectProperties( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
+                        llProjectProperties_Completed   = .T.
 
                   Endcase
 
@@ -325,6 +349,45 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
       Endtry
 
       Return
+   Endproc
+
+
+   Procedure analyzeCodeBlock_Homedir
+      *--------------------------------------------------------------------------------------------------------------
+      * Analiza el bloque <HomeDir>
+      *--------------------------------------------------------------------------------------------------------------
+      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toProject                 (@?    OUT) Objeto con toda la información del proyecto analizado
+      * tcLine                    (@! IN    ) Línea de datos en evaluación
+      * taCodeLines               (@! IN    ) El array con las líneas del código donde buscar
+      * tnCodeLines               (@! IN    ) Cantidad de líneas de código
+      *--------------------------------------------------------------------------------------------------------------
+      Lparameters toProject, tcLine, taCodeLines, I, tnCodeLines
+      External Array taCodeLines
+
+      #If .F.
+         Local toProject As CL_PROJECT Of 'cl_project.prg'
+      #Endif
+
+      Try
+         Local llBloqueEncontrado
+
+         If Upper( Left( tcLine, 10 ) ) == Upper( '*<.HomeDir' )
+            toProject._HomeDir  = Strextract( tcLine, "'", "'" )
+    
+            llBloqueEncontrado  = .T.
+         Endif
+
+      Catch To loEx
+         If This.n_Debug > 0 And _vfp.StartMode = 0
+            Set Step On
+         Endif
+
+         Throw
+
+      Endtry
+
+      Return llBloqueEncontrado
    Endproc
 
 
@@ -362,43 +425,37 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
                   .set_Line( @tcLine, @taCodeLines, m.I )
 
                   Do Case
-                  Case Left( tcLine, Len(C_BUILDPROJ_F) ) == C_BUILDPROJ_F
-                     I = m.I + 1
-                     Exit
+                   Case Left( tcLine, Len(C_BUILDPROJ_F) ) == C_BUILDPROJ_F
+                        I = m.I + 1
+                        Exit
 
-                  Case .lineIsOnlyCommentAndNoMetadata( @tcLine, @lcComment )
-                     Loop    && Saltear comentarios
+                   Case .lineIsOnlyCommentAndNoMetadata( @tcLine, @lcComment )
+                        Loop    && Saltear comentarios
 
-                  Case Upper( Left( tcLine, 14 ) ) == 'BUILD PROJECT '
-                     Loop
+                   Case Upper( Left( tcLine, 5 ) ) == '.ADD('
+                        * loFile: NAME,TYPE,EXCLUDE,COMMENTS
+                        tcLine          = Chrtran( tcLine, ["] + '[]', "'''" )  && Convierto "[] en '
+                        Store .Null. To loFile
+                        loFile          = NewObject('CL_PROJ_FILE', 'cl_proj_file.prg')
+                        loFile._Name    = Alltrim( Strextract( tcLine, ['], ['] ) )
 
-                  Case Upper( Left( tcLine, 5 ) ) == '.ADD('
-                     * loFile: NAME,TYPE,EXCLUDE,COMMENTS
-                     tcLine          = Chrtran( tcLine, ["] + '[]', "'''" )  && Convierto "[] en '
-                     Store .Null. To loFile
-                     loFile          = NewObject('CL_PROJ_FILE', 'cl_proj_file.prg')
-                     loFile._Name    = Alltrim( Strextract( tcLine, ['], ['] ) )
+                        *-- Obtengo metadatos de los comentarios de FileMetadata:
+                        *< FileMetadata: Type="V" Cpid="1252" Timestamp="1131901580" ID="1129207528" ObjRev="544" />
+                        .get_ListNamesWithValuesFrom_InLine_MetadataTag( @lcComment, @laPropsAndValues ;
+                           , @lnPropsAndValues_Count, C_FILE_META_I, C_FILE_META_F )
 
-                     *-- Obtengo metadatos de los comentarios de FileMetadata:
-                     *< FileMetadata: Type="V" Cpid="1252" Timestamp="1131901580" ID="1129207528" ObjRev="544" />
-                     .get_ListNamesWithValuesFrom_InLine_MetadataTag( @lcComment, @laPropsAndValues ;
-                        , @lnPropsAndValues_Count, C_FILE_META_I, C_FILE_META_F )
+                        loFile._Type        = .get_ValueByName_FromListNamesWithValues( 'Type'     , 'C', @laPropsAndValues )
+                        loFile._CPID        = .get_ValueByName_FromListNamesWithValues( 'CPID'     , 'I', @laPropsAndValues )
+                        loFile._TimeStamp   = .get_ValueByName_FromListNamesWithValues( 'Timestamp', 'I', @laPropsAndValues )
+                        loFile._ID          = .get_ValueByName_FromListNamesWithValues( 'ID'       , 'I', @laPropsAndValues )
+                        loFile._ObjRev      = .get_ValueByName_FromListNamesWithValues( 'ObjRev'   , 'I', @laPropsAndValues )
+                        loFile._User        = .get_ValueByName_FromListNamesWithValues( 'User'     , 'C', @laPropsAndValues )
 
-                     loFile._Type        = .get_ValueByName_FromListNamesWithValues( 'Type', 'C', @laPropsAndValues )
-                     loFile._CPID        = .get_ValueByName_FromListNamesWithValues( 'CPID', 'I', @laPropsAndValues )
-                     loFile._TimeStamp   = .get_ValueByName_FromListNamesWithValues( 'Timestamp', 'I', @laPropsAndValues )
-                     loFile._ID          = .get_ValueByName_FromListNamesWithValues( 'ID', 'I', @laPropsAndValues )
-                     loFile._ObjRev      = .get_ValueByName_FromListNamesWithValues( 'ObjRev', 'I', @laPropsAndValues )
-                     loFile._User        = .get_ValueByName_FromListNamesWithValues( 'User', 'C', @laPropsAndValues )
+                        If toFoxBin2Prg.getCfgValue('n_BodyDevInfo') = 1
+                           loFile._DevInfo  = .get_ValueByName_FromListNamesWithValues( 'DevInfo'  , 'C', @laPropsAndValues )
+                        Endif
 
-                     If toFoxBin2Prg.getCfgValue('n_BodyDevInfo') = 1
-                        loFile._DevInfo     = .get_ValueByName_FromListNamesWithValues( 'DevInfo', 'C', @laPropsAndValues )
-                     Endif
-
-                     toProject.Add( loFile, loFile._Name )
-
-                  Case Upper( Left( tcLine, 10 ) ) == Upper( '*<.HomeDir' )
-                     toProject._HomeDir  = Strextract( tcLine, "'", "'" )
+                        toProject.Add( loFile, loFile._Name )
 
                   Endcase
                Endfor
@@ -422,7 +479,6 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
       Return llBloqueEncontrado
    Endproc
-
 
 
    Procedure analyzeCodeBlock_DevInfo
@@ -474,7 +530,6 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
       Return llBloqueEncontrado
    Endproc
-
 
 
    Procedure analyzeCodeBlock_ServerHead
@@ -534,7 +589,6 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
       Return llBloqueEncontrado
    Endproc
-
 
 
    Procedure analyzeCodeBlock_ServerData
@@ -597,7 +651,6 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
       Return llBloqueEncontrado
    Endproc
-
 
 
    Procedure analyzeCodeBlock_FileComments
@@ -663,7 +716,6 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
    Endproc
 
 
-
    Procedure analyzeCodeBlock_ExcludedFiles
       *------------------------------------------------------
       *-- Analiza el bloque <ExcludedFiles>
@@ -727,7 +779,6 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
    Endproc
 
 
-
    Procedure analyzeCodeBlock_TextFiles
       *------------------------------------------------------
       *-- Analiza el bloque <TextFiles>
@@ -789,7 +840,6 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
       Return llBloqueEncontrado
    Endproc
-
 
 
    Procedure analyzeCodeBlock_ProjectProperties

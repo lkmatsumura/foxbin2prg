@@ -244,7 +244,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
          , toProject._NoLogo ;
          , toProject._CmntStyle ;
          , 260 ;
-         , toProject.getRowDeviceInfo() ;
+         , toProject.getRowDevInfo() ;
          , Lower(toProject._HomeDir) + Chr(0) ;
          , Upper( Forcepath( Evl(This.c_OriginalFileName,This.c_OutputFile), toProject._HomeDir) ) + Chr(0) ;
          , toProject._ServerHead.getRowServerInfo() ;

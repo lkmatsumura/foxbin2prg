@@ -174,7 +174,7 @@ Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
 
             *-- Información del programa
-            C_FB2PRG_CODE   = C_FB2PRG_CODE + loProject.getFormattedDeviceInfoText() + CR_LF
+            C_FB2PRG_CODE   = C_FB2PRG_CODE + loProject.getFormattedDevinfoText() + CR_LF
 
 
             *-- Información de los Servidores definidos

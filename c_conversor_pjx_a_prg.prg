@@ -45,11 +45,11 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                Endif
 
                .updateProgressbar( 'Processing Project info...', 2, 3, 1 )
-               loProject       = toModulo
-               loServerHead    = loProject._ServerHead
-               lcPjxName       = LOWER( JUSTFNAME( EVL( .c_OriginalFileName, .c_InputFile ) ) )
+               loProject     = toModulo
+               loServerHead  = loProject._ServerHead
+               lcPjxName     = LOWER( JUSTFNAME( EVL( .c_OriginalFileName, .c_InputFile ) ) )
 
-               C_FB2PRG_CODE   = C_FB2PRG_CODE + toFoxBin2Prg.get_PROGRAM_HEADER()
+               C_FB2PRG_CODE = C_FB2PRG_CODE + toFoxBin2Prg.get_PROGRAM_HEADER()
 
                *!* <pdm>
                *!* <change date="{^2023-03-19,17:16:00}">Changed by: LScheffler<br />
@@ -90,15 +90,15 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
                *-- Directorio de inicio
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        LPARAMETERS tcDir
-                        <<>>
-                        lcCurdir = SYS(5)+CURDIR()
-                        CD ( EVL( tcDir, JUSTPATH( SYS(16) ) ) )
+                  LPARAMETERS tcDir
+                  <<>>
+                  lcCurdir = SYS(5)+CURDIR()
+                  CD ( EVL( tcDir, JUSTPATH( SYS(16) ) ) )
                         <<>>
                ENDTEXT
 
                *-- Información del programa
-               C_FB2PRG_CODE   = C_FB2PRG_CODE + loProject.getFormattedDeviceInfoText() + CR_LF
+               C_FB2PRG_CODE   = C_FB2PRG_CODE + loProject.getFormattedDevInfoText()
 
                *-- Información de los Servidores definidos
                If Not Empty(loProject._ServerInfo)
@@ -110,85 +110,83 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                If toFoxBin2Prg.getCfgValue('n_HomeDir') = 1
                   * only output HomeDir if we're supposed to
                   TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                            <<C_BUILDPROJ_I>>
-                            <<>>*<.HomeDir = <<loProject._HomeDir>> />
+                     <<>>*<.HomeDir = <<loProject._HomeDir>> />
                   ENDTEXT
-               Else
-                  TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                            <<C_BUILDPROJ_I>>
-                  ENDTEXT
-               Endif toFoxBin2Prg.getCfgValue('n_HomeDir') = 1
+               ENDIF
 
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>
-                        FOR EACH loProject IN _VFP.Projects FOXOBJECT
-                        <<Chr(9)>>loProject.Close()
-                        ENDFOR
-                        <<>>
-                        STRTOFILE( '', '__newproject.f2b' )
-                        BUILD PROJECT <<lcPjxName>> FROM '__newproject.f2b'
+                  <<>>
+                  FOR EACH loProject IN _VFP.Projects FOXOBJECT
+                  <<Chr(9)>>loProject.Close()
+                  ENDFOR
+                  <<>>
+                  STRTOFILE( '', '__newproject.f2b' )
+                  BUILD PROJECT <<lcPjxName>> FROM '__newproject.f2b'
                ENDTEXT
-
 
                *-- Abro el proyecto
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        FOR EACH loProject IN _VFP.Projects FOXOBJECT
-                        <<Chr(9)>>loProject.Close()
-                        ENDFOR
-                        <<>>
-                        MODIFY PROJECT '<<lcPjxName>>' NOWAIT NOSHOW NOPROJECTHOOK
-                        <<>>
-                        loProject = _VFP.Projects('<<lcPjxName>>')
-                        <<>>
-                        WITH loProject.FILES
+                  FOR EACH loProject IN _VFP.Projects FOXOBJECT
+                  <<Chr(9)>>loProject.Close()
+                  ENDFOR
+                  <<>>
+                  MODIFY PROJECT '<<lcPjxName>>' NOWAIT NOSHOW NOPROJECTHOOK
+                  <<>>
+                  loProject = _VFP.Projects('<<lcPjxName>>')
+                  <<>>
+                  WITH loProject.FILES
                ENDTEXT
 
 
                *-- Definir archivos del proyecto y metadata: CPID, Timestamp, ID, etc.
                loProject.KeySort = 2
 
+               TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
+                  <<Chr(9)>><<C_BUILDPROJ_I>>
+               ENDTEXT
+
                For Each loReg In loProject &&FOXOBJECT
                   TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                            <<Chr(9)>>.ADD('<<loReg.NAME>>')
+                     <<Chr(9)>>.ADD('<<loReg.NAME>>')
                   ENDTEXT
 
                   Do Case
                   Case toFoxBin2Prg.getCfgValue('n_BodyDevInfo')=1
                      * Generates an extra DevInfo tag for each body PJX record
                      TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2+4+8
-                                    <<Chr(9)+Chr(9)>><<'&'>><<'&'>> <<C_FILE_META_I>>
-                                    Type="<<loReg.TYPE>>"
-                                    Cpid="<<INT( loReg.CPID )>>"
-                                    Timestamp="<<INT( loReg.TIMESTAMP )>>"
-                                    ID="<<INT( loReg.ID )>>"
-                                    ObjRev="<<INT( loReg.OBJREV )>>"
-                                    User="<<STRCONV(loReg.USER,13)>>"
-                                    DevInfo="<<STRCONV(loReg.DEVINFO,13)>>"
-                                    <<C_FILE_META_F>>
+                        <<Chr(9)+Chr(9)>><<'&&'>> <<C_FILE_META_I>>
+                        Type="<<loReg.TYPE>>"
+                        Cpid="<<INT( loReg.CPID )>>"
+                        Timestamp="<<INT( loReg.TIMESTAMP )>>"
+                        ID="<<INT( loReg.ID )>>"
+                        ObjRev="<<INT( loReg.OBJREV )>>"
+                        User="<<STRCONV(loReg.USER,13)>>"
+                        DevInfo="<<STRCONV(loReg.DEVINFO,13)>>"
+                        <<C_FILE_META_F>>
                      ENDTEXT
 
                   Case toFoxBin2Prg.getCfgValue('n_BodyDevInfo')=2
                      * BodyDevInfo = 2 omit DEVINFO and OBJREV
                      TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2+4+8
-                                    <<Chr(9)+Chr(9)>><<'&'>><<'&'>> <<C_FILE_META_I>>
-                                    Type="<<loReg.TYPE>>"
-                                    Cpid="<<INT( loReg.CPID )>>"
-                                    Timestamp="<<INT( loReg.TIMESTAMP )>>"
-                                    ID="<<INT( loReg.ID )>>"
-                                    User="<<STRCONV(loReg.USER,13)>>"
-                                    <<C_FILE_META_F>>
+                        <<Chr(9)+Chr(9)>><<'&&'>> <<C_FILE_META_I>>
+                        Type="<<loReg.TYPE>>"
+                        Cpid="<<INT( loReg.CPID )>>"
+                        Timestamp="<<INT( loReg.TIMESTAMP )>>"
+                        ID="<<INT( loReg.ID )>>"
+                        User="<<STRCONV(loReg.USER,13)>>"
+                        <<C_FILE_META_F>>
                      ENDTEXT
 
                   Otherwise
                      TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2+4+8
-                                    <<Chr(9)+Chr(9)>><<'&'>><<'&'>> <<C_FILE_META_I>>
-                                    Type="<<loReg.TYPE>>"
-                                    Cpid="<<INT( loReg.CPID )>>"
-                                    Timestamp="<<INT( loReg.TIMESTAMP )>>"
-                                    ID="<<INT( loReg.ID )>>"
-                                    ObjRev="<<INT( loReg.OBJREV )>>"
-                                    User="<<STRCONV(loReg.USER,13)>>"
-                                    <<C_FILE_META_F>>
+                        <<Chr(9)+Chr(9)>><<'&&'>> <<C_FILE_META_I>>
+                        Type="<<loReg.TYPE>>"
+                        Cpid="<<INT( loReg.CPID )>>"
+                        Timestamp="<<INT( loReg.TIMESTAMP )>>"
+                        ID="<<INT( loReg.ID )>>"
+                        ObjRev="<<INT( loReg.OBJREV )>>"
+                        User="<<STRCONV(loReg.USER,13)>>"
+                        <<C_FILE_META_F>>
                      ENDTEXT
                   Endcase
 
@@ -196,15 +194,15 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                Endfor
 
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<Chr(9)>><<C_BUILDPROJ_F>>
-                        <<>>
-                        <<Chr(9)>>.ITEM('__newproject.f2b').Remove()
-                        <<>>
+                  <<Chr(9)>><<C_BUILDPROJ_F>>
+                  <<>>
+                  <<Chr(9)>>.ITEM('__newproject.f2b').Remove()
+                  <<>>
                ENDTEXT
 
 
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<Chr(9)>><<C_FILE_CMTS_I>>
+                  <<Chr(9)>><<C_FILE_CMTS_I>>
                ENDTEXT
 
 
@@ -213,7 +211,6 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
                For Each loReg In loProject &&FOXOBJECT
                   If Not Empty(loReg.COMMENTS)
-                     *                               C_FB2PRG_CODE = C_FB2PRG_CODE + Chr(13) + Chr(10) + Chr(9) + ".ITEM(lcCurdir + '" + loReg.Name + "').Description = '" + loReg.COMMENTS + "'"
                      C_FB2PRG_CODE = C_FB2PRG_CODE + Chr(13) + Chr(10) + Chr(9) + ".ITEM(" +;
                         THIS.GetPathFromHome(m.loReg.Name, m.lcStr, "lcCurdir + '", "'", toFoxBin2Prg) +;
                         ").Description = '" + loReg.COMMENTS + "'"
@@ -224,9 +221,9 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
                *-- Exclusiones
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<Chr(9)>><<C_FILE_CMTS_F>>
-                        <<>>
-                        <<Chr(9)>><<C_FILE_EXCL_I>>
+                  <<Chr(9)>><<C_FILE_CMTS_F>>
+                  <<>>
+                  <<Chr(9)>><<C_FILE_EXCL_I>>
                ENDTEXT
 
                loProject.KeySort = 2
@@ -244,9 +241,9 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
                *-- Tipos de archivos especiales
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<Chr(9)>><<C_FILE_EXCL_F>>
-                        <<>>
-                        <<Chr(9)>><<C_FILE_TXT_I>>
+                  <<Chr(9)>><<C_FILE_EXCL_F>>
+                  <<>>
+                  <<Chr(9)>><<C_FILE_TXT_I>>
                ENDTEXT
 
                loProject.KeySort = 2
@@ -264,11 +261,11 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
                *-- ProjectHook, Debug, Encrypt, Build y cierre
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<Chr(9)>><<C_FILE_TXT_F>>
-                        <<C_ENDWITH>>
-                        <<>>
-                        <<C_WITH>> loProject
-                        <<Chr(9)>><<C_PROJPROPS_I>>
+                  <<Chr(9)>><<C_FILE_TXT_F>>
+                  <<C_ENDWITH>>
+                  <<>>
+                  <<C_WITH>> loProject
+                  <<Chr(9)>><<C_PROJPROPS_I>>
                ENDTEXT
 
                If Not Empty(loProject._MainProg)
@@ -287,30 +284,30 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                Endif
 
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<Chr(9)>>.Debug = <<loProject._Debug>>
-                        <<Chr(9)>>.Encrypted = <<loProject._Encrypted>>
-                        <<Chr(9)>>*<.CmntStyle = <<loProject._CmntStyle>> />
-                        <<Chr(9)>>*<.NoLogo = <<loProject._NoLogo>> />
-                        <<Chr(9)>>*<.SaveCode = <<loProject._SaveCode>> />
-                        <<Chr(9)>>*<.User = '<<STRCONV(loProject._User,13)>>' />
-                        <<Chr(9)>>.ProjectHookLibrary = '<<loProject._ProjectHookLibrary>>'
-                        <<Chr(9)>>.ProjectHookClass = '<<loProject._ProjectHookClass>>'
-                        <<Chr(9)>><<C_PROJPROPS_F>>
-                        <<C_ENDWITH>>
-                        <<>>
+                  <<Chr(9)>>.Debug = <<loProject._Debug>>
+                  <<Chr(9)>>.Encrypted = <<loProject._Encrypted>>
+                  <<Chr(9)>>*<.CmntStyle = <<loProject._CmntStyle>> />
+                  <<Chr(9)>>*<.NoLogo = <<loProject._NoLogo>> />
+                  <<Chr(9)>>*<.SaveCode = <<loProject._SaveCode>> />
+                  <<Chr(9)>>*<.User = '<<STRCONV(loProject._User,13)>>' />
+                  <<Chr(9)>>.ProjectHookLibrary = '<<loProject._ProjectHookLibrary>>'
+                  <<Chr(9)>>.ProjectHookClass = '<<loProject._ProjectHookClass>>'
+                  <<Chr(9)>><<C_PROJPROPS_F>>
+                  <<C_ENDWITH>>
+                  <<>>
                ENDTEXT
 
                *-- Build y cierre
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>
-                        _VFP.Projects('<<lcPjxName>>').Close()
+                  <<>>
+                  _VFP.Projects('<<lcPjxName>>').Close()
                ENDTEXT
 
                *-- Restauro Directorio de inicio
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        *ERASE '__newproject.f2b'
-                        CD (lcCurdir)
-                        RETURN
+                  *ERASE '__newproject.f2b'
+                  CD (lcCurdir)
+                  RETURN
                ENDTEXT
 
             Endif
@@ -328,7 +325,6 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
             Endif
 
             toFoxBin2Prg.updateProcessedFile()
-
 
             *-- Genero el PJ2
             .updateProgressbar( 'Writing ' + toFoxBin2Prg.getCfgValue('c_PJ2') + '...', 3, 3, 1 )
@@ -433,7 +429,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
             loProject._Debug        = loReg.Debug
             loProject._Encrypted    = loReg.Encrypt
             loProject._User         = loReg.User
-            loProject.parseDeviceInfo( loReg.DEVINFO )
+            loProject.parseDevInfo( loReg.DEVINFO )
 
             *-- Información de los Servidores definidos
             If Not Empty(loProject._ServerInfo)
