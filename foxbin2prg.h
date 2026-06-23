@@ -1,5 +1,5 @@
-#DEFINE DN_FB2PRG_VERSION           1.21
-#DEFINE DC_FB2PRG_VERSION_REAL      '1.21.04'
+#DEFINE DN_FB2PRG_VERSION           4.00
+#DEFINE DC_FB2PRG_VERSION_REAL      '4.00.00'
 
 *-- Configuration object marker (CREATEOBJECT('Empty') + ADDPROPERTY via c_foxbin2prg.newConfig)
 #DEFINE CFG_TYPE_MARKER             'FoxBin2Prg_CFG'
