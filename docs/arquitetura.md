@@ -191,7 +191,7 @@ classDiagram
 |--------|---------|------------|
 | **main.prg** | `main.prg` | CLI entry point; receives parameters and instantiates `c_foxbin2prg` |
 | **c_foxbin2prg** | `c_foxbin2prg.prg` | Central orchestrator: session, log, progress, extension routing, full-project conversion; delegates CFG to `o_Cfg` |
-| **cl_fb2prg_cfg** | `cl_fb2prg_cfg.prg` | Configuration manager: `createCfgShell()` schema, `newConfig()` / `applyConfig()` / `lockMasterFromObject()`, `o_FactoryCFG` / `o_MasterCFG` |
+| **cl_fb2prg_cfg** | `cl_fb2prg_cfg.prg` | Configuration manager: `createCfgShell()` schema, `o_CFG` session object, `newConfig()` / `applyConfig()` / `lockMasterFromObject()` |
 | **cl_file_utils** | `cl_file_utils.prg` | Win32/path helpers (`o_FileUtils` on the host) |
 | **cl_fb2prg_mirror** | `cl_fb2prg_mirror.prg` | Mirrored project tree (`o_Mirror` on the host) |
 | **CL_LANG** | `cl_lang.prg` | Localized strings (EN/ES/FR/DE) for UI and log |
@@ -321,28 +321,26 @@ Configuration is **object-only**: no `foxbin2prg.cfg` on disk and no per-directo
 flowchart TB
     Host["c_foxbin2prg<br/>session: paths, n_DebugP, c_Language"]
     CfgMgr["cl_fb2prg_cfg o_Cfg"]
-    Shell["createCfgShell<br/>canonical defaults"]
-    Factory["o_FactoryCFG"]
-    Master["o_MasterCFG"]
+    Shell["createCfgShell()"]
+    Session["o_CFG"]
     Resolve["getCfgValue / getActiveCfg"]
 
     Host -->|"ensureCfg + delegates"| CfgMgr
-    Shell -->|"captureFactoryCFG()"| Factory
-    Factory -->|"newConfig()"| NewCfg["New CFG objects"]
-    Factory -->|"clearConfigurationCache()"| Master
-    Master --> Resolve
-    Factory --> Resolve
+    CfgMgr -->|"o_Host back-ref"| Host
+    Shell -->|"setup / clearConfigurationCache"| Session
+    Shell -->|"newConfig()"| NewCfg["Independent CFG clones"]
+    NewCfg -->|"applyConfig / execute(..., loCfg)"| Session
+    Session --> Resolve
     CfgMgr -->|"writeLog, changeLanguage"| Host
-    NewCfg -->|"applyConfig / execute(..., loCfg)"| Master
 ```
 
 | Role | Object / API | Description |
 |-------|----------------|-----------|
-| Factory defaults | `createCfgShell()` in `cl_fb2prg_cfg` | Canonical schema source (`n_Debug = 0`, `c_VC2 = 'VC2'`, …) |
-| Factory snapshot | `o_FactoryCFG` | Cloned in `setup()` with `captureFactoryCFG()`; **immutable** at runtime; base for `newConfig()` and reset |
-| Master CFG | `o_MasterCFG` | Effective session CFG: factory defaults after `setup()`, or copy from `applyConfig` / `execute(..., loCfg)` |
-| Resolution | `getActiveCfg()`, `getCfgValue('prop')` | Reads from `o_MasterCFG`; `n_DebugP` on the host overrides `n_Debug` when set |
-| Programmatic use | `newConfig()` + props + `applyConfig()` / `execute(..., loCfg)` / `exportProjectTree(..., loCfg)` | Copies into `o_MasterCFG` via `lockMasterFromObject` |
+| Factory defaults | `createCfgShell()` in `cl_fb2prg_cfg` | Canonical schema source (`n_Debug = 0`, `c_VC2 = 'VC2'`, …); invoked on demand |
+| Session CFG | `o_CFG` | Single effective CFG for the session: created in `setup()`, updated via `applyConfig` / `setCfgValue` |
+| Host link | `o_Host` | Back-reference to `c_foxbin2prg` for `n_DebugP` override and `c_Foxbin2prg_ConfigFile` |
+| Resolution | `getActiveCfg()`, `getCfgValue('prop')` | Reads from `o_CFG`; `n_DebugP` on the host overrides `n_Debug` when set |
+| Programmatic use | `newConfig()` + props + `applyConfig()` / `execute(..., loCfg)` / `exportProjectTree(..., loCfg)` | Copies into `o_CFG` via `lockMasterFromObject` |
 | Factory clone (API) | `get_DirSettings(tcDir)` | Returns a **factory-default** CFG clone (`newConfig()`); does not read disk |
 | Reference | `formatConfigReferenceText()` | Help text for `frm_main`; `DO main.prg` with no file shows the reference form |
 
@@ -350,10 +348,10 @@ flowchart TB
 
 | Step | API | Result |
 |------|-----|--------|
-| Init | `o_Cfg.setup()` | `o_FactoryCFG` captured; `o_MasterCFG` = factory clone |
-| Optional session override | `applyConfig(loCfg)` | `loCfg` copied into `o_MasterCFG`; `n_CFG_EvaluateFromParam = 1` |
-| Run conversion | `execute(path, type, loCfg)` | If `loCfg` passed, locks master CFG before processing |
-| Reset to defaults | `clearConfigurationCache()` | Restores `o_MasterCFG` from `o_FactoryCFG` |
+| Init | `o_Cfg.setup()` | `o_CFG = createCfgShell()` |
+| Optional session override | `applyConfig(loCfg)` | `loCfg` copied into `o_CFG` |
+| Run conversion | `execute(path, type, loCfg)` | If `loCfg` passed, copies into `o_CFG` before processing |
+| Reset to defaults | `clearConfigurationCache()` | `o_CFG = createCfgShell()` |
 
 **Removed (legacy):** `evaluateConfiguration()` and on-disk `foxbin2prg.cfg` inheritance. Property names in older docs map to the same fields on the CFG object (see `getConfigPropertyCatalog()` in `cl_fb2prg_cfg.prg`).
 

@@ -56,7 +56,7 @@ lcMirrorPj2   = Addbs( lcOutputRoot ) + Justfname( Forceext( lcProjectFile, 'PJ2
 
 loFb2p = Newobject( 'c_foxbin2prg', 'c_foxbin2prg.prg' )
 
-*-- 1) CFG object cloned from factory defaults (createCfgShell / o_FactoryCFG).
+*-- 1) CFG object cloned from factory defaults (createCfgShell).
 *--    Override only the properties needed for this export.
 loCfg = loFb2p.newConfig()
 

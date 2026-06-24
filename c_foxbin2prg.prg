@@ -2861,12 +2861,6 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDPROC
 
 
-   PROCEDURE captureFactoryCFG
-      This.ensureCfg()
-      This.o_Cfg.captureFactoryCFG()
-   ENDPROC
-
-
    PROCEDURE createCfgShell
       This.ensureCfg()
       RETURN This.o_Cfg.createCfgShell()

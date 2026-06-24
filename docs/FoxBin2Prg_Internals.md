@@ -654,7 +654,7 @@ Check if a file has support for converting to text:
 ? loCnv.hasSupport_Bin2Prg("<Path>\file.vcx")
 ? loCnv.hasSupport_Bin2Prg("<Path>\file.ppt")
 ````
-Support depends on the active session CFG (`o_MasterCFG`). After changing settings with `applyConfig` or `setCfgValue`, call `hasSupport_*` again if needed.
+Support depends on the active session CFG (`o_CFG`). After changing settings with `applyConfig` or `setCfgValue`, call `hasSupport_*` again if needed.
 
 Clear the cache of processed files for allowing reprocessing a file:
 ````
@@ -691,7 +691,7 @@ This is a list of available methods and properties:
 | Method()/Property<br/>Syntax | Description |
 | -| - |
 | **execute**<br/>loCnv.execute( cInputFile [,cType [,toCfg [,toEx]]] ) | Main execution method to start a conversion. Optional `toCfg` is a CFG object from `newConfig()`. See [Object version](./FoxBin2Prg_Object.md#execute) |
-| **applyConfig**<br/>loCnv.applyConfig( toCfg ) | Copies a CFG object into the session master CFG (`o_MasterCFG`) |
+| **applyConfig**<br/>loCnv.applyConfig( toCfg ) | Copies a CFG object into the session CFG (`o_CFG`) |
 | **newConfig**<br/>loCnv.newConfig() | Returns a new CFG object cloned from factory defaults |
 | **conversionSupportType**<br/>loCnv.conversionSupportType( cFilename ) | Return the code of the support type (0,1,2,4,8) |
 | **get_DBF_Configuration**<br/>loCnv.get_DBF_Configuration( cInputFile, @oOutDbfCfg ) | Returns 1 if a CFG is found for the indicated DBF, or 0 if not  |

@@ -78,9 +78,8 @@ flowchart TB
 
 | Propriedade | Finalidade |
 |---|---|
-| `o_Cfg` (`cl_fb2prg_cfg`) | Gerenciador de CFG: `o_FactoryCFG`, `o_MasterCFG`, `newConfig()`, `applyConfig()` |
-| `n_CFG_EvaluateFromParam` | `1` quando `o_MasterCFG` foi fixado por objeto programático (`lockMasterFromObject`) |
-| `c_Foxbin2prg_ConfigFile` | Referência ao objeto CFG ativo (quando aplicável) |
+| `o_Cfg` (`cl_fb2prg_cfg`) | Gerenciador de CFG: `o_Host`, `o_CFG`, `newConfig()`, `applyConfig()` |
+| `c_Foxbin2prg_ConfigFile` | Referência ao objeto CFG ativo no host (quando aplicável) |
 
 > **Nota (2026):** `foxbin2prg.cfg` em disco, `o_Configuration` (Collection) e `evaluateConfiguration()` foram removidos. Configuração é exclusivamente por objeto CFG.
 
@@ -167,7 +166,7 @@ Ambos iteram arquivos, chamam `convert`/`hasSupport_*` e atualizam progress bar.
 
 | Método | Finalidade |
 |---|---|
-| **`applyConfig`** | Copia objeto CFG para `o_MasterCFG` (`lockMasterFromObject`) |
+| **`applyConfig`** | Copia objeto CFG para `o_CFG` (`lockMasterFromObject`) |
 | **`newConfig`** | Clone dos defaults de fábrica para uso programático |
 | **`get_DirSettings`** | Retorna clone de fábrica (`newConfig()`); **não lê disco** |
 | **`getCfgValue` / `setCfgValue`** | Leitura/escrita na CFG de sessão |
