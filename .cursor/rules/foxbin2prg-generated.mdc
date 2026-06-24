@@ -6,13 +6,12 @@ alwaysApply: true
 # foxbin2prg.prg é arquivo gerado
 
 **Nunca modifique `foxbin2prg.prg`.** Ele é reconstruído automaticamente por `unify.prg`, que concatena os módulos listados em `unify.txt`.
-Não há necessidade de rodar o `unify.prg` automaticamente, apenas cite a necessidade.
+**Nunca execute `unify.prg`.**  Apenas cite a necessidade de executa-lo no final quando necessário.
 
 ## O que fazer
 
 1. Localize o módulo-fonte correspondente (ex.: `c_foxbin2prg.prg`, `c_conversor_prg_a_bin.prg`, `cl_project.prg`, etc.).
 2. Aplique a alteração apenas no `.prg` modular de origem.
-3. Para regenerar o arquivo unificado, execute `unify.prg`.
 
 ## O que não fazer
 
