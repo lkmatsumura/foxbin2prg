@@ -60,6 +60,10 @@ cl_fb2prg_cfg.prg
 cl_fb2prg_mirror.prg
 cl_fb2prg_special_props.prg
 cl_file_utils.prg
+lang/lang_en.prg
+lang/lang_fr.prg
+lang/lang_es.prg
+lang/lang_de.prg
 cl_lang.prg
 cl_macro_record.prg
 cl_macro.prg

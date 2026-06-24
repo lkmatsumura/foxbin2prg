@@ -1800,7 +1800,6 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
             lnBytes = toFoxBin2Prg.writeTextFile( tcCodigo, tcOutputFile )
 
             This.writeLog( C_TAB + C_TAB + '- ' + loLang.C_FILENAME_LOC + ': ' + tcOutputFile + ' (' + Alltrim(Transform(lnBytes/1024,'######.##')) + '/' + Alltrim(Transform(Len(tcCodigo)/1024,'######.##')) + ' KiB)' )
-            *THIS.writeLog( '- ' + loLang.C_GENERATED_FILE_SIZE_LOC )
 
             If lnBytes = 0
                *ERROR 'No se puede generar el archivo [' + .c_OutputFile + '] porque es ReadOnly'
