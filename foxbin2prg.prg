@@ -3158,12 +3158,6 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDPROC
 
 
-   PROCEDURE captureFactoryCFG
-      This.ensureCfg()
-      This.o_Cfg.captureFactoryCFG()
-   ENDPROC
-
-
    PROCEDURE createCfgShell
       This.ensureCfg()
       RETURN This.o_Cfg.createCfgShell()
@@ -25644,20 +25638,18 @@ Enddefine
 * Configuration manager for FoxBin2Prg (used via c_foxbin2prg.o_Cfg).
 *
 * CFG stores:
-*   o_FactoryCFG    Immutable factory defaults (createCfgShell). Never mutate at runtime.
-*   o_MasterCFG     Session effective CFG (factory clone or copy from newConfig / applyConfig).
+*   o_Host    Back-reference to c_foxbin2prg (session state: n_DebugP, etc.).
+*   o_CFG     Single session CFG object (factory defaults or copy from applyConfig).
 *
 * Configuration is object-only: use newConfig(), assign properties, pass to execute / exportProjectTree.
 * No foxbin2prg.cfg on disk and no per-directory inheritance.
+* Factory defaults come from createCfgShell() on demand (newConfig / reset).
 *---------------------------------------------------------------------------------------------------
 
 DEFINE CLASS cl_fb2prg_cfg AS Custom
    o_Host = .NULL.
 
-   n_CFG_EvaluateFromParam         = 0      && 1 = o_MasterCFG locked from programmatic object
-
-   o_FactoryCFG                    = .NULL.
-   o_MasterCFG                     = .NULL.
+   o_CFG                           = .NULL.
 
    PROCEDURE INIT
       LPARAMETERS toHost
@@ -25667,17 +25659,15 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
 
    PROCEDURE setup
       *---------------------------------------------------------------------------------------------------
-      * Initialize factory snapshot and master CFG (called from host INIT).
+      * Initialize session CFG (called from host INIT).
       *---------------------------------------------------------------------------------------------------
-      This.captureFactoryCFG()
-      This.o_MasterCFG = This.newConfig()
+      This.o_CFG = This.createCfgShell()
    ENDPROC
 
 
    PROCEDURE DESTROY
-      This.o_MasterCFG     = .NULL.
-      This.o_FactoryCFG    = .NULL.
-      This.o_Host          = .NULL.
+      This.o_CFG     = .NULL.
+      This.o_Host    = .NULL.
    ENDPROC
 
 
@@ -25685,10 +25675,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       *---------------------------------------------------------------------------------------------------
       * Resets session CFG to factory defaults.
       *---------------------------------------------------------------------------------------------------
-      IF VARTYPE(This.o_FactoryCFG) = 'O' AND VARTYPE(This.o_MasterCFG) = 'O'
-         This.cfgCopyFrom( This.o_FactoryCFG, This.o_MasterCFG )
-      ENDIF
-      This.n_CFG_EvaluateFromParam = 0
+      This.o_CFG = This.createCfgShell()
    ENDPROC
 
 
@@ -25708,14 +25695,9 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
    ENDPROC
 
 
-   PROCEDURE captureFactoryCFG
-      This.o_FactoryCFG = This.createCfgShell()
-   ENDPROC
-
-
    PROCEDURE createCfgShell
       *---------------------------------------------------------------------------------------------------
-      * CFG schema and factory defaults (canonical source for o_FactoryCFG / newConfig).
+      * CFG schema and factory defaults (canonical source for o_CFG / newConfig).
       *---------------------------------------------------------------------------------------------------
       LOCAL loCfg
 
@@ -26063,10 +26045,10 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
 
 
    PROCEDURE getActiveCfg
-      IF VARTYPE(This.o_MasterCFG) = 'O' AND !ISNULL(This.o_MasterCFG)
-         RETURN This.o_MasterCFG
+      IF VARTYPE(This.o_CFG) = 'O' AND !ISNULL(This.o_CFG)
+         RETURN This.o_CFG
       ENDIF
-      RETURN This.o_FactoryCFG
+      RETURN This.createCfgShell()
    ENDPROC
 
 
@@ -26125,7 +26107,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
 
 
    PROCEDURE getCfgObjectForWrite
-      RETURN This.o_MasterCFG
+      RETURN This.o_CFG
    ENDPROC
 
 
@@ -26180,14 +26162,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
 
 
    PROCEDURE newConfig
-      LOCAL loCfg
-
-      loCfg = This.createCfgShell()
-      IF VARTYPE(This.o_FactoryCFG) = 'O' AND !ISNULL(This.o_FactoryCFG)
-         This.cfgCopyFrom( This.o_FactoryCFG, loCfg )
-      ENDIF
-
-      RETURN loCfg
+      RETURN This.createCfgShell()
    ENDPROC
 
 
@@ -26215,8 +26190,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
          RETURN .F.
       ENDIF
 
-      This.cfgCopyFrom( toCfg, This.o_MasterCFG )
-      This.n_CFG_EvaluateFromParam = 1
+      This.cfgCopyFrom( toCfg, This.o_CFG )
       This.o_Host.c_Foxbin2prg_ConfigFile = toCfg
       RETURN .T.
    ENDPROC
