@@ -214,7 +214,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
       Local lcProjectName
       lcProjectName = Forcepath( Evl(This.c_OriginalFileName, This.c_OutputFile), toProject._HomeDir)
-      lcProjectName = Forceext( lcProjectName, Justext( This.c_OutputFile ) )
+      lcProjectName = Upper( Forceext( lcProjectName, Justext( This.c_OutputFile ) ) ) + chr(0)
 
       Insert Into TABLABIN ;
          ( Name ;
@@ -237,7 +237,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
          , User ;
          , Key ) ;
          VALUES ;
-         ( Upper( lcProjectName ) + Chr(0) ;
+         ( lcProjectName ;
          , 'H' ;
          , 0 ;
          , '<Source>' + Chr(0) ;
@@ -250,7 +250,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
          , 260 ;
          , toProject.getRowDevInfo() ;
          , Lower(toProject._HomeDir) + Chr(0) ;
-         , Upper( lcProjectName ) + Chr(0) ;
+         , lcProjectName;
          , toProject._ServerHead.getRowServerInfo() ;
          , toProject._SccData ;
          , .T. ;
