@@ -52,61 +52,6 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
    ENDPROC
 
 
-   PROCEDURE evaluateConfiguration
-      *---------------------------------------------------------------------------------------------------
-      * Applies optional CFG object and legacy CLI overrides into o_MasterCFG.
-      * Disk .cfg files are not supported.
-      *---------------------------------------------------------------------------------------------------
-      LPARAMETERS tcDontShowProgress  , tcDontShowErrors, tcNoTimestamps       , tcDebug     , tcRecompile      ;
-                , tcExtraBackupLevels , tcClearUniqueID , tcOptimizeByFilestamp, tc_InputFile, tcInputFile_Type ;
-                , toParentCFG         , tl_ForceLog     , tcCFG_File
-
-      IF VARTYPE(toParentCFG) = 'O' AND !ISNULL(toParentCFG) AND This.isCfg(toParentCFG)
-         This.lockMasterFromObject(toParentCFG)
-      ELSE
-         IF VARTYPE(tcCFG_File) = 'O' AND !ISNULL(tcCFG_File) AND This.isCfg(tcCFG_File)
-            This.lockMasterFromObject(tcCFG_File)
-         ENDIF
-      ENDIF
-
-      IF INLIST( TRANSFORM(tcDebug), '0', '1', '2' )
-         IF ISNULL(This.o_Host.n_DebugP)
-            This.o_Host.n_DebugP = INT(VAL(tcDebug))
-            This.setCfgValue( 'n_Debug', This.o_Host.n_DebugP )
-         ENDIF
-      ENDIF
-
-      IF !EMPTY(tcDontShowProgress)
-         This.setCfgValue( 'n_ShowProgressbar', IIF( tcDontShowProgress = '1', 0, 1 ) )
-      ENDIF
-
-      IF !EMPTY(tcDontShowErrors)
-         This.setCfgValue( 'l_ShowErrors', (tcDontShowErrors <> '1') )
-      ENDIF
-
-      IF !EMPTY(tcNoTimestamps)
-         This.setCfgValue( 'l_NoTimestamps', INLIST( tcNoTimestamps, '1', '0' ) AND (tcNoTimestamps = '1') )
-      ENDIF
-
-      IF !EMPTY(tcRecompile)
-         This.o_Host.c_Recompile = tcRecompile
-         This.setCfgValue( 'l_Recompile', (tcRecompile = '1' OR !EMPTY(tcRecompile)) )
-      ENDIF
-
-      IF !EMPTY(tcExtraBackupLevels)
-         This.setCfgValue( 'n_ExtraBackupLevels', INT(VAL(tcExtraBackupLevels)) )
-      ENDIF
-
-      IF !EMPTY(tcClearUniqueID)
-         This.setCfgValue( 'l_ClearUniqueID', INLIST( tcClearUniqueID, '1', '0' ) AND (tcClearUniqueID = '1') )
-      ENDIF
-
-      IF !EMPTY(tcOptimizeByFilestamp)
-         This.setCfgValue( 'n_OptimizeByFilestamp', INT(VAL(tcOptimizeByFilestamp)) )
-      ENDIF
-   ENDPROC
-
-
    PROCEDURE get_DirSettings
       *---------------------------------------------------------------------------------------------------
       * Returns a factory-default CFG clone (no disk lookup).

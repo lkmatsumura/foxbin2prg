@@ -76,11 +76,13 @@ With project at `d:\src\app\` and `ExcludedSubdirs: tmp;backup`:
 | `d:\src\app\backup\old.vcx` | Ignored |
 | `d:\src\app\forms\old\legacy.scx` | Ignored if `forms\old` is in the list |
 
-### In `foxbin2prg.cfg`
+### Programmatic property (CFG object)
 
-```ini
-ExcludedSubdirs: tmp;backup;forms\old
+```foxpro
+loCfg.c_ExcludedSubdirs = 'tmp;backup;forms\old'
 ```
+
+Legacy disk `foxbin2prg.cfg` files are **not** supported. Use `newConfig()` and assign the same property names on the CFG object.
 
 ---
 
@@ -170,7 +172,7 @@ loFb2p.exportProjectTree( 'd:\src\app\app.pjx', 'd:\export\app', loCfg )
 loFb2p.importProjectTree( 'd:\export\app\app.pj2', 'd:\src\app', loCfg )
 ```
 
-You can also set keys in `foxbin2prg.cfg` (per-folder inheritance), pass a `.cfg` path as `toCfg`, or pass any object via `configFromObject` — property names match the **Programmatic property** column in the table above.
+You can pass any object with compatible property names via `configFromObject` — see `getConfigPropertyCatalog()` in `cl_fb2prg_cfg.prg` or run `DO main.prg` with no file for the in-app reference. Property names match the **Programmatic property** column in the table above.
 
 ---
 
@@ -189,7 +191,7 @@ For each file listed in the PJX/PJ2, in mirrored tree mode:
 
 ## Debugging
 
-Enable logging with `loCfg.n_Debug = 1` or `Debug: 1` in `.cfg`. The project `.LOG` file lists each member with one of the messages above.
+Enable logging with `loCfg.n_Debug = 1` (or `loCnv.setCfgValue('n_Debug', 1)` after `applyConfig`). The project `.LOG` file lists each member with one of the messages above.
 
 At the end of configuration evaluation, the dump includes:
 

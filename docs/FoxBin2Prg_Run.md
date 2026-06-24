@@ -107,9 +107,12 @@ This is useful when used as EXE dealing with Windows shortcuts,
 on which fixed parameters must be in the shortcut.   
 The filename is an external variable parameter received when SendingTo FoxBin2Prg with right-click on File Manager.
 
-### Usage 2
-`FoxBin2Prg.EXE c|C|t [OutFileName [ cCFG_File[ cDebug]]]`   
-`DO FoxBin2Prg.EXE WITH -c|-C|-t [, OutFileName [, cCFG_File[, cDebug]]]`   
+### Usage 2 (legacy — removed)
+
+> **2026:** Generating `foxbin2prg.cfg` templates via `-c` / `-C` / `-t` is **no longer supported**. Use `DO main.prg` with no input file to open the configuration reference form, or `loCnv.formatConfigReferenceText()` / `newConfig()` programmatically. See [FoxBin2Prg_Internals — Configuration file](./FoxBin2Prg_Internals.md#configuration-file).
+
+~~`FoxBin2Prg.EXE c|C|t [OutFileName [ cCFG_File[ cDebug]]]`~~
+~~`DO FoxBin2Prg.EXE WITH -c|-C|-t [, OutFileName [, cCFG_File[, cDebug]]]`~~
 
 | Parameter | Description |
 | ----- | ----- |

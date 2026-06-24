@@ -88,7 +88,7 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 				*--------------------------------------------
 				LOCAL I, laProps(1)
 
-				*-- VisualizaciÛn de valores
+				*-- Visualizaciùn de valores
 				THIS.messageout( LOWER(PROGRAM(PROGRAM(-1)-1)) )
 
 				THIS.messageout( 'Recno#' + TRANSFORM(tnRecno) + ' UniqueID="' + toReg_Esperado.UniqueID + '" ObjType=' + TRANSFORM(toReg_Esperado.ObjType) ;
@@ -97,7 +97,7 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 					+ ' vpos=' + TRANSFORM(toReg_Esperado.VPOS) + ' hpos=' + TRANSFORM(toReg_Esperado.HPOS) ;
 					+ ' height=' + TRANSFORM(toReg_Esperado.HEIGHT) + ' width=' + TRANSFORM(toReg_Esperado.WIDTH) )
 
-				*-- EvaluaciÛn de valores
+				*-- Evaluaciùn de valores
 				FOR I = 1 TO AMEMBERS( laProps, toReg_Esperado, 0 )
 					*-- Formateo
 					ADDPROPERTY( toReg_Esperado, laProps(I) ;
@@ -130,7 +130,7 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 				LOCAL loObj AS c_conversor_bin_a_prg OF "FOXBIN2PRG.PRG"
 				LOCAL loFoxBin2Prg AS c_foxbin2prg OF "FOXBIN2PRG.PRG"
 
-				*-- Algunos ajustes para mejor visualizaciÛn de caracteres especiales
+				*-- Algunos ajustes para mejor visualizaciùn de caracteres especiales
 				*tcPropValue				= oFXU_LIB.mejorarPresentacionCaracteresEspeciales( tcPropValue )
 				loFoxBin2Prg	= NEWOBJECT("c_foxbin2prg", "FOXBIN2PRG.PRG")
 				loObj			= NEWOBJECT("c_conversor_bin_a_prg", "FOXBIN2PRG.PRG")
@@ -154,32 +154,32 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 				lcExtraData	= tcParent + '.' + tcObjName + ' (' + tcClass + ')'
 
 
-				*-- VisualizaciÛn de valores
+				*-- Visualizaciùn de valores
 				THIS.messageout( LOWER(PROGRAM(PROGRAM(-1)-1)) )
 
 				THIS.messageout( 'PROPERTIES esperadas para ' + lcExtraData + ': ' ;
-					+ TRANSFORM(lnPropsAndValues_Count_Esperado) + ' (TamaÒo = ' + TRANSFORM(LEN(toReg_Esperado.PROPERTIES)) + ' bytes)' )
+					+ TRANSFORM(lnPropsAndValues_Count_Esperado) + ' (Tamaùo = ' + TRANSFORM(LEN(toReg_Esperado.PROPERTIES)) + ' bytes)' )
 				*THIS.messageout( REPLICATE('-',80) )
 				*FOR I = 1 TO lnPropsAndValues_Count_Esperado
 				*	THIS.messageout( 'PropName = ' + TRANSFORM(laPropsAndValues_Esperado(I,1)) )
 				*ENDFOR
 
 				THIS.messageout( 'PROTECTED esperadas para ' + lcExtraData + ': ' ;
-					+ TRANSFORM(lnProtected_Count_Esperado) + ' (TamaÒo = ' + TRANSFORM(LEN(toReg_Esperado.PROTECTED)) + ' bytes)' )
+					+ TRANSFORM(lnProtected_Count_Esperado) + ' (Tamaùo = ' + TRANSFORM(LEN(toReg_Esperado.PROTECTED)) + ' bytes)' )
 				*THIS.messageout( REPLICATE('-',80) )
 				*FOR I = 1 TO lnProtected_Count_Esperado
 				*	THIS.messageout( 'PropName = ' + TRANSFORM(laProtected_Esperado(I,1)) )
 				*ENDFOR
 
 				THIS.messageout( 'RESERVED3 esperadas para ' + lcExtraData + ': ' ;
-					+ TRANSFORM(lnPropsAndComments_Count_Esperado) + ' (TamaÒo = ' + TRANSFORM(LEN(toReg_Esperado.RESERVED3)) + ' bytes)' )
+					+ TRANSFORM(lnPropsAndComments_Count_Esperado) + ' (Tamaùo = ' + TRANSFORM(LEN(toReg_Esperado.RESERVED3)) + ' bytes)' )
 				*THIS.messageout( REPLICATE('-',80) )
 				*FOR I = 1 TO lnPropsAndComments_Count_Esperado
 				*	THIS.messageout( 'PropName = ' + TRANSFORM(laPropsAndComments_Esperado(I,1)) )
 				*ENDFOR
 
 				THIS.messageout( 'METHODS esperadas para ' + lcExtraData + ': ' ;
-					+ TRANSFORM(lnMethods_Count_Esperado) + ' (TamaÒo = ' + TRANSFORM(LEN(toReg_Esperado.METHODS)) + ' bytes)' )
+					+ TRANSFORM(lnMethods_Count_Esperado) + ' (Tamaùo = ' + TRANSFORM(LEN(toReg_Esperado.METHODS)) + ' bytes)' )
 				*THIS.messageout( REPLICATE('-',80) )
 				*FOR I = 1 TO lnMethods_Count_Esperado
 				*	THIS.messageout( 'Name = ' + TRANSFORM(laMethods_Esperado(I,1)) )
@@ -190,67 +190,67 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 				THIS.messageout( 'Checksum OLE esperado para ' + lcExtraData + ': ' + TRANSFORM(SYS(2007, toReg_Esperado.OLE)) )
 
 
-				*-- EvaluaciÛn de valores
+				*-- Evaluaciùn de valores
 				THIS.assertequals( toReg_Esperado.Reserved1, toReg.Reserved1, "Valor de RESERVED1 para " + lcExtraData )
-				THIS.assertequals( LEN(toReg_Esperado.Reserved1), LEN(toReg.Reserved1), "TamaÒo de RESERVED1 para " + lcExtraData )
+				THIS.assertequals( LEN(toReg_Esperado.Reserved1), LEN(toReg.Reserved1), "Tamaùo de RESERVED1 para " + lcExtraData )
 
 				THIS.assertequals( toReg_Esperado.Reserved2, toReg.Reserved2, "Valor de RESERVED2 para " + lcExtraData )
-				THIS.assertequals( LEN(toReg_Esperado.Reserved2), LEN(toReg.Reserved2), "TamaÒo de RESERVED2 para " + lcExtraData )
+				THIS.assertequals( LEN(toReg_Esperado.Reserved2), LEN(toReg.Reserved2), "Tamaùo de RESERVED2 para " + lcExtraData )
 
 				THIS.assertequals( toReg_Esperado.Reserved4, toReg.Reserved4, "Valor de RESERVED4 para " + lcExtraData )
-				THIS.assertequals( LEN(toReg_Esperado.Reserved4), LEN(toReg.Reserved4), "TamaÒo de RESERVED4 para " + lcExtraData )
+				THIS.assertequals( LEN(toReg_Esperado.Reserved4), LEN(toReg.Reserved4), "Tamaùo de RESERVED4 para " + lcExtraData )
 
 				THIS.assertequals( toReg_Esperado.Reserved5, toReg.Reserved5, "Valor de RESERVED5 para " + lcExtraData )
-				THIS.assertequals( LEN(toReg_Esperado.Reserved5), LEN(toReg.Reserved5), "TamaÒo de RESERVED5 para " + lcExtraData )
+				THIS.assertequals( LEN(toReg_Esperado.Reserved5), LEN(toReg.Reserved5), "Tamaùo de RESERVED5 para " + lcExtraData )
 
 				THIS.assertequals( toReg_Esperado.Reserved6, toReg.Reserved6, "Valor de RESERVED6 para " + lcExtraData )
-				THIS.assertequals( LEN(toReg_Esperado.Reserved6), LEN(toReg.Reserved6), "TamaÒo de RESERVED6 para " + lcExtraData )
+				THIS.assertequals( LEN(toReg_Esperado.Reserved6), LEN(toReg.Reserved6), "Tamaùo de RESERVED6 para " + lcExtraData )
 
 				THIS.assertequals( toReg_Esperado.Reserved7, toReg.Reserved7, "Valor de RESERVED7 para " + lcExtraData )
-				THIS.assertequals( LEN(toReg_Esperado.Reserved7), LEN(toReg.Reserved7), "TamaÒo de RESERVED7 para " + lcExtraData )
+				THIS.assertequals( LEN(toReg_Esperado.Reserved7), LEN(toReg.Reserved7), "Tamaùo de RESERVED7 para " + lcExtraData )
 
 				THIS.assertequals( toReg_Esperado.Reserved8, toReg.Reserved8, "Valor de RESERVED8 para " + lcExtraData )
-				THIS.assertequals( LEN(toReg_Esperado.Reserved8), LEN(toReg.Reserved8), "TamaÒo de RESERVED8 para " + lcExtraData )
+				THIS.assertequals( LEN(toReg_Esperado.Reserved8), LEN(toReg.Reserved8), "Tamaùo de RESERVED8 para " + lcExtraData )
 
 				THIS.assertequals( LOWER(toReg_Esperado.OLE2), LOWER(toReg.OLE2), "Valor de OLE2 para " + lcExtraData )
-				THIS.assertequals( LEN(toReg_Esperado.OLE2), LEN(toReg.OLE2), "TamaÒo de OLE2 para " + lcExtraData )
+				THIS.assertequals( LEN(toReg_Esperado.OLE2), LEN(toReg.OLE2), "Tamaùo de OLE2 para " + lcExtraData )
 
 				THIS.assertequals( SYS(2007, toReg_Esperado.OLE), SYS(2007, toReg.OLE), "Valor de OLE (Checksum) para " + lcExtraData )
-				THIS.assertequals( LEN(toReg_Esperado.OLE), LEN(toReg.OLE), "TamaÒo de OLE para " + lcExtraData )
+				THIS.assertequals( LEN(toReg_Esperado.OLE), LEN(toReg.OLE), "Tamaùo de OLE para " + lcExtraData )
 
 				*-- PROPERTIES
-				THIS.assertequals( LEN(toReg_Esperado.PROPERTIES), LEN(toReg.PROPERTIES), "TamaÒo de PROPERTIES para " + lcExtraData )
+				THIS.assertequals( LEN(toReg_Esperado.PROPERTIES), LEN(toReg.PROPERTIES), "Tamaùo de PROPERTIES para " + lcExtraData )
 				THIS.assertequals( lnPropsAndValues_Count_Esperado, lnPropsAndValues_Count, "Cantidad de PROPERTIES para " + lcExtraData )
 				FOR I = 1 TO lnPropsAndValues_Count_Esperado
 					THIS.asserttrue( ASCAN( laPropsAndValues, laPropsAndValues_Esperado(I,1), 1, -1, 1, 0+2+4) > 0 ;
-						, ' ComprobaciÛn de que existe la Property "' + TRANSFORM(laPropsAndValues_Esperado(I,1)) + '"' + " para " + lcExtraData )
+						, ' Comprobaciùn de que existe la Property "' + TRANSFORM(laPropsAndValues_Esperado(I,1)) + '"' + " para " + lcExtraData )
 				ENDFOR
 
 				*-- RESERVED3
-				THIS.assertequals( LEN(toReg_Esperado.RESERVED3), LEN(toReg.RESERVED3), "TamaÒo de RESERVED3 para " + lcExtraData )
+				THIS.assertequals( LEN(toReg_Esperado.RESERVED3), LEN(toReg.RESERVED3), "Tamaùo de RESERVED3 para " + lcExtraData )
 				THIS.assertequals( lnPropsAndComments_Count_Esperado, lnPropsAndComments_Count, "Cantidad de RESERVED3 para " + lcExtraData )
 				FOR I = 1 TO lnPropsAndComments_Count_Esperado
 					THIS.asserttrue( ASCAN( laPropsAndComments, laPropsAndComments_Esperado(I,1), 1, -1, 1, 0+2+4) > 0 ;
-						, ' ComprobaciÛn de que existe la Reserved3 "' + TRANSFORM(laPropsAndComments_Esperado(I,1)) + '"' + " para " + lcExtraData )
+						, ' Comprobaciùn de que existe la Reserved3 "' + TRANSFORM(laPropsAndComments_Esperado(I,1)) + '"' + " para " + lcExtraData )
 				ENDFOR
 
 				*-- PROTECTED
-				THIS.assertequals( LEN(toReg_Esperado.PROTECTED), LEN(toReg.PROTECTED), "TamaÒo de PROTECTED para " + lcExtraData )
+				THIS.assertequals( LEN(toReg_Esperado.PROTECTED), LEN(toReg.PROTECTED), "Tamaùo de PROTECTED para " + lcExtraData )
 				THIS.assertequals( lnProtected_Count_Esperado, lnProtected_Count, "Cantidad de PROTECTED para " + lcExtraData )
 				FOR I = 1 TO lnProtected_Count_Esperado
 					THIS.asserttrue( ASCAN( laProtected, laProtected_Esperado(I,1), 1, -1, 1, 0+2+4) > 0 ;
-						, ' ComprobaciÛn de que existe la Protected "' + TRANSFORM(laProtected_Esperado(I,1)) + '"' + " para " + lcExtraData )
+						, ' Comprobaciùn de que existe la Protected "' + TRANSFORM(laProtected_Esperado(I,1)) + '"' + " para " + lcExtraData )
 				ENDFOR
 
 				*-- METHODS
-				lcMensaje	= "TamaÒo de METHODS para " + lcExtraData
-				* COMPROBAR "BUG DEL M…TODO MOVIDO"
+				lcMensaje	= "Tamaùo de METHODS para " + lcExtraData
+				* COMPROBAR "BUG DEL MùTODO MOVIDO"
 				IF LEN( STRTRAN( toReg_Esperado.METHODS, CHR(13)+CHR(10), CHR(13) ) ) <> LEN( STRTRAN( toReg.METHODS, CHR(13)+CHR(10), CHR(13) ) )
-					IF "BUG DEL M…TODO MOVIDO" $ toReg.METHODS AND NOT "BUG DEL M…TODO MOVIDO" $ toReg_Esperado.METHODS
-						lcMensaje	= lcMensaje +  '   >>> ATENCI”N!! - COMPROBAR "BUG DEL M…TODO MOVIDO"'
+					IF "BUG DEL MùTODO MOVIDO" $ toReg.METHODS AND NOT "BUG DEL MùTODO MOVIDO" $ toReg_Esperado.METHODS
+						lcMensaje	= lcMensaje +  '   >>> ATENCIùN!! - COMPROBAR "BUG DEL MùTODO MOVIDO"'
 					ENDIF
 				ENDIF
-				*-- Fin comprobaciÛn
+				*-- Fin comprobaciùn
 
 				THIS.assertequals( LEN( STRTRAN( toReg_Esperado.METHODS, CHR(13)+CHR(10), CHR(13) ) ) ;
 					, LEN( STRTRAN( toReg.METHODS, CHR(13)+CHR(10), CHR(13) ) ), lcMensaje )
@@ -258,7 +258,7 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 				THIS.assertequals( lnMethods_Count_Esperado, lnMethods_Count, "Cantidad de METHODS para " + lcExtraData )
 				FOR I = 1 TO lnMethods_Count_Esperado
 					THIS.asserttrue( ASCAN( laMethods, laMethods_Esperado(I,1), 1, -1, 1, 1+2+4) > 0 ;
-						, ' ComprobaciÛn de que existe el Method "' + TRANSFORM(laMethods_Esperado(I,1)) + '"' + " para " + lcExtraData )
+						, ' Comprobaciùn de que existe el Method "' + TRANSFORM(laMethods_Esperado(I,1)) + '"' + " para " + lcExtraData )
 				ENDFOR
 				
 				loFoxBin2Prg = NULL
@@ -267,7 +267,7 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 			ENDCASE
 
 		ELSE
-			*-- EvaluaciÛn de errores
+			*-- Evaluaciùn de errores
 			THIS.messageout( "Error " + TRANSFORM(toEx.ERRORNO) + ', ' + TRANSFORM(toEx.MESSAGE) )
 			THIS.messageout( toEx.PROCEDURE + ', ' + TRANSFORM(toEx.LINENO) )
 			IF NOT INLIST( toEx.ERRORNO, 1098, 2071 )	&& Error del usuario (ERROR y THROW)
@@ -341,13 +341,13 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 					SELECT 0
 					USE (lc_OutputFile) SHARED NOUPDATE ALIAS TABLABIN
 				ELSE
-					ERROR 'No se encontrÛ el archivo "' + lc_OutputFile + '"'
+					ERROR 'No se encontrù el archivo "' + lc_OutputFile + '"'
 				ENDIF
 
 				LOCATE FOR UniqueID==lcUniqueID
 
 				IF NOT FOUND()
-					ERROR 'No se encontrÛ el registro #' + TRANSFORM(RECNO('ARCHIVOBIN_IN')) + ' con UniqueID "' + lcUniqueID + '" en el archivo "' + lc_OutputFile + '"'
+					ERROR 'No se encontrù el registro #' + TRANSFORM(RECNO('ARCHIVOBIN_IN')) + ' con UniqueID "' + lcUniqueID + '" en el archivo "' + lc_OutputFile + '"'
 				ENDIF
 
 				SCATTER MEMO NAME loReg
@@ -399,7 +399,15 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 			lc_OutputFile		= FULLPATH( FORCEPATH( lc_File, oFXU_LIB.cPathDatosTest ) )
 			lc_OutputFile2		= FORCEEXT(lc_OutputFile, LEFT( JUSTEXT(lc_File),2 ) + '2' )
 			lcTipoBinario		= UPPER( JUSTEXT( lc_OutputFile ) )
-			loCnv.evaluateConfiguration( '1', '1', '0', '0', SYS(5)+CURDIR(), '1', '0', '0' )
+			loCnv.setCfgValue( 'n_ShowProgressbar', 0 )
+			loCnv.setCfgValue( 'l_ShowErrors', .F. )
+			loCnv.setCfgValue( 'l_NoTimestamps', .F. )
+			loCnv.setCfgValue( 'n_Debug', 0 )
+			loCnv.c_Recompile = SYS(5)+CURDIR()
+			loCnv.setCfgValue( 'l_Recompile', .T. )
+			loCnv.setCfgValue( 'n_ExtraBackupLevels', 1 )
+			loCnv.setCfgValue( 'l_ClearUniqueID', .F. )
+			loCnv.setCfgValue( 'n_OptimizeByFilestamp', 0 )
 
 			oFXU_LIB.copiarArchivosParaTest( FORCEEXT( lc_File, 'LBX' ) )
 			oFXU_LIB.copiarArchivosParaTest( FORCEEXT( lc_File, 'LBT' ) )
@@ -431,13 +439,13 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 					SELECT 0
 					USE (lc_OutputFile) SHARED NOUPDATE ALIAS TABLABIN
 				ELSE
-					ERROR 'No se encontrÛ el archivo "' + lc_OutputFile + '"'
+					ERROR 'No se encontrù el archivo "' + lc_OutputFile + '"'
 				ENDIF
 
 				LOCATE FOR UniqueID==lcUniqueID
 
 				IF NOT FOUND()
-					ERROR 'No se encontrÛ el registro #' + TRANSFORM(RECNO('ARCHIVOBIN_IN')) + ' con UniqueID "' + lcUniqueID + '" en el archivo "' + lc_OutputFile + '"'
+					ERROR 'No se encontrù el registro #' + TRANSFORM(RECNO('ARCHIVOBIN_IN')) + ' con UniqueID "' + lcUniqueID + '" en el archivo "' + lc_OutputFile + '"'
 				ENDIF
 
 				SCATTER MEMO NAME loReg
@@ -518,18 +526,18 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 					SELECT 0
 					USE (lc_OutputFile) SHARED NOUPDATE ALIAS TABLABIN
 				ELSE
-					ERROR 'No se encontrÛ el archivo "' + lc_OutputFile + '"'
+					ERROR 'No se encontrù el archivo "' + lc_OutputFile + '"'
 				ENDIF
 
 				IF EMPTY(lcParent) AND EMPTY(lcClass) AND EMPTY(lcObjName)
 					LOCATE FOR PLATFORM==PADR("COMMENT",8) AND UniqueID==PADR("Screen",10)
 					IF NOT FOUND()
-						ERROR 'No se encontrÛ el registro de cabecera "' + UniqueID + '"'
+						ERROR 'No se encontrù el registro de cabecera "' + UniqueID + '"'
 					ENDIF
 				ELSE
 					LOCATE FOR LOWER(CLASS)==lcClass AND LOWER(PARENT)==lcParent AND LOWER(objName)==lcObjName
 					IF NOT FOUND()
-						ERROR 'No se encontrÛ el registro para CLASS=="' + lcClass + '" AND PARENT=="' + lcParent + '" AND objName=="' + lcObjName + '"'
+						ERROR 'No se encontrù el registro para CLASS=="' + lcClass + '" AND PARENT=="' + lcParent + '" AND objName=="' + lcObjName + '"'
 					ENDIF
 				ENDIF
 
@@ -617,12 +625,12 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 			*-- TEST
 			=ALINES(laProps, loReg.PROPERTIES)
 
-			THIS.messageout( 'LÌnea : Valor esperado => Valor actual' )
+			THIS.messageout( 'Lùnea : Valor esperado => Valor actual' )
 			THIS.messageout( REPLICATE('-',50) )
 
 			FOR I = 1 TO ALEN(laProps_Esperado)
 				lcProp	= GETWORDNUM(laProps(I),1)
-				THIS.messageout( 'LÌnea ' + TRANSFORM(I) + ': ' + laProps_Esperado(I) + ' => ' + lcProp )
+				THIS.messageout( 'Lùnea ' + TRANSFORM(I) + ': ' + laProps_Esperado(I) + ' => ' + lcProp )
 			ENDFOR
 
 			FOR I = 1 TO ALEN(laProps_Esperado)
@@ -718,12 +726,12 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 			*-- TEST
 			=ALINES(laProps, loReg.PROPERTIES)
 
-			THIS.messageout( 'LÌnea : Valor esperado => Valor actual' )
+			THIS.messageout( 'Lùnea : Valor esperado => Valor actual' )
 			THIS.messageout( REPLICATE('-',50) )
 
 			FOR I = 1 TO ALEN(laProps_Esperado)
 				lcProp	= GETWORDNUM(laProps(I),1)
-				THIS.messageout( 'LÌnea ' + TRANSFORM(I) + ': ' + laProps_Esperado(I) + ' => ' + lcProp )
+				THIS.messageout( 'Lùnea ' + TRANSFORM(I) + ': ' + laProps_Esperado(I) + ' => ' + lcProp )
 			ENDFOR
 
 			FOR I = 1 TO ALEN(laProps_Esperado)
@@ -808,18 +816,18 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 					SELECT 0
 					USE (lc_OutputFile) SHARED NOUPDATE ALIAS TABLABIN
 				ELSE
-					ERROR 'No se encontrÛ el archivo "' + lc_OutputFile + '"'
+					ERROR 'No se encontrù el archivo "' + lc_OutputFile + '"'
 				ENDIF
 
 				IF EMPTY(lcParent) AND EMPTY(lcClass) AND EMPTY(lcObjName)
 					LOCATE FOR PLATFORM==PADR("COMMENT",8) AND UniqueID==PADR("Class",10)
 					IF NOT FOUND()
-						ERROR 'No se encontrÛ el registro de cabecera "' + UniqueID + '"'
+						ERROR 'No se encontrù el registro de cabecera "' + UniqueID + '"'
 					ENDIF
 				ELSE
 					LOCATE FOR LOWER(CLASS)==lcClass AND LOWER(PARENT)==lcParent AND LOWER(objName)==lcObjName
 					IF NOT FOUND()
-						ERROR 'No se encontrÛ el registro para CLASS=="' + lcClass + '" AND PARENT=="' + lcParent + '" AND objName=="' + lcObjName + '"'
+						ERROR 'No se encontrù el registro para CLASS=="' + lcClass + '" AND PARENT=="' + lcParent + '" AND objName=="' + lcObjName + '"'
 					ENDIF
 				ENDIF
 
@@ -901,18 +909,18 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 					SELECT 0
 					USE (lc_OutputFile) SHARED NOUPDATE ALIAS TABLABIN
 				ELSE
-					ERROR 'No se encontrÛ el archivo "' + lc_OutputFile + '"'
+					ERROR 'No se encontrù el archivo "' + lc_OutputFile + '"'
 				ENDIF
 
 				IF EMPTY(lcParent) AND EMPTY(lcClass) AND EMPTY(lcObjName)
 					LOCATE FOR PLATFORM==PADR("COMMENT",8) AND UniqueID==PADR("Class",10)
 					IF NOT FOUND()
-						ERROR 'No se encontrÛ el registro de cabecera "' + UniqueID + '"'
+						ERROR 'No se encontrù el registro de cabecera "' + UniqueID + '"'
 					ENDIF
 				ELSE
 					LOCATE FOR LOWER(CLASS)==lcClass AND LOWER(PARENT)==lcParent AND LOWER(objName)==lcObjName
 					IF NOT FOUND()
-						ERROR 'No se encontrÛ el registro para CLASS=="' + lcClass + '" AND PARENT=="' + lcParent + '" AND objName=="' + lcObjName + '"'
+						ERROR 'No se encontrù el registro para CLASS=="' + lcClass + '" AND PARENT=="' + lcParent + '" AND objName=="' + lcObjName + '"'
 					ENDIF
 				ENDIF
 
@@ -985,7 +993,7 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 			THIS.messageout( "lcTXT0 = " + lcTXT0 )
 			THIS.messageout( "lcTXT1 = " + lcTXT1 )
 
-			THIS.asserttrue( llEqual, "COMPARACI”N DE VC2" )
+			THIS.asserttrue( llEqual, "COMPARACIùN DE VC2" )
 
 		CATCH TO loEx
 			THIS.Evaluate_results( loEx, lnCodError_Esperado, lc_OutputFile, lcParent, lcClass, lcObjName, loReg_Esperado )
@@ -1058,18 +1066,18 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 					SELECT 0
 					USE (lc_OutputFile) SHARED NOUPDATE ALIAS TABLABIN
 				ELSE
-					ERROR 'No se encontrÛ el archivo "' + lc_OutputFile + '"'
+					ERROR 'No se encontrù el archivo "' + lc_OutputFile + '"'
 				ENDIF
 
 				IF EMPTY(lcParent) AND EMPTY(lcClass) AND EMPTY(lcObjName)
 					LOCATE FOR PLATFORM==PADR("COMMENT",8) AND UniqueID==PADR("Class",10)
 					IF NOT FOUND()
-						ERROR 'No se encontrÛ el registro de cabecera "' + UniqueID + '"'
+						ERROR 'No se encontrù el registro de cabecera "' + UniqueID + '"'
 					ENDIF
 				ELSE
 					LOCATE FOR LOWER(CLASS)==lcClass AND LOWER(PARENT)==lcParent AND LOWER(objName)==lcObjName
 					IF NOT FOUND()
-						ERROR 'No se encontrÛ el registro para CLASS=="' + lcClass + '" AND PARENT=="' + lcParent + '" AND objName=="' + lcObjName + '"'
+						ERROR 'No se encontrù el registro para CLASS=="' + lcClass + '" AND PARENT=="' + lcParent + '" AND objName=="' + lcObjName + '"'
 					ENDIF
 				ENDIF
 
@@ -1125,7 +1133,11 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 
 			loEx		= NULL
 			loCnv		= NEWOBJECT("c_foxbin2prg", "FOXBIN2PRG.PRG")
-			loCnv.evaluateConfiguration( '1', '1', '', '0', '1', '4' )
+			loCnv.setCfgValue( 'n_ShowProgressbar', 0 )
+			loCnv.setCfgValue( 'l_ShowErrors', .F. )
+			loCnv.setCfgValue( 'n_Debug', 0 )
+			loCnv.setCfgValue( 'l_Recompile', .T. )
+			loCnv.setCfgValue( 'n_ExtraBackupLevels', 4 )
 			*loCnv.n_ExtraBackupLevels	= 4
 			*loCnv.l_Debug				= .T.
 			*loCnv.l_ShowErrors			= .F.
@@ -1137,7 +1149,7 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 			
 			lcTipoBinario		= EVL( UPPER(JUSTEXT(EVL(tcFormName,''))), 'VCX' )
 
-			*-- Copio la librerÌa en DATOS_TEST
+			*-- Copio la librerùa en DATOS_TEST
 			lcLib				= FORCEPATH( "LIB_CONTROLES.VCX", oFXU_LIB.cPathDatosTest )
 			lc_File2			= 'LIB_CONTROLES.VCX'
 			lc_OutputFile		= FORCEPATH( lc_File2, oFXU_LIB.cPathDatosTest )
@@ -1236,18 +1248,18 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 
 			llEqual	= ( FILETOSTR( lcBMP0 ) == FILETOSTR( lcBMP1 ) )
 
-			THIS.messageout( "Se comparan bitmaps de pantalla, para saber si hay cambios estÈticos y detectar fallos al ensamblar el binario" )
+			THIS.messageout( "Se comparan bitmaps de pantalla, para saber si hay cambios estùticos y detectar fallos al ensamblar el binario" )
 			THIS.messageout( "lcBMP0 = " + lcBMP0 )
 			THIS.messageout( "lcBMP1 = " + lcBMP1 )
-			THIS.messageout( "ComparaciÛn esperada  = " + ICASE(tnComparacionEsperada = 0, "DISTINTOS", tnComparacionEsperada = 1, "IGUALES", "NO_COMPARAR") )
-			THIS.messageout( "ComparaciÛn realizada = " + IIF(llEqual, "IGUALES", "DISTINTOS") )
+			THIS.messageout( "Comparaciùn esperada  = " + ICASE(tnComparacionEsperada = 0, "DISTINTOS", tnComparacionEsperada = 1, "IGUALES", "NO_COMPARAR") )
+			THIS.messageout( "Comparaciùn realizada = " + IIF(llEqual, "IGUALES", "DISTINTOS") )
 			
 			DO CASE
 			CASE tnComparacionEsperada = 0
-				THIS.asserttrue( NOT llEqual, "COMPARACI”N DE BITMAPS" )
+				THIS.asserttrue( NOT llEqual, "COMPARACIùN DE BITMAPS" )
 
 			CASE tnComparacionEsperada = 1
-				THIS.asserttrue( llEqual, "COMPARACI”N DE BITMAPS" )
+				THIS.asserttrue( llEqual, "COMPARACIùN DE BITMAPS" )
 
 			OTHERWISE
 				*- No se quiere reporte de respuesta para evitar un fallo (caso especial)
@@ -1446,7 +1458,15 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 		TRY
 			loEx		= NULL
 			loCnv		= NEWOBJECT("c_foxbin2prg", "FOXBIN2PRG.PRG")
-			loCnv.evaluateConfiguration( '1', '1', '1', '1', '1', '4', '1', '0' )
+			loCnv.setCfgValue( 'n_ShowProgressbar', 0 )
+			loCnv.setCfgValue( 'l_ShowErrors', .F. )
+			loCnv.setCfgValue( 'l_NoTimestamps', .T. )
+			loCnv.n_DebugP = 1
+			loCnv.setCfgValue( 'n_Debug', 1 )
+			loCnv.setCfgValue( 'l_Recompile', .T. )
+			loCnv.setCfgValue( 'n_ExtraBackupLevels', 4 )
+			loCnv.setCfgValue( 'l_ClearUniqueID', .T. )
+			loCnv.setCfgValue( 'n_OptimizeByFilestamp', 0 )
 			*loCnv.l_DropNullCharsFromCode	= .T.
 			*loCnv.l_Test				= .T.
 
@@ -1456,7 +1476,7 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 			lcFileName			= 'f_nullchars_incode.scx'
 			lnNulls_Esperados	= 0
 			
-			*-- Copio la librerÌa en DATOS_TEST
+			*-- Copio la librerùa en DATOS_TEST
 			lc_File				= UPPER(lcFileName)
 			lcExt2				= loCnv.Get_Ext2FromExt( JUSTEXT( lc_File ) )
 			lc_OutputFile		= FORCEPATH( lc_File, oFXU_LIB.cPathDatosTest )
@@ -1479,7 +1499,7 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 			THIS.messageout( "Se comprueba si el archivo texto generado contiene NULLs" )
 			THIS.messageout( "NULLs esperados:   " + TRANSFORM(lnNulls_Esperados) )
 			THIS.messageout( "NULLs encontrados: " + TRANSFORM(lnNulls) )
-			THIS.assertequals( lnNulls_Esperados, lnNulls, "COMPROBACI”N THE NULLS" )
+			THIS.assertequals( lnNulls_Esperados, lnNulls, "COMPROBACIùN THE NULLS" )
 
 
 		CATCH TO loEx
@@ -1508,7 +1528,14 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 		TRY
 			loEx		= NULL
 			loCnv		= NEWOBJECT("c_foxbin2prg", "FOXBIN2PRG.PRG")
-			loCnv.evaluateConfiguration( '1', '1', '1', '0', '1', '4', '1', '0' )
+			loCnv.setCfgValue( 'n_ShowProgressbar', 0 )
+			loCnv.setCfgValue( 'l_ShowErrors', .F. )
+			loCnv.setCfgValue( 'l_NoTimestamps', .T. )
+			loCnv.setCfgValue( 'n_Debug', 0 )
+			loCnv.setCfgValue( 'l_Recompile', .T. )
+			loCnv.setCfgValue( 'n_ExtraBackupLevels', 4 )
+			loCnv.setCfgValue( 'l_ClearUniqueID', .T. )
+			loCnv.setCfgValue( 'n_OptimizeByFilestamp', 0 )
 			loCnv.l_RemoveNullCharsFromCode	= .F.
 			*loCnv.l_Test				= .T.
 
@@ -1518,7 +1545,7 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 			lcFileName			= 'f_nullchars_incode.scx'
 			lnNulls_Esperados	= 2
 			
-			*-- Copio la librerÌa en DATOS_TEST
+			*-- Copio la librerùa en DATOS_TEST
 			lc_File				= UPPER(lcFileName)
 			lcExt2				= loCnv.Get_Ext2FromExt( JUSTEXT( lc_File ) )
 			lc_OutputFile		= FORCEPATH( lc_File, oFXU_LIB.cPathDatosTest )
@@ -1541,7 +1568,7 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 			THIS.messageout( "Se comprueba si el archivo texto generado contiene NULLs" )
 			THIS.messageout( "NULLs esperados:   " + TRANSFORM(lnNulls_Esperados) )
 			THIS.messageout( "NULLs encontrados: " + TRANSFORM(lnNulls) )
-			THIS.assertequals( lnNulls_Esperados, lnNulls, "COMPROBACI”N THE NULLS" )
+			THIS.assertequals( lnNulls_Esperados, lnNulls, "COMPROBACIùN THE NULLS" )
 
 
 		CATCH TO loEx
@@ -1577,7 +1604,14 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 		TRY
 			loEx		= NULL
 			loCnv		= NEWOBJECT("c_foxbin2prg", "FOXBIN2PRG.PRG")
-			loCnv.evaluateConfiguration( '1', '1', '1', '0', '1', '4', '1', '0' )
+			loCnv.setCfgValue( 'n_ShowProgressbar', 0 )
+			loCnv.setCfgValue( 'l_ShowErrors', .F. )
+			loCnv.setCfgValue( 'l_NoTimestamps', .T. )
+			loCnv.setCfgValue( 'n_Debug', 0 )
+			loCnv.setCfgValue( 'l_Recompile', .T. )
+			loCnv.setCfgValue( 'n_ExtraBackupLevels', 4 )
+			loCnv.setCfgValue( 'l_ClearUniqueID', .T. )
+			loCnv.setCfgValue( 'n_OptimizeByFilestamp', 0 )
 			loCnv.n_PRG_COMPAT_LEVEL		= 0
 			*loCnv.l_Test				= .T.
 
@@ -1585,7 +1619,7 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 			*-- DATOS DE ENTRADA
 			STORE 0 TO lnCodError, lnCodError_Esperado
 			
-			*-- Copio la librerÌa en DATOS_TEST
+			*-- Copio la librerùa en DATOS_TEST
 			lc_File				= UPPER(tcFileName)
 			lcExt2				= loCnv.Get_Ext2FromExt( JUSTEXT( tcFileName ) )
 			lc_OutputFile		= FORCEPATH( lc_File, oFXU_LIB.cPathDatosTest )
@@ -1620,7 +1654,7 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 			THIS.messageout( "Se compara el archivo de texto generado con el original luego de 2 regeneraciones, para saber si hay cambios" )
 			THIS.messageout( "OutputFileTx2 = " + lc_OutputFileTx2 )
 			THIS.messageout( "OutputFileBak = " + lc_OutputFileBak )
-			THIS.asserttrue( FILETOSTR( lc_OutputFileTx2 ) == FILETOSTR( lc_OutputFileBak ), "COMPARACI”N DE ARCHIVOS TX2" )
+			THIS.asserttrue( FILETOSTR( lc_OutputFileTx2 ) == FILETOSTR( lc_OutputFileBak ), "COMPARACIùN DE ARCHIVOS TX2" )
 
 
 		CATCH TO loEx
@@ -1741,7 +1775,14 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 			goFXU		= THIS
 			loEx		= NULL
 			loCnv		= NEWOBJECT("c_foxbin2prg", "FOXBIN2PRG.PRG")
-			loCnv.evaluateConfiguration( '1', '1', '1', '0', '1', '4', '1', '0' )
+			loCnv.setCfgValue( 'n_ShowProgressbar', 0 )
+			loCnv.setCfgValue( 'l_ShowErrors', .F. )
+			loCnv.setCfgValue( 'l_NoTimestamps', .T. )
+			loCnv.setCfgValue( 'n_Debug', 0 )
+			loCnv.setCfgValue( 'l_Recompile', .T. )
+			loCnv.setCfgValue( 'n_ExtraBackupLevels', 4 )
+			loCnv.setCfgValue( 'l_ClearUniqueID', .T. )
+			loCnv.setCfgValue( 'n_OptimizeByFilestamp', 0 )
 			*loCnv.l_Test				= .T.
 			loCnv.run_AfterCreate_DB2	= 'run_AfterCreate_DB2__Ejecutado'
 			THIS.run_AfterCreate_DB2__Ejecutado	= .F.
@@ -1750,7 +1791,7 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 			*-- DATOS DE ENTRADA
 			STORE 0 TO lnCodError, lnCodError_Esperado
 			
-			*-- Copio la librerÌa en DATOS_TEST
+			*-- Copio la librerùa en DATOS_TEST
 			lcFileName			= FORCEPATH( 'FB2P_FREE.DBF', oFXU_LIB.cPathDatosReadOnly )
 			lc_File				= UPPER(lcFileName)
 			lcExt2				= loCnv.Get_Ext2FromExt( JUSTEXT( lcFileName ) )
@@ -1801,7 +1842,14 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 			goFXU		= THIS
 			loEx		= NULL
 			loCnv		= NEWOBJECT("c_foxbin2prg", "FOXBIN2PRG.PRG")
-			loCnv.evaluateConfiguration( '1', '1', '1', '0', '1', '4', '1', '0' )
+			loCnv.setCfgValue( 'n_ShowProgressbar', 0 )
+			loCnv.setCfgValue( 'l_ShowErrors', .F. )
+			loCnv.setCfgValue( 'l_NoTimestamps', .T. )
+			loCnv.setCfgValue( 'n_Debug', 0 )
+			loCnv.setCfgValue( 'l_Recompile', .T. )
+			loCnv.setCfgValue( 'n_ExtraBackupLevels', 4 )
+			loCnv.setCfgValue( 'l_ClearUniqueID', .T. )
+			loCnv.setCfgValue( 'n_OptimizeByFilestamp', 0 )
 			*loCnv.l_Test				= .T.
 			loCnv.DBF_Conversion_Support	= 2
 			loCnv.run_AfterCreateTable	= 'run_AfterCreateTable__Ejecutado'
@@ -1811,7 +1859,7 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 			*-- DATOS DE ENTRADA
 			STORE 0 TO lnCodError, lnCodError_Esperado
 			
-			*-- Copio la librerÌa en DATOS_TEST
+			*-- Copio la librerùa en DATOS_TEST
 			lcFileName			= FORCEPATH( 'FB2P_FREE.DB2', oFXU_LIB.cPathDatosReadOnly )
 			lc_File				= UPPER(lcFileName)
 			lcExt2				= loCnv.Get_Ext2FromExt( JUSTEXT( lcFileName ) )
@@ -1874,14 +1922,14 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 			STRTOFILE(lcCFG, FORCEPATH('foxbin2prg.cfg', oFXU_LIB.cPathDatosTest))
 			loCnv		= NEWOBJECT("c_foxbin2prg", "FOXBIN2PRG.PRG", "", 'TESTS\DATOS_TEST\foxbin2prg.cfg')
 			*loCnv		= NEWOBJECT("c_foxbin2prg", "FOXBIN2PRG.PRG")
-			*loCnv.evaluateConfiguration( '1', '1', '1', '0', '1', '4', '1', '0' )
+			*loCnv.setCfgValue( 'n_ShowProgressbar', 0 ) && legacy evaluateConfiguration removed
 			*loCnv.l_Test				= .T.
 
 
 			*-- DATOS DE ENTRADA
 			STORE 0 TO lnCodError, lnCodError_Esperado
 			
-			*-- Copio la librerÌa en DATOS_TEST
+			*-- Copio la librerùa en DATOS_TEST
 			lc_File				= UPPER(tcFileName)
 			lcExt2				= loCnv.Get_Ext2FromExt( JUSTEXT( tcFileName ) )
 			lc_OutputFile		= FORCEPATH( lc_File, oFXU_LIB.cPathDatosTest )
@@ -1921,13 +1969,13 @@ DEFINE CLASS ut__foxbin2prg AS FxuTestCase OF FxuTestCase.prg
 			THIS.messageout( "Se compara el archivo de texto generado con el original luego de 2 regeneraciones, para saber si hay cambios" )
 			*THIS.messageout( "OutputFileTx2 = " + lc_OutputFileTx2 )
 			*THIS.messageout( "OutputFileBak = " + lc_OutputFileBak )
-			*THIS.asserttrue( FILETOSTR( lc_OutputFileTx2 ) == FILETOSTR( lc_OutputFileBak ), "COMPARACI”N DE ARCHIVOS TX2" )
+			*THIS.asserttrue( FILETOSTR( lc_OutputFileTx2 ) == FILETOSTR( lc_OutputFileBak ), "COMPARACIùN DE ARCHIVOS TX2" )
 
 			FOR I = 1 TO ALEN(laFiles, 1)
 				THIS.messageout( "--------------------" )
 				THIS.messageout( "OutputFileTx2 = " + laFiles(I,1) )
 				THIS.messageout( "OutputFileBak = " + laFiles(I,1) + '.bak' )
-				THIS.asserttrue( FILETOSTR( FORCEPATH( laFiles(I,1), oFXU_LIB.cPathDatosTest ) ) == FILETOSTR( FORCEPATH( laFiles(I,1) + '.bak', oFXU_LIB.cPathDatosTest ) ), "COMPARACI”N DE ARCHIVOS TX2" )
+				THIS.asserttrue( FILETOSTR( FORCEPATH( laFiles(I,1), oFXU_LIB.cPathDatosTest ) ) == FILETOSTR( FORCEPATH( laFiles(I,1) + '.bak', oFXU_LIB.cPathDatosTest ) ), "COMPARACIùN DE ARCHIVOS TX2" )
 			ENDFOR
 
 

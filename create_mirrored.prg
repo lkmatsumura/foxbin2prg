@@ -170,7 +170,7 @@ Local loFb2p4 As c_foxbin2prg Of 'c_foxbin2prg.prg' ;
     , loEx     As Exception
 loFb2p4 = Newobject( 'c_foxbin2prg', 'c_foxbin2prg.prg' )
 
-*-- Apply the CFG object to the instance (evaluateConfiguration; active for execute).
+*-- Apply the CFG object to the instance (active for execute / exportProjectTree).
 loFb2p4.applyConfig( loCfg )
 
 *-- Session paths (not CFG): mirrored tree source/destination roots.
@@ -196,7 +196,7 @@ Local loFb2p5 As c_foxbin2prg Of 'c_foxbin2prg.prg' ;
     , loEx5    As Exception
 loFb2p5 = Newobject( 'c_foxbin2prg', 'c_foxbin2prg.prg' )
 
-*-- Apply the CFG object to the instance (evaluateConfiguration; active for execute).
+*-- Apply the CFG object to the instance (active for execute / importProjectTree).
 loFb2p5.applyConfig( loCfg )
 
 *-- Session paths (not CFG): mirrored source root and binary destination.

@@ -92,17 +92,31 @@ All limitations that occur to a binary format must be kept on the text represent
 the definition of a HEADER class to a VCX will fail.
 
 ## Configuration file
-It is possible to create a template or a config with all options and comments via   
+
+> **Current behavior (2026):** FoxBin2Prg no longer reads `foxbin2prg.cfg` from disk and **`evaluateConfiguration()` has been removed**. Configuration is **programmatic only**: create a CFG object with `newConfig()`, assign properties, and pass it to `execute`, `exportProjectTree`, `importProjectTree`, or call `applyConfig(loCfg)` before other operations. See [arquitetura.md — Configuration model](./arquitetura.md#configuration-model-cl_fb2prg_cfg-via-o_cfg) and [export_import_mirror.md](./export_import_mirror.md).
+
+The table below lists **legacy `foxbin2prg.cfg` keywords** and their meaning. Each keyword maps to a property on the CFG object (column **Programmatic property** in [export_import_mirror.md](./export_import_mirror.md)). Use `DO main.prg` with no input file to open the in-app configuration reference (`formatConfigReferenceText()`).
+
+~~It is possible to create a template or a config with all options and comments via~~
 ```
-DO FOXBIN2PRG.PRG WITH "-c","template.cfg"    &&==> Generates a template for FoxBin2Prg.cfg config file with newest settings
-DO FOXBIN2PRG.PRG WITH "-C","config.cfg"      &&==> Generates a config file like FoxBin2Prg.cfg with recent settings of path of second parameter
+~~DO FOXBIN2PRG.PRG WITH "-c","template.cfg"~~
+~~DO FOXBIN2PRG.PRG WITH "-C","config.cfg"~~
 ```
-See [command line](./FoxBin2Prg_Run.md#usage-2).   
-The config file is used to move local setting to a different comupter or for changes while branching.
- 
-The options in the template (or in the config that ships with FoxBin2Prg) are commented out.
-To activate an option remove the asterix and set appropriate value.   
-These are the FoxBin2Prg.cfg configuration file settings and their meaning:
+~~See [command line](./FoxBin2Prg_Run.md#usage-2).~~
+~~The config file is used to move local setting to a different comupter or for changes while branching.~~
+
+Example (programmatic):
+
+```foxpro
+loCnv = NewObject('c_foxbin2prg', 'c_foxbin2prg.prg')
+loCfg = loCnv.newConfig()
+loCfg.l_NoTimestamps = .T.
+loCfg.n_UseClassPerFile = 1
+loCnv.applyConfig(loCfg)
+lnErr = loCnv.execute('d:\proj\app.pjx', '*')
+```
+
+These are the configuration settings and their meaning (legacy keyword → CFG property):
 
 | FoxBin2Prg.cfg keywords | Value (_Default_) | Description |
 | ----- | ----- | ----- |
@@ -637,27 +651,23 @@ lnCnt = loCnv.get_Processed(@aProcs, "*.vcx")
 ````
 Check if a file has support for converting to text:
 ````
-loCnv.evaluateConfiguration( '', '', '', '', '', '', '', '', <Path>, 'D' )
 ? loCnv.hasSupport_Bin2Prg("<Path>\file.vcx")
 ? loCnv.hasSupport_Bin2Prg("<Path>\file.ppt")
 ````
-#### Note
-If you query for support in different subdirectories,
-then you need to call `evaluateConfiguration()` method for refreshing the CFG info that is used by those methods.
+Support depends on the active session CFG (`o_MasterCFG`). After changing settings with `applyConfig` or `setCfgValue`, call `hasSupport_*` again if needed.
 
 Clear the cache of processed files for allowing reprocessing a file:
 ````
 loCnv.clearProcessedFiles()
 ````
-Get a CFG object with the settings that will be applied to a directory
+Get a factory-default CFG object (clone of built-in defaults):
 ````
-oCFG = loCnv.get_DirSettings( "c:\developments\projects\myproj_1" )
+oCFG = loCnv.get_DirSettings()
 ? oCFG.n_UseClassPerFile
-? oCFG.DBF_Conversion_Support
+? oCFG.n_DBF_Conversion_Support
 ````
 #### Note
-`get_DirSettings()` method internally calls `evaluateConfiguration()`
-method for refreshing the CFG info before returning the CFG object.
+`get_DirSettings()` returns **`newConfig()`** (factory defaults). It does **not** read `foxbin2prg.cfg` or evaluate directory inheritance. To use custom settings, build `loCfg = loCnv.newConfig()`, assign properties, and pass `loCfg` to `execute` or `applyConfig`.
 
 
 Check if a file was processed:
@@ -680,16 +690,17 @@ This is a list of available methods and properties:
 
 | Method()/Property<br/>Syntax | Description |
 | -| - |
-| **execute**<br/>loCnv.execute( cInputFile [,cType [,cTextName [,lGenText [,cDontShowErrors [,cDebug [,cDontShowProgress [,oModule [,oEx [,lRelanzarError [,cOriginalFileName [,cRecompile [,cNoTimestamps [,cBackupLevels [,cClearUniqueID [,cOptimizeByFilestamp [,cCFG_File](,cType-[,cTextName-[,lGenText-[,cDontShowErrors-[,cDebug-[,cDontShowProgress-[,oModule-[,oEx-[,lRelanzarError-[,cOriginalFileName-[,cRecompile-[,cNoTimestamps-[,cBackupLevels-[,cClearUniqueID-[,cOptimizeByFilestamp-[,cCFG_File ] ] ] ] ] ] ] ] ] ] ] ] ] ] ) | Main execution method to start a conversion<br/> See [Object version](./FoxBin2Prg_Object.md#execute) |
+| **execute**<br/>loCnv.execute( cInputFile [,cType [,toCfg [,toEx]]] ) | Main execution method to start a conversion. Optional `toCfg` is a CFG object from `newConfig()`. See [Object version](./FoxBin2Prg_Object.md#execute) |
+| **applyConfig**<br/>loCnv.applyConfig( toCfg ) | Copies a CFG object into the session master CFG (`o_MasterCFG`) |
+| **newConfig**<br/>loCnv.newConfig() | Returns a new CFG object cloned from factory defaults |
 | **conversionSupportType**<br/>loCnv.conversionSupportType( cFilename ) | Return the code of the support type (0,1,2,4,8) |
 | **get_DBF_Configuration**<br/>loCnv.get_DBF_Configuration( cInputFile, @oOutDbfCfg ) | Returns 1 if a CFG is found for the indicated DBF, or 0 if not  |
 | **hasSupport_Bin2Prg**<br/>loCnv.hasSupport_Bin2Prg( cFilename.ext )<br/>loCnv.hasSupport_Bin2Prg( cExt ) | Returns .T. if there is support for converting the file or filetype indicated to _text_ |
 | **hasSupport_Prg2Bin**<br/>loCnv.hasSupport_Prg2Bin( cFilename.ext )<br/>loCnv.hasSupport_Prg2Bin( cExt ) | Returns .T. if there is support for converting the file or filetype indicated to _Binary_ |
-| **evaluateConfiguration**<br/>loCnv.evaluateConfiguration( cDontShowProgress [,cDontShowErrors [,cNoTimestamps [,cDebug [,cRecompile [,cBackupLevels [,cClearUniqueID [,cOptimizeByFilestamp [,cInputFile [,cInputFileTypeType [,cCFG_File](,cDontShowErrors-[,cNoTimestamps-[,cDebug-[,cRecompile-[,cBackupLevels-[,cClearUniqueID-[,cOptimizeByFilestamp-[,cInputFile-[,cInputFileTypeType-[,cCFG_File) ] ] ] ] ] ] ] ] ) | Forces FoxBin2Prg to process the directory indicated in the cInputFile and update any CFG in the directory or their parents |
 | **loadProgressbarForm**<br/>loCnv.loadProgressbarForm() | Load and show the progressbar form as upper level window |
 | **unloadProgressbarForm**<br/>loCnv.unloadProgressbarForm() | Hide and unload the progressbar form |
 | **updateProgressbar**<br/>loCnt.updateProgressbar( cText, nValue, nTotal, nType ) | Update the progressbar and the message. nType indicates which progressbar to update, being 0=1st PB and 1=2nd PB |
-| **get_DirSettings**<br/>loCnv.get_DirSettings( cDir ) | Returns a CFG object with the settings that are applied on the indicated directory |
+| **get_DirSettings**<br/>loCnv.get_DirSettings( [cDir [,cDebug [,toCfg]]] ) | Returns a **factory-default** CFG clone (`newConfig()`). Does not read disk `.cfg` files |
 | **get_Ext2FromExt**<br/>loCnv.get_Ext2FromExt( cExt ) | Returns the _text extension_ corresponding to the _Binary_ extension indicated |
 | **get_Processed**<br/>loCnv.get_Processed( @aProcessed, cFileMask ) | Returns an array with the status of the files being processed or that will be processed in no-real-process-mode if you set `l_ProcessFiles=.F.` before the call. Columns returned are 6: "cFile, cInOutType, cProcessed, cHasErrors, cSupported, cExpanded"` |
 | **clearProcessedFiles**<br/>loCnv.clearProcessedFiles() | Clear the statistics and the cache about processed files. If a file was processed and is already processed, being not cached will force to process it again |

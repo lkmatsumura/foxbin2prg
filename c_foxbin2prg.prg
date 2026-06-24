@@ -27,7 +27,6 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       + [<memberdata name="evaluate_full_pjx" display="evaluate_Full_PJX"/>] ;
       + [<memberdata name="ensurecfg" display="ensureCfg"/>] ;
       + [<memberdata name="ensurespecialprops" display="ensureSpecialProps"/>] ;
-      + [<memberdata name="evaluateconfiguration" display="evaluateConfiguration"/>] ;
       + [<memberdata name="exception2str" display="exception2Str"/>] ;
       + [<memberdata name="exportprojecttree" display="exportProjectTree"/>] ;
       + [<memberdata name="importprojecttree" display="importProjectTree"/>] ;
@@ -276,7 +275,6 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureCfg()
       This.o_Cfg.setup()
       This.ensureSpecialProps()
-      This.evaluateConfiguration()
       RELEASE lcSys16, lnPosProg, lc_Foxbin2prg_EXE, laValues
       RETURN
    ENDPROC
@@ -705,15 +703,6 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          This.o_Frm_Avance = .NULL.
       ENDIF
    ENDPROC
-
-
-   PROCEDURE evaluateConfiguration
-      LPARAMETERS toCfg
-      This.ensureCfg()
-      This.o_Cfg.evaluateConfiguration(,,,,,,,,,,, toCfg)
-   ENDPROC
-
-
 
 
    FUNCTION comparedFilesAreEqual
@@ -1146,18 +1135,14 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       *--------------------------------------------------------------------------------------------------------------
       LPARAMETERS tc_InputFile, tcType, toCfg, toEx AS EXCEPTION
 
-      LOCAL tcTextName, tlGenText, tcDontShowErrors, tcDebug, tcDontShowProgress
+      LOCAL tcTextName, tlGenText
       LOCAL toModulo, tlRelanzarError, tcOriginalFileName, tcRecompile
-      LOCAL tcNoTimestamps, tcBackupLevels, tcClearUniqueID, tcOptimizeByFilestamp
-      LOCAL tcCFG_File
 
-      STORE '' TO tcTextName, tcDontShowErrors, tcDebug, tcDontShowProgress
-      STORE '' TO tcOriginalFileName, tcRecompile, tcNoTimestamps, tcBackupLevels
-      STORE '' TO tcClearUniqueID, tcOptimizeByFilestamp
+      STORE '' TO tcTextName
+      STORE '' TO tcOriginalFileName, tcRecompile
       tlGenText       = .F.
       toModulo        = .NULL.
       tlRelanzarError = .F.
-      tcCFG_File      = toCfg
 
       TRY
          LOCAL I, lcPath, lnCodError, lcFileSpec, lcFile, lcInputFile_Type, lc_OldSetNotify ;

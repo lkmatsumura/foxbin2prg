@@ -35,7 +35,7 @@ Try to run it on a cheap NAS, it's nothing then a pain.
 
 If, despite the warning, you have no other choice that keep using it,
 then you must know that FoxBin2Prg have integration with it,
-thanks to the configuration file foxbin2prg.cfg and the capability to change default extensions from tx2 to txa (sc2>sca, and so on).
+thanks to programmatic CFG objects (`newConfig()` / `applyConfig()`) and the capability to change default extensions (e.g. `loCfg.c_SC2 = 'SCA'` instead of SC2, and so on).
 In fact you can merge binaries as you probably have never seen :-)
 
 ----

@@ -14,12 +14,12 @@ A classe **`c_foxbin2prg`** herda de **`Session`** e funciona como **orquestrado
 flowchart TB
     subgraph entrada [Entrada]
         CLI[Linha de comando / API]
-        CFG[foxbin2prg.cfg / CL_CFG]
+        CFG[newConfig / applyConfig]
     end
 
     subgraph core [c_foxbin2prg]
         EXEC[execute]
-        EVALCFG[evaluateConfiguration]
+        CFGM[cl_fb2prg_cfg o_Cfg]
         CONV[convert / loadModule]
         PROJ[evaluate_Full_PJX / PJ2]
     end
@@ -32,8 +32,8 @@ flowchart TB
     end
 
     CLI --> EXEC
-    CFG --> EVALCFG
-    EXEC --> EVALCFG
+    CFG --> CFGM
+    EXEC --> CFGM
     EXEC --> PROJ
     EXEC --> CONV
     PROJ --> CONV
@@ -78,10 +78,11 @@ flowchart TB
 
 | Propriedade | Finalidade |
 |---|---|
-| `o_Configuration` (Collection) | Cache de `CL_CFG` por diretório |
-| `n_CFG_Actual`, `l_CFG_CachedAccess`, `l_Main_CFG_Loaded` | CFG ativa e cache |
-| `n_CFG_EvaluateFromParam`, `l_SingleConfig`, `c_SingleConfig_Folder` | CFG manual / herança |
-| `n_InhibitInheritance`, `l_AllowFolder` | Controle de herança de CFG |
+| `o_Cfg` (`cl_fb2prg_cfg`) | Gerenciador de CFG: `o_FactoryCFG`, `o_MasterCFG`, `newConfig()`, `applyConfig()` |
+| `n_CFG_EvaluateFromParam` | `1` quando `o_MasterCFG` foi fixado por objeto programático (`lockMasterFromObject`) |
+| `c_Foxbin2prg_ConfigFile` | Referência ao objeto CFG ativo (quando aplicável) |
+
+> **Nota (2026):** `foxbin2prg.cfg` em disco, `o_Configuration` (Collection) e `evaluateConfiguration()` foram removidos. Configuração é exclusivamente por objeto CFG.
 
 ### Extensões texto (TX2)
 
@@ -135,7 +136,7 @@ flowchart TB
 
 | Método | Linhas ~ | Finalidade |
 |---|---|---|
-| **`Init`** | 284–390 | Inicializa ambiente VFP, DLLs, logs, idioma, `o_FSO`, `o_Configuration`, `CL_CFG`; chama `evaluateConfiguration` |
+| **`Init`** | 284–390 | Inicializa ambiente VFP, DLLs, logs, idioma, `o_FSO`, `o_Cfg.setup()` |
 | **`Destroy`** | 391–428 | Flush de logs, libera forms/objetos, `Clear DLLs` |
 
 ### 2. Ponto de entrada principal
@@ -162,18 +163,20 @@ flowchart TB
 
 Ambos iteram arquivos, chamam `convert`/`hasSupport_*` e atualizam progress bar.
 
-### 5. Configuração (`evaluateConfiguration` + accessors)
+### 5. Configuração (`cl_fb2prg_cfg` via `o_Cfg`)
 
 | Método | Finalidade |
 |---|---|
-| **`evaluateConfiguration`** | ~990 linhas: lê `foxbin2prg.cfg`, herança por diretório, cache em `o_Configuration`, locks `.FoxBin2Prg_Ignore`, merge de parâmetros CLI |
-| **`get_DirSettings`** | Retorna objeto `CL_CFG` do diretório (API pública) |
+| **`applyConfig`** | Copia objeto CFG para `o_MasterCFG` (`lockMasterFromObject`) |
+| **`newConfig`** | Clone dos defaults de fábrica para uso programático |
+| **`get_DirSettings`** | Retorna clone de fábrica (`newConfig()`); **não lê disco** |
+| **`getCfgValue` / `setCfgValue`** | Leitura/escrita na CFG de sessão |
 | **`get_DBF_Configuration`** | CFG específica por tabela DBF (`tabela.dbf.cfg`) |
-| **38 métodos `*_ACCESS`** | Property hooks: retornam valor da CFG cacheada (`n_CFG_Actual`) ou default da instância |
+| **`formatConfigReferenceText`** | Texto de referência para `frm_main` |
 
-**Padrão `_ACCESS`:** centraliza multi-config sem repetir `Nvl(o_Configuration(...))` em todo o código.
+Delegação: a lógica vive em `cl_fb2prg_cfg.prg`; `c_foxbin2prg` expõe wrappers finos (`ensureCfg()` + `o_Cfg.*`).
 
-**Accessors principais:** `n_Debug`, `l_ShowErrors`, `n_ShowProgressbar`, `l_NoTimestamps`, extensões `c_VC2`…`c_ME2`, suportes `n_*_Conversion_Support`, opções class/form/DBC per file, DBF, backup, etc.
+> **Removido:** `evaluateConfiguration()` (~990 linhas legadas: `foxbin2prg.cfg`, herança por diretório, parâmetros CLI em string).
 
 ### 6. Suporte e detecção de tipos
 
@@ -267,7 +270,6 @@ Ambos iteram arquivos, chamam `convert`/`hasSupport_*` e atualizam progress bar.
 | 1355 | `doBackup` |
 | 1469 | `loadProgressbarForm` |
 | 1477 | `unloadProgressbarForm` |
-| 1487 | `evaluateConfiguration` |
 | 2479 | `comparedFilesAreEqual` |
 | 2558 | `filenameFoundInFilter` |
 | 2581 | `get_DBF_Configuration` |
@@ -313,7 +315,6 @@ Ambos iteram arquivos, chamam `convert`/`hasSupport_*` e atualizam progress bar.
 | Problema | Impacto |
 |---|---|
 | **`execute` com ~1.170 linhas** | Dificulta leitura, testes e manutenção |
-| **`evaluateConfiguration` com ~990 linhas** | Mesma lógica de CFG espalhada |
 | **Duplicação `convert` ↔ `loadModule`** | Factory de conversores e setup repetidos |
 | **38 métodos `_ACCESS` repetitivos** | ~650 linhas boilerplate |
 | **`wscriptshell_run` dentro da classe** | Responsabilidade OS/processo misturada |
@@ -326,18 +327,9 @@ Ambos iteram arquivos, chamam `convert`/`hasSupport_*` e atualizam progress bar.
 
 ### Extrações recomendadas (por prioridade)
 
-#### 1. `c_FB2P_ConfigResolver` (~1.650 linhas)
+#### 1. `cl_fb2prg_cfg` (já extraído)
 
-Extrair:
-
-- `evaluateConfiguration`
-- Todos os `*_ACCESS`
-- `get_DBF_Configuration`
-- `get_DirSettings`
-
-`c_foxbin2prg` compõe este objeto e delega leitura de propriedades configuráveis.
-
-**Alternativa VFP9:** mover accessors para `CL_CFG` com método `GetValue(tcPropName)` e eliminar os 38 métodos `_ACCESS`.
+Responsável por schema, defaults, `newConfig()`, `applyConfig()` e resolução via `getCfgValue`. A extração de `evaluateConfiguration` e dos accessors `_ACCESS` para este módulo já foi concluída parcialmente.
 
 #### 2. `c_FB2P_ConversionFactory` (~150 linhas)
 
@@ -413,12 +405,15 @@ Remove ~340 linhas duplicadas.
 classDiagram
     class c_foxbin2prg {
         +execute()
+        +applyConfig()
+        +newConfig()
         +get_DirSettings()
         +get_Processed()
     }
-    class c_FB2P_ConfigResolver {
-        +evaluateConfiguration()
-        +GetConfigValue(prop)
+    class cl_fb2prg_cfg {
+        +newConfig()
+        +applyConfig()
+        +getCfgValue(prop)
     }
     class c_FB2P_ConversionFactory {
         +CreateConversor(ext, dir)
@@ -435,7 +430,7 @@ classDiagram
         +loadModule()
     }
 
-    c_foxbin2prg --> c_FB2P_ConfigResolver
+    c_foxbin2prg --> cl_fb2prg_cfg
     c_foxbin2prg --> c_FB2P_ConversionFactory
     c_foxbin2prg --> c_FB2P_FileOps
     c_foxbin2prg --> c_FB2P_Logger
@@ -446,7 +441,7 @@ classDiagram
 
 1. **Fase 1:** Factory de conversores + unificar `convert`/`loadModule` (sem mudar API pública).
 2. **Fase 2:** Extrair `c_FB2P_Logger` e `c_FB2P_FileOps` (métodos sem estado complexo).
-3. **Fase 3:** Extrair `c_FB2P_ConfigResolver`; substituir `_ACCESS` por delegação.
+3. **Fase 3:** Refinar `cl_fb2prg_cfg`; reduzir wrappers em `c_foxbin2prg` onde ainda existirem.
 4. **Fase 4:** Quebrar `execute` em métodos privados; extrair batch de projetos.
 5. **Fase 5:** Mover `wscriptshell_run` e `readInputVFPParams` para PRG/procedimento utilitário.
 
@@ -460,11 +455,11 @@ As classes `c_conversor_*` e modelos `CL_*` já estão bem separados em `foxbin2
 
 `c_foxbin2prg` concentra **orquestração**, **configuração multi-diretório**, **I/O de arquivos**, **logging**, **UI** e **delegação de conversão** num único God Object. A extração mais impactante seria:
 
-1. Resolver de configuração (elimina ~650 linhas de `_ACCESS` + `evaluateConfiguration`)
+1. Refinar `cl_fb2prg_cfg` (CFG object-only; `evaluateConfiguration` já removido)
 2. Factory de conversores (elimina duplicação `convert`/`loadModule`)
 3. Decomposição de `execute` em fluxos menores
 
-Com isso, a classe principal poderia cair de ~5.950 para ~1.500–2.000 linhas, mantendo a API pública (`execute`, `get_DirSettings`, `get_Processed`) estável para compatibilidade com SCM, Thor e testes existentes.
+Com isso, a classe principal pode continuar a encolher, mantendo a API pública (`execute`, `applyConfig`, `newConfig`, `get_DirSettings`, `get_Processed`) estável para SCM, Thor e testes.
 
 ---
 

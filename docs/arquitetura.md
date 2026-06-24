@@ -191,7 +191,7 @@ classDiagram
 |--------|---------|------------|
 | **main.prg** | `main.prg` | CLI entry point; receives parameters and instantiates `c_foxbin2prg` |
 | **c_foxbin2prg** | `c_foxbin2prg.prg` | Central orchestrator: session, log, progress, extension routing, full-project conversion; delegates CFG to `o_Cfg` |
-| **cl_fb2prg_cfg** | `cl_fb2prg_cfg.prg` | Configuration manager: `createCfgShell()` schema, `evaluateConfiguration()` parser, `o_FactoryCFG` / `o_MasterCFG` / `o_Configuration` state |
+| **cl_fb2prg_cfg** | `cl_fb2prg_cfg.prg` | Configuration manager: `createCfgShell()` schema, `newConfig()` / `applyConfig()` / `lockMasterFromObject()`, `o_FactoryCFG` / `o_MasterCFG` |
 | **cl_file_utils** | `cl_file_utils.prg` | Win32/path helpers (`o_FileUtils` on the host) |
 | **cl_fb2prg_mirror** | `cl_fb2prg_mirror.prg` | Mirrored project tree (`o_Mirror` on the host) |
 | **CL_LANG** | `cl_lang.prg` | Localized strings (EN/ES/FR/DE) for UI and log |
@@ -308,12 +308,14 @@ classDiagram
 | FKY | FK2 |
 | MEM | ME2 |
 
-Extensions are configurable via `FoxBin2Prg.cfg` (e.g. `extension: VC2=VCA` for SourceSafe). FKY and MEM: export only (see note above).
+Extensions are configurable via a CFG object (e.g. `loCfg.c_VC2 = 'VCA'` for SourceSafe). FKY and MEM: export only (see note above).
 
 ---
 
 
 ### Configuration model (`cl_fb2prg_cfg` via `o_Cfg`)
+
+Configuration is **object-only**: no `foxbin2prg.cfg` on disk and no per-directory inheritance. Use `newConfig()`, assign properties, then pass the object to `execute`, `exportProjectTree`, `importProjectTree`, or `applyConfig`.
 
 ```mermaid
 flowchart TB
@@ -322,43 +324,40 @@ flowchart TB
     Shell["createCfgShell<br/>canonical defaults"]
     Factory["o_FactoryCFG"]
     Master["o_MasterCFG"]
-    Coll["o_Configuration"]
     Resolve["getCfgValue / getActiveCfg"]
 
     Host -->|"ensureCfg + delegates"| CfgMgr
     Shell -->|"captureFactoryCFG()"| Factory
     Factory -->|"newConfig()"| NewCfg["New CFG objects"]
-    Factory -->|"reset via tcCFG_File"| Master
-    Master --> Coll
-    Coll --> Resolve
+    Factory -->|"clearConfigurationCache()"| Master
     Master --> Resolve
     Factory --> Resolve
     CfgMgr -->|"writeLog, changeLanguage"| Host
+    NewCfg -->|"applyConfig / execute(..., loCfg)"| Master
 ```
 
 | Role | Object / API | Description |
 |-------|----------------|-----------|
-| Factory defaults | `createCfgShell()` in `cl_fb2prg_cfg` | Canonical schema source (`n_Debug = 0`, `c_VC2 = 'VC2'`, ...) |
+| Factory defaults | `createCfgShell()` in `cl_fb2prg_cfg` | Canonical schema source (`n_Debug = 0`, `c_VC2 = 'VC2'`, …) |
 | Factory snapshot | `o_FactoryCFG` | Cloned in `setup()` with `captureFactoryCFG()`; **immutable** at runtime; base for `newConfig()` and reset |
-| Master CFG | `o_MasterCFG` | Effective session CFG: root after reading `FoxBin2Prg.cfg`, factory reset, and **sole source in mode C** (`loCfg` object) |
-| Per-directory CFG | Items in `o_Configuration` | Per-folder cache for on-disk inheritance (modes A/B); key = `.cfg` path |
-| Resolution | `getActiveCfg()`, `getCfgValue('prop')` | Mode C (`n_CFG_EvaluateFromParam=1`): `o_MasterCFG` only; otherwise collection item -> `o_MasterCFG` -> `o_FactoryCFG` |
-| Programmatic use | `newConfig()` + props + `applyConfig()` / `exportProjectTree(..., loCfg)` | Copies into `o_MasterCFG` and locks on-disk `.cfg` reads |
-| Directory CFG | `get_DirSettings(tcDir)` | Evaluates the `.cfg` chain and returns the CFG object for the path (modes A/B) |
+| Master CFG | `o_MasterCFG` | Effective session CFG: factory defaults after `setup()`, or copy from `applyConfig` / `execute(..., loCfg)` |
+| Resolution | `getActiveCfg()`, `getCfgValue('prop')` | Reads from `o_MasterCFG`; `n_DebugP` on the host overrides `n_Debug` when set |
+| Programmatic use | `newConfig()` + props + `applyConfig()` / `execute(..., loCfg)` / `exportProjectTree(..., loCfg)` | Copies into `o_MasterCFG` via `lockMasterFromObject` |
+| Factory clone (API) | `get_DirSettings(tcDir)` | Returns a **factory-default** CFG clone (`newConfig()`); does not read disk |
+| Reference | `formatConfigReferenceText()` | Help text for `frm_main`; `DO main.prg` with no file shows the reference form |
 
-**Input modes**
+**Typical flow**
 
-| Mode | Trigger | Effective CFG | Per-folder `.cfg` on disk |
-|------|---------|-------------|---------------------------|
-| A | `DO main WITH file` (no CFG object) | `o_Configuration(n_CFG_Actual)` after inheritance | Read and cached |
-| B | `tcCFG_File` string in `main.prg` / `execute` | Reset `o_MasterCFG` + `InhibitInheritance` rules | Per rules |
-| C | `execute(..., loCfg)` / `exportProjectTree` / `applyConfig` | **`o_MasterCFG` only** | **Ignored** (`lockMasterFromObject` clears the collection) |
+| Step | API | Result |
+|------|-----|--------|
+| Init | `o_Cfg.setup()` | `o_FactoryCFG` captured; `o_MasterCFG` = factory clone |
+| Optional session override | `applyConfig(loCfg)` | `loCfg` copied into `o_MasterCFG`; `n_CFG_EvaluateFromParam = 1` |
+| Run conversion | `execute(path, type, loCfg)` | If `loCfg` passed, locks master CFG before processing |
+| Reset to defaults | `clearConfigurationCache()` | Restores `o_MasterCFG` from `o_FactoryCFG` |
 
-`n_CFG_EvaluateFromParam`: `0` = normal disk; `1` = mode C (locked to `o_MasterCFG`); `>1` = legacy collection index.
+**Removed (legacy):** `evaluateConfiguration()` and on-disk `foxbin2prg.cfg` inheritance. Property names in older docs map to the same fields on the CFG object (see `getConfigPropertyCatalog()` in `cl_fb2prg_cfg.prg`).
 
-**Note:** On `INIT`, the `foxbin2prg.cfg` next to the EXE is read into `o_MasterCFG` (mode A). With `exportProjectTree(..., loCfg)`, mode C copies `loCfg` into `o_MasterCFG` and **discards** collection items from disk — the EXE `.cfg` must **not** override the passed object (after rebuild).
-
-Special cases: `n_DebugP` on the host session overrides CFG; `c_Language` is global on the session; `n_InhibitInheritance` reads collection item 1.
+Special cases: `n_DebugP` on the host session overrides CFG; `c_Language` is global on the session.
 
 ---
 
@@ -376,7 +375,7 @@ sequenceDiagram
 
     U->>M: DO main WITH "project.pjx", "*"
     M->>F: execute()
-    F->>F: evaluateConfiguration() / CL_LANG
+    F->>F: o_Cfg.setup() already done in Init / CL_LANG
     F->>F: evaluate_Full_PJX()
 
     Note over F: 1. Convert PJX -> PJ2
@@ -525,7 +524,7 @@ lnResp = loFb2p.importProjectTree( tcMirrorProjectFile, tcOutputRoot [, toCfg] [
 |-----------|--------|--------|
 | Project file | `tcProjectFile` — `.PJX` in the project folder | `tcMirrorProjectFile` — `.PJ2` in the mirrored tree (or `c_PJ2` CFG value) |
 | Destination root | `tcOutputRoot` — folder where text files are written | `tcOutputRoot` — folder where binaries are regenerated |
-| Configuration | `toCfg` — CFG object (`newConfig()` / `isCfg`), duck-typed object (`configFromObject`), or `.cfg` path (string) | same |
+| Configuration | `toCfg` — CFG object (`newConfig()` / `isCfg`) or duck-typed object (`configFromObject`) | same |
 | Source root | `tcInputRoot` — project folder (default: PJX folder) | `tcInputRoot` — mirrored tree root (default: PJ2 folder) |
 
 Internally, both methods call `o_Mirror.setProjectRoots(tcOutputRoot, tcInputRoot)` and `execute(..., '*')`, which routes to `evaluate_Full_PJX` (export) or `evaluate_Full_PJ2` (import).
