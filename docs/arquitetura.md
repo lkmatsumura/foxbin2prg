@@ -18,7 +18,6 @@ flowchart TB
         FB2P["c_foxbin2prg<br/>(SESSION)"]
         CFG["CFG objects<br/>(newConfig / Empty)"]
         LANG["CL_LANG"]
-        DBFCFG["CL_DBF_CFG"]
         UI["frm_main / frm_interactive / frm_avance"]
     end
 
@@ -195,7 +194,6 @@ classDiagram
 | **cl_file_utils** | `cl_file_utils.prg` | Win32/path helpers (`o_FileUtils` on the host) |
 | **cl_fb2prg_mirror** | `cl_fb2prg_mirror.prg` | Mirrored project tree (`o_Mirror` on the host) |
 | **CL_LANG** | `cl_lang.prg` | Localized strings (EN/ES/FR/DE) for UI and log |
-| **CL_DBF_CFG** | `cl_dbf_cfg.prg` | Per-DBF-table configuration |
 | **frm_main** | `frm_main.prg` | Help/about form |
 | **frm_interactive** | `frm_interactive.prg` | UI to choose bin<->text direction |
 | **frm_avance** | `frm_avance.prg` | Progress bar |

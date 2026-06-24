@@ -67,7 +67,6 @@ WITH loProject.FILES
 	.ADD('c_conversor_scx_a_prg.prg')		&& *< FileMetadata: Type="P" Cpid="1252" Timestamp="0" ID="0" ObjRev="544" User="" />
 	.ADD('c_conversor_vcx_a_prg.prg')		&& *< FileMetadata: Type="P" Cpid="1252" Timestamp="0" ID="0" ObjRev="544" User="" />
 	.ADD('c_foxbin2prg.prg')		&& *< FileMetadata: Type="P" Cpid="1252" Timestamp="0" ID="0" ObjRev="544" User="" />
-	.ADD('cl_cfg.prg')		&& *< FileMetadata: Type="P" Cpid="1252" Timestamp="0" ID="0" ObjRev="544" User="" />
 	.ADD('cl_clase.prg')		&& *< FileMetadata: Type="P" Cpid="1252" Timestamp="0" ID="0" ObjRev="544" User="" />
 	.ADD('cl_classlib.prg')		&& *< FileMetadata: Type="P" Cpid="1252" Timestamp="0" ID="0" ObjRev="544" User="" />
 	.ADD('cl_col_base.prg')		&& *< FileMetadata: Type="P" Cpid="1252" Timestamp="0" ID="0" ObjRev="544" User="" />
@@ -91,7 +90,6 @@ WITH loProject.FILES
 	.ADD('cl_dbc_tables.prg')		&& *< FileMetadata: Type="P" Cpid="1252" Timestamp="0" ID="0" ObjRev="544" User="" />
 	.ADD('cl_dbc_view.prg')		&& *< FileMetadata: Type="P" Cpid="1252" Timestamp="0" ID="0" ObjRev="544" User="" />
 	.ADD('cl_dbc_views.prg')		&& *< FileMetadata: Type="P" Cpid="1252" Timestamp="0" ID="0" ObjRev="544" User="" />
-	.ADD('cl_dbf_cfg.prg')		&& *< FileMetadata: Type="P" Cpid="1252" Timestamp="0" ID="0" ObjRev="544" User="" />
 	.ADD('cl_dbf_field.prg')		&& *< FileMetadata: Type="P" Cpid="1252" Timestamp="0" ID="0" ObjRev="544" User="" />
 	.ADD('cl_dbf_fields.prg')		&& *< FileMetadata: Type="P" Cpid="1252" Timestamp="0" ID="0" ObjRev="544" User="" />
 	.ADD('cl_dbf_index.prg')		&& *< FileMetadata: Type="P" Cpid="1252" Timestamp="0" ID="0" ObjRev="544" User="" />

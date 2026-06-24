@@ -186,11 +186,10 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE Of 'cl_cus_base.prg'
 
       Try
          Local lcText, lcIndexKey, lcIndexFile, laConfig(1), lcValue, lcConfigItem ;
-            , lc_DBF_Conversion_Order, lc_DBF_Conversion_Condition, lc_DBF_IndexList, llExportData, laDirFile(1,5), lnFileCount ;
+            , lc_DBF_Conversion_Order, lc_DBF_Conversion_Condition, lc_DBF_IndexList, llExportData, laDirFile(1,5) ;
             , loEx As Exception ;
             , loFSO As Scripting.FileSystemObject ;
             , loTextStream As Scripting.TextStream ;
-            , loDBF_CFG As CL_DBF_CFG Of 'cl_dbf_cfg.prg' ;
             , loRecords As CL_DBF_RECORDS Of 'cl_dbf_records.prg' ;
             , loFields As CL_DBF_FIELDS Of 'cl_dbf_fields.prg' ;
             , loIndexes As CL_DBF_INDEXES Of 'cl_dbf_indexes.prg', ln_DBF_Conversion_Support
@@ -200,7 +199,6 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE Of 'cl_cus_base.prg'
          loFSO           = toFoxBin2Prg.o_FSO
          loTextStream    = toFoxBin2Prg.o_TextStream
          Store .Null. To loIndexes, loFields, loRecords
-         Store 0 To lnFileCount
          lcText  = ''
 
          TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
@@ -220,37 +218,28 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE Of 'cl_cus_base.prg'
          *** DH 06/02/2014: passed variables to toText
          lcText      = lcText + loFields.toText(@laFields, @lnFieldCount, @toFoxBin2Prg)
 
-         *-- DBF settings from session CFG (no per-table .dbf.cfg on disk)
-         loDBF_CFG   = NewObject('CL_DBF_CFG', 'cl_dbf_cfg.prg')
-         loDBF_CFG   = loDBF_CFG.FromGlobal( toFoxBin2Prg, .T. )
-         lnFileCount = IIF(VARTYPE(loDBF_CFG) = 'O' AND !ISNULL(loDBF_CFG), 1, 0)
+         *-- DBF settings from session CFG
+         toFoxBin2Prg.writeLogDbfCfgSettings(.T.)
 
-         ln_DBF_Conversion_Support = Iif(Isnull(loDBF_CFG), toFoxBin2Prg.getCfgValue('n_DBF_Conversion_Support'), loDBF_CFG.n_DBF_Conversion_Support )
+         ln_DBF_Conversion_Support = toFoxBin2Prg.getCfgValue('n_DBF_Conversion_Support')
+         lc_DBF_IndexList          = EVL( toFoxBin2Prg.getCfgValue('c_DBF_IndexList'), '' )
+         lc_DBF_Conversion_Order   = EVL( toFoxBin2Prg.getCfgValue('c_DBF_Conversion_Order'), '' )
+         lc_DBF_Conversion_Condition = EVL( toFoxBin2Prg.getCfgValue('c_DBF_Conversion_Condition'), '' )
 
          Do Case
          Case Inlist(ln_DBF_Conversion_Support, 4, 8)
-            *-- Si hay un archivo DBF.CFG, manda sobre la configuración general
             llExportData        = .T.
 
          Case ln_DBF_Conversion_Support > 0
-            *-- Si hay un archivo DBF.CFG, manda sobre la configuración general
             * Asume llExportData=.F.
-
-            *!*                     Case Inlist(toFoxBin2Prg.getCfgValue('n_DBF_Conversion_Support'), 4, 8)    && BIN2TXT (DATA EXPORT FOR DIFF)
-            *!*                         llExportData        = .T.
 
          Otherwise
             * Asume llExportData=.F.
 
          Endcase
 
-         * LScheffler 18.03.2021 added handling DBF_IndexList:
-         If lnFileCount = 1
-            lc_DBF_IndexList = loDBF_CFG.DBF_IndexList
-            If Not Empty(lc_DBF_IndexList)
-               toFoxBin2Prg.writeLog('  > Using non structural index files: ' + lc_DBF_IndexList)
-            Endif
-
+         If Not Empty(lc_DBF_IndexList)
+            toFoxBin2Prg.writeLog('  > Using non structural index files: ' + lc_DBF_IndexList)
          Endif
 
          * LScheffler 18.03.2021 moved index to get Settings per DBF
@@ -261,21 +250,13 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE Of 'cl_cus_base.prg'
 
          * setting temporary order
          If llExportData Then
-            If lnFileCount = 1
-               lc_DBF_Conversion_Order     = loDBF_CFG.DBF_Conversion_Order
-
-               If Not Empty(lc_DBF_Conversion_Order)
-                  lcIndexFile = Forceext(tc_InputFile,'IDX')
-                  Index On &lc_DBF_Conversion_Order. To (lcIndexFile) Compact
-                  toFoxBin2Prg.writeLog('  > Using Index order key:            ' + lc_DBF_Conversion_Order)
-               Endif
-               * LScheffler 18.03.2021 added handling DBF_Conversion_Condition:
-               lc_DBF_Conversion_Condition = loDBF_CFG.DBF_Conversion_Condition
-               If Not Empty(lc_DBF_Conversion_Condition)
-                  toFoxBin2Prg.writeLog('  > Using Conversion Condition:       ' + lc_DBF_Conversion_Condition)
-               Endif
-               * /LScheffler 18.03.2021
-
+            If Not Empty(lc_DBF_Conversion_Order)
+               lcIndexFile = Forceext(tc_InputFile,'IDX')
+               Index On &lc_DBF_Conversion_Order. To (lcIndexFile) Compact
+               toFoxBin2Prg.writeLog('  > Using Index order key:            ' + lc_DBF_Conversion_Order)
+            Endif
+            If Not Empty(lc_DBF_Conversion_Condition)
+               toFoxBin2Prg.writeLog('  > Using Conversion Condition:       ' + lc_DBF_Conversion_Condition)
             Endif
          Endif
          * /setting temporary order
@@ -290,8 +271,8 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE Of 'cl_cus_base.prg'
             * additional options controlling
             * - new operations of DBF
             loRecords.toText(@laFields, lnFieldCount, lc_DBF_Conversion_Condition, @toFoxBin2Prg,;
-               IIF( m.lnFileCount = 1, Nvl( m.loDBF_CFG.l_DBF_BinChar_Base64, m.toFoxBin2Prg.getCfgValue('l_DBF_BinChar_Base64') ), m.toFoxBin2Prg.getCfgValue('l_DBF_BinChar_Base64') ),;
-               IIF( m.lnFileCount = 1, Nvl( m.loDBF_CFG.l_DBF_IncludeDeleted, m.toFoxBin2Prg.getCfgValue('l_DBF_IncludeDeleted') ), m.toFoxBin2Prg.getCfgValue('l_DBF_IncludeDeleted') ))
+               toFoxBin2Prg.getCfgValue('l_DBF_BinChar_Base64'),;
+               toFoxBin2Prg.getCfgValue('l_DBF_IncludeDeleted'))
             *!* /Changed by: LScheffler 21.02.2021
             lcText  = ''
          Endif
@@ -321,8 +302,8 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE Of 'cl_cus_base.prg'
          Endif
          * /remove temporary order
 
-         Store .Null. To loIndexes, loFields, loRecords, loDBF_CFG, loTextStream
-         Release loFields, loIndexes, loRecords, loDBF_CFG, loTextStream
+         Store .Null. To loIndexes, loFields, loRecords, loTextStream
+         Release loFields, loIndexes, loRecords, loTextStream
       Endtry
 
       Return lcText

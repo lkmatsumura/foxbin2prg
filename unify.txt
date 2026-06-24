@@ -45,7 +45,6 @@ cl_dbc_tables.prg
 cl_dbc_view.prg
 cl_dbc_views.prg
 cl_dbc.prg
-cl_dbf_cfg.prg
 cl_dbf_field.prg
 cl_dbf_fields.prg
 cl_dbf_index.prg
@@ -55,7 +54,6 @@ cl_dbf_records.prg
 cl_dbf_table.prg
 cl_dbf_utils_field.prg
 cl_dbf_utils.prg
-cl_cfg.prg
 cl_fb2prg_cfg.prg
 cl_fb2prg_mirror.prg
 cl_fb2prg_special_props.prg

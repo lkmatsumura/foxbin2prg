@@ -31,21 +31,21 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
       Try
          Local lnCodError, loEx As Exception, laCodeLines(1), lnCodeLines, laLineasExclusion(1), lnBloquesExclusion, I ;
-            , lnIDInputFile, lnFileCount, laConfig(1), lcConfigItem, lc_DBF_Conversion_Support, lcAlterTable ;
+            , lnIDInputFile, laConfig(1), lcConfigItem, lc_DBF_Conversion_Support, lcAlterTable ;
             , loLang As CL_LANG Of 'cl_lang.prg' ;
             , lcTempDBC, llImportData ;
-            , loDBF_CFG As CL_DBF_CFG Of 'cl_dbf_cfg.prg', ln_DBF_Conversion_Support
+            , ln_DBF_Conversion_Support
          Store 0 To lnCodError, lnCodeLines
 
          With This As c_conversor_prg_a_dbf Of 'c_conversor_prg_a_dbf.prg'
             lnIDInputFile       = toFoxBin2Prg.n_ProcessedFiles
             loLang              = _Screen.o_FoxBin2Prg_Lang
 
-            *-- If table CFG exists, use it for DBF-specific configuration. FDBOZZO. 2014/06/15
-            lnFileCount = toFoxBin2Prg.get_DBF_Configuration( Forceext(.c_InputFile, 'DBF'), @loDBF_CFG, .T. )
+            *-- DBF settings from session CFG
+            toFoxBin2Prg.writeLogDbfCfgSettings(.T.)
             lcTempDBC   = Forcepath( '_FB2P', Justpath(.c_OutputFile) )
 
-            ln_DBF_Conversion_Support = Iif(Isnull(loDBF_CFG), toFoxBin2Prg.getCfgValue('n_DBF_Conversion_Support'), loDBF_CFG.n_DBF_Conversion_Support )
+            ln_DBF_Conversion_Support = toFoxBin2Prg.getCfgValue('n_DBF_Conversion_Support')
 
             Do Case
             Case Not Inlist(ln_DBF_Conversion_Support, 2, 8)
@@ -111,8 +111,8 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'c_conversor_prg_
                * additional options controlling
                * - new operations of DBF
                toTable.analyzeCodeBlock( C_TABLE_I, @laCodeLines, @m.I, lnCodeLines, @toFoxBin2Prg,;
-                  IIF( m.lnFileCount = 1, Nvl( m.loDBF_CFG.l_DBF_BinChar_Base64, m.toFoxBin2Prg.getCfgValue('l_DBF_BinChar_Base64') ), m.toFoxBin2Prg.getCfgValue('l_DBF_BinChar_Base64') ),;
-                  IIF( m.lnFileCount = 1, Nvl( m.loDBF_CFG.l_DBF_IncludeDeleted, m.toFoxBin2Prg.getCfgValue('l_DBF_IncludeDeleted') ), m.toFoxBin2Prg.getCfgValue('l_DBF_IncludeDeleted') ) )
+                  toFoxBin2Prg.getCfgValue('l_DBF_BinChar_Base64'),;
+                  toFoxBin2Prg.getCfgValue('l_DBF_IncludeDeleted') )
                *!* /Changed by: LScheffler 21.02.2021
 
             Endif
@@ -145,9 +145,6 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'c_conversor_prg_
             Erase (Forceext(lcTempDBC,'DCT'))
             Erase (Forceext(lcTempDBC,'DCX'))
          Endif
-
-         Store .Null. To loDBF_CFG
-         Release loDBF_CFG
 
       Endtry
 

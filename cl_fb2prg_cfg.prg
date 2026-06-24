@@ -139,6 +139,9 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
 
       AddProperty(loCfg, 'c_DBF_Conversion_Included', '')
       AddProperty(loCfg, 'c_DBF_Conversion_Excluded', '')
+      AddProperty(loCfg, 'c_DBF_Conversion_Order', '')
+      AddProperty(loCfg, 'c_DBF_Conversion_Condition', '')
+      AddProperty(loCfg, 'c_DBF_IndexList', '')
       AddProperty(loCfg, 'l_CopyNonConvertible', .F.)
       AddProperty(loCfg, 'l_CopyExcludedPjxFiles', .F.)
       AddProperty(loCfg, 'l_CopyLowercaseNames', .F.)
@@ -216,13 +219,16 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       This.appendCfgCatalogRow(@laCat, '4', 'c_ExcludedSubdirs',       'C', 'list;sep')
 
       *-- 5 DBF / DBC / conversion support
-      This.appendCfgCatalogRow(@laCat, '5', 'n_DBF_Conversion_Support',  'N', '0|1|2')
+      This.appendCfgCatalogRow(@laCat, '5', 'n_DBF_Conversion_Support',  'N', '0|1|2|4|8')
       This.appendCfgCatalogRow(@laCat, '5', 'n_DBC_Conversion_Support',  'N', '0|1|2')
       This.appendCfgCatalogRow(@laCat, '5', 'l_DBF_BinChar_Base64',      'L', '.T.|.F.')
       This.appendCfgCatalogRow(@laCat, '5', 'l_DBF_IncludeDeleted',      'L', '.T.|.F.')
       This.appendCfgCatalogRow(@laCat, '5', 'n_UseFilesPerDBC',          'N', '0|1|2')
       This.appendCfgCatalogRow(@laCat, '5', 'c_DBF_Conversion_Included', 'C', 'masks')
       This.appendCfgCatalogRow(@laCat, '5', 'c_DBF_Conversion_Excluded', 'C', 'masks')
+      This.appendCfgCatalogRow(@laCat, '5', 'c_DBF_Conversion_Order',     'C', 'index expr')
+      This.appendCfgCatalogRow(@laCat, '5', 'c_DBF_Conversion_Condition', 'C', 'logical expr')
+      This.appendCfgCatalogRow(@laCat, '5', 'c_DBF_IndexList',            'C', 'idx,cdx list')
       This.appendCfgCatalogRow(@laCat, '5', 'n_VCX_Conversion_Support',  'N', '0|1|2')
       This.appendCfgCatalogRow(@laCat, '5', 'n_SCX_Conversion_Support',  'N', '0|1|2')
       This.appendCfgCatalogRow(@laCat, '5', 'n_PJX_Conversion_Support',  'N', '0|1|2')
@@ -313,6 +319,12 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
          RETURN 'DBF masks to include when exporting data.'
       CASE tcProp == 'c_DBF_Conversion_Excluded'
          RETURN 'DBF masks to exclude from data export.'
+      CASE tcProp == 'c_DBF_Conversion_Order'
+         RETURN 'INDEX ON expression for DB2 data export order (n_DBF_Conversion_Support 4/8).'
+      CASE tcProp == 'c_DBF_Conversion_Condition'
+         RETURN 'SCAN FOR filter when exporting DBF data to DB2 (n_DBF_Conversion_Support 4/8).'
+      CASE tcProp == 'c_DBF_IndexList'
+         RETURN 'Comma-separated non-structural index files (IDX/CDX) to include in DB2 export.'
       CASE tcProp == 'c_VC2'
          RETURN 'Text extension for VCX (default VC2).'
       CASE tcProp == 'c_SC2'

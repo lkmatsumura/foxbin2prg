@@ -6,6 +6,7 @@ alwaysApply: true
 # foxbin2prg.prg é arquivo gerado
 
 **Nunca modifique `foxbin2prg.prg`.** Ele é reconstruído automaticamente por `unify.prg`, que concatena os módulos listados em `unify.txt`.
+Não há necessidade de rodar o `unify.prg` automaticamente, apenas cite a necessidade.
 
 ## O que fazer
 

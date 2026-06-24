@@ -336,8 +336,6 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       + [<memberdata name="getcfgflag" display="getCfgFlag"/>] ;
       + [<memberdata name="getcfgint" display="getCfgInt"/>] ;
       + [<memberdata name="get_filesfromdirectory" display="get_FilesFromDirectory"/>] ;
-      + [<memberdata name="get_l_cfg_cachedaccess" display="get_l_CFG_CachedAccess"/>] ;
-      + [<memberdata name="get_l_configevaluated" display="get_l_ConfigEvaluated"/>] ;
       + [<memberdata name="get_mirroredpath" display="get_MirroredPath"/>] ;
       + [<memberdata name="get_processed" display="get_Processed"/>] ;
       + [<memberdata name="get_program_header" display="get_PROGRAM_HEADER"/>] ;
@@ -773,16 +771,6 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDPROC
 
 
-   FUNCTION get_l_ConfigEvaluated
-      This.ensureCfg()
-      RETURN This.o_Cfg.l_Main_CFG_Loaded
-   ENDFUNC
-
-   FUNCTION get_l_CFG_CachedAccess
-      This.ensureCfg()
-      RETURN This.o_Cfg.l_CFG_CachedAccess
-   ENDFUNC
-
    FUNCTION get_Processed
       *---------------------------------------------------------------------------------------------------
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
@@ -1032,13 +1020,33 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
 
-   PROCEDURE get_DBF_Configuration
-      LPARAMETERS tc_InputFile AS STRING, to_out_DBF_CFG AS OBJECT, tlGenerateLog AS Boolean
+   PROCEDURE writeLogDbfCfgSettings
+      LPARAMETERS tlGenerateLog AS Boolean
 
-      to_out_DBF_CFG = CreateObject('CL_DBF_CFG' )
-      to_out_DBF_CFG = to_out_DBF_CFG.FromGlobal(This, tlGenerateLog)
+      LOCAL lcOrder, lcCond, lcIdxList
 
-      RETURN IIF(VARTYPE(to_out_DBF_CFG) = 'O' AND !ISNULL(to_out_DBF_CFG), 1, 0)
+      IF !tlGenerateLog
+         RETURN
+      ENDIF
+
+      lcOrder   = EVL( This.getCfgValue('c_DBF_Conversion_Order'), '' )
+      lcCond    = EVL( This.getCfgValue('c_DBF_Conversion_Condition'), '' )
+      lcIdxList = EVL( This.getCfgValue('c_DBF_IndexList'), '' )
+
+      This.writeLog(' > DBF configuration from session loCfg')
+      This.writeLog('     DBF_Conversion_Support: ' + TRANSFORM(This.getCfgValue('n_DBF_Conversion_Support')))
+
+      IF !EMPTY(lcOrder)
+         This.writeLog('     DBF_Conversion_Order: ' + lcOrder)
+      ENDIF
+
+      IF !EMPTY(lcCond)
+         This.writeLog('     DBF_Conversion_Condition: ' + lcCond)
+      ENDIF
+
+      IF !EMPTY(lcIdxList)
+         This.writeLog('     DBF_IndexList: ' + lcIdxList)
+      ENDIF
    ENDPROC
 
 
@@ -1281,40 +1289,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       * tcDir                     (@? IN    ) Directory whose configuration should be returned
       * RETURN                    (v?    OUT) .T. if conversion is supported, .F. if not
       *---------------------------------------------------------------------------------------------------
-      LOCAL llhasSupport, lcExt, lcDir ;
-         , loDBF_CFG AS CL_DBF_CFG Of 'foxbin2prg.prg'
+      LOCAL llhasSupport, lcExt
 
       WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
-         loDBF_CFG   = .NULL.
          lcExt       = UPPER(JUSTEXT('.' + tcFileName))
-
-         *!* Changed by: LScheffler 13.6.2022
-         *!* <pdm>
-         *!* <change date="{^2022-06-13,20:17:00}">Changed by: LScheffler<br />
-         *!* https://github.com/fdbozzo/foxbin2prg/issues/56 / Configfile is ignored if foldername has "." v1.19.74
-         *!* On operation per folder, change of folder must change configuration
-         *!* this method does not recieve tcDir in such case
-         *!* </change>
-         *!* </pdm>
-
-         *!*             If '\' $ tcFileName And lcExt == 'DBF' Then
-         *!*                 lcDir       = Justpath(tcFileName)
-         *!*                 .get_DBF_Configuration(tcFileName, @loDBF_CFG)
-         *!*             Else
-         *!*                 lcDir       = tcDir
-         *!*             ENDIF
-
-         DO CASE
-         CASE '\' $ tcFileName AND lcExt == 'DBF'
-            lcDir       = JUSTPATH(tcFileName)
-            .get_DBF_Configuration(tcFileName, @loDBF_CFG)
-         CASE NOT EMPTY(tcDir)
-            lcDir       = tcDir
-         CASE VARTYPE( tcFileName ) = "C"
-            lcDir = JUSTPATH( tcFileName )
-         ENDCASE
-
-         *!* /Changed by: LScheffler 13.6.2022
 
          llhasSupport    = .getCfgValue('l_AllowFolder') AND ICASE( lcExt == 'PJX', .getCfgValue('n_PJX_Conversion_Support') > 0 ;
             , lcExt == 'VCX', .getCfgValue('n_VCX_Conversion_Support') > 0 ;
@@ -1323,7 +1301,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
             , lcExt == 'LBX', .getCfgValue('n_LBX_Conversion_Support') > 0 ;
             , lcExt == 'MNX', .getCfgValue('n_MNX_Conversion_Support') > 0 ;
             , lcExt == 'DBC', .getCfgValue('n_DBC_Conversion_Support') > 0 ;
-            , lcExt == 'DBF', IIF(ISNULL(loDBF_CFG), .getCfgValue('n_DBF_Conversion_Support') > 0, loDBF_CFG.n_DBF_Conversion_Support > 0 ) ;
+            , lcExt == 'DBF', .getCfgValue('n_DBF_Conversion_Support') > 0 ;
             , lcExt == 'FKY', .getCfgValue('n_FKY_Conversion_Support') > 0 ;
             , lcExt == 'MEM', .getCfgValue('n_MEM_Conversion_Support') > 0 ;
             , .F. )
@@ -1340,22 +1318,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       * tcDir                     (@? IN    ) Directory whose configuration should be returned
       * RETURN                    (v?    OUT) .T. if conversion is supported, .F. if not
       *---------------------------------------------------------------------------------------------------
-      LOCAL llhasSupport, lcExt, lcDir ;
-         , loDBF_CFG AS CL_DBF_CFG Of 'foxbin2prg.prg'
+      LOCAL llhasSupport, lcExt
 
       WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
-         loDBF_CFG   = .NULL.
          lcExt       = UPPER(JUSTEXT('.' + tcFileName))
-
-         DO CASE
-         CASE '\' $ tcFileName AND lcExt == .getCfgValue('c_DB2')
-            lcDir       = JUSTPATH(tcFileName)
-            .get_DBF_Configuration(tcFileName, @loDBF_CFG)
-         CASE NOT EMPTY(tcDir)
-            lcDir       = tcDir
-         CASE VARTYPE( tcFileName ) = "C"
-            lcDir = JUSTPATH( tcFileName )
-         ENDCASE
 
          llhasSupport    = .getCfgValue('l_AllowFolder') AND ICASE( lcExt == .getCfgValue('c_PJ2'), .getCfgValue('n_PJX_Conversion_Support') = 2 ;
             , lcExt == .getCfgValue('c_VC2'), .getCfgValue('n_VCX_Conversion_Support') = 2 ;
@@ -1367,7 +1333,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
             , lcExt == .getCfgValue('c_MN2'), .getCfgValue('n_MNX_Conversion_Support') = 2 ;
             , lcExt == .getCfgValue('c_FK2'), .getCfgValue('n_FKY_Conversion_Support') = 2 ;
             , lcExt == .getCfgValue('c_ME2'), .getCfgValue('n_MEM_Conversion_Support') = 2 ;
-            , lcExt == .getCfgValue('c_DB2'), IIF(ISNULL(loDBF_CFG), INLIST(.getCfgValue('n_DBF_Conversion_Support'), 2, 8), INLIST(loDBF_CFG.n_DBF_Conversion_Support, 2, 8) ) ;
+            , lcExt == .getCfgValue('c_DB2'), INLIST(.getCfgValue('n_DBF_Conversion_Support'), 2, 8) ;
             , lcExt == .getCfgValue('c_DC2'), .getCfgValue('n_DBC_Conversion_Support') = 2 ;
             , .F. )
       ENDWITH && THIS
@@ -1382,42 +1348,30 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       * tcFilename                (@! IN    ) Extension to check whether the file has conversion support
       * RETURN                    (v?    OUT) Returns the support code
       *---------------------------------------------------------------------------------------------------
-      LOCAL lnSupportType, lcExt, lcDir, lcFilename ;
-         , loDBF_CFG AS CL_DBF_CFG Of 'foxbin2prg.prg'
+      LOCAL lnSupportType, lcExt
 
-      TRY
-         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
-            loDBF_CFG   = .NULL.
-            lcExt       = UPPER(JUSTEXT('.' + tcFileName))
+      WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
+         lcExt       = UPPER(JUSTEXT('.' + tcFileName))
 
-            IF '\' $ tcFileName AND INLIST(lcExt, .getCfgValue('c_DB2'), 'DBF') THEN
-               lcFilename  = FORCEEXT(tcFileName, 'DBF')
-               lcDir       = JUSTPATH(lcFilename)
-               .get_DBF_Configuration(lcFilename, @loDBF_CFG, tlGenerarLog)
-            ELSE
-               lcDir       = SYS(5) + CURDIR()
-            ENDIF
+         IF tlGenerarLog AND INLIST(lcExt, .getCfgValue('c_DB2'), 'DBF')
+            .writeLogDbfCfgSettings(.T.)
+         ENDIF
 
-            lnSupportType   = ICASE( ;
-               INLIST(lcExt, .getCfgValue('c_PJ2'), 'PJX'), .getCfgValue('n_PJX_Conversion_Support') ;
-               , INLIST(lcExt, .getCfgValue('c_VC2'), 'VCX'), .getCfgValue('n_VCX_Conversion_Support') ;
-               , INLIST(lcExt, .getCfgValue('c_SC2'), 'SCX'), .getCfgValue('n_SCX_Conversion_Support') ;
-               , INLIST(lcExt, .getCfgValue('c_FR2'), .getCfgValue('c_FR2D'), 'FRX'), .getCfgValue('n_FRX_Conversion_Support') ;
-               , INLIST(lcExt, .getCfgValue('c_LB2'), .getCfgValue('c_LB2D'), 'LBX'), .getCfgValue('n_LBX_Conversion_Support') ;
-               , INLIST(lcExt, .getCfgValue('c_MN2'), 'MNX'), .getCfgValue('n_MNX_Conversion_Support') ;
-               , INLIST(lcExt, .getCfgValue('c_FK2'), 'FKY'), .getCfgValue('n_FKY_Conversion_Support') ;
-               , INLIST(lcExt, .getCfgValue('c_ME2'), 'MEM'), .getCfgValue('n_MEM_Conversion_Support') ;
-               , INLIST(lcExt, .getCfgValue('c_DB2'), 'DBF'), IIF(ISNULL(loDBF_CFG), .getCfgValue('n_DBF_Conversion_Support'), loDBF_CFG.n_DBF_Conversion_Support ) ;
-               , INLIST(lcExt, .getCfgValue('c_DC2'), 'DBC'), .getCfgValue('n_DBC_Conversion_Support') ;
-               , 0 )
+         lnSupportType   = ICASE( ;
+            INLIST(lcExt, .getCfgValue('c_PJ2'), 'PJX'), .getCfgValue('n_PJX_Conversion_Support') ;
+            , INLIST(lcExt, .getCfgValue('c_VC2'), 'VCX'), .getCfgValue('n_VCX_Conversion_Support') ;
+            , INLIST(lcExt, .getCfgValue('c_SC2'), 'SCX'), .getCfgValue('n_SCX_Conversion_Support') ;
+            , INLIST(lcExt, .getCfgValue('c_FR2'), .getCfgValue('c_FR2D'), 'FRX'), .getCfgValue('n_FRX_Conversion_Support') ;
+            , INLIST(lcExt, .getCfgValue('c_LB2'), .getCfgValue('c_LB2D'), 'LBX'), .getCfgValue('n_LBX_Conversion_Support') ;
+            , INLIST(lcExt, .getCfgValue('c_MN2'), 'MNX'), .getCfgValue('n_MNX_Conversion_Support') ;
+            , INLIST(lcExt, .getCfgValue('c_FK2'), 'FKY'), .getCfgValue('n_FKY_Conversion_Support') ;
+            , INLIST(lcExt, .getCfgValue('c_ME2'), 'MEM'), .getCfgValue('n_MEM_Conversion_Support') ;
+            , INLIST(lcExt, .getCfgValue('c_DB2'), 'DBF'), .getCfgValue('n_DBF_Conversion_Support') ;
+            , INLIST(lcExt, .getCfgValue('c_DC2'), 'DBC'), .getCfgValue('n_DBC_Conversion_Support') ;
+            , 0 )
 
-            lnSupportType   = INT(lnSupportType)
-         ENDWITH && THIS
-
-      FINALLY
-         STORE .NULL. TO loDBF_CFG
-         RELEASE loDBF_CFG
-      ENDTRY
+         lnSupportType   = INT(lnSupportType)
+      ENDWITH && THIS
 
       RETURN lnSupportType
    ENDPROC
@@ -1459,7 +1413,6 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
          LOCAL loCFG             ;
              , loLang            AS CL_LANG         Of 'foxbin2prg.prg' ;
-             , loDBF_CFG         AS CL_DBF_CFG      Of 'foxbin2prg.prg' ;
              , loFrm_Main        AS frm_main        Of 'foxbin2prg.prg'
 
 
@@ -2179,7 +2132,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          ENDIF
 
          SET NOTIFY &lc_OldSetNotify.
-         STORE .NULL. TO loFSO, loWSH, loDBF_CFG
+         STORE .NULL. TO loFSO, loWSH
          RELEASE I, lcPath, lcFileSpec, lcFile, laFiles, lnFileCount, lcErrorInfo, lcErrorFile, loEx, loFSO
       ENDTRY
 
@@ -2580,8 +2533,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
             , ltFilestamp, lcExtA, lcExtB, laEvents(1,1), lcForceAttribs, lnIDInputFile, llFox2x ;
             , loLang AS CL_LANG Of 'foxbin2prg.prg' ;
             , loConversor AS c_conversor_base Of 'foxbin2prg.prg' ;
-            , loFSO AS Scripting.FileSystemObject ;
-            , loDBF_CFG AS CL_DBF_CFG Of 'foxbin2prg.prg'
+            , loFSO AS Scripting.FileSystemObject
          lnCodError          = 0
 
          WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
@@ -2817,8 +2769,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                loConversor.l_Fox2x = llFox2x
 
             CASE lcExtension = 'DBF'
-               lnFileCount = .get_DBF_Configuration( FORCEEXT(.c_InputFile, 'DBF'), @loDBF_CFG )
-               IF !IIF(ISNULL(loDBF_CFG), INLIST(.getCfgValue('n_DBF_Conversion_Support'), 1, 2, 4, 8), INLIST(loDBF_CFG.n_DBF_Conversion_Support, 1, 2, 4, 8) )
+               IF !INLIST(.getCfgValue('n_DBF_Conversion_Support'), 1, 2, 4, 8)
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_DB2') )
@@ -2932,8 +2883,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                .changeFileAttribute( FORCEEXT( .c_InputFile, 'LBT' ), lcForceAttribs )
 
             CASE lcExtension = .getCfgValue('c_DB2')
-               lnFileCount = .get_DBF_Configuration( FORCEEXT(.c_InputFile, 'DBF'), @loDBF_CFG )
-               IF !IIF(ISNULL(loDBF_CFG), INLIST(.getCfgValue('n_DBF_Conversion_Support'), 2, 8), INLIST(loDBF_CFG.n_DBF_Conversion_Support, 2, 8) )
+               IF !INLIST(.getCfgValue('n_DBF_Conversion_Support'), 2, 8)
                   *-- txt-2-bin support enabled
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
@@ -13774,21 +13724,21 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
       Try
          Local lnCodError, loEx As Exception, laCodeLines(1), lnCodeLines, laLineasExclusion(1), lnBloquesExclusion, I ;
-            , lnIDInputFile, lnFileCount, laConfig(1), lcConfigItem, lc_DBF_Conversion_Support, lcAlterTable ;
+            , lnIDInputFile, laConfig(1), lcConfigItem, lc_DBF_Conversion_Support, lcAlterTable ;
             , loLang As CL_LANG Of 'foxbin2prg.prg' ;
             , lcTempDBC, llImportData ;
-            , loDBF_CFG As CL_DBF_CFG Of 'foxbin2prg.prg', ln_DBF_Conversion_Support
+            , ln_DBF_Conversion_Support
          Store 0 To lnCodError, lnCodeLines
 
          With This As c_conversor_prg_a_dbf Of 'foxbin2prg.prg'
             lnIDInputFile       = toFoxBin2Prg.n_ProcessedFiles
             loLang              = _Screen.o_FoxBin2Prg_Lang
 
-            *-- If table CFG exists, use it for DBF-specific configuration. FDBOZZO. 2014/06/15
-            lnFileCount = toFoxBin2Prg.get_DBF_Configuration( Forceext(.c_InputFile, 'DBF'), @loDBF_CFG, .T. )
+            *-- DBF settings from session CFG
+            toFoxBin2Prg.writeLogDbfCfgSettings(.T.)
             lcTempDBC   = Forcepath( '_FB2P', Justpath(.c_OutputFile) )
 
-            ln_DBF_Conversion_Support = Iif(Isnull(loDBF_CFG), toFoxBin2Prg.getCfgValue('n_DBF_Conversion_Support'), loDBF_CFG.n_DBF_Conversion_Support )
+            ln_DBF_Conversion_Support = toFoxBin2Prg.getCfgValue('n_DBF_Conversion_Support')
 
             Do Case
             Case Not Inlist(ln_DBF_Conversion_Support, 2, 8)
@@ -13854,8 +13804,8 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                * additional options controlling
                * - new operations of DBF
                toTable.analyzeCodeBlock( C_TABLE_I, @laCodeLines, @m.I, lnCodeLines, @toFoxBin2Prg,;
-                  IIF( m.lnFileCount = 1, Nvl( m.loDBF_CFG.l_DBF_BinChar_Base64, m.toFoxBin2Prg.getCfgValue('l_DBF_BinChar_Base64') ), m.toFoxBin2Prg.getCfgValue('l_DBF_BinChar_Base64') ),;
-                  IIF( m.lnFileCount = 1, Nvl( m.loDBF_CFG.l_DBF_IncludeDeleted, m.toFoxBin2Prg.getCfgValue('l_DBF_IncludeDeleted') ), m.toFoxBin2Prg.getCfgValue('l_DBF_IncludeDeleted') ) )
+                  toFoxBin2Prg.getCfgValue('l_DBF_BinChar_Base64'),;
+                  toFoxBin2Prg.getCfgValue('l_DBF_IncludeDeleted') )
                *!* /Changed by: LScheffler 21.02.2021
 
             Endif
@@ -13888,9 +13838,6 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
             Erase (Forceext(lcTempDBC,'DCT'))
             Erase (Forceext(lcTempDBC,'DCX'))
          Endif
-
-         Store .Null. To loDBF_CFG
-         Release loDBF_CFG
 
       Endtry
 
@@ -22976,52 +22923,6 @@ Enddefine
 
 
 
-Define Class CL_DBF_CFG As Custom
-   _MemberData = [<VFPData>] ;
-      + [<memberdata name="dbf_conversion_support" display="DBF_Conversion_Support"/>] ;
-      + [<memberdata name="dbf_conversion_order" display="DBF_Conversion_Order"/>] ;
-      + [<memberdata name="dbf_conversion_condition" display="DBF_Conversion_Condition"/>] ;
-      + [<memberdata name="dbf_indexlist" display="DBF_IndexList"/>] ;
-      + [<memberdata name="l_dbf_binchar_base64" display="l_DBF_BinChar_Base64"/>] ;
-      + [<memberdata name="l_dbf_includedeleted" display="l_DBF_IncludeDeleted"/>] ;
-      + [</VFPData>]
-
-   n_DBF_Conversion_Support    = .Null.
-   DBF_Conversion_Order        = ''
-   DBF_Conversion_Condition    = ''
-   DBF_IndexList               = ''
-   l_DBF_BinChar_Base64        = .Null.
-   l_DBF_IncludeDeleted        = .Null.
-
-   *---------------------------------------------------------------------------------------------------
-   * Build DBF settings from session/global CFG (no table.dbf.cfg on disk).
-   *---------------------------------------------------------------------------------------------------
-   FUNCTION FromGlobal
-      LPARAMETERS toHost, tlGenerateLog
-      LOCAL loCfg
-
-      loCfg = CreateObject('CL_DBF_CFG' )
-
-      IF VARTYPE(toHost) <> 'O' OR !PEMSTATUS(toHost, 'getCfgValue', 5)
-         RETURN loCfg
-      ENDIF
-
-      loCfg.n_DBF_Conversion_Support = toHost.getCfgValue('n_DBF_Conversion_Support')
-      loCfg.l_DBF_BinChar_Base64     = toHost.getCfgValue('l_DBF_BinChar_Base64')
-      loCfg.l_DBF_IncludeDeleted     = toHost.getCfgValue('l_DBF_IncludeDeleted')
-
-      IF tlGenerateLog AND PEMSTATUS(toHost, 'writeLog', 5)
-         toHost.writeLog(' > DBF configuration from session CFG (no per-table .dbf.cfg)')
-         toHost.writeLog('     DBF_Conversion_Support: ' + TRANSFORM(loCfg.n_DBF_Conversion_Support))
-      ENDIF
-
-      RETURN loCfg
-   ENDFUNC
-
-Enddefine
-
-
-
 Define Class CL_DBF_FIELD As CL_CUS_BASE Of 'foxbin2prg.prg'
    #If .F.
       Local This As CL_DBF_FIELD Of 'foxbin2prg.prg'
@@ -24628,11 +24529,10 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE Of 'foxbin2prg.prg'
 
       Try
          Local lcText, lcIndexKey, lcIndexFile, laConfig(1), lcValue, lcConfigItem ;
-            , lc_DBF_Conversion_Order, lc_DBF_Conversion_Condition, lc_DBF_IndexList, llExportData, laDirFile(1,5), lnFileCount ;
+            , lc_DBF_Conversion_Order, lc_DBF_Conversion_Condition, lc_DBF_IndexList, llExportData, laDirFile(1,5) ;
             , loEx As Exception ;
             , loFSO As Scripting.FileSystemObject ;
             , loTextStream As Scripting.TextStream ;
-            , loDBF_CFG As CL_DBF_CFG Of 'foxbin2prg.prg' ;
             , loRecords As CL_DBF_RECORDS Of 'foxbin2prg.prg' ;
             , loFields As CL_DBF_FIELDS Of 'foxbin2prg.prg' ;
             , loIndexes As CL_DBF_INDEXES Of 'foxbin2prg.prg', ln_DBF_Conversion_Support
@@ -24642,7 +24542,6 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE Of 'foxbin2prg.prg'
          loFSO           = toFoxBin2Prg.o_FSO
          loTextStream    = toFoxBin2Prg.o_TextStream
          Store .Null. To loIndexes, loFields, loRecords
-         Store 0 To lnFileCount
          lcText  = ''
 
          TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
@@ -24662,37 +24561,28 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE Of 'foxbin2prg.prg'
          *** DH 06/02/2014: passed variables to toText
          lcText      = lcText + loFields.toText(@laFields, @lnFieldCount, @toFoxBin2Prg)
 
-         *-- DBF settings from session CFG (no per-table .dbf.cfg on disk)
-         loDBF_CFG   = CreateObject('CL_DBF_CFG' )
-         loDBF_CFG   = loDBF_CFG.FromGlobal( toFoxBin2Prg, .T. )
-         lnFileCount = IIF(VARTYPE(loDBF_CFG) = 'O' AND !ISNULL(loDBF_CFG), 1, 0)
+         *-- DBF settings from session CFG
+         toFoxBin2Prg.writeLogDbfCfgSettings(.T.)
 
-         ln_DBF_Conversion_Support = Iif(Isnull(loDBF_CFG), toFoxBin2Prg.getCfgValue('n_DBF_Conversion_Support'), loDBF_CFG.n_DBF_Conversion_Support )
+         ln_DBF_Conversion_Support = toFoxBin2Prg.getCfgValue('n_DBF_Conversion_Support')
+         lc_DBF_IndexList          = EVL( toFoxBin2Prg.getCfgValue('c_DBF_IndexList'), '' )
+         lc_DBF_Conversion_Order   = EVL( toFoxBin2Prg.getCfgValue('c_DBF_Conversion_Order'), '' )
+         lc_DBF_Conversion_Condition = EVL( toFoxBin2Prg.getCfgValue('c_DBF_Conversion_Condition'), '' )
 
          Do Case
          Case Inlist(ln_DBF_Conversion_Support, 4, 8)
-            *-- Si hay un archivo DBF.CFG, manda sobre la configuración general
             llExportData        = .T.
 
          Case ln_DBF_Conversion_Support > 0
-            *-- Si hay un archivo DBF.CFG, manda sobre la configuración general
             * Asume llExportData=.F.
-
-            *!*                     Case Inlist(toFoxBin2Prg.getCfgValue('n_DBF_Conversion_Support'), 4, 8)    && BIN2TXT (DATA EXPORT FOR DIFF)
-            *!*                         llExportData        = .T.
 
          Otherwise
             * Asume llExportData=.F.
 
          Endcase
 
-         * LScheffler 18.03.2021 added handling DBF_IndexList:
-         If lnFileCount = 1
-            lc_DBF_IndexList = loDBF_CFG.DBF_IndexList
-            If Not Empty(lc_DBF_IndexList)
-               toFoxBin2Prg.writeLog('  > Using non structural index files: ' + lc_DBF_IndexList)
-            Endif
-
+         If Not Empty(lc_DBF_IndexList)
+            toFoxBin2Prg.writeLog('  > Using non structural index files: ' + lc_DBF_IndexList)
          Endif
 
          * LScheffler 18.03.2021 moved index to get Settings per DBF
@@ -24703,21 +24593,13 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE Of 'foxbin2prg.prg'
 
          * setting temporary order
          If llExportData Then
-            If lnFileCount = 1
-               lc_DBF_Conversion_Order     = loDBF_CFG.DBF_Conversion_Order
-
-               If Not Empty(lc_DBF_Conversion_Order)
-                  lcIndexFile = Forceext(tc_InputFile,'IDX')
-                  Index On &lc_DBF_Conversion_Order. To (lcIndexFile) Compact
-                  toFoxBin2Prg.writeLog('  > Using Index order key:            ' + lc_DBF_Conversion_Order)
-               Endif
-               * LScheffler 18.03.2021 added handling DBF_Conversion_Condition:
-               lc_DBF_Conversion_Condition = loDBF_CFG.DBF_Conversion_Condition
-               If Not Empty(lc_DBF_Conversion_Condition)
-                  toFoxBin2Prg.writeLog('  > Using Conversion Condition:       ' + lc_DBF_Conversion_Condition)
-               Endif
-               * /LScheffler 18.03.2021
-
+            If Not Empty(lc_DBF_Conversion_Order)
+               lcIndexFile = Forceext(tc_InputFile,'IDX')
+               Index On &lc_DBF_Conversion_Order. To (lcIndexFile) Compact
+               toFoxBin2Prg.writeLog('  > Using Index order key:            ' + lc_DBF_Conversion_Order)
+            Endif
+            If Not Empty(lc_DBF_Conversion_Condition)
+               toFoxBin2Prg.writeLog('  > Using Conversion Condition:       ' + lc_DBF_Conversion_Condition)
             Endif
          Endif
          * /setting temporary order
@@ -24732,8 +24614,8 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE Of 'foxbin2prg.prg'
             * additional options controlling
             * - new operations of DBF
             loRecords.toText(@laFields, lnFieldCount, lc_DBF_Conversion_Condition, @toFoxBin2Prg,;
-               IIF( m.lnFileCount = 1, Nvl( m.loDBF_CFG.l_DBF_BinChar_Base64, m.toFoxBin2Prg.getCfgValue('l_DBF_BinChar_Base64') ), m.toFoxBin2Prg.getCfgValue('l_DBF_BinChar_Base64') ),;
-               IIF( m.lnFileCount = 1, Nvl( m.loDBF_CFG.l_DBF_IncludeDeleted, m.toFoxBin2Prg.getCfgValue('l_DBF_IncludeDeleted') ), m.toFoxBin2Prg.getCfgValue('l_DBF_IncludeDeleted') ))
+               toFoxBin2Prg.getCfgValue('l_DBF_BinChar_Base64'),;
+               toFoxBin2Prg.getCfgValue('l_DBF_IncludeDeleted'))
             *!* /Changed by: LScheffler 21.02.2021
             lcText  = ''
          Endif
@@ -24763,8 +24645,8 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE Of 'foxbin2prg.prg'
          Endif
          * /remove temporary order
 
-         Store .Null. To loIndexes, loFields, loRecords, loDBF_CFG, loTextStream
-         Release loFields, loIndexes, loRecords, loDBF_CFG, loTextStream
+         Store .Null. To loIndexes, loFields, loRecords, loTextStream
+         Release loFields, loIndexes, loRecords, loTextStream
       Endtry
 
       Return lcText
@@ -25427,212 +25309,6 @@ Define Class CL_DBF_UTILS As Session
 Enddefine
 
 
-Define Class CL_CFG As Custom
-   _MemberData = [<VFPData>] ;
-      + [<memberdata name="c_curdir" display="c_CurDir"/>] ;
-      + [<memberdata name="c_foxbin2prg_fullpath" display="c_Foxbin2prg_FullPath"/>] ;
-      + [<memberdata name="c_foxbin2prg_configfile" display="c_Foxbin2prg_ConfigFile"/>] ;
-      + [<memberdata name="c_db2" display="c_DB2"/>] ;
-      + [<memberdata name="c_dc2" display="c_DC2"/>] ;
-      + [<memberdata name="c_fr2" display="c_FR2"/>] ;
-      + [<memberdata name="c_lb2" display="c_LB2"/>] ;
-      + [<memberdata name="c_mn2" display="c_MN2"/>] ;
-      + [<memberdata name="c_fk2" display="c_FK2"/>] ;
-      + [<memberdata name="c_me2" display="c_ME2"/>] ;
-      + [<memberdata name="c_pj2" display="c_PJ2"/>] ;
-      + [<memberdata name="c_sc2" display="c_SC2"/>] ;
-      + [<memberdata name="c_vc2" display="c_VC2"/>] ;
-      + [<memberdata name="l_classperfilecheck" display="l_ClassPerFileCheck"/>] ;
-      + [<memberdata name="l_clearuniqueid" display="l_ClearUniqueID"/>] ;
-      + [<memberdata name="l_cleardbflastupdate" display="l_ClearDBFLastUpdate"/>] ;
-      + [<memberdata name="n_debug" display="n_Debug"/>] ;
-      + [<memberdata name="n_bodydevinfo" display="n_BodyDevInfo"/>] ;
-      + [<memberdata name="l_notimestamps" display="l_NoTimestamps"/>] ;
-      + [<memberdata name="n_optimizebyfilestamp" display="n_OptimizeByFilestamp"/>] ;
-      + [<memberdata name="n_excludedbfautoincnextval" display="n_ExcludeDBFAutoincNextval"/>] ;
-      + [<memberdata name="l_recompile" display="l_Recompile"/>] ;
-      + [<memberdata name="l_redirectclassperfiletomain" display="l_RedirectClassPerFileToMain"/>] ;
-      + [<memberdata name="n_redirectclasstype" display="n_RedirectClassType"/>] ;
-      + [<memberdata name="l_showerrors" display="l_ShowErrors"/>] ;
-      + [<memberdata name="n_showprogressbar" display="n_ShowProgressbar"/>] ;
-      + [<memberdata name="n_useclassperfile" display="n_UseClassPerFile"/>] ;
-      + [<memberdata name="l_oldfilesperdbc" display="l_OldFilesPerDBC"/>] ;
-      + [<memberdata name="n_usefilesperdbc" display="n_UseFilesPerDBC"/>] ;
-      + [<memberdata name="l_redirectfileperdbctomain" display="l_RedirectFilePerDBCToMain"/>] ;
-      + [<memberdata name="l_itemperdbccheck" display="l_ItemPerDBCCheck"/>] ;
-      + [<memberdata name="l_dbf_binchar_base64" display="l_DBF_BinChar_Base64"/>] ;
-      + [<memberdata name="l_dbf_includedeleted" display="l_DBF_IncludeDeleted"/>] ;
-      + [<memberdata name="l_exportutf8" display="l_ExportUTF8"/>] ;
-      + [<memberdata name="n_pjx_conversion_support" display="PJX_Conversion_Support"/>] ;
-      + [<memberdata name="n_vcx_conversion_support" display="n_VCX_Conversion_Support"/>] ;
-      + [<memberdata name="n_scx_conversion_support" display="n_SCX_Conversion_Support"/>] ;
-      + [<memberdata name="n_frx_conversion_support" display="n_FRX_Conversion_Support"/>] ;
-      + [<memberdata name="n_lbx_conversion_support" display="n_LBX_Conversion_Support"/>] ;
-      + [<memberdata name="n_mnx_conversion_support" display="n_MNX_Conversion_Support"/>] ;
-      + [<memberdata name="n_dbc_conversion_support" display="n_DBC_Conversion_Support"/>] ;
-      + [<memberdata name="n_dbf_conversion_support" display="n_DBF_Conversion_Support"/>] ;
-      + [<memberdata name="n_fky_conversion_support" display="n_FKY_Conversion_Support"/>] ;
-      + [<memberdata name="n_mem_conversion_support" display="n_MEM_Conversion_Support"/>] ;
-      + [<memberdata name="c_dbf_conversion_included" display="c_DBF_Conversion_Included"/>] ;
-      + [<memberdata name="c_dbf_conversion_excluded" display="c_DBF_Conversion_Excluded"/>] ;
-      + [<memberdata name="c_backgroundimage" display="c_BackgroundImage"/>] ;
-      + [<memberdata name="n_prg_compat_level" display="n_PRG_Compat_Level"/>] ;
-      + [<memberdata name="copyfrom" display="CopyFrom"/>] ;
-      + [<memberdata name="c_language_in" display="c_Language_In"/>] ;
-      + [</VFPData>]
-
-   #If .F.
-      Local This As CL_CFG Of 'foxbin2prg.prg'
-   #Endif
-
-
-   *-- Configuration class. By default asumes master value, except when overriding one.
-   c_Foxbin2prg_FullPath           = ''
-   c_Foxbin2prg_ConfigFile         = ''
-   c_CurDir                        = ''
-   c_Language_In                   = .Null.
-   n_Debug                         = .Null.
-   n_BodyDevInfo                   = .Null.
-   l_ShowErrors                    = .Null.
-   n_ShowProgressbar               = .Null.
-   n_OptimizeByFilestamp           = .Null.
-   n_ExcludeDBFAutoincNextval      = .Null.
-
-   l_Recompile                     = .Null.
-   l_NoTimestamps                  = .Null.
-   l_ClearUniqueID                 = .Null.
-   l_ClearDBFLastUpdate            = .Null.
-
-   l_RemoveNullCharsFromCode       = .Null.
-   l_RemoveZOrderSetFromProps      = .Null.
-   n_UseClassPerFile               = .Null.
-
-   l_RedirectClassPerFileToMain    = .Null.
-   n_RedirectClassType             = .Null.
-   l_ClassPerFileCheck             = .Null.
-   l_UseFormSettings               = .Null.
-   n_UseFormPerFile                = .Null.
-   l_RedirectFormPerFileToMain     = .Null.
-   n_RedirectFormType              = .Null.
-   l_FormPerFileCheck              = .Null.
-   n_CheckFileInPath               = .Null.
-   l_OldFilesPerDBC                = .Null.
-   n_UseFilesPerDBC                = .Null.
-   l_RedirectFilePerDBCToMain      = .Null.
-   l_ItemPerDBCCheck               = .Null.
-   l_DBF_BinChar_Base64            = .Null.
-   l_DBF_IncludeDeleted            = .Null.
-   l_ExportUTF8                    = .Null.
-   n_InhibitInheritance            = .Null.
-   n_ExtraBackupLevels             = .Null.
-   c_VC2                           = .Null.
-   c_SC2                           = .Null.
-   c_PJ2                           = .Null.
-   c_FR2                           = .Null.
-   c_LB2                           = .Null.
-   c_DB2                           = .Null.
-   c_DC2                           = .Null.
-   c_MN2                           = .Null.
-   c_FK2                           = .Null.
-   c_ME2                           = .Null.
-   n_PJX_Conversion_Support        = .Null.
-   n_VCX_Conversion_Support        = .Null.
-   n_SCX_Conversion_Support        = .Null.
-   n_FRX_Conversion_Support        = .Null.
-   n_LBX_Conversion_Support        = .Null.
-   n_MNX_Conversion_Support        = .Null.
-   n_DBC_Conversion_Support        = .Null.
-   n_DBF_Conversion_Support        = .Null.
-   n_FKY_Conversion_Support        = .Null.
-   n_MEM_Conversion_Support        = .Null.
-   c_DBF_Conversion_Included       = .Null.
-   c_DBF_Conversion_Excluded       = .Null.
-   c_BackgroundImage               = .Null.
-   n_PRG_Compat_Level              = .Null.
-   n_HomeDir                       = .Null.
-   l_AllowFolder                   = .T.
-
-   Procedure CopyFrom
-      *-- Copia las propiedades del CFG indicado
-      Lparameters toParentCFG,toSourceCFG
-
-      If Pcount()=1 Then
-         toSourceCFG = This
-      Endif &&PCOUNT()=1
-
-      With toSourceCFG As CL_CFG Of 'foxbin2prg.prg'
-         .c_Foxbin2prg_FullPath          = toParentCFG.c_Foxbin2prg_FullPath
-         .c_Foxbin2prg_ConfigFile        = toParentCFG.c_Foxbin2prg_ConfigFile
-         .c_CurDir                       = toParentCFG.c_CurDir
-         .n_Debug                        = toParentCFG.n_Debug
-         .c_Language_In                  = toParentCFG.c_Language_In
-         .n_BodyDevInfo                  = toParentCFG.n_BodyDevInfo
-         .n_OptimizeByFilestamp          = toParentCFG.n_OptimizeByFilestamp
-         .n_ExcludeDBFAutoincNextval     = toParentCFG.n_ExcludeDBFAutoincNextval
-
-         .l_ShowErrors                   = toParentCFG.l_ShowErrors
-         .n_ShowProgressbar              = toParentCFG.n_ShowProgressbar
-         .l_Recompile                    = toParentCFG.l_Recompile
-         .l_NoTimestamps                 = toParentCFG.l_NoTimestamps
-         .l_ClearUniqueID                = toParentCFG.l_ClearUniqueID
-         .l_ClearDBFLastUpdate           = toParentCFG.l_ClearDBFLastUpdate
-
-         .l_RemoveNullCharsFromCode      = toParentCFG.l_RemoveNullCharsFromCode
-         .l_RemoveZOrderSetFromProps     = toParentCFG.l_RemoveZOrderSetFromProps
-         .n_UseClassPerFile              = toParentCFG.n_UseClassPerFile
-         .l_RedirectClassPerFileToMain   = toParentCFG.l_RedirectClassPerFileToMain
-         .n_RedirectClassType            = toParentCFG.n_RedirectClassType
-         .l_ClassPerFileCheck            = toParentCFG.l_ClassPerFileCheck
-         .l_UseFormSettings              = toParentCFG.l_UseFormSettings
-         .n_UseFormPerFile               = toParentCFG.n_UseFormPerFile
-         .l_RedirectFormPerFileToMain    = toParentCFG.l_RedirectFormPerFileToMain
-         .n_RedirectFormType             = toParentCFG.n_RedirectFormType
-         .l_FormPerFileCheck             = toParentCFG.l_FormPerFileCheck
-         .l_OldFilesPerDBC               = toParentCFG.l_OldFilesPerDBC
-         .n_UseFilesPerDBC               = toParentCFG.n_UseFilesPerDBC
-         .l_RedirectFilePerDBCToMain     = toParentCFG.l_RedirectFilePerDBCToMain
-         .l_ItemPerDBCCheck              = toParentCFG.l_ItemPerDBCCheck
-         .l_DBF_BinChar_Base64           = toParentCFG.l_DBF_BinChar_Base64
-         .l_DBF_IncludeDeleted           = toParentCFG.l_DBF_IncludeDeleted
-         .l_ExportUTF8                   = toParentCFG.l_ExportUTF8
-         .n_InhibitInheritance           = toParentCFG.n_InhibitInheritance
-         .n_ExtraBackupLevels            = toParentCFG.n_ExtraBackupLevels
-
-         .c_VC2                          = toParentCFG.c_VC2
-         .c_SC2                          = toParentCFG.c_SC2
-         .c_PJ2                          = toParentCFG.c_PJ2
-         .c_FR2                          = toParentCFG.c_FR2
-         .c_LB2                          = toParentCFG.c_LB2
-         .c_DB2                          = toParentCFG.c_DB2
-         .c_DC2                          = toParentCFG.c_DC2
-         .c_MN2                          = toParentCFG.c_MN2
-         .c_FK2                          = toParentCFG.c_FK2
-         .c_ME2                          = toParentCFG.c_ME2
-
-         .n_PJX_Conversion_Support       = toParentCFG.n_PJX_Conversion_Support
-         .n_VCX_Conversion_Support       = toParentCFG.n_VCX_Conversion_Support
-         .n_SCX_Conversion_Support       = toParentCFG.n_SCX_Conversion_Support
-         .n_FRX_Conversion_Support       = toParentCFG.n_FRX_Conversion_Support
-         .n_LBX_Conversion_Support       = toParentCFG.n_LBX_Conversion_Support
-         .n_MNX_Conversion_Support       = toParentCFG.n_MNX_Conversion_Support
-         .n_DBC_Conversion_Support       = toParentCFG.n_DBC_Conversion_Support
-         .n_DBF_Conversion_Support       = toParentCFG.n_DBF_Conversion_Support
-         .n_FKY_Conversion_Support       = toParentCFG.n_FKY_Conversion_Support
-         .n_MEM_Conversion_Support       = toParentCFG.n_MEM_Conversion_Support
-         .c_DBF_Conversion_Included      = toParentCFG.c_DBF_Conversion_Included
-         .c_DBF_Conversion_Excluded      = toParentCFG.c_DBF_Conversion_Excluded
-
-         .c_BackgroundImage              = toParentCFG.c_BackgroundImage
-         .n_PRG_Compat_Level             = toParentCFG.n_PRG_Compat_Level
-         .n_HomeDir                      = toParentCFG.n_HomeDir
-         .l_AllowFolder                  = toParentCFG.l_AllowFolder
-      Endwith
-   Endproc
-
-
-Enddefine
-
-
 
 *---------------------------------------------------------------------------------------------------
 * Configuration manager for FoxBin2Prg (used via c_foxbin2prg.o_Cfg).
@@ -25773,6 +25449,9 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
 
       AddProperty(loCfg, 'c_DBF_Conversion_Included', '')
       AddProperty(loCfg, 'c_DBF_Conversion_Excluded', '')
+      AddProperty(loCfg, 'c_DBF_Conversion_Order', '')
+      AddProperty(loCfg, 'c_DBF_Conversion_Condition', '')
+      AddProperty(loCfg, 'c_DBF_IndexList', '')
       AddProperty(loCfg, 'l_CopyNonConvertible', .F.)
       AddProperty(loCfg, 'l_CopyExcludedPjxFiles', .F.)
       AddProperty(loCfg, 'l_CopyLowercaseNames', .F.)
@@ -25850,13 +25529,16 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       This.appendCfgCatalogRow(@laCat, '4', 'c_ExcludedSubdirs',       'C', 'list;sep')
 
       *-- 5 DBF / DBC / conversion support
-      This.appendCfgCatalogRow(@laCat, '5', 'n_DBF_Conversion_Support',  'N', '0|1|2')
+      This.appendCfgCatalogRow(@laCat, '5', 'n_DBF_Conversion_Support',  'N', '0|1|2|4|8')
       This.appendCfgCatalogRow(@laCat, '5', 'n_DBC_Conversion_Support',  'N', '0|1|2')
       This.appendCfgCatalogRow(@laCat, '5', 'l_DBF_BinChar_Base64',      'L', '.T.|.F.')
       This.appendCfgCatalogRow(@laCat, '5', 'l_DBF_IncludeDeleted',      'L', '.T.|.F.')
       This.appendCfgCatalogRow(@laCat, '5', 'n_UseFilesPerDBC',          'N', '0|1|2')
       This.appendCfgCatalogRow(@laCat, '5', 'c_DBF_Conversion_Included', 'C', 'masks')
       This.appendCfgCatalogRow(@laCat, '5', 'c_DBF_Conversion_Excluded', 'C', 'masks')
+      This.appendCfgCatalogRow(@laCat, '5', 'c_DBF_Conversion_Order',     'C', 'index expr')
+      This.appendCfgCatalogRow(@laCat, '5', 'c_DBF_Conversion_Condition', 'C', 'logical expr')
+      This.appendCfgCatalogRow(@laCat, '5', 'c_DBF_IndexList',            'C', 'idx,cdx list')
       This.appendCfgCatalogRow(@laCat, '5', 'n_VCX_Conversion_Support',  'N', '0|1|2')
       This.appendCfgCatalogRow(@laCat, '5', 'n_SCX_Conversion_Support',  'N', '0|1|2')
       This.appendCfgCatalogRow(@laCat, '5', 'n_PJX_Conversion_Support',  'N', '0|1|2')
@@ -25947,6 +25629,12 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
          RETURN 'DBF masks to include when exporting data.'
       CASE tcProp == 'c_DBF_Conversion_Excluded'
          RETURN 'DBF masks to exclude from data export.'
+      CASE tcProp == 'c_DBF_Conversion_Order'
+         RETURN 'INDEX ON expression for DB2 data export order (n_DBF_Conversion_Support 4/8).'
+      CASE tcProp == 'c_DBF_Conversion_Condition'
+         RETURN 'SCAN FOR filter when exporting DBF data to DB2 (n_DBF_Conversion_Support 4/8).'
+      CASE tcProp == 'c_DBF_IndexList'
+         RETURN 'Comma-separated non-structural index files (IDX/CDX) to include in DB2 export.'
       CASE tcProp == 'c_VC2'
          RETURN 'Text extension for VCX (default VC2).'
       CASE tcProp == 'c_SC2'

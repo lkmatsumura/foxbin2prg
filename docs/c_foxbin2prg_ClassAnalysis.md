@@ -170,7 +170,7 @@ Ambos iteram arquivos, chamam `convert`/`hasSupport_*` e atualizam progress bar.
 | **`newConfig`** | Clone dos defaults de fábrica para uso programático |
 | **`get_DirSettings`** | Retorna clone de fábrica (`newConfig()`); **não lê disco** |
 | **`getCfgValue` / `setCfgValue`** | Leitura/escrita na CFG de sessão |
-| **`get_DBF_Configuration`** | CFG específica por tabela DBF (`tabela.dbf.cfg`) |
+| **`writeLogDbfCfgSettings`** | Log das propriedades DBF da sessão (`c_DBF_*`, `n_DBF_Conversion_Support`) |
 | **`formatConfigReferenceText`** | Texto de referência para `frm_main` |
 
 Delegação: a lógica vive em `cl_fb2prg_cfg.prg`; `c_foxbin2prg` expõe wrappers finos (`ensureCfg()` + `o_Cfg.*`).
@@ -211,7 +211,6 @@ Delegação: a lógica vive em `cl_fb2prg_cfg.prg`; `c_foxbin2prg` expõe wrappe
 | **`updateProcessedFile`** | Atualiza flags P/E/S/X do registro |
 | **`clearProcessedFiles`** | Limpa estatísticas entre execuções |
 | **`get_Processed`** | Exporta array filtrado por máscara (API) |
-| **`get_l_ConfigEvaluated`**, **`get_l_CFG_CachedAccess`** | Estado da configuração (API) |
 
 ### 9. Logging e saída console
 
@@ -259,9 +258,7 @@ Delegação: a lógica vive em `cl_fb2prg_cfg.prg`; `c_foxbin2prg` expõe wrappe
 | 514 | `clearProcessedFiles` |
 | 530 | `declareDLL` |
 | 550 | `get_AbsolutePath` |
-| 575 | `get_l_ConfigEvaluated` |
-| 580 | `get_l_CFG_CachedAccess` |
-| 585 | `get_Processed` |
+| 575 | `get_Processed` |
 | 627–1131 | 38 métodos `*_ACCESS` |
 | 1139 | `changeFileAttribute` |
 | 1235 | `changeFileTime` |
@@ -271,7 +268,7 @@ Delegação: a lógica vive em `cl_fb2prg_cfg.prg`; `c_foxbin2prg` expõe wrappe
 | 1477 | `unloadProgressbarForm` |
 | 2479 | `comparedFilesAreEqual` |
 | 2558 | `filenameFoundInFilter` |
-| 2581 | `get_DBF_Configuration` |
+| 2581 | `writeLogDbfCfgSettings` |
 | 2679 | `get_Ext2FromExt` |
 | 2712 | `hasSupport_Bin2Prg` |
 | 2775 | `hasSupport_Prg2Bin` |

@@ -48,7 +48,7 @@ This fork was created to meet my specific needs, but if you find it useful, feel
 The work proceeded in stages:
 
 1. **One class per file** — every class definition was moved to its own `.prg`, which alone improved navigation.
-2. **Configuration extraction** — `c_foxbin2prg` was overloaded with settings; relevant properties were collected in `cl_cfg`, and `cl_fb2prg_cfg` was added to manage per-directory configuration inheritance.
+2. **Configuration extraction** — settings moved out of `c_foxbin2prg` into `cl_fb2prg_cfg` (`createCfgShell`, `newConfig()`, programmatic `loCfg`).
 3. **Special properties singleton** — `cl_fb2prg_special_props` loads the `a_SpecialProps*` arrays once and shares them across all `c_conversor_*` instances (previously reloaded on every converter instantiation).
 4. **File utilities** — `cl_file_utils` separates file I/O from the orchestrator.
 5. **Mirrored tree** — `cl_fb2prg_mirror` plus `exportProjectTree` / `importProjectTree` support full-project export/import with replicated subfolder structure.
@@ -57,7 +57,7 @@ The work proceeded in stages:
 flowchart LR
     monolith["foxbin2prg.prg\n35k+ lines"]
     split["One class per .prg"]
-    cfg["cl_cfg + cl_fb2prg_cfg"]
+    cfg["cl_fb2prg_cfg"]
     props["cl_fb2prg_special_props"]
     files["cl_file_utils"]
     mirror["cl_fb2prg_mirror\n+ create_mirrored.prg"]
@@ -68,8 +68,7 @@ flowchart LR
 | Module | File | Purpose |
 |--------|------|---------|
 | Orchestrator (slimmed) | [c_foxbin2prg.prg](c_foxbin2prg.prg) (~3,800 lines) | Coordinates conversion; delegates configuration |
-| Config schema | [cl_cfg.prg](cl_cfg.prg) | Property definitions and `_MemberData`; keeps `c_foxbin2prg` memberdata manageable |
-| Config manager | [cl_fb2prg_cfg.prg](cl_fb2prg_cfg.prg) | Per-directory CFG inheritance, `newConfig()`, file parsing |
+| Config manager | [cl_fb2prg_cfg.prg](cl_fb2prg_cfg.prg) | CFG schema (`createCfgShell`), session `o_CFG`, `newConfig()`, `applyConfig()` |
 | Special props (singleton) | [cl_fb2prg_special_props.prg](cl_fb2prg_special_props.prg) | Loads `a_SpecialProps*` once for all converters |
 | File helpers | [cl_file_utils.prg](cl_file_utils.prg) | File I/O separation |
 | Mirror tree API | [cl_fb2prg_mirror.prg](cl_fb2prg_mirror.prg) | Used by `exportProjectTree` / `importProjectTree` in c_foxbin2prg |
@@ -131,11 +130,9 @@ These settings were added or are central to the mirrored-tree workflow in this f
 
 Normal development uses the modular [main.prg](main.prg) entry point. To produce a single-file distribution, run [unify.prg](unify.prg):
 
-- Reads the module list in [unify.txt](unify.txt) (79 files).
+- Reads the module list in [unify.txt](unify.txt).
 - Concatenates them into `foxbin2prg.prg`.
 - Inlines `foxbin2prg.h` and rewrites `NewObject` / `AddObject` references for monolithic use.
-
-`cl_cfg.prg` is not listed in `unify.txt` because it serves mainly as a schema/reference class; add it to `unify.txt` only if the monolith must be fully self-contained.
 
 ---
 

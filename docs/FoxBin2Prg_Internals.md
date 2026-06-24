@@ -694,7 +694,7 @@ This is a list of available methods and properties:
 | **applyConfig**<br/>loCnv.applyConfig( toCfg ) | Copies a CFG object into the session CFG (`o_CFG`) |
 | **newConfig**<br/>loCnv.newConfig() | Returns a new CFG object cloned from factory defaults |
 | **conversionSupportType**<br/>loCnv.conversionSupportType( cFilename ) | Return the code of the support type (0,1,2,4,8) |
-| **get_DBF_Configuration**<br/>loCnv.get_DBF_Configuration( cInputFile, @oOutDbfCfg ) | Returns 1 if a CFG is found for the indicated DBF, or 0 if not  |
+| **writeLogDbfCfgSettings**<br/>loCnv.writeLogDbfCfgSettings( lGenerateLog ) | Writes DBF-related session CFG values to the log when `lGenerateLog` is `.T.` |
 | **hasSupport_Bin2Prg**<br/>loCnv.hasSupport_Bin2Prg( cFilename.ext )<br/>loCnv.hasSupport_Bin2Prg( cExt ) | Returns .T. if there is support for converting the file or filetype indicated to _text_ |
 | **hasSupport_Prg2Bin**<br/>loCnv.hasSupport_Prg2Bin( cFilename.ext )<br/>loCnv.hasSupport_Prg2Bin( cExt ) | Returns .T. if there is support for converting the file or filetype indicated to _Binary_ |
 | **loadProgressbarForm**<br/>loCnv.loadProgressbarForm() | Load and show the progressbar form as upper level window |
