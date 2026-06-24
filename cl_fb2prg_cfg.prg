@@ -893,7 +893,20 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
                lo_CFG.l_ShowErrors = NOT (Transform(tcDontShowErrors) == '1')
             ENDIF
 
-            lo_CFG.l_Recompile = (Empty(tcRecompile) OR Transform(tcRecompile) == '1' OR Directory(tcRecompile))
+            * Mode C (loCfg / importProjectTree / exportProjectTree): l_Recompile comes from the
+            * programmatic object (lockMasterFromObject). Do not derive it from tcRecompile path
+            * (execute sets tcRecompile to JUSTPATH(input) which would override loCfg.l_Recompile).
+            IF .n_CFG_EvaluateFromParam = 1
+               DO CASE
+               CASE Transform(tcRecompile) == '0'
+                  lo_CFG.l_Recompile = .F.
+               CASE Transform(tcRecompile) == '1'
+                  lo_CFG.l_Recompile = .T.
+               * OTHERWISE keep lo_CFG.l_Recompile from loCfg object
+               ENDCASE
+            ELSE
+               lo_CFG.l_Recompile = (Empty(tcRecompile) OR Transform(tcRecompile) == '1' OR Directory(tcRecompile))
+            ENDIF
 
             IF InList( Transform(tcNoTimestamps), '0', '1' ) THEN
                lo_CFG.l_NoTimestamps = NOT (TRANSFORM(tcNoTimestamps) == '0')

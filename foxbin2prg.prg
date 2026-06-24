@@ -14435,7 +14435,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
          toDatabase.updateDBC( This.c_OutputFile )
 
          If toFoxBin2Prg.getCfgValue('l_Recompile')
-            toFoxBin2Prg.compileFoxProBinary()
+            toFoxBin2Prg.compileFoxProBinary(This.c_OutputFile)
          Endif
 
          toFoxBin2Prg.updateProcessedFile()
@@ -15333,7 +15333,7 @@ Define Class c_conversor_prg_a_frx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
          Use In (Select("TABLABIN"))
 
          If toFoxBin2Prg.getCfgValue('l_Recompile')
-            toFoxBin2Prg.compileFoxProBinary()
+            toFoxBin2Prg.compileFoxProBinary(This.c_OutputFile)
          Endif
 
          toFoxBin2Prg.updateProcessedFile()
@@ -17152,7 +17152,7 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
             Use In (Select("TABLABIN"))
 
             If toFoxBin2Prg.getCfgValue('l_Recompile')
-               toFoxBin2Prg.compileFoxProBinary()
+               toFoxBin2Prg.compileFoxProBinary(This.c_OutputFile)
             Endif
 
             toFoxBin2Prg.updateProcessedFile()
@@ -17747,7 +17747,7 @@ Define Class c_conversor_prg_a_vcx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
             Use In (Select("TABLABIN"))
 
             If toFoxBin2Prg.getCfgValue('l_Recompile') And Empty( lnCodError )
-               toFoxBin2Prg.compileFoxProBinary()
+               toFoxBin2Prg.compileFoxProBinary(This.c_OutputFile)
             Endif
 
             toFoxBin2Prg.updateProcessedFile()

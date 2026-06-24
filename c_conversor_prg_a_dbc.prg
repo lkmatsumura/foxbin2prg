@@ -303,7 +303,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'c_conversor_prg_
          toDatabase.updateDBC( This.c_OutputFile )
 
          If toFoxBin2Prg.getCfgValue('l_Recompile')
-            toFoxBin2Prg.compileFoxProBinary()
+            toFoxBin2Prg.compileFoxProBinary(This.c_OutputFile)
          Endif
 
          toFoxBin2Prg.updateProcessedFile()

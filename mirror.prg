@@ -30,7 +30,7 @@ IF lOk
 
    loCfg = loF2b.newConfig()
 
-   loCfg.l_Recompile        = .F.        && default .T.; do not recompile when regenerating binaries
+   loCfg.l_Recompile        = .T.        && default .T. recompile when regenerating binaries
    loCfg.l_NoTimestamps     = .T.        && strip timestamps (better for version control / merge)
    loCfg.n_UseClassPerFile  = 0          && 0 = one VC2 per VCX, 1 = one VC2 per class
    loCfg.n_ShowProgressbar  = 1          && default 1 Allway show; 0 = no progress bar (batch / unattended mode)

@@ -183,7 +183,7 @@ Define Class c_conversor_prg_a_frx As c_conversor_prg_a_bin Of 'c_conversor_prg_
          Use In (Select("TABLABIN"))
 
          If toFoxBin2Prg.getCfgValue('l_Recompile')
-            toFoxBin2Prg.compileFoxProBinary()
+            toFoxBin2Prg.compileFoxProBinary(This.c_OutputFile)
          Endif
 
          toFoxBin2Prg.updateProcessedFile()
