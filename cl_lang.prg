@@ -56,6 +56,15 @@ Define Class CL_LANG As Custom
    C_FOXBIN2PRG_SYNTAX_INFO_EXAMPLE_LOC_Header4                    = ""
    C_FOXBIN2PRG_SYNTAX_INFO_EXAMPLE_LOC_cfg                        = ""
    C_FOXBIN2PRG_SYNTAX_INFO_EXAMPLE_LOC_tab_cfg                    = ""
+   C_CFG_REF_TITLE_LOC                                             = ""
+   C_CFG_REF_INTRO_LOC                                             = ""
+   C_CFG_REF_USAGE_LOC                                             = ""
+   C_CFG_REF_SEC_GENERAL_LOC                                       = ""
+   C_CFG_REF_SEC_TIMESTAMPS_LOC                                    = ""
+   C_CFG_REF_SEC_CLASSFORM_LOC                                     = ""
+   C_CFG_REF_SEC_MIRROR_LOC                                        = ""
+   C_CFG_REF_SEC_DBF_LOC                                           = ""
+   C_CFG_REF_SEC_EXTENSIONS_LOC                                    = ""
    C_FOXBIN2PRG_JUST_VFP_9_LOC                                     = ""
    C_FOXBIN2PRG_WARN_CAPTION_LOC                                   = ""
    C_GENERATED_FILE_SIZE_LOC                                       = ""
@@ -187,7 +196,20 @@ Define Class CL_LANG As Custom
                .C_FILE_NOT_FOUND_LOC                                           = "Fichier introuvable"
                .C_FILENAME_LOC                                                 = "Fichier"
                .C_FOXBIN2PRG_ERROR_CAPTION_LOC                                 = "ERREUR"
-               .C_FOXBIN2PRG_SYNTAX_INFO_LOC                                   = "SYNTAX AND PARAMETERS INFO"
+               .C_FOXBIN2PRG_SYNTAX_INFO_LOC                                   = "CONFIGURATION REFERENCE"
+               .C_CFG_REF_TITLE_LOC                                            = "Configuration reference"
+               .C_CFG_REF_INTRO_LOC                                            = "Programmatic configuration for FoxBin2Prg (no .cfg files on disk)."
+               .C_CFG_REF_USAGE_LOC                                            = "loCfg = loF2b.newConfig()  &"+"& clone factory defaults" + CR_LF ;
+                                                                                + "loCfg.l_NoTimestamps = .T.   &"+"& override properties" + CR_LF ;
+                                                                                + "loF2b.exportProjectTree( lcPjx, lcDest, loCfg )" + CR_LF ;
+                                                                                + "loF2b.importProjectTree( lcPj2, lcDest, loCfg )" + CR_LF ;
+                                                                                + "DO main.prg WITH lcFile, '', loCfg"
+               .C_CFG_REF_SEC_GENERAL_LOC                                      = "General"
+               .C_CFG_REF_SEC_TIMESTAMPS_LOC                                   = "Timestamps / metadata"
+               .C_CFG_REF_SEC_CLASSFORM_LOC                                    = "Classes / Forms"
+               .C_CFG_REF_SEC_MIRROR_LOC                                       = "Mirrored tree (exportProjectTree)"
+               .C_CFG_REF_SEC_DBF_LOC                                          = "DBF / DBC / conversion support"
+               .C_CFG_REF_SEC_EXTENSIONS_LOC                                   = "Text file extensions"
                .C_ClassTwice_Header_LOC                                        = CR_LF+"Class defined twice."+0h0D0A
                .C_ClassTwice_Lib_LOC                                           = CR_LF+"Library: "
                .C_ClassTwice_Class_LOC                                         = CR_LF+"Class: "
@@ -1300,7 +1322,20 @@ Define Class CL_LANG As Custom
                .C_FILE_NOT_FOUND_LOC                                           = "File not found"
                .C_FILENAME_LOC                                                 = "File"
                .C_FOXBIN2PRG_ERROR_CAPTION_LOC                                 = "ERROR"
-               .C_FOXBIN2PRG_SYNTAX_INFO_LOC                                   = "SYNTAX AND PARAMETERS INFO"
+               .C_FOXBIN2PRG_SYNTAX_INFO_LOC                                   = "CONFIGURATION REFERENCE"
+               .C_CFG_REF_TITLE_LOC                                            = "Configuration reference"
+               .C_CFG_REF_INTRO_LOC                                            = "Programmatic configuration for FoxBin2Prg (no .cfg files on disk)."
+               .C_CFG_REF_USAGE_LOC                                            = "loCfg = loF2b.newConfig()  &"+"& clone factory defaults" + CR_LF ;
+                                                                               + "loCfg.l_NoTimestamps = .T. &"+"& override properties" + CR_LF ;
+                                                                               + "loF2b.exportProjectTree( lcPjx, lcDest, loCfg )" + CR_LF ;
+                                                                               + "loF2b.importProjectTree( lcPj2, lcDest, loCfg )" + CR_LF ;
+                                                                               + "DO main.prg WITH lcFile, '', loCfg"
+               .C_CFG_REF_SEC_GENERAL_LOC                                      = "General"
+               .C_CFG_REF_SEC_TIMESTAMPS_LOC                                   = "Timestamps / metadata"
+               .C_CFG_REF_SEC_CLASSFORM_LOC                                    = "Classes / Forms"
+               .C_CFG_REF_SEC_MIRROR_LOC                                       = "Mirrored tree (exportProjectTree)"
+               .C_CFG_REF_SEC_DBF_LOC                                          = "DBF / DBC / conversion support"
+               .C_CFG_REF_SEC_EXTENSIONS_LOC                                   = "Text file extensions"
                .C_ClassTwice_Header_LOC                                        = CR_LF+"Class defined twice."+CR_LF
                .C_ClassTwice_Lib_LOC                                           = CR_LF+"Library: "
                .C_ClassTwice_Class_LOC                                         = CR_LF+"Class: "

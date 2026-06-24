@@ -10,28 +10,20 @@ lnResp = loFb2p.importProjectTree( tcMirrorProjectFile, tcOutputRoot [, toCfg] [
 The optional `toCfg` parameter accepts:
 
 - a CFG object returned by `newConfig()` or validated by `isCfg()`;
-- any object with compatible properties (duck-typing via `configFromObject`);
-- a `.cfg` file path (string), read before export/import.
+- any object with compatible properties (duck-typing via `configFromObject`).
 
-Full example: [`create_mirrored.prg`](../create_mirrored.prg). Technical overview: [arquitetura.md — Mirrored tree](arquitetura.md#mirrored-tree).
+Full example: [`create_mirrored.prg`](../create_mirrored.prg) and [`mirror.prg`](../mirror.prg). Technical overview: [arquitetura.md — Mirrored tree](arquitetura.md#mirrored-tree).
 
 ### Command line (`MAIN.PRG`)
 
-Programmatic equivalent via `DO MAIN.PRG` (`tcType` values are case-insensitive; use `Bin3Prg` and `Prg3Bin`, not `PPrg3Bin`):
+Single-file conversion only (direction by extension). For mirrored projects use the API above or `mirror.prg`:
 
 ```foxpro
-* Export binary project to mirrored text tree
-DO MAIN.PRG WITH "<path>\FILE.PJX", "Bin3Prg", "d:\export\project\path"
-
-* Import text project to mirrored binary tree
-DO MAIN.PRG WITH "<path>\FILE.PJ2", "Prg3Bin", "d:\import\project\path"
-
-* With cfg (param 11) and mirrored folder (param 12)
-DO MAIN.PRG WITH "<path>\FILE.PJX", "Bin3Prg", , , , , , , , , FULLPATH("example.cfg"), "path\to\scm\"
-DO MAIN.PRG WITH "<path>\FILE.PJ2", "Prg3Bin", , , , , , , , , FULLPATH("example.cfg"), "path\to\bin"
+DO main.prg WITH "<path>\file.vcx"
+DO main.prg WITH "<path>\file.vc2"
+DO main.prg WITH "<path>\file.vcx", "", loCfg
+DO main.prg                              && configuration reference form
 ```
-
-Relevant `MAIN.PRG` parameters: `tcType` = `Bin3Prg` or `Prg3Bin`; mirrored destination in `tcTextName` (3) or `tcOutputFolder` (12); optional `tcCFG_File` (11).
 
 ---
 
@@ -45,7 +37,7 @@ The three options documented here **only affect batch project processing** when 
 | `execute` on a single `.vcx` / `.scx` | **No** — no project mirrored folder |
 | Folder conversion with `BIN2PRG` / `PRG2BIN` on the CLI | **No** — does not use the same project-member flow |
 
-Use the **same `toCfg`** (object or `.cfg`) on export and import for round-trip consistency.
+Use the **same `toCfg` object** on export and import for round-trip consistency.
 
 ---
 

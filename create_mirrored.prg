@@ -180,7 +180,7 @@ loFb2p4.cOutputFolder = lcOutputRoot
 *-- (Optional) tweak a single option on the already-configured instance:
 *loFb2p4.setCfgValue( 'n_ShowProgressbar', 0 )
 *-- Run full project export (Binary -> Text).
-*lnResp = loFb2p4.execute( lcProjectFile, '*', .F., .F., '', '', '', .Null., @loEx )
+*lnResp = loFb2p4.execute( lcProjectFile, '*', loCfg, @loEx )
 
 
 *===================================================================================================
@@ -206,21 +206,7 @@ loFb2p5.cOutputFolder = lcImportDest
 *-- (Optional) tweak a single option on the already-configured instance:
 *loFb2p5.setCfgValue( 'l_Recompile', .T. )
 *-- Run full project import (Text -> Binary).
-*lnResp = loFb2p5.execute( lcMirrorPj2, '*', .F., .F., '', '', '', .Null., @loEx5 )
-
-
-*===================================================================================================
-* EQUIVALENT VIA .cfg FILE (FoxBin2Prg.cfg)
-*===================================================================================================
-* To configure via file instead of objects, add these lines to your .cfg:
-*
-*     CopyNonConvertible:1
-*     CopyExcludedPjxFiles:0
-*     CopyLowercaseNames:1
-*     ExcludedSubdirs: tmp;backup;forms\old
-*
-* (Other options work too: NoTimestamps:1, UseClassPerFile:0, extension: vc2=VCA, etc.)
-*---------------------------------------------------------------------------------------------------
+*lnResp = loFb2p5.execute( lcMirrorPj2, '*', loCfg, @loEx5 )
 
 
 Return lnResp

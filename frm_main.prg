@@ -53,21 +53,23 @@ Define Class frm_main As Form
          Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
 
-      Local laDirInfo(1,5), loLang As CL_LANG Of 'cl_lang.prg'
+      Local laDirInfo(1,5), loLang As CL_LANG Of 'cl_lang.prg', lcTitle
 
       If Vartype(toFoxBin2Prg) = "O" Then
+         lcTitle = 'Configuration reference'
          If Vartype(_Screen.o_FoxBin2Prg_Lang) = "O" Then
             loLang = _Screen.o_FoxBin2Prg_Lang
-
-            If Pemstatus(_Screen, 'c_FB2PRG_EXE_Version', 5) Then
-               Thisform.Caption = 'FoxBin2Prg ' + _Screen.c_FB2PRG_EXE_Version + ' - ' + loLang.C_FOXBIN2PRG_SYNTAX_INFO_LOC
+            If !Empty(loLang.C_CFG_REF_TITLE_LOC)
+               lcTitle = loLang.C_CFG_REF_TITLE_LOC
+            Else
+               lcTitle = loLang.C_FOXBIN2PRG_SYNTAX_INFO_LOC
             Endif
-
-            Thisform.edt_help.Value = loLang.C_FOXBIN2PRG_SYNTAX_INFO_EXAMPLE_LOC+CR_LF ;
-                                    + Strtran(loLang.C_FOXBIN2PRG_SYNTAX_INFO_EXAMPLE_LOC_cfg,'&'+'&','')+CR_LF ;
-                                    + Strtran(loLang.C_FOXBIN2PRG_SYNTAX_INFO_EXAMPLE_LOC_tab_cfg,'&'+'&','')
-
+            If Pemstatus(_Screen, 'c_FB2PRG_EXE_Version', 5) Then
+               Thisform.Caption = 'FoxBin2Prg ' + _Screen.c_FB2PRG_EXE_Version + ' - ' + lcTitle
+            Endif
          Endif
+
+         Thisform.edt_help.Value = toFoxBin2Prg.formatConfigReferenceText()
 
          If Adir( laDirInfo, ForceExt( toFoxBin2Prg.c_Foxbin2prg_FullPath, 'ICO' ) ) > 0 Then
             Thisform.Icon = ForceExt( toFoxBin2Prg.c_Foxbin2prg_FullPath, 'ICO' )

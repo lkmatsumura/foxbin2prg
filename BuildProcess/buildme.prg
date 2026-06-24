@@ -10,8 +10,7 @@ LOCAL;
 	loProject as Project
 	
 *Get FoxBin2Prg verno from FoxBin2Prg.prg
-lcVerno = "VERNO"
-DO foxbin2prg.prg WITH lcVerno
+lcVerno = DO main.prg WITH "-VERNO"
 
 *Set Thor verno
 pcVersion = m.lcVerno
@@ -41,24 +40,7 @@ If !m.llFound
 	Endif &&_Vfp.Projects.Count>0
 Endif &&!m.llFound
 
-* ToDo
-llFound = FILE(Fullpath("FOXBIN2PRG.CFG"))
-If m.llFound
-	rename FOXBIN2PRG.CFG to FOXBIN2PRG.CFG.tmp
-Endif &&m.llFound
-
-strtofile("Language: EN","FOXBIN2PRG.CFG")
-DO foxbin2prg.prg WITH "-c", "foxbin2prg.cfg.txt"
-DO foxbin2prg.prg WITH "-t", "foxbin2prg.dbf.cfg.txt"
-delete file FOXBIN2PRG.CFG
-
-If m.llFound
-	rename FOXBIN2PRG.CFG.tmp to FOXBIN2PRG.CFG
-Endif &&m.llFound
-
-*set english on
-*export foxbin2prg.cfg.txt and foxbin2prg.dbf.cfg.txt
-*set english off
+*ToDo: legacy FOXBIN2PRG.CFG removed — configuration is programmatic (newConfig).
 
 return
 

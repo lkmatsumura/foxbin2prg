@@ -220,9 +220,9 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE Of 'cl_cus_base.prg'
          *** DH 06/02/2014: passed variables to toText
          lcText      = lcText + loFields.toText(@laFields, @lnFieldCount, @toFoxBin2Prg)
 
-         *-- If table CFG exists, use it for DBF-specific configuration. FDBOZZO. 2014/06/15
+         *-- DBF settings from session CFG (no per-table .dbf.cfg on disk)
          loDBF_CFG   = NewObject('CL_DBF_CFG', 'cl_dbf_cfg.prg')
-         loDBF_CFG   = loDBF_CFG.FromFile( Forceext(tc_InputFile, 'DBF'), .T., toFoxBin2Prg )
+         loDBF_CFG   = loDBF_CFG.FromGlobal( toFoxBin2Prg, .T. )
          lnFileCount = IIF(VARTYPE(loDBF_CFG) = 'O' AND !ISNULL(loDBF_CFG), 1, 0)
 
          ln_DBF_Conversion_Support = Iif(Isnull(loDBF_CFG), toFoxBin2Prg.getCfgValue('n_DBF_Conversion_Support'), loDBF_CFG.n_DBF_Conversion_Support )

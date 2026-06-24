@@ -1,7 +1,6 @@
 main.prg
 c_foxbin2prg.prg
 frm_avance.prg
-frm_interactive.prg
 frm_main.prg
 c_conversor_base.prg
 c_conversor_bin_a_prg.prg
