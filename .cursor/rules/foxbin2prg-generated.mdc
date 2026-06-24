@@ -1,0 +1,23 @@
+---
+description: Não editar foxbin2prg.prg — arquivo gerado por unify.prg
+alwaysApply: true
+---
+
+# foxbin2prg.prg é arquivo gerado
+
+**Nunca modifique `foxbin2prg.prg`.** Ele é reconstruído automaticamente por `unify.prg`, que concatena os módulos listados em `unify.txt`.
+
+## O que fazer
+
+1. Localize o módulo-fonte correspondente (ex.: `c_foxbin2prg.prg`, `c_conversor_prg_a_bin.prg`, `cl_project.prg`, etc.).
+2. Aplique a alteração apenas no `.prg` modular de origem.
+3. Para regenerar o arquivo unificado, execute `unify.prg`.
+
+## O que não fazer
+
+- Não editar, criar patches nem corrigir bugs diretamente em `foxbin2prg.prg`.
+- Não sugerir commits que alterem `foxbin2prg.prg` sem ter rodado `unify.prg` a partir dos fontes modulares.
+
+## Fontes da unificação
+
+A lista completa de arquivos-fonte está em `unify.txt`. Os principais são `main.prg`, `c_foxbin2prg.prg`, conversores `c_conversor_*.prg` e classes `cl_*.prg`.
