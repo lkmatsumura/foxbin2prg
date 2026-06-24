@@ -236,7 +236,7 @@ IF _vfp.StartMode > 0 THEN
    Sys(2450,1)
 ENDIF
 
-LOCAL loCnv AS c_foxbin2prg OF 'c_foxbin2prg.PRG' ;
+LOCAL loCnv AS c_foxbin2prg Of 'foxbin2prg.prg' ;
     , loEx  AS EXCEPTION
 
 LOCAL lnResp
@@ -291,10 +291,9 @@ lnHandle = OpenProcess(1, 1, _vfp.ProcessId)
 PROCEDURE GetObj_F2b
 LPARAMETERS poObj
 
-poObj = CreateObject( "c_foxbin2prg")
+poObj = CreateObject( "c_foxbin2prg"  )
 
 RETURN poObj
-
 
 
 
@@ -477,7 +476,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       LPARAMETERS tcCFG_File, tcCancelWithEscKey
 
       #IF .F.
-         LOCAL THIS AS c_foxbin2prg OF 'c_foxbin2prg.PRG'
+         LOCAL THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
       #ENDIF
 
       LOCAL lcSys16, lnPosProg, lc_Foxbin2prg_EXE, laValues(1,5), lcPicturePath, laDir(1,5) ;
@@ -644,7 +643,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       LOCAL llAdded
 
       IF NOT EMPTY(tcFile) THEN
-         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
             *-- Check whether it was processed before
             IF NOT .wasProcessed(tcFile) THEN
                .n_ProcessedFiles   = .n_ProcessedFiles + 1
@@ -688,7 +687,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
       TRY
          *-- If o_Frm_Avance was enabled externally, n_ShowProgressbar may be 0 to control it from outside.
-         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
             IF VARTYPE(.o_Frm_Avance) = "O" THEN
                *-- When this routine is invoked from the script, this method is #1 and cannot be cancelled yet
                IF .o_Frm_Avance.l_Cancelled AND PROGRAM(-1) > 1 THEN
@@ -706,7 +705,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE changeLanguage
       LPARAMETERS tcLanguageId
-      _SCREEN.ADDPROPERTY( "o_FoxBin2Prg_Lang", CreateObject("CL_LANG", tcLanguageId) )
+      _SCREEN.ADDPROPERTY( "o_FoxBin2Prg_Lang", CreateObject("CL_LANG" ,  tcLanguageId) )
       *-- Localized properties
       This.c_Language                 = _SCREEN.o_FoxBin2Prg_Lang.C_LANGUAGE_LOC
       This.c_loc_processing_file      = _SCREEN.o_FoxBin2Prg_Lang.C_PROCESSING_LOC
@@ -718,7 +717,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       *-- Clears processed-file statistics used to optimize
       *-- processing and avoid reprocessing the same files, for example,
       *-- a single VCX shared by 2 or more projects.
-      WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+      WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
          .n_ProcessedFilesCount  = 0
          .n_ProcessedFiles       = 0
          DIMENSION .a_ProcessedFiles(1, 6)
@@ -742,25 +741,25 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE ensureFileUtils
       IF VARTYPE(This.o_FileUtils) <> 'O' OR ISNULL(This.o_FileUtils)
-         This.o_FileUtils = CreateObject('cl_file_utils', This)
+         This.o_FileUtils = CreateObject('cl_file_utils' ,  This)
       ENDIF
    ENDPROC
 
    PROCEDURE ensureMirror
       IF VARTYPE(This.o_Mirror) <> 'O' OR ISNULL(This.o_Mirror)
-         This.o_Mirror = CreateObject('cl_fb2prg_mirror', This)
+         This.o_Mirror = CreateObject('cl_fb2prg_mirror' ,  This)
       ENDIF
    ENDPROC
 
    PROCEDURE ensureCfg
       IF VARTYPE(This.o_Cfg) <> 'O' OR ISNULL(This.o_Cfg)
-         This.o_Cfg = CreateObject('cl_fb2prg_cfg', This)
+         This.o_Cfg = CreateObject('cl_fb2prg_cfg' ,  This)
       ENDIF
    ENDPROC
 
    PROCEDURE ensureSpecialProps
       IF VARTYPE(This.o_SpecialProps) <> 'O' OR ISNULL(This.o_SpecialProps)
-         This.o_SpecialProps = CreateObject('cl_fb2prg_special_props', This.c_Foxbin2prg_FullPath )
+         This.o_SpecialProps = CreateObject('cl_fb2prg_special_props'  ,   This.c_Foxbin2prg_FullPath )
       ENDIF
    ENDPROC
 
@@ -807,7 +806,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       LOCAL lnCount, I
       lnCount = 0
 
-      WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+      WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
          tcFileMask  = EVL(tcFileMask, '*')
 
          FOR I = 1 TO .n_ProcessedFiles
@@ -884,16 +883,16 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       LPARAMETERS toEx, tlRelanzarError, tcBakFile_1, tcBakFile_2, tcBakFile_3, tcOutputFile
 
       #IF .F.
-         LOCAL toFoxBin2Prg AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+         LOCAL toFoxBin2Prg AS c_foxbin2prg Of 'foxbin2prg.prg'
       #ENDIF
 
       TRY
          LOCAL lcNext_Bak, lcExt_1, lcExt_2, lcExt_3, tcOutputFile_Ext1, tcOutputFile_Ext2, tcOutputFile_Ext3, laDir(1,5) ;
-            , loLang AS CL_LANG OF 'cl_lang.prg'
+            , loLang AS CL_LANG Of 'foxbin2prg.prg'
          STORE '' TO tcBakFile_1, tcBakFile_2, tcBakFile_3, lcExt_1, lcExt_2, lcExt_3 ;
             , tcOutputFile_Ext1, tcOutputFile_Ext2, tcOutputFile_Ext3
 
-         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
             IF .getCfgValue('n_ExtraBackupLevels') > 0 THEN
                loLang          = _SCREEN.o_FoxBin2Prg_Lang
                tcOutputFile    = EVL( tcOutputFile, .c_OutputFile )
@@ -989,7 +988,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE loadProgressbarForm
       IF VARTYPE(This.o_Frm_Avance) <> "O" THEN
-         This.o_Frm_Avance   = CreateObject( "frm_avance" , This )
+         This.o_Frm_Avance   = CreateObject( "frm_avance"   ,   This )
          This.o_Frm_Avance.SHOW()
       ENDIF
    ENDPROC
@@ -1047,7 +1046,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    PROCEDURE get_DBF_Configuration
       LPARAMETERS tc_InputFile AS STRING, to_out_DBF_CFG AS OBJECT, tlGenerateLog AS Boolean
 
-      to_out_DBF_CFG = CreateObject('CL_DBF_CFG')
+      to_out_DBF_CFG = CreateObject('CL_DBF_CFG' )
       to_out_DBF_CFG = to_out_DBF_CFG.FromGlobal(This, tlGenerateLog)
 
       RETURN IIF(VARTYPE(to_out_DBF_CFG) = 'O' AND !ISNULL(to_out_DBF_CFG), 1, 0)
@@ -1066,7 +1065,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       LOCAL lcExt2
       tcExt   = UPPER(tcExt)
 
-      WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+      WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
          lcExt2  = ICASE( tcExt == 'PJX', .getCfgValue('c_PJ2') ;
             , tcExt == 'VCX', .getCfgValue('c_VC2') ;
             , tcExt == 'SCX', .getCfgValue('c_SC2') ;
@@ -1115,7 +1114,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
       lcExt = UPPER(JUSTEXT(tcBinFile))
 
-      WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+      WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
          DO CASE
          CASE lcExt == 'FRX'
             IF FILE(FORCEEXT(tcBinFile, .getCfgValue('c_FR2D')))
@@ -1294,9 +1293,9 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       * RETURN                    (v?    OUT) .T. if conversion is supported, .F. if not
       *---------------------------------------------------------------------------------------------------
       LOCAL llhasSupport, lcExt, lcDir ;
-         , loDBF_CFG AS CL_DBF_CFG OF 'CL_DBF_CFG.prg'
+         , loDBF_CFG AS CL_DBF_CFG Of 'foxbin2prg.prg'
 
-      WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+      WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
          loDBF_CFG   = .NULL.
          lcExt       = UPPER(JUSTEXT('.' + tcFileName))
 
@@ -1353,9 +1352,9 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       * RETURN                    (v?    OUT) .T. if conversion is supported, .F. if not
       *---------------------------------------------------------------------------------------------------
       LOCAL llhasSupport, lcExt, lcDir ;
-         , loDBF_CFG AS CL_DBF_CFG OF 'CL_DBF_CFG.prg'
+         , loDBF_CFG AS CL_DBF_CFG Of 'foxbin2prg.prg'
 
-      WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+      WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
          loDBF_CFG   = .NULL.
          lcExt       = UPPER(JUSTEXT('.' + tcFileName))
 
@@ -1395,10 +1394,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       * RETURN                    (v?    OUT) Returns the support code
       *---------------------------------------------------------------------------------------------------
       LOCAL lnSupportType, lcExt, lcDir, lcFilename ;
-         , loDBF_CFG AS CL_DBF_CFG OF 'CL_DBF_CFG.prg'
+         , loDBF_CFG AS CL_DBF_CFG Of 'foxbin2prg.prg'
 
       TRY
-         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
             loDBF_CFG   = .NULL.
             lcExt       = UPPER(JUSTEXT('.' + tcFileName))
 
@@ -1474,12 +1473,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
              , loCfgW
 
          LOCAL loCFG             ;
-             , loLang            AS CL_LANG         OF 'cl_lang.prg' ;
-             , loDBF_CFG         AS CL_DBF_CFG      OF 'CL_DBF_CFG.prg' ;
-             , loFrm_Main        AS frm_main        OF 'frm_main.PRG'
+             , loLang            AS CL_LANG         Of 'foxbin2prg.prg' ;
+             , loDBF_CFG         AS CL_DBF_CFG      Of 'foxbin2prg.prg' ;
+             , loFrm_Main        AS frm_main        Of 'foxbin2prg.prg'
 
 
-         WITH This AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+         WITH This AS c_foxbin2prg Of 'foxbin2prg.prg'
 
             lc_OldSetNotify  = SET("Notify")
             SET NOTIFY OFF
@@ -1764,7 +1763,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
             CASE EMPTY(tc_InputFile)
                *-- (Syntax and usage example)
-               loFrm_Main  = CreateObject( 'frm_main', This)
+               loFrm_Main  = CreateObject( 'frm_main'  ,  This)
                loFrm_Main.SHOW()
                READ EVENTS
                lnCodError  = 0
@@ -2098,7 +2097,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          lnErrorIcon     = 64
 
          IF VARTYPE(loLang) <> 'O' THEN
-            loLang      = CreateObject("CL_LANG", "EN")
+            loLang      = CreateObject("CL_LANG" ,  "EN")
          ENDIF
 
          IF lnCodError <> 1799 THEN  && Conversion Cancelled
@@ -2146,7 +2145,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          ENDIF
 
          IF VARTYPE(loLang) <> 'O' THEN
-            loLang      = CreateObject("CL_LANG", "EN")
+            loLang      = CreateObject("CL_LANG" ,  "EN")
          ENDIF
 
          USE IN (SELECT("TABLABIN"))
@@ -2226,12 +2225,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       LPARAMETERS tc_InputFile, tcRecompile, toModulo, toEx, tcOriginalFileName, tcLogFile, tcType
 
       LOCAL lcFileSpec, lnFileCount, laFiles(1,2), lcFile, lnCodError, I, lnFileCount, llError, laDirInfo(1,5), lcStr ;
-         , loLang AS CL_LANG OF 'cl_lang.prg' ;
+         , loLang AS CL_LANG Of 'foxbin2prg.prg' ;
          , loEx AS EXCEPTION ;
          , llMirrorExportSave AS Boolean
 
       TRY
-         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
             llMirrorExportSave = .l_MirrorExport
             .l_MirrorExport     = .T.
             loLang      = _SCREEN.o_FoxBin2Prg_Lang
@@ -2361,7 +2360,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          THROW
 
       FINALLY
-         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
             .l_MirrorExport = llMirrorExportSave
          ENDWITH
          STORE .NULL. TO loLang
@@ -2393,12 +2392,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       LPARAMETERS tc_InputFile, tcRecompile, toModulo, toEx, tcOriginalFileName, tcLogFile, tcType
 
       LOCAL lcFileSpec, lnFileCount, laFiles(1,2), laExcluded(1), lcFile, lcBinFile, lcTextFile, lcFlatText, lnCodError, I, lnFileCount, llError, laDirInfo(1,5), lcStr ;
-         , loLang AS CL_LANG OF 'cl_lang.prg' ;
+         , loLang AS CL_LANG Of 'foxbin2prg.prg' ;
          , loEx AS EXCEPTION ;
          , llMirrorExportSave AS Boolean
 
       TRY
-         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
             llMirrorExportSave = .l_MirrorExport
             .l_MirrorExport     = .F.
             loLang      = _SCREEN.o_FoxBin2Prg_Lang
@@ -2538,7 +2537,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          THROW
 
       FINALLY
-         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
             .l_MirrorExport = llMirrorExportSave
          ENDWITH
          STORE .NULL. TO loLang
@@ -2550,10 +2549,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    HIDDEN PROCEDURE doWriteErrorLog
       LPARAMETERS toEx AS EXCEPTION, tcErrorInfo
 
-      LOCAL loLang AS CL_LANG OF 'cl_lang.prg'
+      LOCAL loLang AS CL_LANG Of 'foxbin2prg.prg'
       loLang          = _SCREEN.o_FoxBin2Prg_Lang
 
-      WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+      WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
          IF toEx.ERRORNO = 1799 THEN     && Conversion Cancelled
             tcErrorInfo     = loLang.C_CONVERSION_CANCELLED_BY_USER_LOC
          ELSE
@@ -2594,13 +2593,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       TRY
          LOCAL lnCodError, lcErrorInfo, laDirFile(1,5), lcExtension, lnFileCount, laFiles(1,1), I ;
             , ltFilestamp, lcExtA, lcExtB, laEvents(1,1), lcForceAttribs, lnIDInputFile, llFox2x ;
-            , loLang AS CL_LANG OF 'cl_lang.prg' ;
-            , loConversor AS c_conversor_base OF 'c_conversor_base.prg' ;
+            , loLang AS CL_LANG Of 'foxbin2prg.prg' ;
+            , loConversor AS c_conversor_base Of 'foxbin2prg.prg' ;
             , loFSO AS Scripting.FileSystemObject ;
-            , loDBF_CFG AS CL_DBF_CFG OF 'CL_DBF_CFG.prg'
+            , loDBF_CFG AS CL_DBF_CFG Of 'foxbin2prg.prg'
          lnCodError          = 0
 
-         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
             loFSO           = .o_FSO
             loLang          = _SCREEN.o_FoxBin2Prg_Lang
             lcForceAttribs  = '+N'
@@ -2766,7 +2765,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_VC2') )
-               loConversor     = CreateObject( 'c_conversor_vcx_a_prg' )
+               loConversor     = CreateObject( 'c_conversor_vcx_a_prg'   )
                IF .getCfgInt('n_UseClassPerFile') > 0 AND .getCfgFlag('l_UseClassPerDir')
                   .changeFileAttribute( .getPerFileOutputPath( .c_InputFile, '', .getCfgValue('c_VC2'), .T., .getCfgInt('n_UseClassPerFile') ), lcForceAttribs )
                ELSE
@@ -2778,7 +2777,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_SC2') )
-               loConversor     = CreateObject( 'c_conversor_scx_a_prg' )
+               loConversor     = CreateObject( 'c_conversor_scx_a_prg'   )
                IF .getCfgInt('n_UseFormPerFile') > 0 AND .getCfgFlag('l_UseFormPerDir')
                   .changeFileAttribute( .getPerFileOutputPath( .c_InputFile, '', .getCfgValue('c_SC2'), .T., .getCfgInt('n_UseFormPerFile') ), lcForceAttribs )
                ELSE
@@ -2790,7 +2789,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_PJ2') )
-               loConversor     = CreateObject( 'c_conversor_pjx_a_prg' )
+               loConversor     = CreateObject( 'c_conversor_pjx_a_prg'   )
 
                .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_PJ2') ), lcForceAttribs )
 
@@ -2799,7 +2798,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_PJ2') )
-               loConversor     = CreateObject( 'c_conversor_pjm_a_prg')
+               loConversor     = CreateObject( 'c_conversor_pjm_a_prg'  )
                .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_PJ2') ), lcForceAttribs )
 
             CASE lcExtension = 'FRX'
@@ -2814,7 +2813,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_FR2') )
                   .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_FR2') ), lcForceAttribs )
                ENDIF
-               loConversor     = CreateObject( 'c_conversor_frx_a_prg' )
+               loConversor     = CreateObject( 'c_conversor_frx_a_prg'   )
                loConversor.l_Fox2x = llFox2x
 
             CASE lcExtension = 'LBX'
@@ -2829,7 +2828,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_LB2') )
                   .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_LB2') ), lcForceAttribs )
                ENDIF
-               loConversor     = CreateObject( 'c_conversor_frx_a_prg' )
+               loConversor     = CreateObject( 'c_conversor_frx_a_prg'   )
                loConversor.l_Fox2x = llFox2x
 
             CASE lcExtension = 'DBF'
@@ -2838,7 +2837,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_DB2') )
-               loConversor     = CreateObject( 'c_conversor_dbf_a_prg')
+               loConversor     = CreateObject( 'c_conversor_dbf_a_prg'  )
                .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_DB2') ), lcForceAttribs )
 
             CASE lcExtension = 'DBC'
@@ -2846,7 +2845,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_DC2') )
-               loConversor     = CreateObject( 'c_conversor_dbc_a_prg')
+               loConversor     = CreateObject( 'c_conversor_dbc_a_prg'  )
                .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_DC2') ), lcForceAttribs )
 
             CASE lcExtension = 'MNX'
@@ -2854,7 +2853,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_MN2') )
-               loConversor     = CreateObject( 'c_conversor_mnx_a_prg' )
+               loConversor     = CreateObject( 'c_conversor_mnx_a_prg'   )
                .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_MN2') ), lcForceAttribs )
 
             CASE lcExtension = 'FKY'
@@ -2862,7 +2861,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_FK2') )
-               loConversor     = CreateObject( 'c_conversor_fky_a_prg')
+               loConversor     = CreateObject( 'c_conversor_fky_a_prg'  )
                .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_FK2') ), lcForceAttribs )
 
             CASE lcExtension = 'MEM'
@@ -2870,7 +2869,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_ME2') )
-               loConversor     = CreateObject( 'c_conversor_mem_a_prg')
+               loConversor     = CreateObject( 'c_conversor_mem_a_prg'  )
                .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_ME2') ), lcForceAttribs )
 
             CASE lcExtension = .getCfgValue('c_VC2')
@@ -2886,7 +2885,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   .c_OutputFile   = .getPerFileBinaryOutputPath( FORCEEXT( lc_BaseFile, 'VCX' ), 'VCX', .getCfgValue('c_VC2'), ;
                      .getCfgFlag('l_UseClassPerDir'), .getCfgInt('n_UseClassPerFile') )
                ENDIF
-               loConversor     = CreateObject( 'c_conversor_prg_a_vcx')
+               loConversor     = CreateObject( 'c_conversor_prg_a_vcx'  )
                .changeFileAttribute( .c_OutputFile, lcForceAttribs )
                .changeFileAttribute( FORCEEXT( .c_OutputFile, 'VCT' ), lcForceAttribs )
 
@@ -2896,7 +2895,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                ENDIF
                .c_OutputFile   = .getPerFileBinaryOutputPath( .c_InputFile, 'SCX', .getCfgValue('c_SC2'), ;
                   .getCfgFlag('l_UseFormPerDir'), .getCfgInt('n_UseFormPerFile') )
-               loConversor     = CreateObject( 'c_conversor_prg_a_scx')
+               loConversor     = CreateObject( 'c_conversor_prg_a_scx'  )
                .changeFileAttribute( .c_OutputFile, lcForceAttribs )
                .changeFileAttribute( FORCEEXT( .c_OutputFile, 'SCT' ), lcForceAttribs )
 
@@ -2905,7 +2904,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, 'PJX' )
-               loConversor     = CreateObject( 'c_conversor_prg_a_pjx' )
+               loConversor     = CreateObject( 'c_conversor_prg_a_pjx'   )
                .changeFileAttribute( FORCEEXT( .c_InputFile, 'PJX' ), lcForceAttribs )
                .changeFileAttribute( FORCEEXT( .c_InputFile, 'PJT' ), lcForceAttribs )
 
@@ -2914,7 +2913,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, 'FRX' )
-               loConversor     = CreateObject( 'c_conversor_prg_a_frx')
+               loConversor     = CreateObject( 'c_conversor_prg_a_frx'  )
                .changeFileAttribute( FORCEEXT( .c_InputFile, 'FRX' ), lcForceAttribs )
                .changeFileAttribute( FORCEEXT( .c_InputFile, 'FRT' ), lcForceAttribs )
 
@@ -2923,7 +2922,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, 'FRX' )
-               loConversor     = CreateObject( 'c_conversor_prg_a_frx')
+               loConversor     = CreateObject( 'c_conversor_prg_a_frx'  )
                loConversor.l_Fox2x = .T.
                .changeFileAttribute( FORCEEXT( .c_InputFile, 'FRX' ), lcForceAttribs )
                .changeFileAttribute( FORCEEXT( .c_InputFile, 'FRT' ), lcForceAttribs )
@@ -2933,7 +2932,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, 'LBX' )
-               loConversor     = CreateObject( 'c_conversor_prg_a_frx')
+               loConversor     = CreateObject( 'c_conversor_prg_a_frx'  )
                .changeFileAttribute( FORCEEXT( .c_InputFile, 'LBX' ), lcForceAttribs )
                .changeFileAttribute( FORCEEXT( .c_InputFile, 'LBT' ), lcForceAttribs )
 
@@ -2942,7 +2941,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, 'LBX' )
-               loConversor     = CreateObject( 'c_conversor_prg_a_frx')
+               loConversor     = CreateObject( 'c_conversor_prg_a_frx'  )
                loConversor.l_Fox2x = .T.
                .changeFileAttribute( FORCEEXT( .c_InputFile, 'LBX' ), lcForceAttribs )
                .changeFileAttribute( FORCEEXT( .c_InputFile, 'LBT' ), lcForceAttribs )
@@ -2954,7 +2953,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, 'DBF' )
-               loConversor     = CreateObject( 'c_conversor_prg_a_dbf')
+               loConversor     = CreateObject( 'c_conversor_prg_a_dbf'  )
                .changeFileAttribute( FORCEEXT( .c_InputFile, 'DBF' ), lcForceAttribs )
                .changeFileAttribute( FORCEEXT( .c_InputFile, 'FPT' ), lcForceAttribs )
                .changeFileAttribute( FORCEEXT( .c_InputFile, 'CDX' ), lcForceAttribs )
@@ -2964,7 +2963,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, 'DBC' )
-               loConversor     = CreateObject( 'c_conversor_prg_a_dbc')
+               loConversor     = CreateObject( 'c_conversor_prg_a_dbc'  )
                .changeFileAttribute( FORCEEXT( .c_InputFile, 'DBC' ), lcForceAttribs )
                .changeFileAttribute( FORCEEXT( .c_InputFile, 'DCX' ), lcForceAttribs )
                .changeFileAttribute( FORCEEXT( .c_InputFile, 'DCT' ), lcForceAttribs )
@@ -2974,7 +2973,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
                ENDIF
                .c_OutputFile   = FORCEEXT( .c_InputFile, 'MNX' )
-               loConversor     = CreateObject( 'c_conversor_prg_a_mnx')
+               loConversor     = CreateObject( 'c_conversor_prg_a_mnx'  )
                .changeFileAttribute( FORCEEXT( .c_InputFile, 'MNX' ), lcForceAttribs )
                .changeFileAttribute( FORCEEXT( .c_InputFile, 'MNT' ), lcForceAttribs )
 
@@ -2984,7 +2983,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                ENDIF
                * Not implemented
 *!*                  .c_OutputFile   = FORCEEXT( .c_InputFile, 'FKY' )
-*!*                  loConversor     = CreateObject( 'c_conversor_prg_a_fky')
+*!*                  loConversor     = CreateObject( 'c_conversor_prg_a_fky'  )
 *!*                  .changeFileAttribute( FORCEEXT( .c_InputFile, 'FKY' ), lcForceAttribs )
 
             CASE lcExtension = .getCfgValue('c_ME2')
@@ -2993,7 +2992,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                ENDIF
                * Not implemented
 *!*                  .c_OutputFile   = FORCEEXT( .c_InputFile, 'MEM' )
-*!*                  loConversor     = CreateObject( 'c_conversor_prg_a_mem')
+*!*                  loConversor     = CreateObject( 'c_conversor_prg_a_mem'  )
 *!*                  .changeFileAttribute( FORCEEXT( .c_InputFile, 'MEM' ), lcForceAttribs )
 
             OTHERWISE
@@ -3715,10 +3714,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       TRY
          LOCAL lcPath, lcEXE_CAPS, lcOutputFile, llRelanzarError, lcType, laDirInfo(1,5) ;
             , loEx AS EXCEPTION ;
-            , loLang AS CL_LANG OF 'cl_lang.prg' ;
+            , loLang AS CL_LANG Of 'foxbin2prg.prg' ;
             , loFSO AS Scripting.FileSystemObject
 
-         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
             IF NOT .l_ProcessFiles
                EXIT
             ENDIF
@@ -3821,7 +3820,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       EXTERNAL ARRAY taFiles
 
       LOCAL laFiles(1), I, lnFiles ;
-         , loLang AS CL_LANG OF 'cl_lang.prg'
+         , loLang AS CL_LANG Of 'foxbin2prg.prg'
 
       IF TYPE("ALEN(laFiles)") # "N" OR EMPTY(tnFileCount)
          tnFileCount = 0
@@ -3831,7 +3830,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       tcDir   = ADDBS(tcDir)
 
       IF DIRECTORY(tcDir)
-         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
             loLang          = _SCREEN.o_FoxBin2Prg_Lang
             .updateProgressbar( loLang.C_SCANNING_FILE_AND_DIR_INFO_LOC + ' ' + tcDir + '...', 0, 0, 0 )
             lnFiles = ADIR( laFiles, tcDir + '*.*', 'D', 1)
@@ -3876,12 +3875,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       TRY
          LOCAL lnCodError, lcErrorInfo, laDirFile(1,5), lcExtension, lnFileCount, laFiles(1,1), I ;
             , ltFilestamp, lcExtA, lcExtB, laEvents(1,1), lnIDInputFile ;
-            , loLang AS CL_LANG OF 'cl_lang.prg' ;
-            , loConversor AS c_conversor_base OF 'c_conversor_base.prg' ;
+            , loLang AS CL_LANG Of 'foxbin2prg.prg' ;
+            , loConversor AS c_conversor_base Of 'foxbin2prg.prg' ;
             , loFSO AS Scripting.FileSystemObject
          lnCodError          = 0
 
-         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
             STORE .NULL. TO toModulo
             lc_OldSetNotify = SET("Notify")
             SET NOTIFY OFF
@@ -3923,65 +3922,65 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
             DO CASE
             CASE lcExtension = 'VCX'
-               loConversor     = CreateObject( 'c_conversor_vcx_a_prg' )
+               loConversor     = CreateObject( 'c_conversor_vcx_a_prg'   )
 
             CASE lcExtension = 'SCX'
-               loConversor     = CreateObject( 'c_conversor_scx_a_prg' )
+               loConversor     = CreateObject( 'c_conversor_scx_a_prg'   )
 
             CASE lcExtension = 'PJX'
-               loConversor     = CreateObject( 'c_conversor_pjx_a_prg' )
+               loConversor     = CreateObject( 'c_conversor_pjx_a_prg'   )
 
             CASE lcExtension = 'PJM' AND .getCfgValue('c_PJ2') <> 'PJM'
-               loConversor     = CreateObject( 'c_conversor_pjm_a_prg')
+               loConversor     = CreateObject( 'c_conversor_pjm_a_prg'  )
 
             CASE lcExtension = 'FRX'
-               loConversor     = CreateObject( 'c_conversor_frx_a_prg' )
+               loConversor     = CreateObject( 'c_conversor_frx_a_prg'   )
                loConversor.l_Fox2x = .detectFox2xRptLbl(.c_InputFile)
 
             CASE lcExtension = 'LBX'
-               loConversor     = CreateObject( 'c_conversor_frx_a_prg' )
+               loConversor     = CreateObject( 'c_conversor_frx_a_prg'   )
                loConversor.l_Fox2x = .detectFox2xRptLbl(.c_InputFile)
 
             CASE lcExtension = 'DBF'
-               loConversor     = CreateObject( 'c_conversor_dbf_a_prg')
+               loConversor     = CreateObject( 'c_conversor_dbf_a_prg'  )
 
             CASE lcExtension = 'DBC'
-               loConversor     = CreateObject( 'c_conversor_dbc_a_prg')
+               loConversor     = CreateObject( 'c_conversor_dbc_a_prg'  )
 
             CASE lcExtension = 'MNX'
-               loConversor     = CreateObject( 'c_conversor_mnx_a_prg' )
+               loConversor     = CreateObject( 'c_conversor_mnx_a_prg'   )
 
             CASE lcExtension = .getCfgValue('c_VC2')
-               loConversor     = CreateObject( 'c_conversor_prg_a_vcx')
+               loConversor     = CreateObject( 'c_conversor_prg_a_vcx'  )
 
             CASE lcExtension = .getCfgValue('c_SC2')
-               loConversor     = CreateObject( 'c_conversor_prg_a_scx')
+               loConversor     = CreateObject( 'c_conversor_prg_a_scx'  )
 
             CASE lcExtension = .getCfgValue('c_PJ2')
-               loConversor     = CreateObject( 'c_conversor_prg_a_pjx' )
+               loConversor     = CreateObject( 'c_conversor_prg_a_pjx'   )
 
             CASE lcExtension = .getCfgValue('c_FR2')
-               loConversor     = CreateObject( 'c_conversor_prg_a_frx')
+               loConversor     = CreateObject( 'c_conversor_prg_a_frx'  )
 
             CASE lcExtension = .getCfgValue('c_FR2D')
-               loConversor     = CreateObject( 'c_conversor_prg_a_frx')
+               loConversor     = CreateObject( 'c_conversor_prg_a_frx'  )
                loConversor.l_Fox2x = .T.
 
             CASE lcExtension = .getCfgValue('c_LB2')
-               loConversor     = CreateObject( 'c_conversor_prg_a_frx')
+               loConversor     = CreateObject( 'c_conversor_prg_a_frx'  )
 
             CASE lcExtension = .getCfgValue('c_LB2D')
-               loConversor     = CreateObject( 'c_conversor_prg_a_frx')
+               loConversor     = CreateObject( 'c_conversor_prg_a_frx'  )
                loConversor.l_Fox2x = .T.
 
             CASE lcExtension = .getCfgValue('c_DB2')
-               loConversor     = CreateObject( 'c_conversor_prg_a_dbf')
+               loConversor     = CreateObject( 'c_conversor_prg_a_dbf'  )
 
             CASE lcExtension = .getCfgValue('c_DC2')
-               loConversor     = CreateObject( 'c_conversor_prg_a_dbc')
+               loConversor     = CreateObject( 'c_conversor_prg_a_dbc'  )
 
             CASE lcExtension = .getCfgValue('c_MN2')
-               loConversor     = CreateObject( 'c_conversor_prg_a_mnx')
+               loConversor     = CreateObject( 'c_conversor_prg_a_mnx'  )
 
             OTHERWISE
                *ERROR 'File [' + .c_InputFile + '] is not supported'
@@ -4113,11 +4112,11 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       LPARAMETERS tcFileName, tcEXE_CAPS, toFSO AS Scripting.FileSystemObject, tlRelanzarError
 
       LOCAL lcLog, laFile(1,5) ;
-          , loLang AS CL_LANG OF 'cl_lang.prg'
+          , loLang AS CL_LANG Of 'foxbin2prg.prg'
 
       loLang  = _SCREEN.o_FoxBin2Prg_Lang
 
-      WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+      WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
          lcLog   = ''
          .o_FNC.Capitalize( tcFileName, '', 'F', @lcLog, tlRelanzarError, '1' )
 
@@ -4250,7 +4249,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       TRY
          LOCAL loEx AS EXCEPTION
 
-         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
             IF .n_ProcessedFiles = 0 THEN
                EXIT
             ENDIF
@@ -4291,7 +4290,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       LPARAMETERS tcText, tnTimeStamp
 
       TRY
-         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
             *-- According to nTimestamp value:
             *-- 0 = No timestamp
             *-- 1 = Timestamp prefix
@@ -4312,7 +4311,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE writeErrorLog_Flush
-      WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+      WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
          IF NOT EMPTY(.c_TextErr)
             STRTOFILE( .c_TextErr + CR_LF, .c_ErrorLogFile, 1 )
          ENDIF
@@ -4326,7 +4325,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       LPARAMETERS tcText, tnTimeStamp
 
       TRY
-         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
             *-- According to nTimestamp value:
             *-- 0 = No timestamp
             *-- 1 = Timestamp prefix
@@ -4343,7 +4342,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE writeLog_Flush
-      WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+      WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
          IF .getCfgValue('n_Debug') > 0 AND NOT EMPTY(.c_TextLog)
             STRTOFILE( .c_TextLog + CR_LF, .c_LogFile, 1 )
          ENDIF
@@ -4406,7 +4405,6 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
 ENDDEFINE
-
 
 
 Define Class frm_avance As Form
@@ -4776,7 +4774,7 @@ Define Class frm_avance As Form
                 .nLastSecCount  = lnSecs
             Endif
 
-*-- Habilita el bot√≥n de cancelar una vez que se comienzan a pasar valores
+*-- Habilita el botÛn de cancelar una vez que se comienzan a pasar valores
             If Not Empty(tnValor) Then
                 If Not .cmdCancel.Enabled Then
                     .cmdCancel.Enabled = .T.
@@ -4890,7 +4888,6 @@ Enddefine
 
 
 
-
 Define Class frm_main As Form
    AllowOutput = .F.
    AlwaysOnTop = .T.
@@ -4986,7 +4983,6 @@ Enddefine
 
 
 
-
 Define Class c_conversor_base As Custom
    #If .F.
       Local This As c_conversor_base Of 'foxbin2prg.prg'
@@ -5073,9 +5069,9 @@ Define Class c_conversor_base As Custom
    c_ClaseActual           = ''
    o_SpecialProps          = .Null.
    oFSO                    = .Null.
-   n_Methods_LineNo        = 0         && N√∫mero de l√≠nea del error dentro de "Methods"
+   n_Methods_LineNo        = 0         && N˙mero de lÌnea del error dentro de "Methods"
    cOutputFolder           = ''
-   cInputRoot              = ''        && Ra√≠z del √°rbol de origen (proyecto). Si se indica junto a cOutputFolder, se replica la estructura de carpetas
+   cInputRoot              = ''        && RaÌz del ·rbol de origen (proyecto). Si se indica junto a cOutputFolder, se replica la estructura de carpetas
 
 
 
@@ -5101,7 +5097,7 @@ Define Class c_conversor_base As Custom
       Endif
 
       Public C_FB2PRG_CODE
-      C_FB2PRG_CODE   = ''    && Contendr√° todo el c√≥digo generado
+      C_FB2PRG_CODE   = ''    && Contendr· todo el cÛdigo generado
       This.c_CurDir   = Sys(5) + Curdir()
       This.oFSO       = Createobject( "Scripting.FileSystemObject")
       lcSys16         = Sys(16)
@@ -5125,7 +5121,7 @@ Define Class c_conversor_base As Custom
       Use In (Select("TABLABIN"))
       Use In (Select("foxbin2prg_keywords"))
 
-      *-- Esta comprobaci√≥n es por los TESTS, que a veces no cargan o_FoxBin2Prg_Lang
+      *-- Esta comprobaciÛn es por los TESTS, que a veces no cargan o_FoxBin2Prg_Lang
       If Vartype(_Screen.o_FoxBin2Prg_Lang) = "O" Then
          loLang          = _Screen.o_FoxBin2Prg_Lang
          This.writeLog( loLang.C_CONVERTER_UNLOAD_LOC )
@@ -5138,7 +5134,7 @@ Define Class c_conversor_base As Custom
 
 
    Procedure analyzeAssignmentOf_TAG
-      *-- DETALLES: Este m√©todo est√° pensado para leer los tags FB2P_VALUE y MEMBERDATA, que tienen esta sintaxis:
+      *-- DETALLES: Este mÈtodo est· pensado para leer los tags FB2P_VALUE y MEMBERDATA, que tienen esta sintaxis:
       *
       *   _memberdata = <VFPData>
       *       <memberdata name="mimetodo" display="miMetodo"/>
@@ -5147,12 +5143,12 @@ Define Class c_conversor_base As Custom
       *   <fb2p_value>Este es un&#13;valor especial</fb2p_value>
       *
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcPropName                (v! IN    ) Nombre de la propiedad
       * tcValue                   (v! IN    ) Valor (o inicio del valor) de la propiedad
-      * taProps                   (!@ IN    ) El array con las l√≠neas del c√≥digo donde buscar
-      * tnProp_Count              (!@ IN    ) Cantidad de l√≠neas de c√≥digo
-      * I                         (!@ IN    ) L√≠nea actualmente evaluada
+      * taProps                   (!@ IN    ) El array con las lÌneas del cÛdigo donde buscar
+      * tnProp_Count              (!@ IN    ) Cantidad de lÌneas de cÛdigo
+      * I                         (!@ IN    ) LÌnea actualmente evaluada
       * tcTAG_I                   (v! IN    ) TAG de inicio   <tag>
       * tcTAG_F                   (v! IN    ) TAG de fin      </tag>
       * tnLEN_TAG_I               (v! IN    ) Longitud del tag de inicio
@@ -5172,7 +5168,7 @@ Define Class c_conversor_base As Custom
             With This As c_conversor_base Of 'foxbin2prg.prg'
 
                *-- Propiedad especial
-               If tcTAG_F $ tcValue        && El fin de tag est√° "inline"
+               If tcTAG_F $ tcValue        && El fin de tag est· "inline"
                   .denormalizePropertyValue( @tcPropName, @tcValue, '' )
                   Exit
                Endif
@@ -5237,9 +5233,9 @@ Define Class c_conversor_base As Custom
 
    Procedure findMethodsObjectByName
       Lparameters tcNombreObjeto, toClase
-      *-- Caso 1: Un m√©todo de un objeto de la clase
+      *-- Caso 1: Un mÈtodo de un objeto de la clase
       *--     findMethodsObjectByName( 'command1', loClase )
-      *-- Caso 2: Un m√©todo de un objeto heredado que no est√° definido en esta librer√≠a
+      *-- Caso 2: Un mÈtodo de un objeto heredado que no est· definido en esta librerÌa
       *--     findMethodsObjectByName( 'cnt_descripcion.Cntlista.cmgAceptarCancelar.cmdCancelar', loClase )
       #If .F.
          Local toClase As CL_CLASE Of 'foxbin2prg.prg'
@@ -5250,18 +5246,18 @@ Define Class c_conversor_base As Custom
             , loObjeto As CL_OBJETO Of 'foxbin2prg.prg'
          Store 0 To N, lnObjeto
 
-         *--   El m√©todo puede pertenecer a esta clase, a un objeto de esta clase,
-         *-- o a un objeto heredado que no est√° definido en esta clase, sino en otra,
+         *--   El mÈtodo puede pertenecer a esta clase, a un objeto de esta clase,
+         *-- o a un objeto heredado que no est· definido en esta clase, sino en otra,
          *-- y para la cual la ruta a buscar es parcial.
          *--   Por ejemplo, el caso 2 puede que el objeto que hay sea 'cnt_descripcion.Cntlista'
-         *-- y el bot√≥n sea heredado, pero se le haya redefinido su m√©todo Click aqu√≠.
+         *-- y el botÛn sea heredado, pero se le haya redefinido su mÈtodo Click aquÌ.
          For X = Occurs( '.', tcNombreObjeto + '.' ) To 1 Step -1
             N   = N + 1
             lcRutaDelNombre = Left( tcNombreObjeto, Rat( '.', tcNombreObjeto + '.', N ) - 1 )
             For I = 1 To toClase._AddObject_Count
                loObjeto    = toClase._AddObjects(m.I)
 
-               *-- Busco tanto el [nombre] del m√©todo como [class.nombre]+[nombre] del m√©todo
+               *-- Busco tanto el [nombre] del mÈtodo como [class.nombre]+[nombre] del mÈtodo
                If Lower(loObjeto._Nombre) == Lower(toClase._ObjName) + '.' + lcRutaDelNombre ;
                      OR Lower(loObjeto._Nombre) == lcRutaDelNombre
                   lnObjeto    = m.I
@@ -5314,9 +5310,9 @@ Define Class c_conversor_base As Custom
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (!@    OUT) Objeto generado de clase correspondiente con la informaci√≥n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (!@    OUT) Objeto generado de clase correspondiente con la informaciÛn leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (!@ IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -5339,7 +5335,7 @@ Define Class c_conversor_base As Custom
 
       EXTERNAL ARRAY taCodeLines
 
-      *-- Analizo la l√≠nea anterior para saber si termina con ";" o "," y la actual es continuaci√≥n
+      *-- Analizo la lÌnea anterior para saber si termina con ";" o "," y la actual es continuaciÛn
       If m.I > 1
          lcPrevLine  = taCodeLines(m.I-1)
       Else
@@ -5348,7 +5344,7 @@ Define Class c_conversor_base As Custom
 
       This.get_SeparatedLineAndComment( @lcPrevLine )
 
-      If Inlist( Right( lcPrevLine,1 ), ';', ',' )    && Esta l√≠nea es continuaci√≥n de la anterior
+      If Inlist( Right( lcPrevLine,1 ), ';', ',' )    && Esta lÌnea es continuaciÛn de la anterior
          llIsContinuation    = .T.
       Endif
 
@@ -5363,7 +5359,7 @@ Define Class c_conversor_base As Custom
       Local llEncontrado, lcWord, lcWord2, lcLine, lnWordCount
 
       Try
-         *-- Pre-normalizaci√≥n
+         *-- Pre-normalizaciÛn
          lcLine  = tcLine
 
          If tnIniFin = 1
@@ -5390,13 +5386,13 @@ Define Class c_conversor_base As Custom
                      If lcWord2 == "TO"
                         * OK, es TEXT TO...
                      Else
-                        * Luego de TEXT sigue cualquier otra cosa, as√≠ que puede ser
+                        * Luego de TEXT sigue cualquier otra cosa, asÌ que puede ser
                         * un campo, variable, etc, que lo han llamado TEXT.
                         Exit
                      Endif
 
                   Otherwise
-                     * OK, es TEXT sin m√°s.
+                     * OK, es TEXT sin m·s.
                   Endcase
                Endif
 
@@ -5426,7 +5422,7 @@ Define Class c_conversor_base As Custom
 
    Procedure decode_SpecialCodes_1_31
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcText                    (!@ IN    ) Decodifica los primeros 31 caracteres ASCII de {nCode} a CHR(nCode)
       *---------------------------------------------------------------------------------------------------
       Lparameters tcText
@@ -5442,7 +5438,7 @@ Define Class c_conversor_base As Custom
 
    Procedure decode_SpecialCodes_CR_LF
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcText                    (!@ IN    ) Decodifica los caracteres ASCII 10 y 13 de {nCode} a CHR(nCode)
       *---------------------------------------------------------------------------------------------------
       Lparameters tcText
@@ -5471,7 +5467,7 @@ Define Class c_conversor_base As Custom
 
 
    Procedure denormalizePropertyValue
-      *-- Este m√©todo se ejecuta cuando se regenera el binario desde el tx2
+      *-- Este mÈtodo se ejecuta cuando se regenera el binario desde el tx2
       Lparameters tcProp, tcValue, tcComentario
       Local lnCodError, lnPos, lcValue
       tcComentario    = ''
@@ -5513,7 +5509,7 @@ Define Class c_conversor_base As Custom
 
    Procedure denormalizeXMLValue
       Lparameters tcValor
-      *-- DESNORMALIZA EL TEXTO INDICADO, EXPANDIENDO LOS S√çMBOLOS XML ESPECIALES.
+      *-- DESNORMALIZA EL TEXTO INDICADO, EXPANDIENDO LOS SÕMBOLOS XML ESPECIALES.
       Local lnPos, lnPos2, lnAscii
       tcValor = Strtran(tcValor, Chr(38)+'gt;', '>')          &&  >
       tcValor = Strtran(tcValor, Chr(38)+'lt;', '<')          &&  <
@@ -5551,7 +5547,7 @@ Define Class c_conversor_base As Custom
 
    Procedure encode_SpecialCodes_1_31
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcText                    (!@ IN    ) Decodifica los primeros 31 caracteres ASCII de CHR(nCode) a {nCode}
       *---------------------------------------------------------------------------------------------------
       Lparameters tcText
@@ -5567,7 +5563,7 @@ Define Class c_conversor_base As Custom
 
    Procedure encode_SpecialCodes_CR_LF
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcText                    (!@ IN    ) Codifica los caracteres ASCII 10 y 13 de CHR(nCode) a {nCode}
       *---------------------------------------------------------------------------------------------------
       Lparameters tcText
@@ -5615,8 +5611,8 @@ Define Class c_conversor_base As Custom
 
    Function getTimeStamp
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tnTimeStamp               (v! IN    ) Timestamp en formato num√©rico
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tnTimeStamp               (v! IN    ) Timestamp en formato numÈrico
       *---------------------------------------------------------------------------------------------------
       Lparameters tnTimeStamp
       *-- CONVIERTE UN DATO TIMESTAMP NUMERICO USADO POR LOS ARCHIVOS SCX/VCX/etc. EN TIPO DATETIME
@@ -5635,8 +5631,8 @@ Define Class c_conversor_base As Custom
 
                   ltTimeStamp = Evaluate( '{^' + Dtoc(laDirInfo(1,3)) + ' ' + Transform(laDirInfo(1,4)) + '}' )
 
-                  *-- En mi arreglo, si la hora pasada tiene 32 segundos o m√°s, redondeo al siguiente minuto, ya que
-                  *-- la descodificaci√≥n posterior de getTimeStamp tiene ese margen de error.
+                  *-- En mi arreglo, si la hora pasada tiene 32 segundos o m·s, redondeo al siguiente minuto, ya que
+                  *-- la descodificaciÛn posterior de getTimeStamp tiene ese margen de error.
                   If Sec(m.ltTimeStamp) >= 32
                      ltTimeStamp = m.ltTimeStamp + 28
                   Endif
@@ -5689,13 +5685,13 @@ Define Class c_conversor_base As Custom
 
    Procedure get_ListNamesWithValuesFrom_InLine_MetadataTag
       *-- OBTENGO EL ARRAY DE DATOS Y VALORES DE LA LINEA DE METADATOS INDICADA
-      *-- NOTA: Los valores NO PUEDEN contener comillas dobles en su valor, ya que generar√≠a un error al parsearlos.
+      *-- NOTA: Los valores NO PUEDEN contener comillas dobles en su valor, ya que generarÌa un error al parsearlos.
       *-- Ejemplo:
       *< FileMetadata: Type="V" Cpid="1252" Timestamp="1131901580" ID="1129207528" ObjRev="544" />
       *< OLE: Nombre="frm_form.Pageframe1.Page1.Cnt_controles_h.Olecontrol1" Parent="frm_form.Pageframe1.Page1.Cnt_controles_h" ObjName="Olecontrol1" Checksum="1685567300" Value="0M8R4KGxGuEAAAAAAAAAAAAAAAAAAAAAPg...ADAP7AAAA==" />
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLineWithMetadata        (!@ IN    ) L√≠nea con metadatos y un tag de metadatos
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLineWithMetadata        (!@ IN    ) LÌnea con metadatos y un tag de metadatos
       * taPropsAndValues          (!@    OUT) Array a devolver con las propiedades y valores encontrados
       * tnPropsAndValues_Count    (!@    OUT) Cantidad de propiedades encontradas
       * tcLeftTag                 (v! IN    ) TAG de inicio de los metadatos
@@ -5717,14 +5713,14 @@ Define Class c_conversor_base As Custom
          lcMetadatos     = Alltrim( Strextract( tcLineWithMetadata, tcLeftTag, tcRightTag, 1, 1) )
 
          If Empty(lcMetadatos)
-            * Puede que la l√≠nea est√© separada con un CR err√≥neo. El usuario debe revisarlo
+            * Puede que la lÌnea estÈ separada con un CR errÛneo. El usuario debe revisarlo
             Error (Textmerge("Can't identify Metadata TAG '<<tcRightTag>>'. May be the Source line have an extra CR/LF?"))
          Endif
 
          lnCantComillas  = Occurs( '"', lcMetadatos )
 
          If lnCantComillas % 2 <> 0  && Valido que las comillas "" sean pares
-            *ERROR "Error de datos: No se puede parsear porque las comillas no son pares en la l√≠nea [" + lcMetadatos + "]"
+            *ERROR "Error de datos: No se puede parsear porque las comillas no son pares en la lÌnea [" + lcMetadatos + "]"
             Error (Textmerge(loLang.C_DATA_ERROR_CANT_PARSE_UNPAIRING_DOUBLE_QUOTES_LOC))
          Endif
 
@@ -5734,7 +5730,7 @@ Define Class c_conversor_base As Custom
          *-------------------------------------------------------------------------------------
          * IMPORTANTE!!
          * ------------
-         * SI SE SEPARAN LAS IGUALDADES CON ESPACIOS, √âSTAS DEJAN DE RECONOCERSE!!  (prop = "valor" en vez de prop="valor")
+         * SI SE SEPARAN LAS IGUALDADES CON ESPACIOS, …STAS DEJAN DE RECONOCERSE!!  (prop = "valor" en vez de prop="valor")
          * TENER EN CUENTA AL GENERAR EL TEXTO O AL MODIFICARLO MANUALMENTE AL MERGEAR
          *-------------------------------------------------------------------------------------
          For I = 1 To lnCantComillas Step 2
@@ -5773,10 +5769,10 @@ Define Class c_conversor_base As Custom
 
    Procedure get_SeparatedLineAndComment
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) L√≠nea a separar del comentario
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) LÌnea a separar del comentario
       * tcComment                 (@?    OUT) Comentario
-      * tlDeepCommentAnalysis     (v? IN    ) Indica realizar un an√°lisis profundo de comentarios (para detectar casos complejos de c√≥digo con '&&' embebido)
+      * tlDeepCommentAnalysis     (v? IN    ) Indica realizar un an·lisis profundo de comentarios (para detectar casos complejos de cÛdigo con '&&' embebido)
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine As String, tcComment As String, tlDeepCommentAnalysis As Boolean
       Local ln_AT_Cmt
@@ -5787,7 +5783,7 @@ Define Class c_conversor_base As Custom
          If tlDeepCommentAnalysis Then
             Local laSeparador(3,3), lcSeparadoresIzq, lcSeparadoresDer, lcStr, lnAT_Amp, lnAT1, lnAT2, lnLen, I, X
 
-            lcStr   = tcLine    &&EVL(tcStr, [DEFINE BAR 2 OF Opci√≥nAsub PROMPT "Opci√≥n A&]+[&2" &]+[& Comentario Opci√≥n A-2])
+            lcStr   = tcLine    &&EVL(tcStr, [DEFINE BAR 2 OF OpciÛnAsub PROMPT "OpciÛn A&]+[&2" &]+[& Comentario OpciÛn A-2])
             laSeparador(1,1)    = '"'
             laSeparador(1,2)    = '"'
             laSeparador(1,3)    = 2
@@ -5806,16 +5802,16 @@ Define Class c_conversor_base As Custom
             lnAT1   = At(laSeparador(m.X,1), lcStr)
 
             *-- Funcionamiento:
-            *-- La anulaci√≥n de subcadenas se hace comenzando desde la primer comilla doble ["], y luego se va
-            *-- cancelando hasta la siguiente. A partir de ahi, se busca car√°cter a car√°cter el siguiente separador
+            *-- La anulaciÛn de subcadenas se hace comenzando desde la primer comilla doble ["], y luego se va
+            *-- cancelando hasta la siguiente. A partir de ahi, se busca car·cter a car·cter el siguiente separador
             *-- izquierdo de cadena ( '"[ ), se busca su pareja derecha y se cancela el texto entre ambos.
-            *-- La anulaci√≥n de subcadenas es temporal, solo para determinar la verdadera posici√≥n del comentario,
+            *-- La anulaciÛn de subcadenas es temporal, solo para determinar la verdadera posiciÛn del comentario,
             *-- por ejemplo, esto:
-            *-- DEFINE BAR 2 OF Opci√≥nAsub PROMPT ""+var+'aa'+["bb]+"Opci√≥n A&&2" && Comentario Opci√≥n A-2
+            *-- DEFINE BAR 2 OF OpciÛnAsub PROMPT ""+var+'aa'+["bb]+"OpciÛn A&&2" && Comentario OpciÛn A-2
             *-- se convierte temporalmente en esto:
-            *-- DEFINE BAR 2 OF Opci√≥nAsub PROMPT XX+var+XXXX+XXXXX+XXXXXXXXXXXXX && Comentario Opci√≥n A-2
+            *-- DEFINE BAR 2 OF OpciÛnAsub PROMPT XX+var+XXXX+XXXXX+XXXXXXXXXXXXX && Comentario OpciÛn A-2
             *-- lo que facilita encontrar el comentario '&&' real.
-            *-- Si se encuentra alg√∫n separador de cadena que no cierre, se genera un error 10 (Syntax Error).
+            *-- Si se encuentra alg˙n separador de cadena que no cierre, se genera un error 10 (Syntax Error).
             If lnAT1 > 0 Then
                For I = lnAT1+1 To lnLen
                   If m.X > 0 Then
@@ -5827,7 +5823,7 @@ Define Class c_conversor_base As Custom
                         ln_AT_Cmt   = At( '&'+'&', lcStr)
 
                         If ln_AT_Cmt = 0 Or ln_AT_Cmt < lnAT1
-                           *-- No tiene comentario '&&' real, o s√≠ lo tiene y adem√°s contiene un delimitador de cadena como parte del comentario
+                           *-- No tiene comentario '&&' real, o sÌ lo tiene y adem·s contiene un delimitador de cadena como parte del comentario
                            Exit
                         Else
                            Error 'Closing string delimiter <' + laSeparador(m.X,2) + '> not found: ' + tcLine
@@ -5835,7 +5831,7 @@ Define Class c_conversor_base As Custom
                      Endif
                   Endif
 
-                  *-- Verifico si el car√°cter es un separador de cadenas: '"[
+                  *-- Verifico si el car·cter es un separador de cadenas: '"[
                   X   = At( Substr(lcStr, m.I, 1), lcSeparadoresIzq)
 
                   If m.X > 0 Then
@@ -5860,16 +5856,16 @@ Define Class c_conversor_base As Custom
 
    Procedure get_SeparatedPropAndValue
       *-- Devuelve el valor separado de la propiedad.
-      *-- Si se indican m√°s de 3 par√°metros, eval√∫a el valor completo a trav√©s de las l√≠neas de c√≥digo (valores multi-l√≠nea)
+      *-- Si se indican m·s de 3 par·metros, eval˙a el valor completo a travÈs de las lÌneas de cÛdigo (valores multi-lÌnea)
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcAsignacion              (v! IN    ) Asignaci√≥n completa con variable, igualdad y valor
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcAsignacion              (v! IN    ) AsignaciÛn completa con variable, igualdad y valor
       * tcPropName                (@!    OUT) Nombre de la variable
       * tcValue                   (@?    OUT) Valor
       * toClase                   (v! IN    )
-      * taCodeLines               (@! IN    ) L√≠neas de c√≥digo a analizar
-      * tnCodeLines               (v! IN    ) Cantidad de l√≠neas de c√≥digo
-      * I                         (@! IN/OUT) L√≠nea actual
+      * taCodeLines               (@! IN    ) LÌneas de cÛdigo a analizar
+      * tnCodeLines               (v! IN    ) Cantidad de lÌneas de cÛdigo
+      * I                         (@! IN/OUT) LÌnea actual
       *--------------------------------------------------------------------------------------------------------------
       Lparameters tcAsignacion, tcPropName, tcValue, toClase, taCodeLines, tnCodeLines, I
       External Array taCodeLines
@@ -5877,7 +5873,7 @@ Define Class c_conversor_base As Custom
 
       Store '' To tcPropName, tcValue
 
-      *-- EVALUAR UNA ASIGNACI√ìN ESPEC√çFICA INLINE
+      *-- EVALUAR UNA ASIGNACI”N ESPECÕFICA INLINE
       If '=' $ tcAsignacion
          ln_AT_Cmt       = At( '=', tcAsignacion)
          tcPropName      = Alltrim( Left( tcAsignacion, ln_AT_Cmt - 2 ), 0, ' ', Chr(9) )    && Quito espacios y TABS
@@ -5898,7 +5894,7 @@ Define Class c_conversor_base As Custom
          *!* /Changed by: LScheffler 16.3.2023
 
          If Pcount() > 3
-            *-- EVALUAR UNA ASIGNACI√ìN QUE PUEDE SER MULTIL√çNEA (memberdata, fb2p_value, etc)
+            *-- EVALUAR UNA ASIGNACI”N QUE PUEDE SER MULTILÕNEA (memberdata, fb2p_value, etc)
             With This As c_conversor_base Of 'foxbin2prg.prg'
                Do Case
                Case .analyzeAssignmentOf_TAG( @tcPropName, @tcValue, @taCodeLines, tnCodeLines, @m.I ;
@@ -5947,15 +5943,15 @@ Define Class c_conversor_base As Custom
 
    Procedure identifyExclusionBlocks
       Lparameters taCodeLines, tnCodeLines, ta_ID_Bloques, taLineasExclusion, tnBloquesExclusion, taBloquesExclusion
-      * LOS BLOQUES DE EXCLUSI√ìN SON AQUELLOS QUE TIENEN TEXT/ENDTEXT OF #IF/#ENDIF Y SE USAN PARA NO BUSCAR
+      * LOS BLOQUES DE EXCLUSI”N SON AQUELLOS QUE TIENEN TEXT/ENDTEXT OF #IF/#ENDIF Y SE USAN PARA NO BUSCAR
       * INSTRUCCIONES COMO "DEFINE CLASS" O "PROCEDURE" EN LOS MISMOS.
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * taCodeLines               (!@ IN    ) El array con las l√≠neas del c√≥digo de texto donde buscar
-      * tnCodeLines               (@? IN    ) Cantidad de l√≠neas de c√≥digo
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taCodeLines               (!@ IN    ) El array con las lÌneas del cÛdigo de texto donde buscar
+      * tnCodeLines               (@? IN    ) Cantidad de lÌneas de cÛdigo
       * ta_ID_Bloques             (@? IN    ) Array de pares de identificadores (2 cols). Ej: '#IF .F.','#ENDI' ; 'TEXT','ENDTEXT' ; etc
-      * taLineasExclusion         (@?    OUT) Array unidimensional con un .T. o .F. seg√∫n la l√≠nea sea de exclusi√≥n o no
-      * tnBloquesExclusion        (@?    OUT) Cantidad de bloques de exclusi√≥n
+      * taLineasExclusion         (@?    OUT) Array unidimensional con un .T. o .F. seg˙n la lÌnea sea de exclusiÛn o no
+      * tnBloquesExclusion        (@?    OUT) Cantidad de bloques de exclusiÛn
       *--------------------------------------------------------------------------------------------------------------
       External Array ta_ID_Bloques, taLineasExclusion, taCodeLines
 
@@ -5980,7 +5976,7 @@ Define Class c_conversor_base As Custom
                lnID_Bloques_Count  = Alen( ta_ID_Bloques, 1 )
             Endif
 
-            *-- B√∫squeda del ID de inicio de bloque
+            *-- B˙squeda del ID de inicio de bloque
             With This As c_conversor_base Of 'foxbin2prg.prg'
                For I = 1 To tnCodeLines
                   * Reduzco los espacios. Ej: '#IF  .F. && cmt' ==> '#IF .F.&&cmt'
@@ -5988,7 +5984,7 @@ Define Class c_conversor_base As Custom
                   lcLine      = Ltrim( taCodeLines(m.I), 0, Chr(9), ' ' )
 
                   If .lineIsOnlyCommentAndNoMetadata( @lcLine )
-                     *-- Optimizaci√≥n: Excluyo las l√≠neas que solo son comentarios
+                     *-- OptimizaciÛn: Excluyo las lÌneas que solo son comentarios
                      taLineasExclusion(m.I)  = .T.
                      *--
                      Loop
@@ -6013,7 +6009,7 @@ Define Class c_conversor_base As Custom
                      taBloquesExclusion(tnBloquesExclusion,1)    = m.I
                      taLineasExclusion(m.I)  = .T.
 
-                     * B√∫squeda del ID de fin de bloque
+                     * B˙squeda del ID de fin de bloque
                      For I = m.I + 1 To tnCodeLines
                         * Reduzco los espacios. Ej: '#IF  .F. && cmt' ==> '#IF .F.&&cmt'
                         *lcLine = LTRIM( STRTRAN( STRTRAN( CHRTRAN( taCodeLines(m.I), CHR(9), ' ' ), '  ', ' ' ), '  ', ' ' ) )
@@ -6044,11 +6040,11 @@ Define Class c_conversor_base As Custom
                         Endcase
                      Endfor
 
-                     *-- Validaci√≥n
+                     *-- ValidaciÛn
                      If Empty(taBloquesExclusion(tnBloquesExclusion,2))
                         *ERROR 'No se ha encontrado el marcador de fin [' + ta_ID_Bloques(lnPrimerID,2) ;
                         + '] que cierra al marcador de inicio [' + ta_ID_Bloques(lnPrimerID,1) ;
-                        + '] de la l√≠nea ' + TRANSFORM(taBloquesExclusion(tnBloquesExclusion,1))
+                        + '] de la lÌnea ' + TRANSFORM(taBloquesExclusion(tnBloquesExclusion,1))
                         .n_Methods_LineNo = taBloquesExclusion(tnBloquesExclusion,1)
                         Error (Textmerge(loLang.C_END_MARKER_NOT_FOUND_LOC))
                      Endif
@@ -6084,13 +6080,13 @@ Define Class c_conversor_base As Custom
 
    Procedure lineIsOnlyCommentAndNoMetadata
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                        (!@ IN/OUT) L√≠nea a separar del comentario
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                        (!@ IN/OUT) LÌnea a separar del comentario
       * tcComment                     (@?    OUT) Comentario
-      * tlDoNotSeparateLineAndComment (v? IN    ) Indica o separar la l√≠nea de c√≥digo del comentario
-      * tlDeepCommentAnalysis         (v? IN    ) Indica realizar un an√°lisis profundo de comentarios (para detectar casos complejos de c√≥digo con '&&' embebido)
+      * tlDoNotSeparateLineAndComment (v? IN    ) Indica o separar la lÌnea de cÛdigo del comentario
+      * tlDeepCommentAnalysis         (v? IN    ) Indica realizar un an·lisis profundo de comentarios (para detectar casos complejos de cÛdigo con '&&' embebido)
       *---------------------------------------------------------------------------------------------------
-      * NOTA: Recordar que esta funci√≥n suele usarse junto a Set_Line(), que quita TABS y espacios a la izquierda.
+      * NOTA: Recordar que esta funciÛn suele usarse junto a Set_Line(), que quita TABS y espacios a la izquierda.
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine As String, tcComment As String, tlDoNotSeparateLineAndComment As Boolean, tlDeepCommentAnalysis As Boolean
       Local lllineIsOnlyCommentAndNoMetadata, ln_AT_Cmt
@@ -6107,7 +6103,7 @@ Define Class c_conversor_base As Custom
             tcComment   = tcLine
 
          Case Empty(tcLine) Or Left(tcLine, 1) == '*' ;
-               OR Upper(Left(tcLine + ' ', 5)) == 'NOTE ' ; && Vac√≠a o Comentarios
+               OR Upper(Left(tcLine + ' ', 5)) == 'NOTE ' ; && VacÌa o Comentarios
             And Not Upper(Left(tcLine + ' ', 6)) == 'NOTE =' && Excluir asignaciones
             *
             lllineIsOnlyCommentAndNoMetadata = .T.
@@ -6123,16 +6119,16 @@ Define Class c_conversor_base As Custom
 
    Procedure loadModule
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (!@    OUT) Objeto generado de clase correspondiente con la informaci√≥n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (!@    OUT) Objeto generado de clase correspondiente con la informaciÛn leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (!@ IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
       #If .F.
          Local toFoxBin2Prg As c_foxbin2prg Of 'foxbin2prg.prg'
       #Endif
-      *LOCAL loLang as CL_LANG OF 'cl_lang.prg'
+      *LOCAL loLang as CL_LANG Of 'foxbin2prg.prg'
       *loLang         = _SCREEN.o_FoxBin2Prg_Lang
       *THIS.writeLog( C_TAB + loLang.C_CONVERTING_FILE_LOC + ' ' + THIS.c_OutputFile + '...' )
       *RELEASE loLang
@@ -6159,7 +6155,7 @@ Define Class c_conversor_base As Custom
 
 
    Procedure normalizePropertyValue
-      *-- Este m√©todo se ejecuta cuando se genera el tx2 desde el binario
+      *-- Este mÈtodo se ejecuta cuando se genera el tx2 desde el binario
       Lparameters tcProp, tcValue, tcComentario
       Local lcValue, I
       tcComentario    = ''
@@ -6206,7 +6202,7 @@ Define Class c_conversor_base As Custom
 
    Procedure normalizeXMLValue
       Lparameters tcValor
-      *-- NORMALIZA EL TEXTO INDICADO, COMPRIMIENDO LOS S√çMBOLOS XML ESPECIALES.
+      *-- NORMALIZA EL TEXTO INDICADO, COMPRIMIENDO LOS SÕMBOLOS XML ESPECIALES.
       tcValor = Strtran(tcValor, Chr(38), Chr(38) + 'amp;')   && reemplaza &  por  &amp;      &&
       tcValor = Strtran(tcValor, Chr(39), Chr(38) + 'apos;')  && reemplaza '  por  &apos;     &&
       tcValor = Strtran(tcValor, Chr(34), Chr(38) + 'quot;')  && reemplaza "  por  &quot;     &&
@@ -6254,8 +6250,8 @@ Define Class c_conversor_base As Custom
 
    Procedure sortPropsAndValues_SetAndGetSCXPropNames
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcOperation               (v! IN    ) Operaci√≥n a realizar ("SETNAME" o "GETNAME")
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcOperation               (v! IN    ) OperaciÛn a realizar ("SETNAME" o "GETNAME")
       * tcPropName                (v! IN    ) Nombre de la propiedad
       *--------------------------------------------------------------------------------------------------------------
       Lparameters tcOperation, tcPropName
@@ -6279,11 +6275,11 @@ Define Class c_conversor_base As Custom
                lcPropName  = 'A999' + lcPropName
 
           Otherwise
-               *-- Soporte de evaluaci√≥n de propiedades por clase evaluada
+               *-- Soporte de evaluaciÛn de propiedades por clase evaluada
                This.ensureSpecialProps()
                lnPos = This.o_SpecialProps.getPropSortIndex( This.c_ClaseActual, lcPropName )
 
-               *-- Genera una propiedad con el formato "A nnn Propiedad", donde los valores m√°s altos quedan al final,
+               *-- Genera una propiedad con el formato "A nnn Propiedad", donde los valores m·s altos quedan al final,
                *-- de modo que primero van las props nativas, luego las del usuario y al final "name", que es especial.
                *-- Ej: "A004ScaleMode", ..., "A998UserProp", "A999Name"
                lcPropName  = 'A' + Padl( Evl(lnPos,998), 3, '0' ) + lcPropName
@@ -6306,17 +6302,17 @@ Define Class c_conversor_base As Custom
 
    Procedure sortPropsAndValues
       * KNOWLEDGE BASE:
-      * 02/12/2013    FDBOZZO     Fidel Charny me pas√≥ un ejemplo donde se pierden propiedades f√≠sicamente
-      *                           si se ordenan alfab√©ticamente en un ADD OBJECT. Pierde "picture" y otras m√°s.
-      *                           Pareciera que la √∫ltima debe ser "Name".
+      * 02/12/2013    FDBOZZO     Fidel Charny me pasÛ un ejemplo donde se pierden propiedades fÌsicamente
+      *                           si se ordenan alfabÈticamente en un ADD OBJECT. Pierde "picture" y otras m·s.
+      *                           Pareciera que la ˙ltima debe ser "Name".
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * taPropsAndValues          (!@ IN    ) El array con las propiedades y valores del objeto o clase
       * tnPropsAndValues_Count    (v! IN    ) Cantidad de propiedades
       * tnSortType                (v! IN    ) Tipo de sort:
       *                                           0=Solo separar propiedades de clase y de objetos (.)
-      *                                           1=Sort completo de propiedades (para la versi√≥n TEXTO)
-      *                                           2=Sort completo de propiedades con "Name" al final (para la versi√≥n BIN)
+      *                                           1=Sort completo de propiedades (para la versiÛn TEXTO)
+      *                                           2=Sort completo de propiedades con "Name" al final (para la versiÛn BIN)
       *--------------------------------------------------------------------------------------------------------------
       Lparameters taPropsAndValues, tnPropsAndValues_Count, tnSortType
 
@@ -6335,15 +6331,15 @@ Define Class c_conversor_base As Custom
                * CON SORT:
                * - A las que no tienen '.' les pongo 'A' por delante, y al resto 'B' por delante para que queden al final
 
-               * ATENCI√ìN:  10/07/2018
+               * ATENCI”N:  10/07/2018
                * Cuando hay ADD OBJECT multicontenedor (obj.obj.obj...), el reordenamiento
-               * puede producir da√±os colaterales, como objetos mal colocados.
-               * (Era de esperar: No todo se puede ordenar alfab√©ticamente)
-               * Un soluci√≥n de compromiso podr√≠a ser al menos mantener juntos los objetos de mismo nombre,
-               * que en la pr√°ctica pueden estar todos mezclados. Al menos eso no romper√≠a nada.
+               * puede producir daÒos colaterales, como objetos mal colocados.
+               * (Era de esperar: No todo se puede ordenar alfabÈticamente)
+               * Un soluciÛn de compromiso podrÌa ser al menos mantener juntos los objetos de mismo nombre,
+               * que en la pr·ctica pueden estar todos mezclados. Al menos eso no romperÌa nada.
                * VER: https://github.com/fdbozzo/foxbin2prg/issues/28
                *
-               * PASO 1: Obtener los nombres √∫nicos y asignarles un c√≥digo de orden
+               * PASO 1: Obtener los nombres ˙nicos y asignarles un cÛdigo de orden
                Create Cursor C_OBJ (OBJNAME C(50), IORDER I Autoinc)
                Index On OBJNAME Tag OBJNAME
 
@@ -6389,7 +6385,7 @@ Define Class c_conversor_base As Custom
                   Endif
                Endfor
 
-               * Paso 3: Ordenar seg√∫n la prioridad previa
+               * Paso 3: Ordenar seg˙n la prioridad previa
                If .l_PropSort_Enabled
                   Asort( laPropsAndValues, 1, -1, 0, 1)
                Endif
@@ -6445,7 +6441,7 @@ Define Class c_conversor_base As Custom
                   Endif
                Endfor
 
-               *-- LUEGO las dem√°s props.
+               *-- LUEGO las dem·s props.
                For I = 1 To m.tnPropsAndValues_Count
                   If Empty( laPropsAndValues(m.I,1) )
                      Loop
@@ -6461,7 +6457,7 @@ Define Class c_conversor_base As Custom
                   Endif
                Endfor
             Endif
-         Endwith && THIS AS C_CONVERSOR_BASE OF 'c_conversor_base.prg'
+         Endwith && THIS AS C_CONVERSOR_BASE Of 'foxbin2prg.prg'
 
 
       Catch To loEx
@@ -6495,7 +6491,7 @@ Define Class c_conversor_base As Custom
          RETURN
       ENDIF
 
-      This.o_SpecialProps = CreateObject('cl_fb2prg_special_props')
+      This.o_SpecialProps = CreateObject('cl_fb2prg_special_props' ,  )
    Endproc
 
 
@@ -6505,10 +6501,10 @@ Define Class c_conversor_base As Custom
 
       Try
          With This As c_conversor_base Of 'foxbin2prg.prg'
-            *-- Seg√∫n el valor de nTimestamp:
+            *-- Seg˙n el valor de nTimestamp:
             *-- 0 = Sin timestamp
             *-- 1 = Timestamp por delante
-            *-- 2 = Timestamp por detr√°s
+            *-- 2 = Timestamp por detr·s
             .c_TextLog  = .c_TextLog ;
                + Iif( Evl(tnTimeStamp,0) = 1, Ttoc(Datetime(),3) + '  ', '' ) ;
                + Evl(tcText,'') ;
@@ -6536,8 +6532,8 @@ Define Class c_conversor_base As Custom
 
    Procedure makeDirTree
       *---------------------------------------------------------------------------------------------------
-      * Crea recursivamente el √°rbol de directorios indicado (si no existe).
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * Crea recursivamente el ·rbol de directorios indicado (si no existe).
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcDir                     (v! IN    ) Carpeta a crear (puede incluir varios niveles inexistentes)
       *---------------------------------------------------------------------------------------------------
       Lparameters tcDir
@@ -6565,7 +6561,7 @@ Define Class c_conversor_base As Custom
             lcPartial   = lcPartial + '\' + laParts(m.I)
          Endif
 
-         *-- Salto el prefijo de unidad ("C:") y los segmentos vac√≠os de rutas UNC (\\server)
+         *-- Salto el prefijo de unidad ("C:") y los segmentos vacÌos de rutas UNC (\\server)
          If Right(lcPartial,1) == ':' Or Empty(laParts(m.I))
             Loop
          Endif
@@ -6596,11 +6592,11 @@ Define Class c_conversor_base As Custom
    Procedure get_MirroredOutputFile
       *---------------------------------------------------------------------------------------------------
       * Devuelve la ruta de salida final aplicando cOutputFolder.
-      *   - Si cInputRoot est√° indicado y el archivo cuelga de esa ra√≠z, se REPLICA la subestructura
-      *     de carpetas bajo cOutputFolder (√°rbol espejo).
-      *   - Si no, se usa el comportamiento hist√≥rico: aplanar con FORCEPATH.
-      * Adem√°s crea el √°rbol de directorios destino si no existe.
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      *   - Si cInputRoot est· indicado y el archivo cuelga de esa raÌz, se REPLICA la subestructura
+      *     de carpetas bajo cOutputFolder (·rbol espejo).
+      *   - Si no, se usa el comportamiento histÛrico: aplanar con FORCEPATH.
+      * Adem·s crea el ·rbol de directorios destino si no existe.
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcOutputFile              (v! IN    ) Ruta de salida original (misma carpeta que el origen)
       *---------------------------------------------------------------------------------------------------
       Lparameters tcOutputFile
@@ -6617,12 +6613,12 @@ Define Class c_conversor_base As Custom
 
       Do Case
       Case Not Empty(This.cInputRoot) And Left( lcDir, Len(lcRoot) ) == lcRoot
-         *-- El archivo cuelga de la ra√≠z del proyecto: conservo su subruta relativa
+         *-- El archivo cuelga de la raÌz del proyecto: conservo su subruta relativa
          lcRel       = Substr( lcDir, Len(lcRoot) )
          lcResult    = Addbs( This.cOutputFolder ) + Iif( Empty(lcRel), '', lcRel ) + Justfname(tcOutputFile)
 
       Otherwise
-         *-- Sin ra√≠z, o el archivo est√° fuera de ella: comportamiento hist√≥rico (aplanado)
+         *-- Sin raÌz, o el archivo est· fuera de ella: comportamiento histÛrico (aplanado)
          lcResult    = Forcepath( tcOutputFile, This.cOutputFolder )
 
       Endcase
@@ -6639,7 +6635,6 @@ Define Class c_conversor_base As Custom
    Endproc
 
 Enddefine
-
 
 
 
@@ -6698,9 +6693,9 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (!@    OUT) Objeto generado de clase correspondiente con la informaci√≥n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (!@    OUT) Objeto generado de clase correspondiente con la informaciÛn leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -6713,7 +6708,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
 
    Procedure classify_PAM_Hidden_Protected
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tnPropsAndValues_Count    (@! IN    )
       * taPropsAndValues          (@! IN    )
       * tnProtected_Count         (@! IN    )
@@ -6779,8 +6774,8 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
             .method2Array( toRegObj.METHODS, @taMethods, @taCode, '', @tnMethodCount ;
                , @taPropsAndComments, tnPropsAndComments_Count, @taProtected, tnProtected_Count, @toFoxBin2Prg, @toRegObj )
 
-            *-- Ubico los m√©todos protegidos y les cambio la definici√≥n.
-            *-- Los m√©todos se deben generar con la ruta completa, porque si no es imposible saber a que objeto corresponden,
+            *-- Ubico los mÈtodos protegidos y les cambio la definiciÛn.
+            *-- Los mÈtodos se deben generar con la ruta completa, porque si no es imposible saber a que objeto corresponden,
             *-- o si son de la clase.
             If tnMethodCount - lnMethodCount > 0 Then
                For I = lnMethodCount + 1 To tnMethodCount
@@ -6804,7 +6799,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
                      Endcase
                   Endif
 
-                  *-- Genero el m√©todo SIN indentar, ya que se hace luego
+                  *-- Genero el mÈtodo SIN indentar, ya que se hace luego
                   taCode(taMethods(m.I,2))    = 'PROCEDURE ' + lcMethodName + CR_LF + .indentMemo( taCode(taMethods(m.I,2)) ) + CR_LF + 'ENDPROC'
                   taMethods(m.I,1)    = lcMethodName
                Endfor
@@ -6831,8 +6826,8 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
 
    Procedure get_CLASS_METHODS
       Lparameters tnMethodCount, taMethods, taCode, taProtected, taPropsAndComments, toFoxBin2Prg
-      *-- DEFINIR M√âTODOS DE LA CLASE
-      *-- Ubico los m√©todos protegidos y les cambio la definici√≥n
+      *-- DEFINIR M…TODOS DE LA CLASE
+      *-- Ubico los mÈtodos protegidos y les cambio la definiciÛn
       External Array taMethods, taCode, taProtected, taPropsAndComments
 
       #If .F.
@@ -6853,23 +6848,23 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
                      lnProtectedItem = Ascan( taProtected, taMethods(m.I,1) + '^', 1, 0, 0, 1+2+4)
 
                      If lnProtectedItem = 0
-                        *-- M√©todo com√∫n
+                        *-- MÈtodo com˙n
                         lcProcDef   = 'PROCEDURE'
                      Else
-                        *-- M√©todo oculto
+                        *-- MÈtodo oculto
                         lcProcDef   = 'HIDDEN PROCEDURE'
                      Endif
                   Else
-                     *-- M√©todo protegido
+                     *-- MÈtodo protegido
                      lcProcDef   = 'PROTECTED PROCEDURE'
                   Endif
 
                   lnCommentRow   = Ascan( taPropsAndComments, '*' + lcMethodName, 1, 0, 1, 1+2+4+8)
 
-                  *-- Nombre del m√©todo
+                  *-- Nombre del mÈtodo
                   lcMethod    = lcProcDef + ' ' + taMethods(m.I,1)
 
-                  *-- Comentarios del m√©todo (si tiene)
+                  *-- Comentarios del mÈtodo (si tiene)
                   If lnCommentRow > 0 And Not Empty(taPropsAndComments(lnCommentRow,2))
                      * PRG_Compat_Level >= 1
                      If Bitand(toFoxBin2Prg.getCfgValue('n_PRG_Compat_Level'), 1) > 0
@@ -6880,7 +6875,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
                      Endif
                   Endif
 
-                  *-- C√≥digo del m√©todo
+                  *-- CÛdigo del mÈtodo
                   If taMethods(m.I,2) > 0 Then
                      taCode(taMethods(m.I,2))    = lcMethod + CR_LF + .indentMemo( taCode(taMethods(m.I,2)) ) + CR_LF + 'ENDPROC'
                   Else
@@ -6933,9 +6928,9 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
    Procedure get_PropsAndCommentsFrom_RESERVED3
       *-- Sirve para el memo RESERVED3
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcMemo                    (v! IN    ) Contenido de un campo MEMO
-      * tlSort                    (v? IN    ) Indica si se deben ordenar alfab√©ticamente los nombres
+      * tlSort                    (v? IN    ) Indica si se deben ordenar alfabÈticamente los nombres
       * taPropsAndComments        (!@    OUT) Array con las propiedades y comentarios
       * tnPropsAndComments_Count  (!@    OUT) Cantidad de propiedades
       * tcSortedMemo              (@?    OUT) Contenido del campo memo ordenado
@@ -6993,13 +6988,13 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
       *-- Sirve para el memo PROPERTIES
       *---------------------------------------------------------------------------------------------------
       * KNOWLEDGE BASE:
-      * 29/11/2013    FDBOZZO     En un pageframe, si las props.nativas del mismo no est√°n antes que las de
+      * 29/11/2013    FDBOZZO     En un pageframe, si las props.nativas del mismo no est·n antes que las de
       *                           los objetos contenidos, causa un error. Se deben ordenar primero las
       *                           props.nativas (sin punto) y luego las de los objetos (con punto)
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcMemo                    (v! IN    ) Contenido de un campo MEMO
-      * tnSort                    (v? IN    ) Indica si se deben ordenar alfab√©ticamente los objetos y props (1), o no (0)
+      * tnSort                    (v? IN    ) Indica si se deben ordenar alfabÈticamente los objetos y props (1), o no (0)
       * taPropsAndValues          (!@    OUT) Array con las propiedades y comentarios
       * tnPropsAndValues_Count    (!@    OUT) Cantidad de propiedades
       * tcSortedMemo              (?@    OUT) Contenido del campo memo ordenado
@@ -7020,7 +7015,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
 
          If Not Empty(m.tcMemo)
             With This As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
-               lnItemCount = Alines(laItems, m.tcMemo, 0, CR_LF)   && Espec√≠ficamente CR+LF para que no reconozca los CR o LF por separado
+               lnItemCount = Alines(laItems, m.tcMemo, 0, CR_LF)   && EspecÌficamente CR+LF para que no reconozca los CR o LF por separado
                X   = 0
 
                If lnItemCount <= 1 And Empty(laItems)
@@ -7029,7 +7024,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
                Endif
 
 
-               *-- 1) OBTENCI√ìN Y SEPARACI√ìN DE PROPIEDADES Y VALORES
+               *-- 1) OBTENCI”N Y SEPARACI”N DE PROPIEDADES Y VALORES
                *-- Crear un array con los valores especiales que pueden estar repartidos entre varias lineas
                For I = 1 To m.lnItemCount
                   If Empty( laItems(m.I) )
@@ -7037,7 +7032,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
                   Endif
 
                   If C_MPROPHEADER $ laItems(m.I)
-                     *-- Solo entrar√° por aqu√≠ cuando se eval√∫e una propiedad de PROPERTIES con un valor especial (largo)
+                     *-- Solo entrar· por aquÌ cuando se eval˙e una propiedad de PROPERTIES con un valor especial (largo)
                      lnLenAcum   = 0
                      lnPosEQ     = At( '=', laItems(m.I) )
                      lcPropName  = lcLastIncompletePropName + Left( laItems(m.I), lnPosEQ - 2 )
@@ -7045,7 +7040,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
                      lcValue     = Substr( laItems(m.I), lnPosEQ + 2 + 517 + 8 )
 
                      If Len( lcValue ) < lnLenVal
-                        *-- Como el valor es multi-l√≠nea, debo agregarle los CR_LF que le quit√≥ el ALINES()
+                        *-- Como el valor es multi-lÌnea, debo agregarle los CR_LF que le quitÛ el ALINES()
                         For I = m.I + 1 To m.lnItemCount
                            lcValue = lcValue + CR_LF + laItems(m.I)
 
@@ -7072,14 +7067,14 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
                      If lnPosEQ = 0 Then
                         *-- AUTOFIX DE PROPIEDAD PARTIDA:
                         *-- Esto solo puede ocurrir cuando en el memo de Propiedades hay alguna propiedad
-                        *-- partida debido a una edici√≥n manual con un Enter err√≥neo, algo como esto:
+                        *-- partida debido a una ediciÛn manual con un Enter errÛneo, algo como esto:
                         * comm
                         * AND2.Caption = "Command2"
                         *
-                        *-- En el caso anterior, las 2 l√≠neas son realmente una:
+                        *-- En el caso anterior, las 2 lÌneas son realmente una:
                         * command2.Caption = "Command2"
                         *
-                        *-- Soluci√≥n: Guardar esta parte del nombre y agregarlo a la pr√≥xima propiedad.
+                        *-- SoluciÛn: Guardar esta parte del nombre y agregarlo a la prÛxima propiedad.
                         lcLastIncompletePropName    = laItems(m.I)
                         Loop
                      Endif
@@ -7126,7 +7121,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
                   tcSortedMemo    = m.tcSortedMemo + m.taPropsAndValues(m.I,1) + ' = ' + m.taPropsAndValues(m.I,2) + CR_LF
                Endfor
 
-               *-- Agregar m√©todos al final
+               *-- Agregar mÈtodos al final
                tcSortedMemo    = m.tcSortedMemo + m.lcMethods
 
             Endwith && THIS
@@ -7153,9 +7148,9 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
       *---------------------------------------------------------------------------------------------------
       *-- Sirve para el memo PROTECTED
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcMemo                    (v! IN    ) Contenido de un campo MEMO
-      * tlSort                    (v? IN    ) Indica si se deben ordenar alfab√©ticamente los nombres
+      * tlSort                    (v? IN    ) Indica si se deben ordenar alfabÈticamente los nombres
       * taProtected               (!@    OUT) Array con las propiedades y comentarios
       * tnProtected_Count         (!@    OUT) Cantidad de propiedades
       * tcSortedMemo              (@?    OUT) Contenido del campo memo ordenado
@@ -7176,7 +7171,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
          Endif
 
          For I = tnProtected_Count To 1 Step -1
-            *-- El ASCAN es para evitar valores repetidos, que se eliminar√°n. v1.19.29
+            *-- El ASCAN es para evitar valores repetidos, que se eliminar·n. v1.19.29
             taProtected(m.I)    = taProtected(m.I)
             If Ascan( taProtected, taProtected(m.I), 1, -1, 0, 1+2+4 ) = m.I
                tcSortedMemo    = tcSortedMemo + taProtected(m.I) + CR_LF
@@ -7261,7 +7256,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
             * NOTA: Del parent solo se puede comprobar el objeto primario.
             If loObjs.GetKey(Getwordnum(lcParent + '.', 1, '.')) > 0
                * Existe: se agrega al array el nuevo objeto
-               * NOTA: Podr√≠a estar duplicado, pero no se trata ese caso aqu√≠
+               * NOTA: PodrÌa estar duplicado, pero no se trata ese caso aquÌ
                If Not Empty(lcParentObjName) And loObjs.GetKey(lcParentObjName) = 0
                   loObjs.Add( '', lcParentObjName )
                Endif
@@ -7285,7 +7280,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
 
    Procedure indentMemo
       Lparameters tcMethod, tcIndentation, tlKeepProcHeader
-      *-- INDENTA EL C√ìDIGO DE UN M√âTODO DADO Y QUITA LA CABECERA DE M√âTODO (PROCEDURE/ENDPROC) SI LA ENCUENTRA
+      *-- INDENTA EL C”DIGO DE UN M…TODO DADO Y QUITA LA CABECERA DE M…TODO (PROCEDURE/ENDPROC) SI LA ENCUENTRA
       Try
          Local I, X, lcMethod, llProcedure, lnInicio, lnFin, laLineas(1), lnOffset ;
             , loLang As CL_LANG Of 'foxbin2prg.prg'
@@ -7303,12 +7298,12 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
             tcIndentation   = ''
          Endif
 
-         *-- Quito las l√≠neas en blanco luego del final del ENDPROC
+         *-- Quito las lÌneas en blanco luego del final del ENDPROC
          X   = 0
          For I = lnFin To 1 Step -1
-            If Not Empty(laLineas(m.I)) && √öltima l√≠nea de c√≥digo
+            If Not Empty(laLineas(m.I)) && ⁄ltima lÌnea de cÛdigo
                If llProcedure And Left( Chrtran(laLineas(m.I), C_TAB, ' ') + ' ', 8 ) <> C_ENDPROC + ' ' Then
-                  *ERROR 'Procedimiento sin cerrar. La √∫ltima l√≠nea de c√≥digo debe ser ENDPROC. [' + laLineas(1) + ']'
+                  *ERROR 'Procedimiento sin cerrar. La ˙ltima lÌnea de cÛdigo debe ser ENDPROC. [' + laLineas(1) + ']'
                   Error (Textmerge(loLang.C_PROCEDURE_NOT_CLOSED_ON_LINE_LOC))
                Endif
                Exit
@@ -7327,7 +7322,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
          Endif
 
          For I = lnInicio + lnOffset To lnFin - lnOffset
-            *-- TEXT/ENDTEXT aqu√≠ da error 2044 de recursividad. No usar.
+            *-- TEXT/ENDTEXT aquÌ da error 2044 de recursividad. No usar.
             lcMethod    = lcMethod + CR_LF + tcIndentation + laLineas(m.I)
          Endfor
 
@@ -7426,9 +7421,9 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
 
    Procedure set_UserValue
       *---------------------------------------------------------------------------------------------------
-      * Intenta obtener informaci√≥n m√°s precisa sobre el error a reportar dentro de methods
+      * Intenta obtener informaciÛn m·s precisa sobre el error a reportar dentro de methods
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toEx                      (v! IN    ) Objeto Exception
       *---------------------------------------------------------------------------------------------------
       Lparameters toEx As Exception
@@ -7516,8 +7511,8 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
          If tnMethodCount > 0 Then
 
             *-- taMethods[1,3]
-            *--     1.Nombre M√©todo
-            *--     2.Posici√≥n Original
+            *--     1.Nombre MÈtodo
+            *--     2.PosiciÛn Original
             *--     3.Tipo (HIDDEN/PROTECTED/NORMAL)
 
             *-- Alphabetical ordering of methods
@@ -7531,7 +7526,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
             For I = tnMethodCount To 1 Step -1
                If taMethods(m.I,2) > 0 Then
                   If '.' $ taMethods(m.I,1)
-                     *-- Los m√©todos con '.' los mando a otro array
+                     *-- Los mÈtodos con '.' los mando a otro array
                      lnDeleted   = lnDeleted + 1
                      laMethods(lnDeleted,1)  = taMethods(m.I,1)
                      laMethods(lnDeleted,2)  = taMethods(m.I,2)
@@ -7542,7 +7537,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
             Endfor
 
             For I = lnDeleted To 1 Step -1
-               *-- Los m√©todos con '.' los paso al final
+               *-- Los mÈtodos con '.' los paso al final
                I2  = tnMethodCount - lnDeleted + (lnDeleted - m.I) + 1
                taMethods(I2,1) = laMethods(m.I,1)
                taMethods(I2,2) = laMethods(m.I,2)
@@ -7574,7 +7569,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
          , taProtected, tnProtected_Count, toFoxBin2Prg, toRegObj
       *-- 29/10/2013  Fernando D. Bozzo
       *-- Se tiene en cuenta la posibilidad de que haya un PROC/ENDPROC dentro de un TEXT/ENDTEXT
-      *-- cuando es usado en un generador de c√≥digo o similar.
+      *-- cuando es usado en un generador de cÛdigo o similar.
       External Array taMethods, taCode, taPropsAndComments, taProtected
 
       #If .F.
@@ -7583,11 +7578,11 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
 
       *-- ESTRUCTURA DE LOS ARRAYS CREADOS:
       *-- taMethods[1,3]
-      *--     1.Nombre M√©todo
-      *--     2.Posici√≥n Original
+      *--     1.Nombre MÈtodo
+      *--     2.PosiciÛn Original
       *--     3.Tipo (HIDDEN/PROTECTED/NORMAL)
       *-- taCode[1]
-      *--     1.Bloque de c√≥digo del m√©todo en su posici√≥n original
+      *--     1.Bloque de cÛdigo del mÈtodo en su posiciÛn original
       Try
          Local lnLineCount, laLine(1), I, lnTextNodes, tcSorted, lnProtectedLine, lcMethod, lnLine_Len, lcLine, llProcOpen ;
             , laLineasExclusion(1), lnBloquesExclusion, lcLastLine ;
@@ -7603,7 +7598,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
                Store '' To laLine, lcLine, lcLastLine
                Store 0 To lnTextNodes
 
-               lnLineCount = Alines(laLine, m.tcMethod)    && NO aplicar nung√∫n formato ni limpieza, que es el C√ìDIGO FUENTE
+               lnLineCount = Alines(laLine, m.tcMethod)    && NO aplicar nung˙n formato ni limpieza, que es el C”DIGO FUENTE
 
                *-- Delete beginning empty lines before first "PROCEDURE", that is the first not empty line.
                For I = 1 To lnLineCount
@@ -7657,7 +7652,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
                      Endif
 
                   Case Right(lcLastLine,1) == ';'
-                     *-- Saltear el an√°lisis de esta l√≠nea, que es continuaci√≥n de la anterior (lcLastLine).
+                     *-- Saltear el an·lisis de esta lÌnea, que es continuaciÛn de la anterior (lcLastLine).
                      taCode(tnMethodCount)   = taCode(tnMethodCount) + laLine(m.I) + CR_LF
                      Loop
 
@@ -7719,7 +7714,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
                      If lnLine_Len >= 7 And Left( Upper( Chrtran( lcLine , '&'+Chr(9)+Chr(0), '   ') ) + ' ' ,8) == 'ENDPROC '
                         *-- Es el final de estructura ENDPROC
                         If Not llProcOpen
-                           *-- Esto no es normal, porque hay m√°s de un ENDPROC, por lo que se ignora.
+                           *-- Esto no es normal, porque hay m·s de un ENDPROC, por lo que se ignora.
                            Loop
                         Endif
                      Else
@@ -7735,7 +7730,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
                      If lnLine_Len >= 7 And Left( Upper( Chrtran( laLine(m.I) , '&'+Chr(9)+Chr(0), '   ') ) + ' ' ,8) == 'ENDFUNC '
                         *-- Es el final de estructura ENDPROC
                         If Not llProcOpen
-                           *-- Esto no es normal, porque hay m√°s de un ENDFUNC, por lo que se ignora.
+                           *-- Esto no es normal, porque hay m·s de un ENDFUNC, por lo que se ignora.
                            Loop
                         Endif
                         lcLine  = Strtran( lcLine, 'ENDFUNC', 'ENDPROC' )
@@ -7751,7 +7746,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
                      *CASE tnMethodCount = 0 OR NOT llProcOpen AND LEFT( LTRIM(laLine(m.I)),1 ) = '*'
                   Case tnMethodCount = 0 Or Not llProcOpen
                      *-- Skip empty and commented lines before methods begin
-                     *-- Aqu√≠ como condici√≥n podr√≠a poner: NOT llProcOpen AND LEFT(laLine(m.I), 7) # 'ENDPROC', pero abarcar√≠a demasiado.
+                     *-- AquÌ como condiciÛn podrÌa poner: NOT llProcOpen AND LEFT(laLine(m.I), 7) # 'ENDPROC', pero abarcarÌa demasiado.
 
                   Otherwise && Method Code
                      taCode(tnMethodCount)   = taCode(tnMethodCount) + laLine(m.I) + CR_LF
@@ -7759,7 +7754,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
                   Endcase
                Endfor
 
-               *-- Agrego los m√©todos definidos, pero sin c√≥digo (Protected/Reserved3)
+               *-- Agrego los mÈtodos definidos, pero sin cÛdigo (Protected/Reserved3)
                For I = 1 To tnPropsAndComments_Count
                   lcMethod    = Chrtran( taPropsAndComments(m.I,1), '*', '' )
                   If Left( taPropsAndComments(m.I,1), 1 ) == '*' And Ascan( taMethods, lcMethod, 1, 0, 1, 1+2+4+8 ) = 0
@@ -7812,7 +7807,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
 
    Procedure write_ADD_OBJECTS_WithProperties
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toRegObj                  (v! IN    ) Objeto de registro
       * tcCodigo                  (@?    OUT) Codigo generado
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
@@ -7865,7 +7860,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
                BaseClass="<<toRegObj.Baseclass>>" <<>>
             ENDTEXT
 
-            *-- Agrego metainformaci√≥n para objetos OLE
+            *-- Agrego metainformaciÛn para objetos OLE
             If toRegObj.BaseClass == 'olecontrol'
                TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2+4+8
                   OLEObject="<<LOWER( STREXTRACT(toRegObj.ole2, 'OLEObject = ', CHR(13)+CHR(10), 1, 1+2) )>>"
@@ -7899,7 +7894,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
       Lparameters tcMethods, taMethods, taCode, tnMethodCount, taPropsAndComments, tnPropsAndComments_Count ;
          , taProtected, tnProtected_Count, toFoxBin2Prg, tcCodigo
 
-      *-- Finalmente, todos los m√©todos los ordeno y escribo juntos
+      *-- Finalmente, todos los mÈtodos los ordeno y escribo juntos
       Local laMethods(1), laCode(1), lnMethodCount, I, lcMethods
 
       If tnMethodCount > 0 Then
@@ -7913,8 +7908,8 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
             lcMethods   = C_TAB
 
             For I = 1 To tnMethodCount
-               *-- Genero los m√©todos indentados
-               *-- Sustituyo el TEXT/ENDTEXT aqu√≠ porque a veces quita espacios de la derecha, y eso es peligroso
+               *-- Genero los mÈtodos indentados
+               *-- Sustituyo el TEXT/ENDTEXT aquÌ porque a veces quita espacios de la derecha, y eso es peligroso
                If taMethods(m.I,2) = 0
                   Loop
                Endif
@@ -7962,7 +7957,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
                .write_HIDDEN_Properties( @lcHiddenProp, @tcCodigo )
                .write_PROTECTED_Properties( @lcProtectedProp, @tcCodigo )
 
-               *-- Escribo las propiedades de la clase y sus comentarios (los comentarios aqu√≠ son redundantes)
+               *-- Escribo las propiedades de la clase y sus comentarios (los comentarios aquÌ son redundantes)
 
                *!* Changed by: LScheffler 16.3.2023
                *!* <pdm>
@@ -8027,11 +8022,11 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
       Lparameters taPropsAndComments, tnPropsAndComments_Count, tcCodigo
 
       *<DefinedPropArrayMethod>
-      *m: *metodovacio_con_comentarios        && Este m√©todo no tiene c√≥digo, pero tiene comentarios. A ver que pasa!
+      *m: *metodovacio_con_comentarios        && Este mÈtodo no tiene cÛdigo, pero tiene comentarios. A ver que pasa!
       *m: *mimetodo       && Mi metodo
       *p: prop1       && Mi prop 1
       *p: prop_especial_cr        &&
-      *a: ^array_1_d[1,0]     && Array 1 dimensi√≥n (1)
+      *a: ^array_1_d[1,0]     && Array 1 dimensiÛn (1)
       *a: ^array_2_d[1,2]     && Array una dimension (1,2)
       *p: _memberdata     && XML Metadata for customizable properties
       *</DefinedPropArrayMethod>
@@ -8091,7 +8086,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
          lcOF_Classlib   = ' OF "' + Lower(Alltrim(toRegClass.CLASSLOC)) + '"'
       Endif
 
-      *-- DEFINICI√ìN DE LA CLASE ( DEFINE CLASS 'className' AS 'classType' [OF 'classLib'] [OLEPUBLIC] )
+      *-- DEFINICI”N DE LA CLASE ( DEFINE CLASS 'className' AS 'classType' [OF 'classLib'] [OLEPUBLIC] )
       TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
          DEFINE CLASS <<ALLTRIM(toRegClass.ObjName)>> AS <<LOWER(ALLTRIM(toRegClass.Class)) + lcOF_Classlib + IIF(llOleObject, ' OLEPUBLIC', '')>>
       ENDTEXT
@@ -8105,7 +8100,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
       Lparameters toRegClass, tcCodigo
       *-- Comentario de la clase
       If Not Empty(toRegClass.RESERVED7) Then
-         *-- Si es multil√≠nea, debe ir en un tag <ClassComments> aparte
+         *-- Si es multilÌnea, debe ir en un tag <ClassComments> aparte
          If Occurs( Chr(13), toRegClass.RESERVED7 ) > 0 Then
             TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                     <<Chr(9)>><<C_CLASSCOMMENTS_I>>
@@ -8281,7 +8276,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
 
 
    Procedure write_HIDDEN_Properties
-      *-- Escribo la definici√≥n HIDDEN de propiedades
+      *-- Escribo la definiciÛn HIDDEN de propiedades
       Lparameters tcHiddenProp, tcCodigo
 
       If Not Empty(tcHiddenProp)
@@ -8296,7 +8291,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
 
 
    Procedure write_PROTECTED_Properties
-      *-- Escribo la definici√≥n PROTECTED de propiedades
+      *-- Escribo la definiciÛn PROTECTED de propiedades
       Lparameters tcProtectedProp, tcCodigo
 
       If Not Empty(tcProtectedProp)
@@ -8310,7 +8305,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
 
 
    Procedure write_OLEObjectDefinitions
-      *-- Crea la definici√≥n del tag *< OLE: /> con la informaci√≥n de todos los objetos OLE
+      *-- Crea la definiciÛn del tag *< OLE: /> con la informaciÛn de todos los objetos OLE
       Lparameters toFoxBin2Prg
 
       Local laOLE(1)
@@ -8353,14 +8348,14 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
 
       *!*             ENDSCAN
 
-      *-- LO QUE SIGUE LO COMENT√â PORQUE POR CADA OBJETO OLE SE AGREGABA UNA L√çNEA VAC√çA QUE QUEDA MUY MAL Y ES INNECESARIA.
-      *-- COMO CONSECUENCIA, LOS FORMS O CLASES CON OBJETOS OLE DAR√ÅN DIFERENCIA POR √öNICA VEZ EN LA CABECERA. - fdbozzo. 29/11/2014 (v1.19.37)
+      *-- LO QUE SIGUE LO COMENT… PORQUE POR CADA OBJETO OLE SE AGREGABA UNA LÕNEA VACÕA QUE QUEDA MUY MAL Y ES INNECESARIA.
+      *-- COMO CONSECUENCIA, LOS FORMS O CLASES CON OBJETOS OLE DAR¡N DIFERENCIA POR ⁄NICA VEZ EN LA CABECERA. - fdbozzo. 29/11/2014 (v1.19.37)
       *
       *SELECT COUNT(*) FROM TABLABIN WHERE TABLABIN.PLATFORM = "WINDOWS" AND BASECLASS == 'olecontrol' INTO ARRAY laOLE
 
       *IF laOLE(1) > 0 THEN
-      *   *-- Lo del <<>> para crear una l√≠nea vac√≠a es solamente por compatibilidad con lo antiguo,
-      *   *-- donde se creaba esta l√≠nea cuando el form o clase ten√≠a al menos un objeto OLE.
+      *   *-- Lo del <<>> para crear una lÌnea vacÌa es solamente por compatibilidad con lo antiguo,
+      *   *-- donde se creaba esta lÌnea cuando el form o clase tenÌa al menos un objeto OLE.
       *   TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
       *       <<>>
       *       *
@@ -8404,7 +8399,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
          * Default in lowercase
          tcOutputFile = Lower(tcOutputFile)
 
-         *** + √°rbol espejo: si cInputRoot est√° indicado, se replica la estructura de carpetas
+         *** + ·rbol espejo: si cInputRoot est· indicado, se replica la estructura de carpetas
          If Not Empty(This.cOutputFolder)
             tcOutputFile = This.get_MirroredOutputFile(tcOutputFile)
          Endif Not Empty(This.cOutputFolder)
@@ -8423,7 +8418,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
          Endif
 
          If Not toFoxBin2Prg.l_ProcessFiles Then
-            Exit    && Si se indic√≥ no procesar, salgo del proceso. (Modo de simulaci√≥n)
+            Exit    && Si se indicÛ no procesar, salgo del proceso. (Modo de simulaciÛn)
          Endif
 
          loLang          = _Screen.o_FoxBin2Prg_Lang
@@ -8524,7 +8519,6 @@ Enddefine
 
 
 
-
 Define Class c_conversor_dbc_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
    #If .F.
       Local This As c_conversor_dbc_a_prg Of 'foxbin2prg.prg'
@@ -8534,9 +8528,9 @@ Define Class c_conversor_dbc_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toDatabase                (!@    OUT) Objeto generado de clase CL_DBC con la informaci√≥n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toDatabase                (!@    OUT) Objeto generado de clase CL_DBC con la informaciÛn leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toDatabase, toEx As Exception, toFoxBin2Prg
@@ -8569,7 +8563,7 @@ Define Class c_conversor_dbc_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
             */LScheffler 20.08.2023
 
             If toFoxBin2Prg.l_ProcessFiles Then
-               toDatabase          = CreateObject('CL_DBC')
+               toDatabase          = CreateObject('CL_DBC' )
                toDatabase._DBC     = .c_InputFile
                toDatabase.read_DBC_Header()
 
@@ -8728,7 +8722,6 @@ Enddefine
 
 
 
-
 Define Class c_conversor_dbf_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
    #If .F.
       Local This As c_conversor_dbf_a_prg Of 'foxbin2prg.prg'
@@ -8738,9 +8731,9 @@ Define Class c_conversor_dbf_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toModulo                  (!@    OUT) Contenido del texto generado
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -8769,7 +8762,7 @@ Define Class c_conversor_dbf_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                *moved up:
                *               IF NOT toFoxBin2Prg.l_ProcessFiles THEN
                *                   .write_OutputFile( '', .c_OutputFile, @toFoxBin2Prg )
-               *                   EXIT    && Si se indic√≥ no procesar, se sale aqu√≠. (Modo de simulaci√≥n)
+               *                   EXIT    && Si se indicÛ no procesar, se sale aquÌ. (Modo de simulaciÛn)
                *               ENDIF
                *!* /Changed by: LScheffler 11.2.2021
 
@@ -8789,23 +8782,23 @@ Define Class c_conversor_dbf_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                loFSO           = toFoxBin2Prg.o_FSO
                Store .Null. To loTable, loDBFUtils
                Store 0 To lnCodError
-               loDBFUtils          = CreateObject('CL_DBF_UTILS')
-               loDBC               = CreateObject('CL_DBC')
+               loDBFUtils          = CreateObject('CL_DBF_UTILS' )
+               loDBC               = CreateObject('CL_DBC' )
 
-               *-- EVALUAR OPCIONES ESPEC√çFICAS DE DBF
+               *-- EVALUAR OPCIONES ESPECÕFICAS DE DBF
                .updateProgressbar( 'Scanning DBF Structure...', 1, 3, 1 )
 
                *-- Include
                If Not Empty(toFoxBin2Prg.getCfgValue('c_DBF_Conversion_Included')) And Not toFoxBin2Prg.getCfgValue('c_DBF_Conversion_Included') == '*' ;
                      AND Not toFoxBin2Prg.filenameFoundInFilter( Justfname(.c_InputFile), toFoxBin2Prg.getCfgValue('c_DBF_Conversion_Included') )
-                  toFoxBin2Prg.writeLog('  ' + Justfname(.c_InputFile) + ' no est√° en el filtro DBF_Conversion_Included (' + toFoxBin2Prg.getCfgValue('c_DBF_Conversion_Included') + ')' )
+                  toFoxBin2Prg.writeLog('  ' + Justfname(.c_InputFile) + ' no est· en el filtro DBF_Conversion_Included (' + toFoxBin2Prg.getCfgValue('c_DBF_Conversion_Included') + ')' )
                   Exit
                Endif
 
                *-- Exclude
                If Not Empty(toFoxBin2Prg.getCfgValue('c_DBF_Conversion_Excluded')) ;
                      AND toFoxBin2Prg.filenameFoundInFilter( Justfname(.c_InputFile), toFoxBin2Prg.getCfgValue('c_DBF_Conversion_Excluded') )
-                  toFoxBin2Prg.writeLog('  ' + Justfname(.c_InputFile) + ' est√° en el filtro DBF_Conversion_Excluded (' + toFoxBin2Prg.getCfgValue('c_DBF_Conversion_Excluded') + ')' )
+                  toFoxBin2Prg.writeLog('  ' + Justfname(.c_InputFile) + ' est· en el filtro DBF_Conversion_Excluded (' + toFoxBin2Prg.getCfgValue('c_DBF_Conversion_Excluded') + ')' )
                   Exit
                Endif
 
@@ -8841,9 +8834,9 @@ Define Class c_conversor_dbf_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                C_FB2PRG_CODE   = C_FB2PRG_CODE + toFoxBin2Prg.get_PROGRAM_HEADER()
 
                *-- Header
-               loTable         = CreateObject('CL_DBF_TABLE')
+               loTable         = CreateObject('CL_DBF_TABLE' )
 
-               *-- Exportaci√≥n de estructura y datos (para Diff solamente)
+               *-- ExportaciÛn de estructura y datos (para Diff solamente)
                Erase (.c_OutputFile + '.TMP' )
                loTextStream    = loFSO.CreateTextFile(.c_OutputFile + '.TMP' )     && Replace VFP low-level file funcs.because the 8-16KB limit.
                toFoxBin2Prg.o_TextStream = loTextStream
@@ -8894,7 +8887,7 @@ Define Class c_conversor_dbf_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                Endif
 
 
-               *-- Hook para permitir ejecuci√≥n externa (por ejemplo, para exportar datos)
+               *-- Hook para permitir ejecuciÛn externa (por ejemplo, para exportar datos)
                If Not Empty(toFoxBin2Prg.run_AfterCreate_DB2)
                   lnSelect    = Select()
                   Do (toFoxBin2Prg.run_AfterCreate_DB2) With (lnDataSessionID), (.c_OutputFile), (loTable)
@@ -8916,8 +8909,8 @@ Define Class c_conversor_dbf_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                *!*     toEx.UserValue = 'WARNING!!' + CR_LF ;
                *!*         + "MAY BE DATABASE FIELDS DOESN'T" ;
                *!*         + UPPER(JUSTSTEM(THIS.c_InputFile)) + '.field tag keyname)' + CR_LF + CR_LF ;
-               *!*         + '¬°¬°ATENCI√ìN!!' + CR_LF ;
-               *!*         + 'ASEG√öRESE DE QUE NO EST√Å USANDO UN ALIAS DE TABLA EN LAS EXPRESIONES DE LOS √çNDICES!! (ej: index on ' ;
+               *!*         + '°°ATENCI”N!!' + CR_LF ;
+               *!*         + 'ASEG⁄RESE DE QUE NO EST¡ USANDO UN ALIAS DE TABLA EN LAS EXPRESIONES DE LOS ÕNDICES!! (ej: index on ' ;
                *!*         + UPPER(JUSTSTEM(THIS.c_InputFile)) + '.campo tag nombreclave)'
 
             Endcase
@@ -8981,7 +8974,6 @@ Enddefine
 
 
 
-
 Define Class c_conversor_fky_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
    #If .F.
       Local This As c_conversor_fky_a_prg Of 'foxbin2prg.prg'
@@ -8991,9 +8983,9 @@ Define Class c_conversor_fky_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toMacro                   (!@    OUT) Objeto generado de clase CL_MACRO con la informaci√≥n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toMacro                   (!@    OUT) Objeto generado de clase CL_MACRO con la informaciÛn leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toMacro, toEx As Exception, toFoxBin2Prg
@@ -9017,7 +9009,7 @@ Define Class c_conversor_fky_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
                .updateProgressbar( 'Analyzing FKY...', 1, 2, 1 )
 
-               *-- Verificaci√≥n de archivo de macros v√°lido
+               *-- VerificaciÛn de archivo de macros v·lido
                *IF FCOUNT() < 25 OR EMPTY(FIELD("RESNAME")) OR EMPTY(FIELD("SYSRES"))
                *   *ERROR 'Menu [' + (.c_InputFile) + '] is NOT VFP 9 Format! - Please convert to VFP 9 with MODIFY MENU ' + JUSTFNAME((.c_InputFile))
                *   ERROR (TEXTMERGE(loLang.C_MENU_NOT_IN_VFP9_FORMAT_LOC))
@@ -9026,7 +9018,7 @@ Define Class c_conversor_fky_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                *-- Header
                C_FB2PRG_CODE   = C_FB2PRG_CODE + toFoxBin2Prg.get_PROGRAM_HEADER()
 
-               toMacro         = CreateObject('CL_MACRO')
+               toMacro         = CreateObject('CL_MACRO' )
                toMacro.get_DataFromMacroFKY(.c_InputFile, @toFoxBin2Prg)
                C_FB2PRG_CODE   = C_FB2PRG_CODE + toMacro.toText()
             Endif
@@ -9079,7 +9071,6 @@ Enddefine
 
 
 
-
 Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
    #If .F.
       Local This As c_conversor_frx_a_prg Of 'foxbin2prg.prg'
@@ -9091,9 +9082,9 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (!@    OUT) Objeto generado de clase CL_PROJECT con la informaci√≥n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (!@    OUT) Objeto generado de clase CL_PROJECT con la informaciÛn leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -9137,7 +9128,7 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                C_FB2PRG_CODE = C_FB2PRG_CODE + toFoxBin2Prg.get_PROGRAM_HEADER()
 
 
-               *-- Arreglo bug agrupaci√≥n de controles. 29/10/2015
+               *-- Arreglo bug agrupaciÛn de controles. 29/10/2015
                SELECT * ;
                FROM   _TABLAORIG ;
                WHERE  ObjType In (1,25,26) ;
@@ -9167,7 +9158,7 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                   ORDER  By vpos,hpos Asc ;
                   INTO   Cursor TABLABIN Readwrite
                Else
-                  *-- SIN ORDENAR (S√≥lo para poder comparar con el original)
+                  *-- SIN ORDENAR (SÛlo para poder comparar con el original)
                   SELECT * ;
                   FROM   _TABLAORIG ;
                   WHERE  ObjType Not In (1,25,26) ;
@@ -9413,7 +9404,6 @@ Enddefine
 
 
 
-
 Define Class c_conversor_mem_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
    #If .F.
       Local This As c_conversor_mem_a_prg Of 'foxbin2prg.prg'
@@ -9423,9 +9413,9 @@ Define Class c_conversor_mem_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toMacro                   (!@    OUT) Objeto generado de clase CL_MACRO con la informaci√≥n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toMacro                   (!@    OUT) Objeto generado de clase CL_MACRO con la informaciÛn leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toMemVar, toEx As Exception, toFoxBin2Prg
@@ -9452,7 +9442,7 @@ Define Class c_conversor_mem_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
                .updateProgressbar( 'Analyzing MEM...', 1, 2, 1 )
 
-               *-- Verificaci√≥n de archivo de macros v√°lido
+               *-- VerificaciÛn de archivo de macros v·lido
                *IF FCOUNT() < 25 OR EMPTY(FIELD("RESNAME")) OR EMPTY(FIELD("SYSRES"))
                *   *ERROR 'Menu [' + (.c_InputFile) + '] is NOT VFP 9 Format! - Please convert to VFP 9 with MODIFY MENU ' + JUSTFNAME((.c_InputFile))
                *   ERROR (TEXTMERGE(loLang.C_MENU_NOT_IN_VFP9_FORMAT_LOC))
@@ -9461,7 +9451,7 @@ Define Class c_conversor_mem_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                *-- Header
                C_FB2PRG_CODE   = C_FB2PRG_CODE + toFoxBin2Prg.get_PROGRAM_HEADER()
 
-               toMemVar        = CreateObject('CL_MEMVAR')
+               toMemVar        = CreateObject('CL_MEMVAR' )
                toMemVar.get_DataFromMEM(.c_InputFile, @toFoxBin2Prg)
                C_FB2PRG_CODE   = C_FB2PRG_CODE + toMemVar.toText()
             Endif
@@ -9515,7 +9505,6 @@ Enddefine
 
 
 
-
 Define Class c_conversor_mnx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
    #If .F.
       Local This As c_conversor_mnx_a_prg Of 'foxbin2prg.prg'
@@ -9525,9 +9514,9 @@ Define Class c_conversor_mnx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * totoMenu                  (!@    OUT) Objeto generado de clase CL_MENU con la informaci√≥n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * totoMenu                  (!@    OUT) Objeto generado de clase CL_MENU con la informaciÛn leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toMenu, toEx As Exception, toFoxBin2Prg
@@ -9557,7 +9546,7 @@ Define Class c_conversor_mnx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                Use In (Select("_TABLAORIG"))
                .updateProgressbar( 'Analyzing MNX...', 1, 2, 1 )
 
-               *-- Verificaci√≥n de men√∫ VFP 9
+               *-- VerificaciÛn de men˙ VFP 9
                If Fcount() < 25 Or Empty(Field("RESNAME")) Or Empty(Field("SYSRES"))
                   *ERROR 'Menu [' + (.c_InputFile) + '] is NOT VFP 9 Format! - Please convert to VFP 9 with MODIFY MENU ' + JUSTFNAME((.c_InputFile))
                   Error (Textmerge(loLang.C_MENU_NOT_IN_VFP9_FORMAT_LOC))
@@ -9566,7 +9555,7 @@ Define Class c_conversor_mnx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                *-- Header
                C_FB2PRG_CODE   = C_FB2PRG_CODE + toFoxBin2Prg.get_PROGRAM_HEADER()
 
-               toMenu          = CreateObject('CL_MENU' )
+               toMenu          = CreateObject('CL_MENU'  )
                toMenu.get_DataFromTablabin()
                C_FB2PRG_CODE   = C_FB2PRG_CODE + toMenu.toText()
             Endif
@@ -9624,7 +9613,6 @@ Enddefine
 
 
 
-
 Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
    _MemberData = [<VFPData>] ;
       + [<memberdata name="strextract_cr" display="strExtract_CR"/>] ;
@@ -9638,9 +9626,9 @@ Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (!@    OUT) Objeto generado de clase CL_PROJECT con la informaci√≥n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (!@    OUT) Objeto generado de clase CL_PROJECT con la informaciÛn leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -9667,7 +9655,7 @@ Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
 
             *-- Obtengo los archivos del proyecto
-            loProject       = CreateObject('CL_PROJECT')
+            loProject       = CreateObject('CL_PROJECT' )
             loServerHead    = loProject._ServerHead
 
             With loProject As CL_PROJECT Of 'foxbin2prg.prg'
@@ -9759,7 +9747,7 @@ Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                AddProperty( loReg, 'TIMESTAMP', 0 )
                AddProperty( loReg, 'OBJREV', 0 )
 
-               *-- TIP: Si el "Name" del objeto est√° vac√≠o, lo salteo
+               *-- TIP: Si el "Name" del objeto est· vacÌo, lo salteo
                If Empty(loReg.Name)
                   Loop
                Endif
@@ -9798,11 +9786,11 @@ Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
             ENDTEXT
 
 
-            *-- Informaci√≥n del programa
+            *-- InformaciÛn del programa
             C_FB2PRG_CODE   = C_FB2PRG_CODE + loProject.getFormattedDevinfoText() + CR_LF
 
 
-            *-- Informaci√≥n de los Servidores definidos
+            *-- InformaciÛn de los Servidores definidos
             If Not Empty(loProject._ServerInfo)
                C_FB2PRG_CODE   = C_FB2PRG_CODE + loServerHead.getFormattedServerText() + CR_LF
                loServerHead    = .Null.
@@ -9812,7 +9800,7 @@ Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
                lcPjxName = LOWER( JUSTFNAME( EVL( .c_OriginalFileName, .c_InputFile ) ) )
 
-               *-- Generaci√≥n del proyecto
+               *-- GeneraciÛn del proyecto
                *** DH 2021-03-04: only output HomeDir if we're supposed to
                If toFoxBin2Prg.getCfgValue('n_HomeDir') = 1
                   TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
@@ -10045,7 +10033,6 @@ Enddefine
 
 
 
-
 Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
    _MemberData = [<VFPData>] ;
                + [<memberdata name="loadfile" display="loadFile"/>] ;
@@ -10059,9 +10046,9 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (@!    OUT) Objeto generado de clase CL_PROJECT con la informaci√≥n leida del texto
-      * toEx                      (@!    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (@!    OUT) Objeto generado de clase CL_PROJECT con la informaciÛn leida del texto
+      * toEx                      (@!    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (@! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -10085,7 +10072,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
          With This As c_conversor_pjx_a_prg Of 'foxbin2prg.prg'
             If toFoxBin2Prg.l_ProcessFiles Then
                If Vartype(toModulo) = "O" And toModulo.Class == 'Cl_project' Then
-                  *-- Ya esta cargado el objeto del Proyecto y se pas√≥ por referencia
+                  *-- Ya esta cargado el objeto del Proyecto y se pasÛ por referencia
                Else
                   .loadModule( @toModulo, @toEx, @toFoxBin2Prg )
                Endif
@@ -10143,16 +10130,16 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                         <<>>
                ENDTEXT
 
-               *-- Informaci√≥n del programa
+               *-- InformaciÛn del programa
                C_FB2PRG_CODE   = C_FB2PRG_CODE + loProject.getFormattedDevInfoText()
 
-               *-- Informaci√≥n de los Servidores definidos
+               *-- InformaciÛn de los Servidores definidos
                If Not Empty(loProject._ServerInfo)
                   C_FB2PRG_CODE   = C_FB2PRG_CODE + loServerHead.getFormattedServerText() + CR_LF
                Endif
 
 
-               *-- Generaci√≥n del proyecto
+               *-- GeneraciÛn del proyecto
                If toFoxBin2Prg.getCfgValue('n_HomeDir') = 1
                   * only output HomeDir if we're supposed to
                   TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
@@ -10417,9 +10404,9 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
    Procedure loadModule
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (@!    OUT) Objeto generado de clase CL_PROJECT con la informaci√≥n leida del texto
-      * toEx                      (@!    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (@!    OUT) Objeto generado de clase CL_PROJECT con la informaciÛn leida del texto
+      * toEx                      (@!    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -10456,7 +10443,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
 
             *-- Obtengo los archivos del proyecto
-            loProject       = CreateObject('CL_PROJECT')
+            loProject       = CreateObject('CL_PROJECT' )
             toModulo        = loProject
             loServerHead    = loProject._ServerHead
 
@@ -10477,7 +10464,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
             loProject._User         = loReg.User
             loProject.parseDevInfo( loReg.DEVINFO )
 
-            *-- Informaci√≥n de los Servidores definidos
+            *-- InformaciÛn de los Servidores definidos
             If Not Empty(loProject._ServerInfo)
                loServerHead.parseServerInfo( loProject._ServerInfo )
                loServerHead    = .Null.
@@ -10524,7 +10511,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                loReg.Name      = Lower( Alltrim( .get_ValueFromNullTerminatedValue( loReg.Name ) ) )
                loReg.COMMENTS  = Alltrim( .get_ValueFromNullTerminatedValue( loReg.COMMENTS ) )
 
-               *-- TIP: Si el "Name" del objeto est√° vac√≠o, lo salteo
+               *-- TIP: Si el "Name" del objeto est· vacÌo, lo salteo
                If Empty(loReg.Name)
                   Loop
                Endif
@@ -10583,7 +10570,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
    *!* </pdm>
    Procedure GetPathFromHome
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcFilePath                (v! IN    ) String of a file with path
       * tcProjPath                (v! IN    ) Home directory of a project
       * tcPrefix                  (v! IN    ) Prefix for return
@@ -10618,7 +10605,6 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
    *!* /Changed by: LScheffler 20.3.2023
 
 Enddefine
-
 
 
 
@@ -10675,9 +10661,9 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (!@    OUT) Objeto generado de clase correspondiente con la informaci√≥n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (!@    OUT) Objeto generado de clase correspondiente con la informaciÛn leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (!@ IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -10699,7 +10685,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
       lnPos   = Ascan( taPropsAndValues, tcPropName, 1, 0, 1, 1+2+4+8)
 
       If lnPos = 0 Or Empty( taPropsAndValues( lnPos, 2 ) )
-         *-- Valores no encontrados o vac√≠os
+         *-- Valores no encontrados o vacÌos
          luPropValue = ''
       Else
          luPropValue = taPropsAndValues( lnPos, 2 )
@@ -10721,7 +10707,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
       Case tcValueType = 'E'
          luPropValue = Evaluate( luPropValue )
 
-      Otherwise && Asumo 'C' para lo dem√°s
+      Otherwise && Asumo 'C' para lo dem·s
          luPropValue = luPropValue
 
       Endcase
@@ -10744,7 +10730,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
          With This As c_conversor_prg_a_bin Of c_conversor_prg_a_bin.prg
             llBloqueEncontrado  = .T.
 
-            *-- Metadatos del m√≥dulo
+            *-- Metadatos del mÛdulo
             .get_ListNamesWithValuesFrom_InLine_MetadataTag( @tcLine, @laPropsAndValues, @lnPropsAndValues_Count, C_FB2PRG_META_I, C_FB2PRG_META_F )
             toModulo._Version       = .get_ValueByName_FromListNamesWithValues( 'Version', 'N', @laPropsAndValues )
             toModulo._SourceFile    = .get_ValueByName_FromListNamesWithValues( 'SourceFile', 'C', @laPropsAndValues )
@@ -10771,7 +10757,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
       If Upper( Left( tcLine, Len(C_LIBCOMMENT_I) ) ) == C_LIBCOMMENT_I
          llBloqueEncontrado  = .T.
 
-         *-- Metadatos del m√≥dulo
+         *-- Metadatos del mÛdulo
          toModulo._Comment       = Alltrim( Strextract( tcLine, C_LIBCOMMENT_I, C_LIBCOMMENT_F ) )
       Endif
 
@@ -11260,7 +11246,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
       *--------------------------------------------------------------------------------------------------------------
       * ARMA EL MEMO DE PROPERTIES CON LAS PROPIEDADES Y SUS VALORES
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toClase                   (!@ IN    ) Objeto de la Clase
       * toFoxBin2Prg              (@? IN    ) Referencia al objeto principal
       *--------------------------------------------------------------------------------------------------------------
@@ -11380,7 +11366,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
          , loProcedure As CL_PROCEDURE Of 'foxbin2prg.prg'
       lcMemo  = ''
 
-      *-- Recorrer los m√©todos
+      *-- Recorrer los mÈtodos
       With This As c_conversor_prg_a_bin Of c_conversor_prg_a_bin.prg
          For I = 1 To toClase._Procedure_Count
             loProcedure = .Null.
@@ -11390,7 +11376,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
                .updateProgressbar( 'Generating Procedure ' + toClase._Nombre + '.' + loProcedure._Nombre + '...', m.I, toClase._Procedure_Count, 2 )
 
                If '.' $ loProcedure._Nombre
-                  *-- cboNombre.InteractiveChange ==> No debe acortarse por ser m√©todo modificado de combobox heredado de la clase
+                  *-- cboNombre.InteractiveChange ==> No debe acortarse por ser mÈtodo modificado de combobox heredado de la clase
                   *-- cntDatos.txtEdad.Valid      ==> Debe acortarse si cntDatos es un objeto existente
                   lcNombreObjeto  = Left( loProcedure._Nombre, At('.', loProcedure._Nombre) - 1 )
 
@@ -11412,7 +11398,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
                   *lcMemo = lcMemo + C_PROCEDURE + ' ' + loProcedure._Nombre
                Endif
 
-               *-- Incluir las l√≠neas del m√©todo
+               *-- Incluir las lÌneas del mÈtodo
                *.updateProgressbar( 'Generating Lines of Procedure ' + toClase._Nombre + '.' + loProcedure._Nombre + '...', m.I, toClase._Procedure_Count, 2 )
                For X = 1 To loProcedure._ProcLine_Count
                   *TEXT TO lcMemo ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
@@ -11448,7 +11434,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
          , loProcedure As CL_PROCEDURE Of 'foxbin2prg.prg'
       lcMemo  = ''
 
-      *-- Recorrer los m√©todos
+      *-- Recorrer los mÈtodos
       This.updateProgressbar( 'Generating Object Methods for ' + toClase._Nombre + '.' + toObjeto._ObjName + '...', 0, 1, 2 )
       For I = 1 To toObjeto._Procedure_Count
          loProcedure = .Null.
@@ -11458,7 +11444,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
                 <<C_PROCEDURE>> <<loProcedure._Nombre>>
          ENDTEXT
 
-         *-- Incluir las l√≠neas del m√©todo
+         *-- Incluir las lÌneas del mÈtodo
          For X = 1 To loProcedure._ProcLine_Count
             lcMemo = lcMemo + Chr(13) + Chr(10) + loProcedure._ProcLines(m.X)
          Endfor
@@ -11478,7 +11464,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
 
    Procedure getClassPropertyComment
       *-- Devuelve el comentario (columna 2 del array toClase._Props) de la propiedad indicada,
-      *-- busc√°ndola en la columna 2 por su nombre.
+      *-- busc·ndola en la columna 2 por su nombre.
       Lparameters tcPropName As String, toClase
 
       #If .F.
@@ -11503,8 +11489,8 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
 
    Procedure getClassMethodComment
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (@! IN/OUT) L√≠nea a separar del comentario (En este punto, el √∫nico comentario puede ser un HELPSTRING)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (@! IN/OUT) LÌnea a separar del comentario (En este punto, el ˙nico comentario puede ser un HELPSTRING)
       * tcComment                 (@?    OUT) Comentario
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine As String, tcComment As String
@@ -11554,7 +11540,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
 
    Procedure defined_PAM2Memo
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toClase                   (!@ IN    ) Objeto de la Clase
       *--------------------------------------------------------------------------------------------------------------
       Lparameters toClase
@@ -11751,9 +11737,9 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
 
 
    Procedure insert_AllObjects
-      *-- Recorro primero los objetos con ZOrder definido, y luego los dem√°s
-      *-- NOTA: Como consecuencia de una integraci√≥n de c√≥digo, puede que se hayan agregado objetos nuevos (desconocidos),
-      *--       pero todo lo dem√°s tiene un ZOrder definido, que es el n√∫mero de registro original * 100.
+      *-- Recorro primero los objetos con ZOrder definido, y luego los dem·s
+      *-- NOTA: Como consecuencia de una integraciÛn de cÛdigo, puede que se hayan agregado objetos nuevos (desconocidos),
+      *--       pero todo lo dem·s tiene un ZOrder definido, que es el n˙mero de registro original * 100.
       Lparameters toClase, toFoxBin2Prg
 
       #If .F.
@@ -11883,20 +11869,20 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
 
                   Case Upper( Left( tcLine + ' ', 10 ) ) == 'ENDDEFINE '  && Fin de bloque (ENDDEFINE) encontrado
                      If llEsProcedureDeClase
-                        *ERROR 'Error de anidamiento de estructuras. Se esperaba ENDPROC y se encontr√≥ ENDDEFINE en la clase ' ;
+                        *ERROR 'Error de anidamiento de estructuras. Se esperaba ENDPROC y se encontrÛ ENDDEFINE en la clase ' ;
                         + toClase._Nombre + ' (' + loProcedure._Nombre + ')' ;
-                        + ', l√≠nea ' + TRANSFORM(m.I) + ' del archivo ' + .c_InputFile
+                        + ', lÌnea ' + TRANSFORM(m.I) + ' del archivo ' + .c_InputFile
                         Error (Textmerge(loLang.C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_LOC))
                      Else
-                        *ERROR 'Error de anidamiento de estructuras. Se esperaba ENDPROC y se encontr√≥ ENDDEFINE en la clase ' ;
+                        *ERROR 'Error de anidamiento de estructuras. Se esperaba ENDPROC y se encontrÛ ENDDEFINE en la clase ' ;
                         + toClase._Nombre + ' (' + toObjeto._Nombre + '.' + loProcedure._Nombre + ')' ;
-                        + ', l√≠nea ' + TRANSFORM(m.I) + ' del archivo ' + .c_InputFile
+                        + ', lÌnea ' + TRANSFORM(m.I) + ' del archivo ' + .c_InputFile
                         Error (Textmerge(loLang.C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_2_LOC))
                      Endif
                   Endcase
                Endif
 
-               *-- Quito 2 TABS de la izquierda (si se puede y si el integrador/desarrollador no la li√≥ quit√°ndolos)
+               *-- Quito 2 TABS de la izquierda (si se puede y si el integrador/desarrollador no la liÛ quit·ndolos)
                Do Case
                Case Left( taCodeLines(m.I),2 ) = C_TAB + C_TAB
                   loProcedure.add_Line( Substr(taCodeLines(m.I), 3) )
@@ -11928,13 +11914,13 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
 
    Procedure analyzeCodeBlock_ADD_OBJECT
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toModulo                  (!@ IN    ) Objeto del Modulo
       * toClase                   (!@ IN    ) Objeto de la Clase
-      * tcLine                    (!@ IN    ) L√≠nea de datos en evaluaci√≥n
-      * taCodeLines               (!@ IN    ) El array con las l√≠neas del c√≥digo de texto donde buscar
-      * I                         (!@ IN    ) N√∫mero de l√≠nea en evaluaci√≥n
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas de c√≥digo
+      * tcLine                    (!@ IN    ) LÌnea de datos en evaluaciÛn
+      * taCodeLines               (!@ IN    ) El array con las lÌneas del cÛdigo de texto donde buscar
+      * I                         (!@ IN    ) N˙mero de lÌnea en evaluaciÛn
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas de cÛdigo
       * toFoxBin2Prg              (?@ IN    ) Referencia al objeto principal
       *--------------------------------------------------------------------------------------------------------------
       Lparameters toModulo, toClase, tcLine, I, taCodeLines, tnCodeLines, toFoxBin2Prg
@@ -11982,8 +11968,8 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
 
                If Isnull(toObjeto)
                   Z           = 0
-                  toObjeto    = CreateObject('CL_OBJETO')
-                  *-- Luego se reasigna el ZOrder, pero si no lo hace, se pone √∫ltimo como si se acabara de agregar.
+                  toObjeto    = CreateObject('CL_OBJETO' )
+                  *-- Luego se reasigna el ZOrder, pero si no lo hace, se pone ˙ltimo como si se acabara de agregar.
                   *-- Puede pasar si se agrega manualmente al TX2 y se olvida agregar la metadata OBJECTDATA.
                   toObjeto._ZOrder    = 9999
                   toObjeto._Nombre    = lcNombre
@@ -12044,7 +12030,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
                      Endif
 
                      *-- Ubico el objeto ole por su nombre (parent+objname), que no se repite.
-                     If Empty(toObjeto._Ole) && Si _Ole est√° vac√≠o es porque el propio control no tiene la info y est√° en la cabecera (antiguo guardado)
+                     If Empty(toObjeto._Ole) && Si _Ole est· vacÌo es porque el propio control no tiene la info y est· en la cabecera (antiguo guardado)
                         If toModulo.existeObjetoOLE( toObjeto._Nombre, @m.Z )
                            toObjeto._Ole   = toModulo._Ole_Objs(m.Z)._Value
                         Endif
@@ -12098,25 +12084,25 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
 
    Procedure analyzeCodeBlock_DEFINED_PAM
       *--------------------------------------------------------------------------------------------------------------
-      * 07/01/2014    FDBOZZO     Los *m√©todos deben ir siempre al final, si no los eventos ACCESS no se ejecutan!
+      * 07/01/2014    FDBOZZO     Los *mÈtodos deben ir siempre al final, si no los eventos ACCESS no se ejecutan!
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toClase                   (!@ IN    ) Objeto de la Clase
-      * tcLine                    (!@ IN    ) L√≠nea de datos en evaluaci√≥n
-      * taCodeLines               (!@ IN    ) El array con las l√≠neas del c√≥digo de texto donde buscar
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas de c√≥digo
-      * I                         (!@ IN    ) N√∫mero de l√≠nea en evaluaci√≥n
+      * tcLine                    (!@ IN    ) LÌnea de datos en evaluaciÛn
+      * taCodeLines               (!@ IN    ) El array con las lÌneas del cÛdigo de texto donde buscar
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas de cÛdigo
+      * I                         (!@ IN    ) N˙mero de lÌnea en evaluaciÛn
       *--------------------------------------------------------------------------------------------------------------
       Lparameters toClase, tcLine, taCodeLines, tnCodeLines, I
       External Array taCodeLines
 
-      *-- ESTRUCTURA A ANALIZAR (tambi√©n se admite sin los s√≠mbolos ^ y *):
+      *-- ESTRUCTURA A ANALIZAR (tambiÈn se admite sin los sÌmbolos ^ y *):
       *<DefinedPropArrayMethod>
-      *m: *metodovacio_con_comentarios        && Este m√©todo no tiene c√≥digo, pero tiene comentarios. A ver que pasa!
+      *m: *metodovacio_con_comentarios        && Este mÈtodo no tiene cÛdigo, pero tiene comentarios. A ver que pasa!
       *m: *mimetodo       && Mi metodo
       *p: prop1       && Mi prop 1
       *p: prop_especial_cr        &&
-      *a: ^array_1_d[1,0]     && Array 1 dimensi√≥n (1)
+      *a: ^array_1_d[1,0]     && Array 1 dimensiÛn (1)
       *a: ^array_2_d[1,2]     && Array una dimension (1,2)
       *p: _memberdata     && XML Metadata for customizable properties
       *</DefinedPropArrayMethod>
@@ -12158,7 +12144,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
 
                      Endif
 
-                     *-- Separo propiedades y m√©todos
+                     *-- Separo propiedades y mÈtodos
                      If lcPAM_Type == '*m:'
                         If Left(lcItem,1) == '*'
                            lcMethods       = lcMethods + lcItem
@@ -12176,7 +12162,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
                Endfor
             Endwith && THIS
 
-            *-- Junto propiedades y los m√©todos al final.
+            *-- Junto propiedades y los mÈtodos al final.
             toClase._Defined_PAM    = lcDefinedPAM + lcMethods
             I = m.I - 1
          Endif
@@ -12210,12 +12196,12 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
       * 16/03/2023    LutzScheffler   old version (pre v1.19.77) stored the comment on the property value, so it was impossible to to keep && in value
       * the method is basically a copy of analyzeCodeBlock_DEFINED_PAM
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toClase                   (!@ IN    ) Objeto de la Clase
-      * tcLine                    (!@ IN    ) L√≠nea de datos en evaluaci√≥n
-      * taCodeLines               (!@ IN    ) El array con las l√≠neas del c√≥digo de texto donde buscar
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas de c√≥digo
-      * I                         (!@ IN    ) N√∫mero de l√≠nea en evaluaci√≥n
+      * tcLine                    (!@ IN    ) LÌnea de datos en evaluaciÛn
+      * taCodeLines               (!@ IN    ) El array con las lÌneas del cÛdigo de texto donde buscar
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas de cÛdigo
+      * I                         (!@ IN    ) N˙mero de lÌnea en evaluaciÛn
       *--------------------------------------------------------------------------------------------------------------
       Lparameters toClase, tcLine, taCodeLines, tnCodeLines, I
       External Array taCodeLines
@@ -12267,7 +12253,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
                Endfor
             Endwith && THIS
 
-            *-- Junto propiedades y los m√©todos al final.
+            *-- Junto propiedades y los mÈtodos al final.
             I = m.I - 1
          Endif
 
@@ -12290,16 +12276,16 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
 
    Procedure analyzeCodeBlock_DEFINE_CLASS
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toModulo                  (!@ IN    ) Objeto del Modulo
       * toClase                   (!@ IN    ) Objeto de la Clase
-      * tcLine                    (!@ IN    ) L√≠nea de datos en evaluaci√≥n
-      * taCodeLines               (!@ IN    ) El array con las l√≠neas del c√≥digo de texto donde buscar
-      * I                         (!@ IN    ) N√∫mero de l√≠nea en evaluaci√≥n
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas de c√≥digo
+      * tcLine                    (!@ IN    ) LÌnea de datos en evaluaciÛn
+      * taCodeLines               (!@ IN    ) El array con las lÌneas del cÛdigo de texto donde buscar
+      * I                         (!@ IN    ) N˙mero de lÌnea en evaluaciÛn
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas de cÛdigo
       * tcProcedureAbierto        (!v IN    ) Nombre del Procedure abierto
-      * taLineasExclusion         (!@ IN    ) Array de l√≠neas de exclusi√≥n
-      * tnBloquesExclusion        (!@ IN    ) Cantidad de l√≠neas de exclusi√≥n
+      * taLineasExclusion         (!@ IN    ) Array de lÌneas de exclusiÛn
+      * tnBloquesExclusion        (!@ IN    ) Cantidad de lÌneas de exclusiÛn
       * tc_Comentario             (!v IN    ) Comentario
       * toFoxBin2Prg              (@? IN    ) Referencia al objeto principal
       *--------------------------------------------------------------------------------------------------------------
@@ -12351,7 +12337,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
                toClase._Ole    = toModulo._Ole_Objs(m.Z)._Value
             Endif
 
-            * B√∫squeda del ID de fin de bloque (ENDDEFINE)
+            * B˙squeda del ID de fin de bloque (ENDDEFINE)
             With This As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                For I = toClase._Ini_Cab To tnCodeLines
                   tc_Comentario   = ''
@@ -12363,7 +12349,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
 
                   Case .analyzeCodeBlock_PROCEDURE( @toModulo, @toClase, @loObjeto, @tcLine, @taCodeLines, @m.I, @tnCodeLines ;
                         , @tcProcedureAbierto, @tc_Comentario, @taLineasExclusion, @tnBloquesExclusion )
-                     *-- OJO: Esta se analiza primero a prop√≥sito, solo porque no puede estar detr√°s de PROTECTED y HIDDEN
+                     *-- OJO: Esta se analiza primero a propÛsito, solo porque no puede estar detr·s de PROTECTED y HIDDEN
                      Store .T. To llCLASSCOMMENTS_Completed ;
                         , llCLASS_PROPERTY_Completed ;
                         , llPROTECTED_Completed ;
@@ -12396,7 +12382,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
 
 
                   Case Not llOBJECTMETADATA_Completed And .analyzeCodeBlock_OBJECTMETADATA( @toClase, @tcLine )
-                     * No se usa flag porque puede haber m√∫ltiples ObjectMetadata.
+                     * No se usa flag porque puede haber m˙ltiples ObjectMetadata.
 
 
                   Case Not llDEFINED_PAM_Completed And .analyzeCodeBlock_DEFINED_PAM( @toClase, @tcLine, @taCodeLines, tnCodeLines, @m.I )
@@ -12424,25 +12410,25 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
                   Case Not llCLASS_PROPERTY_Completed And Empty( toClase._Fin_Cab )
                      *-- Propiedades de la CLASE
                      *--
-                     *-- NOTA: Las propiedades se agregan tal cual, incluso aunque est√©n separadas en
-                     *--       varias l√≠neas (memberdata y fb2p_value), ya que luego se ensamblan en classProps2Memo().
+                     *-- NOTA: Las propiedades se agregan tal cual, incluso aunque estÈn separadas en
+                     *--       varias lÌneas (memberdata y fb2p_value), ya que luego se ensamblan en classProps2Memo().
                      *
                      .get_SeparatedPropAndValue( tcLine, @lcProp, @lcValue, @toClase, @taCodeLines, tnCodeLines, @m.I )
                      toClase.add_Property( @lcProp, @lcValue, Rtrim(tc_Comentario) )
 
 
                   Otherwise
-                     *-- Las l√≠neas que pasan por aqu√≠ deber√≠an estar vac√≠as y ser de relleno del embellecimiento
+                     *-- Las lÌneas que pasan por aquÌ deberÌan estar vacÌas y ser de relleno del embellecimiento
 
                   Endcase
 
                Endfor
 
-               *-- Validaci√≥n
+               *-- ValidaciÛn
                If Empty( toClase._Fin )
                   *ERROR 'No se ha encontrado el marcador de fin [ENDDEFINE] ' ;
                   + 'que cierra al marcador de inicio [DEFINE CLASS] ' ;
-                  + 'de la l√≠nea ' + TRANSFORM( toClase._Inicio ) + ' ' ;
+                  + 'de la lÌnea ' + TRANSFORM( toClase._Inicio ) + ' ' ;
                   + 'para el identificador [' + toClase._Nombre + ']'
                   Error (Textmerge(loLang.C_ENDDEFINE_MARKER_NOT_FOUND_LOC))
                Endif
@@ -12732,7 +12718,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
          toClase.l_ObjectMetadataInHeader = .T.
 
          loObjeto    = .Null.
-         loObjeto    = CreateObject('CL_OBJETO')
+         loObjeto    = CreateObject('CL_OBJETO' )
          toClase.add_Object( loObjeto )
 
          With This
@@ -12761,12 +12747,12 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
 
       If Left( tcLine + ' ', C_LEN_OLE_I + 1 ) == C_OLE_I + ' '
          llBloqueEncontrado  = .T.
-         *-- Se encontr√≥ una definici√≥n de objeto OLE
+         *-- Se encontrÛ una definiciÛn de objeto OLE
          *< OLE: Nombre="frm_d.ole_ImageControl2" parent="frm_d" objname="ole_ImageControl2" checksum="4171274922" value="b64-value" />
          Local laPropsAndValues(1,2), lnPropsAndValues_Count ;
             , loOle As CL_OLE Of 'foxbin2prg.prg'
          loOle           = .Null.
-         loOle           = CreateObject('CL_OLE')
+         loOle           = CreateObject('CL_OLE' )
 
          With This
             .get_ListNamesWithValuesFrom_InLine_MetadataTag( @tcLine, @laPropsAndValues, @lnPropsAndValues_Count, C_OLE_I, C_OLE_F )
@@ -12781,8 +12767,8 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
          toModulo.add_OLE( loOle )
 
          If Empty( loOle._Value )
-            *-- Si el objeto OLE no tiene VALUE, es porque hay otro con el mismo contenido y no se duplic√≥ para preservar espacio.
-            *-- Busco el VALUE del duplicado que se guard√≥ y lo asigno nuevamente
+            *-- Si el objeto OLE no tiene VALUE, es porque hay otro con el mismo contenido y no se duplicÛ para preservar espacio.
+            *-- Busco el VALUE del duplicado que se guardÛ y lo asigno nuevamente
             For Z = 1 To toModulo._Ole_Obj_count - 1
                If toModulo._Ole_Objs(m.Z)._CheckSum == loOle._CheckSum And Not Empty( toModulo._Ole_Objs(m.Z)._Value )
                   loOle._Value    = toModulo._Ole_Objs(m.Z)._Value
@@ -12862,7 +12848,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
          Endcase
 
          If llBloqueEncontrado
-            *-- Eval√∫o todo el contenido del PROCEDURE
+            *-- Eval˙o todo el contenido del PROCEDURE
             .updateProgressbar( 'Analyzing Procedure ' + toClase._Nombre + '.' + tcProcedureAbierto + '...', m.I, tnCodeLines, 1 )
             .analyzeProcedureLines( @toClase, @toObjeto, @tcLine, @taCodeLines, @m.I, @tnCodeLines, @tcProcedureAbierto ;
                , @tc_Comentario, @taLineasExclusion, @tnBloquesExclusion )
@@ -12912,13 +12898,13 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
          Endif
 
          loProcedure     = .Null.
-         loProcedure     = CreateObject('CL_PROCEDURE')
+         loProcedure     = CreateObject('CL_PROCEDURE' )
          loProcedure._Nombre         = tcProcName
          loProcedure._ProcType       = tcProcType
          loProcedure._Comentario     = tc_Comentario
          loProcedure._Inicio         = m.I
 
-         *-- Anoto en HiddenMethods y ProtectedMethods seg√∫n corresponda
+         *-- Anoto en HiddenMethods y ProtectedMethods seg˙n corresponda
          Do Case
          Case loProcedure._ProcType == 'hidden'
             toClase._HiddenMethods  = toClase._HiddenMethods + ',' + tcProcName
@@ -12933,7 +12919,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
             *-- Procedimiento de objeto
             lcNombreObjeto  = Lower( Juststem( tcProcName ) )
 
-            *-- Busco el objeto al que corresponde el m√©todo
+            *-- Busco el objeto al que corresponde el mÈtodo
             lnObjProc   = This.findMethodsObjectByName( lcNombreObjeto, toClase )
 
             If lnObjProc = 0
@@ -12975,16 +12961,16 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
 
    Procedure identifyCodeBlocks
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * taCodeLines               (@! IN    ) El array con las l√≠neas del c√≥digo donde buscar
-      * tnCodeLines               (@! IN    ) Cantidad de l√≠neas de c√≥digo
-      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg√∫n la l√≠nea sea de exclusi√≥n o no
-      * tnBloquesExclusion        (@! IN    ) Cantidad de bloques de exclusi√≥n
-      * toModulo                  (@?    OUT) Objeto con toda la informaci√≥n del m√≥dulo analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taCodeLines               (@! IN    ) El array con las lÌneas del cÛdigo donde buscar
+      * tnCodeLines               (@! IN    ) Cantidad de lÌneas de cÛdigo
+      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg˙n la lÌnea sea de exclusiÛn o no
+      * tnBloquesExclusion        (@! IN    ) Cantidad de bloques de exclusiÛn
+      * toModulo                  (@?    OUT) Objeto con toda la informaciÛn del mÛdulo analizado
       * toFoxBin2Prg              (@? IN    ) Referencia al objeto principal
       *
       * NOTA:
-      * Como identificador se usa el nombre de clase o de procedimiento, seg√∫n corresponda.
+      * Como identificador se usa el nombre de clase o de procedimiento, seg˙n corresponda.
       *--------------------------------------------------------------------------------------------------------------
       Lparameters taCodeLines, tnCodeLines, taLineasExclusion, tnBloquesExclusion, toModulo, toFoxBin2Prg
 
@@ -13008,14 +12994,14 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
 
             If tnCodeLines > 1
 
-               *-- B√∫squeda del ID de inicio de bloque (DEFINE CLASS / PROCEDURE)
+               *-- B˙squeda del ID de inicio de bloque (DEFINE CLASS / PROCEDURE)
                For I = 1 To tnCodeLines
                   Store '' To lc_Comentario
                   .set_Line( @lcLine, @taCodeLines, m.I )
 
                   Do Case
                   Case .excludedLine( m.I, tnBloquesExclusion, @taLineasExclusion ) ;
-                        OR .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && Excluida, vac√≠a o solo Comentarios
+                        OR .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && Excluida, vacÌa o solo Comentarios
 
                   Case .analyzeCodeBlock_DEFINE_CLASS( @toModulo, @loClase, @lcLine, @taCodeLines, @m.I, tnCodeLines ;
                         , @lcProcedureAbierto, @taLineasExclusion, @tnBloquesExclusion, @lc_Comentario, @toFoxBin2Prg )
@@ -13055,16 +13041,16 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
 
    Procedure identifyHeaderBlocks
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * taCodeLines               (@! IN    ) El array con las l√≠neas del c√≥digo donde buscar
-      * tnCodeLines               (@! IN    ) Cantidad de l√≠neas de c√≥digo
-      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg√∫n la l√≠nea sea de exclusi√≥n o no
-      * tnBloquesExclusion        (@! IN    ) Cantidad de bloques de exclusi√≥n
-      * toModulo                  (@?    OUT) Objeto con toda la informaci√≥n del m√≥dulo analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taCodeLines               (@! IN    ) El array con las lÌneas del cÛdigo donde buscar
+      * tnCodeLines               (@! IN    ) Cantidad de lÌneas de cÛdigo
+      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg˙n la lÌnea sea de exclusiÛn o no
+      * tnBloquesExclusion        (@! IN    ) Cantidad de bloques de exclusiÛn
+      * toModulo                  (@?    OUT) Objeto con toda la informaciÛn del mÛdulo analizado
       * toFoxBin2Prg              (@? IN    ) Referencia al objeto principal
       *
       * NOTA:
-      * Como identificador se usa el nombre de clase o de procedimiento, seg√∫n corresponda.
+      * Como identificador se usa el nombre de clase o de procedimiento, seg˙n corresponda.
       *--------------------------------------------------------------------------------------------------------------
       Lparameters taCodeLines, tnCodeLines, taLineasExclusion, tnBloquesExclusion, toModulo, toFoxBin2Prg
 
@@ -13108,13 +13094,13 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
                   llEXTERNAL_CLASS_Completed  = .T.
                Endif
 
-               *-- B√∫squeda del ID de inicio de bloque (DEFINE CLASS / PROCEDURE)
+               *-- B˙squeda del ID de inicio de bloque (DEFINE CLASS / PROCEDURE)
                For I = 1 To tnCodeLines
                   Store '' To lc_Comentario
                   .set_Line( @lcLine, @taCodeLines, m.I )
 
                   Do Case
-                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && Excluida, vac√≠a o solo Comentarios
+                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && Excluida, vacÌa o solo Comentarios
 
                   Case Not llFoxBin2Prg_Completed And .analyzeCodeBlock_FoxBin2Prg( @toModulo, @lcLine, @taCodeLines, @m.I, tnCodeLines )
                      llFoxBin2Prg_Completed  = .T.
@@ -13132,7 +13118,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
 
                   Case Not llINCLUDE_SCX_Completed And .c_Type = 'SCX' And .analyzeCodeBlock_INCLUDE( @toModulo, @loClase, @lcLine ;
                         , @taCodeLines, @m.I, tnCodeLines, @lcProcedureAbierto )
-                     * Espec√≠fico para SCX que lo tiene al inicio
+                     * EspecÌfico para SCX que lo tiene al inicio
                      llINCLUDE_SCX_Completed = .T.
                      llEXTERNAL_CLASS_Completed  = .T.
 
@@ -13165,8 +13151,8 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
       *--------------------------------------------------------------------------------
       *-- Compara las clases definidas en la cabecera con las clases encontradas luego
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (@?    OUT) Objeto con toda la informaci√≥n del m√≥dulo analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (@?    OUT) Objeto con toda la informaciÛn del mÛdulo analizado
       * toFoxBin2Prg              (@? IN    ) Referencia al objeto principal
       *--------------------------------------------------------------------------------------------------------------
       Lparameters toModulo, toFoxBin2Prg
@@ -13200,7 +13186,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
 
       Endcase
 
-      *-- Verificaci√≥n de las Clases, si son Externas y se indic√≥ chequearlas
+      *-- VerificaciÛn de las Clases, si son Externas y se indicÛ chequearlas
       Do Case
       Case ln_UseXPerFile = 1 And ll_XPerFileCheck And Empty(toFoxBin2Prg.c_ClassOperationType)
          *-- El ClassPerFile original, con nomenclatura 'Libreria.NombreClase.vc2'
@@ -13251,7 +13237,6 @@ Enddefine
 
 
 
-
 Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
    #If .F.
       Local This As c_conversor_prg_a_dbc Of 'foxbin2prg.prg'
@@ -13271,9 +13256,9 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toDatabase                (!@    OUT) Objeto generado de clase CL_DBC con la informaci√≥n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toDatabase                (!@    OUT) Objeto generado de clase CL_DBC con la informaciÛn leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toDatabase, toEx As Exception, toFoxBin2Prg
@@ -13295,7 +13280,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
          With This As c_conversor_prg_a_dbc Of 'foxbin2prg.prg'
             loLang              = _Screen.o_FoxBin2Prg_Lang
-            toDatabase          = CreateObject('CL_DBC')
+            toDatabase          = CreateObject('CL_DBC' )
             lnIDInputFile       = toFoxBin2Prg.n_ProcessedFiles
 
             If toFoxBin2Prg.getCfgValue('n_UseFilesPerDBC') > 0 And toFoxBin2Prg.getCfgValue('l_RedirectFilePerDBCToMain')
@@ -13303,7 +13288,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                lnCodeLines         = Alines( laCodeLines, C_FB2PRG_CODE )
                C_FB2PRG_CODE       = ''
 
-               *-- Quito la √∫ltima parte del cierre de </DATABASE> para anexar lo intermedio
+               *-- Quito la ˙ltima parte del cierre de </DATABASE> para anexar lo intermedio
                For X = 1 To lnCodeLines
                   If C_DATABASE_F $ laCodeLines(m.X) Then
                      Exit
@@ -13316,7 +13301,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
                .updateProgressbar( 'Loading Code...', 2, lnCodeLines, 1 )
 
-               *-- Esto crea la m√°scara de b√∫squeda "<path>Database.*.*.ext" para encontrar las partes
+               *-- Esto crea la m·scara de b˙squeda "<path>Database.*.*.ext" para encontrar las partes
                *-- con la sintaxis "<path>Database.MemberType.MemberName.ext"
                lcBaseFilename      = Juststem( Juststem( Juststem(.c_InputFile) ) )
                lcInputFile         = Addbs( Justpath(.c_InputFile) ) + lcBaseFilename + '.*.*.' + Justext(.c_InputFile)
@@ -13330,7 +13315,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                   Endif
                Endfor
 
-               Asort( laFiles, 1, -1, 0, 1)    && "zstoredprocedures" quedar√° al final
+               Asort( laFiles, 1, -1, 0, 1)    && "zstoredprocedures" quedar· al final
 
                *-- Busco "zstoredprocedures" y le quito la "z" del inicio
                For I = 1 To lnFileCount
@@ -13377,7 +13362,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                      Endif
                   Endif
 
-                  *-- Verificaci√≥n de los Miembros, si son Externos y se indic√≥ chequearlos
+                  *-- VerificaciÛn de los Miembros, si son Externos y se indicÛ chequearlos
                   If toFoxBin2Prg.getCfgValue('l_ItemPerDBCCheck') And Empty(toFoxBin2Prg.c_ClassOperationType) ;
                         AND Ascan( toDatabase._ExternalClasses, lcMemberType + '.' + lcMemberName, 1, 0, 1, 1+2+4 ) = 0
                      .writeLog( C_TAB + '- ' + loLang.C_OUTER_MEMBER_DOES_NOT_MATCH_INNER_MEMBERS_LOC + ' [' + lcInputFile_Class + ']' )
@@ -13431,7 +13416,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                      toFoxBin2Prg.updateProcessedFile()
                   Endif
 
-                  Exit    && Si se indic√≥ no procesar, se sale aqu√≠. (Modo de simulaci√≥n)
+                  Exit    && Si se indicÛ no procesar, se sale aquÌ. (Modo de simulaciÛn)
                Endif
 
                If Not Empty(lcLastMemberType) Then
@@ -13448,7 +13433,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                   Endcase
                Endif
 
-               *-- Agrego la √∫ltima parte con el cierre de </DATABASE>
+               *-- Agrego la ˙ltima parte con el cierre de </DATABASE>
                For X = m.X To lnCodeLines
                   C_FB2PRG_CODE   = C_FB2PRG_CODE + laCodeLines(m.X) + CR_LF
                Endfor
@@ -13462,7 +13447,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                      toFoxBin2Prg.updateProcessedFile()
                   Endif
 
-                  Exit    && Si se indic√≥ no procesar, se sale aqu√≠. (Modo de simulaci√≥n)
+                  Exit    && Si se indicÛ no procesar, se sale aquÌ. (Modo de simulaciÛn)
                Endif
 
                C_FB2PRG_CODE       = toFoxBin2Prg.readTextFile( .c_InputFile )
@@ -13474,7 +13459,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
             Endif
 
-            *-- Identifico el inicio/fin de bloque, definici√≥n, cabecera y cuerpo del reporte
+            *-- Identifico el inicio/fin de bloque, definiciÛn, cabecera y cuerpo del reporte
             .updateProgressbar( 'Identifying Code Blocks...', 1, 2, 1 )
             .identifyCodeBlocks( @laCodeLines, lnCodeLines, @laLineasExclusion, lnBloquesExclusion, @toDatabase, @toFoxBin2Prg )
 
@@ -13548,7 +13533,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                Strtofile( '', lcEventsFile )
             Endif
 
-            *-- Si no recompilo el EventFilename.prg, el EXE dar√° un error (aunque el PRG no)
+            *-- Si no recompilo el EventFilename.prg, el EXE dar· un error (aunque el PRG no)
             Compile ( Addbs( Justpath( This.c_OutputFile ) ) + toDatabase._DBCEventFilename )
          Endif
 
@@ -13586,16 +13571,16 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
    Procedure identifyHeaderBlocks
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * taCodeLines               (@! IN    ) El array con las l√≠neas del c√≥digo donde buscar
-      * tnCodeLines               (@! IN    ) Cantidad de l√≠neas de c√≥digo
-      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg√∫n la l√≠nea sea de exclusi√≥n o no
-      * tnBloquesExclusion        (@! IN    ) Cantidad de bloques de exclusi√≥n
-      * toDatabase                    (@?    OUT) Objeto con toda la informaci√≥n del m√≥dulo analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taCodeLines               (@! IN    ) El array con las lÌneas del cÛdigo donde buscar
+      * tnCodeLines               (@! IN    ) Cantidad de lÌneas de cÛdigo
+      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg˙n la lÌnea sea de exclusiÛn o no
+      * tnBloquesExclusion        (@! IN    ) Cantidad de bloques de exclusiÛn
+      * toDatabase                    (@?    OUT) Objeto con toda la informaciÛn del mÛdulo analizado
       * toFoxBin2Prg              (@? IN    ) Referencia al objeto principal
       *--------------------------------------------------------------------------------------------------------------
       * NOTA:
-      * Como identificador se usa el nombre de clase o de procedimiento, seg√∫n corresponda.
+      * Como identificador se usa el nombre de clase o de procedimiento, seg˙n corresponda.
       *--------------------------------------------------------------------------------------------------------------
       Lparameters taCodeLines, tnCodeLines, taLineasExclusion, tnBloquesExclusion, toDatabase, toFoxBin2Prg
 
@@ -13624,13 +13609,13 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                   llEXTERNAL_MEMBER_Completed = .T.
                Endif
 
-               *-- B√∫squeda del ID de inicio de bloque (DEFINE CLASS / PROCEDURE)
+               *-- B˙squeda del ID de inicio de bloque (DEFINE CLASS / PROCEDURE)
                For I = 1 To tnCodeLines
                   Store '' To lc_Comentario
                   .set_Line( @lcLine, @taCodeLines, m.I )
 
                   Do Case
-                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && Excluida, vac√≠a o solo Comentarios
+                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && Excluida, vacÌa o solo Comentarios
                      Loop
 
                   Case Not llFoxBin2Prg_Completed And .analyzeCodeBlock_FoxBin2Prg( @toDatabase, @lcLine, @taCodeLines, @m.I, tnCodeLines )
@@ -13667,16 +13652,16 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
    Procedure identifyCodeBlocks
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * taCodeLines               (!@ IN    ) El array con las l√≠neas del c√≥digo donde buscar
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas de c√≥digo
-      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg√∫n la l√≠nea sea de exclusi√≥n o no
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taCodeLines               (!@ IN    ) El array con las lÌneas del cÛdigo donde buscar
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas de cÛdigo
+      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg˙n la lÌnea sea de exclusiÛn o no
       * tnBloquesExclusion        (@? IN    ) Sin uso
-      * toDatabase                (@! IN    ) Objeto con toda la informaci√≥n de la base de datos analizada
+      * toDatabase                (@! IN    ) Objeto con toda la informaciÛn de la base de datos analizada
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *--------------------------------------------------------------------------------------------------------------
       * NOTA:
-      * Como identificador se usa el nombre de clase o de procedimiento, seg√∫n corresponda.
+      * Como identificador se usa el nombre de clase o de procedimiento, seg˙n corresponda.
       *--------------------------------------------------------------------------------------------------------------
       Lparameters taCodeLines, tnCodeLines, taLineasExclusion, tnBloquesExclusion, toDatabase, toFoxBin2Prg
 
@@ -13700,7 +13685,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                   .set_Line( @lcLine, @taCodeLines, m.I )
 
                   Do Case
-                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && Vac√≠a o solo Comentarios
+                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && VacÌa o solo Comentarios
                      Loop
 
                   Case Not llFoxBin2Prg_Completed And .analyzeCodeBlock_FoxBin2Prg( toDatabase, @lcLine, @taCodeLines, @m.I, tnCodeLines )
@@ -13736,8 +13721,8 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
       *--------------------------------------------------------------------------------
       * Compara los miembros definidos en la cabecera con los miembros encontrados luego
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toDatabase                (@! IN    ) Objeto con toda la informaci√≥n del m√≥dulo analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toDatabase                (@! IN    ) Objeto con toda la informaciÛn del mÛdulo analizado
       * toFoxBin2Prg              (@! IN    ) Referencia al objeto principal
       *--------------------------------------------------------------------------------------------------------------
       Lparameters toDatabase, toFoxBin2Prg
@@ -13752,7 +13737,7 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
       loLang          = _Screen.o_FoxBin2Prg_Lang
 
-      *-- Verificaci√≥n de los Miembros, si son Externos y se indic√≥ chequearlos
+      *-- VerificaciÛn de los Miembros, si son Externos y se indicÛ chequearlos
       If toFoxBin2Prg.getCfgValue('n_UseFilesPerDBC') > 0 And toFoxBin2Prg.getCfgValue('l_ItemPerDBCCheck') And Empty(toFoxBin2Prg.c_ClassOperationType)
          For I = 1 To toDatabase._ExternalClasses_Count
             lnItem  = 0
@@ -13779,7 +13764,6 @@ Enddefine
 
 
 
-
 Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
    #If .F.
       Local This As c_conversor_prg_a_dbf Of 'foxbin2prg.prg'
@@ -13796,9 +13780,9 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toTable                   (!@    OUT) Objeto generado de clase CL_TABLE con la informaci√≥n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toTable                   (!@    OUT) Objeto generado de clase CL_TABLE con la informaciÛn leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toTable, toEx As Exception, toFoxBin2Prg
@@ -13856,7 +13840,7 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                   toFoxBin2Prg.updateProcessedFile()
                Endif
 
-               Exit    && Si se indic√≥ no procesar, se sale aqu√≠. (Modo de simulaci√≥n)
+               Exit    && Si se indicÛ no procesar, se sale aquÌ. (Modo de simulaciÛn)
             Endif
 
             C_FB2PRG_CODE       = toFoxBin2Prg.readTextFile( .c_InputFile )
@@ -13864,7 +13848,7 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
             toFoxBin2Prg.doBackup( .F., .T., '', '', '' )
 
-            *-- Identifico el inicio/fin de bloque, campos e √≠ndices de la tabla
+            *-- Identifico el inicio/fin de bloque, campos e Ìndices de la tabla
             .identifyCodeBlocks( @laCodeLines, lnCodeLines, @laLineasExclusion, lnBloquesExclusion, @toTable )
 
             Do Case
@@ -13952,7 +13936,7 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
          With This As c_conversor_prg_a_dbf Of 'foxbin2prg.prg'
             Store .Null. To loField, loIndex, loDBFUtils
-            loDBFUtils          = CreateObject('CL_DBF_UTILS')
+            loDBFUtils          = CreateObject('CL_DBF_UTILS' )
 
             Store 0 To lnCodError
             Store '' To lcIndex, lcFieldDef, tcAlterTable
@@ -14041,7 +14025,7 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                tcAlterTable    = 'ALTER TABLE "' + .c_OutputFile + '" ' + tcAlterTable
             Endif
 
-            *-- Hook para permitir ejecuci√≥n externa (por ejemplo, para rellenar la tabla con datos)
+            *-- Hook para permitir ejecuciÛn externa (por ejemplo, para rellenar la tabla con datos)
             If Not Empty(toFoxBin2Prg.run_AfterCreateTable)
                lnSelect    = Select()
                Do (toFoxBin2Prg.run_AfterCreateTable) With (lnDataSessionID), (.c_OutputFile), (toTable)
@@ -14098,7 +14082,7 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
             Store '' To lcIndex
             Store .Null. To lcIndexFile
 
-            loDBFUtils          = CreateObject('CL_DBF_UTILS')
+            loDBFUtils          = CreateObject('CL_DBF_UTILS' )
 
             If toTable._Indexes.Count # 0 Then
 
@@ -14107,7 +14091,7 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                toFoxBin2Prg.writeLog( loLang.C_INDEX2BIN_PROCESSING_LOC )
                toFoxBin2Prg.writeLog( ' ' + Replicate('-', 98) )
 
-               *-- Regenero los √≠ndices
+               *-- Regenero los Ìndices
                For Each loIndex In toTable._Indexes FoxObject
                   Do Case
                   Case Isnull ( m.lcIndexFile ) And Empty (m.loIndex._IndexFile)
@@ -14167,7 +14151,7 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
             Use In (Select(Juststem(.c_OutputFile)))
 
-            *-- La actualizaci√≥n de la fecha sirve para evitar diferencias al regenerar el DBF
+            *-- La actualizaciÛn de la fecha sirve para evitar diferencias al regenerar el DBF
             If toFoxBin2Prg.getCfgValue('l_ClearDBFLastUpdate') Then
                ldLastUpdate    = Evaluate( '{^2013/11/04}' )
             Else
@@ -14206,12 +14190,12 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
    Procedure identifyCodeBlocks
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * taCodeLines               (!@ IN    ) El array con las l√≠neas del c√≥digo donde buscar
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas de c√≥digo
-      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg√∫n la l√≠nea sea de exclusi√≥n o no
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taCodeLines               (!@ IN    ) El array con las lÌneas del cÛdigo donde buscar
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas de cÛdigo
+      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg˙n la lÌnea sea de exclusiÛn o no
       * tnBloquesExclusion        (@? IN    ) Sin uso
-      * toTable                   (@?    OUT) Objeto con toda la informaci√≥n de la tabla analizada
+      * toTable                   (@?    OUT) Objeto con toda la informaciÛn de la tabla analizada
       *--------------------------------------------------------------------------------------------------------------
       Lparameters taCodeLines, tnCodeLines, taLineasExclusion, tnBloquesExclusion, toTable
 
@@ -14230,13 +14214,13 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
             If tnCodeLines > 1
                toTable     = .Null.
-               toTable     = CreateObject('CL_DBF_TABLE')
+               toTable     = CreateObject('CL_DBF_TABLE' )
 
                For I = 1 To tnCodeLines
                   .set_Line( @lcLine, @taCodeLines, m.I )
 
                   Do Case
-                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && Vac√≠a o solo Comentarios
+                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && VacÌa o solo Comentarios
                      Loop
 
                   Case Not llFoxBin2Prg_Completed And .analyzeCodeBlock_FoxBin2Prg( toTable, @lcLine, @taCodeLines, @m.I, tnCodeLines )
@@ -14271,7 +14255,6 @@ Enddefine
 
 
 
-
 Define Class c_conversor_prg_a_frx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
    #If .F.
       Local This As c_conversor_prg_a_frx Of 'foxbin2prg.prg'
@@ -14287,9 +14270,9 @@ Define Class c_conversor_prg_a_frx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toReport                  (!@    OUT) Objeto generado de clase CL_REPORT con la informaci√≥n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toReport                  (!@    OUT) Objeto generado de clase CL_REPORT con la informaciÛn leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toReport, toEx As Exception, toFoxBin2Prg
@@ -14315,7 +14298,7 @@ Define Class c_conversor_prg_a_frx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                   toFoxBin2Prg.updateProcessedFile()
                Endif
 
-               Exit    && Si se indic√≥ no procesar, se sale aqu√≠. (Modo de simulaci√≥n)
+               Exit    && Si se indicÛ no procesar, se sale aquÌ. (Modo de simulaciÛn)
             Endif
 
             C_FB2PRG_CODE = toFoxBin2Prg.readTextFile( .c_InputFile )
@@ -14327,7 +14310,7 @@ Define Class c_conversor_prg_a_frx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
             .createReport('CURSOR',toReport,.l_Fox2x)
 
-            *-- Identifico el inicio/fin de bloque, definici√≥n, cabecera y cuerpo del reporte
+            *-- Identifico el inicio/fin de bloque, definiciÛn, cabecera y cuerpo del reporte
             .updateProgressbar( 'Identifying Code Blocks...', 1, 2, 1 )
             .identifyCodeBlocks( @laCodeLines, lnCodeLines, @laLineasExclusion, lnBloquesExclusion, @toReport )
             Use In (Select('TABLABIN'))
@@ -14417,7 +14400,7 @@ Define Class c_conversor_prg_a_frx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                lnNumCampo  = Ascan( laFieldTypes, laProps(m.I), 1, -1, 1, 1+2+4+8 )
 
                If lnNumCampo = 0
-                  *ERROR 'No se encontr√≥ el campo [' + laProps(m.I) + '] en la estructura del archivo ' + DBF("TABLABIN")
+                  *ERROR 'No se encontrÛ el campo [' + laProps(m.I) + '] en la estructura del archivo ' + DBF("TABLABIN")
                   Error (Textmerge(loLang.C_FIELD_NOT_FOUND_ON_FILE_STRUCTURE_LOC))
                Endif
 
@@ -14436,7 +14419,7 @@ Define Class c_conversor_prg_a_frx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                Case Inlist(lcFieldType, 'W', 'G', 'M', 'Q', 'V', 'C')  && Blob, General, Memo, Varbinary, Varchar, Character
                   AddProperty( loReg, laProps(m.I), luValor )
 
-               Otherwise   && Dem√°s tipos
+               Otherwise   && Dem·s tipos
                   AddProperty( loReg, laProps(m.I), Cast( luValor As &lcFieldType. (lnFieldLen) ) )
 
                Endcase
@@ -14486,15 +14469,15 @@ Define Class c_conversor_prg_a_frx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
    Procedure identifyCodeBlocks
       Lparameters taCodeLines, tnCodeLines, taLineasExclusion, tnBloquesExclusion, toReport
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * taCodeLines               (!@ IN    ) El array con las l√≠neas del c√≥digo donde buscar
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas de c√≥digo
-      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg√∫n la l√≠nea sea de exclusi√≥n o no
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taCodeLines               (!@ IN    ) El array con las lÌneas del cÛdigo donde buscar
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas de cÛdigo
+      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg˙n la lÌnea sea de exclusiÛn o no
       * tnBloquesExclusion        (@? IN    ) Cantidad de bloques de exclusion
-      * toReport                  (@?    OUT) Objeto con toda la informaci√≥n del reporte analizado
+      * toReport                  (@?    OUT) Objeto con toda la informaciÛn del reporte analizado
       *
       * NOTA:
-      * Como identificador se usa el nombre de clase o de procedimiento, seg√∫n corresponda.
+      * Como identificador se usa el nombre de clase o de procedimiento, seg˙n corresponda.
       *--------------------------------------------------------------------------------------------------------------
       External Array taCodeLines, taLineasExclusion
 
@@ -14511,13 +14494,13 @@ Define Class c_conversor_prg_a_frx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
             If tnCodeLines > 1
                toReport            = .Null.
-               toReport            = CreateObject('CL_REPORT')
+               toReport            = CreateObject('CL_REPORT' )
 
                For I = 1 To tnCodeLines
                   .set_Line( @lcLine, @taCodeLines, m.I )
 
                   Do Case
-                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && Vac√≠a o solo Comentarios
+                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && VacÌa o solo Comentarios
                      Loop
 
                   Case Not llFoxBin2Prg_Completed And .analyzeCodeBlock_FoxBin2Prg( toReport, @lcLine, @taCodeLines, @m.I, tnCodeLines )
@@ -14585,7 +14568,7 @@ Define Class c_conversor_prg_a_frx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                   AddProperty( toReg, tcPropName, lcValue )
                   Exit
 
-               Else    && Otra fracci√≥n del valor
+               Else    && Otra fracciÛn del valor
                   lcValue = lcValue + CR_LF + tcLine
                Endif
             Endfor
@@ -14763,7 +14746,6 @@ Enddefine
 
 
 
-
 Define Class c_conversor_prg_a_mnx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
    #If .F.
       Local This As c_conversor_prg_a_mnx Of 'foxbin2prg.prg'
@@ -14780,9 +14762,9 @@ Define Class c_conversor_prg_a_mnx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toMenu                    (!@    OUT) Objeto generado de clase CL_DBC con la informaci√≥n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toMenu                    (!@    OUT) Objeto generado de clase CL_DBC con la informaciÛn leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toMenu, toEx As Exception, toFoxBin2Prg
@@ -14809,7 +14791,7 @@ Define Class c_conversor_prg_a_mnx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                   toFoxBin2Prg.updateProcessedFile()
                Endif
 
-               Exit    && Si se indic√≥ no procesar, se sale aqu√≠. (Modo de simulaci√≥n)
+               Exit    && Si se indicÛ no procesar, se sale aquÌ. (Modo de simulaciÛn)
             Endif
 
             C_FB2PRG_CODE       = toFoxBin2Prg.readTextFile( .c_InputFile )
@@ -14817,7 +14799,7 @@ Define Class c_conversor_prg_a_mnx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
             .createMenu('CURSOR',toMenu )
 
-            *-- Identifico el inicio/fin de bloque, definici√≥n, cabecera y cuerpo del reporte
+            *-- Identifico el inicio/fin de bloque, definiciÛn, cabecera y cuerpo del reporte
             .updateProgressbar( 'Identifying Code Blocks...', 1, 2, 1 )
             .identifyCodeBlocks( @laCodeLines, lnCodeLines, @laLineasExclusion, lnBloquesExclusion, @toMenu )
             Use In (Select('TABLABIN'))
@@ -14861,15 +14843,15 @@ Define Class c_conversor_prg_a_mnx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
    Procedure identifyCodeBlocks
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * taCodeLines               (!@ IN    ) El array con las l√≠neas del c√≥digo donde buscar
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas de c√≥digo
-      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg√∫n la l√≠nea sea de exclusi√≥n o no
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taCodeLines               (!@ IN    ) El array con las lÌneas del cÛdigo donde buscar
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas de cÛdigo
+      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg˙n la lÌnea sea de exclusiÛn o no
       * tnBloquesExclusion        (@? IN    ) Sin uso
-      * toMenu                    (@?    OUT) Objeto con toda la informaci√≥n del men√∫ analizado
+      * toMenu                    (@?    OUT) Objeto con toda la informaciÛn del men˙ analizado
       *
       * NOTA:
-      * Como identificador se usa el nombre de clase o de procedimiento, seg√∫n corresponda.
+      * Como identificador se usa el nombre de clase o de procedimiento, seg˙n corresponda.
       *--------------------------------------------------------------------------------------------------------------
       Lparameters taCodeLines, tnCodeLines, taLineasExclusion, tnBloquesExclusion, toMenu
 
@@ -14888,13 +14870,13 @@ Define Class c_conversor_prg_a_mnx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
             If tnCodeLines > 1
                toMenu      = .Null.
-               toMenu      = CreateObject('CL_MENU')
+               toMenu      = CreateObject('CL_MENU' )
 
                For I = 1 To tnCodeLines
                   .set_Line( @lcLine, @taCodeLines, m.I )
 
                   Do Case
-                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && Vac√≠a o solo Comentarios
+                  Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) && VacÌa o solo Comentarios
                      Loop
 
                   Case Not llFoxBin2Prg_Completed And .analyzeCodeBlock_FoxBin2Prg( toMenu, @lcLine, @taCodeLines, @m.I, tnCodeLines )
@@ -14926,8 +14908,8 @@ Define Class c_conversor_prg_a_mnx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
    Procedure writeBinaryFile
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toMenu                    (!@    OUT) Objeto generado de clase CL_DBC con la informaci√≥n leida del texto
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toMenu                    (!@    OUT) Objeto generado de clase CL_DBC con la informaciÛn leida del texto
       *---------------------------------------------------------------------------------------------------
       Lparameters toMenu, toFoxBin2Prg
 
@@ -14975,7 +14957,6 @@ Enddefine
 
 
 
-
 Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
    #If .F.
       Local This As c_conversor_prg_a_pjx Of 'foxbin2prg.prg'
@@ -14996,9 +14977,9 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toProject                 (!@    OUT) Objeto generado de clase CL_PROJECT con la informaci√≥n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toProject                 (!@    OUT) Objeto generado de clase CL_PROJECT con la informaciÛn leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toProject, toEx As Exception, toFoxBin2Prg
@@ -15023,7 +15004,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                   toFoxBin2Prg.updateProcessedFile()
                Endif
 
-               Exit    && Si se indic√≥ no procesar, se sale aqu√≠. (Modo de simulaci√≥n)
+               Exit    && Si se indicÛ no procesar, se sale aquÌ. (Modo de simulaciÛn)
             Endif
 
             C_FB2PRG_CODE       = toFoxBin2Prg.readTextFile( .c_InputFile )
@@ -15032,7 +15013,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
             *-- Identifico los TEXT/ENDTEXT, #IF .F./#ENDIF
             *.identifyExclusionBlocks( @laCodeLines, .F., @laLineasExclusion, @lnBloquesExclusion )
 
-            *-- Identifico el inicio/fin de bloque, definici√≥n, cabecera y cuerpo de cada clase
+            *-- Identifico el inicio/fin de bloque, definiciÛn, cabecera y cuerpo de cada clase
             .updateProgressbar( 'Identifying Code Blocks...', 1, 2, 1 )
             .identifyCodeBlocks( @laCodeLines, lnCodeLines, @laLineasExclusion, lnBloquesExclusion, @toProject, @toFoxBin2Prg )
 
@@ -15215,16 +15196,16 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
    Procedure identifyCodeBlocks
       Lparameters taCodeLines, tnCodeLines, taLineasExclusion, tnBloquesExclusion, toProject, toFoxBin2Prg
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * taCodeLines               (@! IN    ) El array con las l√≠neas del c√≥digo donde buscar
-      * tnCodeLines               (@! IN    ) Cantidad de l√≠neas de c√≥digo
-      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg√∫n la l√≠nea sea de exclusi√≥n o no
-      * tnBloquesExclusion        (@! IN    ) Cantidad de bloques de exclusi√≥n
-      * toProject                 (@?    OUT) Objeto con toda la informaci√≥n del proyecto analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taCodeLines               (@! IN    ) El array con las lÌneas del cÛdigo donde buscar
+      * tnCodeLines               (@! IN    ) Cantidad de lÌneas de cÛdigo
+      * taLineasExclusion         (@! IN    ) Array unidimensional con un .T. o .F. seg˙n la lÌnea sea de exclusiÛn o no
+      * tnBloquesExclusion        (@! IN    ) Cantidad de bloques de exclusiÛn
+      * toProject                 (@?    OUT) Objeto con toda la informaciÛn del proyecto analizado
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *
       * NOTA:
-      * Como identificador se usa el nombre de clase o de procedimiento, seg√∫n corresponda.
+      * Como identificador se usa el nombre de clase o de procedimiento, seg˙n corresponda.
       *--------------------------------------------------------------------------------------------------------------
       External Array taCodeLines, taLineasExclusion
 
@@ -15244,7 +15225,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
             .c_Type = Upper(Justext(.c_OutputFile))
 
             If tnCodeLines > 1
-               toProject           = CreateObject('CL_PROJECT')
+               toProject           = CreateObject('CL_PROJECT' )
                *toProject._HomeDir = ADDBS(JUSTPATH(.c_OutputFile))
 
                For I = 1 To tnCodeLines
@@ -15252,7 +15233,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
                   Do Case
                    Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) 
-                        && Vac√≠a o solo Comentarios
+                        && VacÌa o solo Comentarios
                         Loop
 
                    Case Not llFoxBin2Prg_Completed ;
@@ -15332,11 +15313,11 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
       *--------------------------------------------------------------------------------------------------------------
       * Analiza el bloque <HomeDir>
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toProject                 (@?    OUT) Objeto con toda la informaci√≥n del proyecto analizado
-      * tcLine                    (@! IN    ) L√≠nea de datos en evaluaci√≥n
-      * taCodeLines               (@! IN    ) El array con las l√≠neas del c√≥digo donde buscar
-      * tnCodeLines               (@! IN    ) Cantidad de l√≠neas de c√≥digo
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toProject                 (@?    OUT) Objeto con toda la informaciÛn del proyecto analizado
+      * tcLine                    (@! IN    ) LÌnea de datos en evaluaciÛn
+      * taCodeLines               (@! IN    ) El array con las lÌneas del cÛdigo donde buscar
+      * tnCodeLines               (@! IN    ) Cantidad de lÌneas de cÛdigo
       *--------------------------------------------------------------------------------------------------------------
       Lparameters toProject, tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -15372,11 +15353,11 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
       *--------------------------------------------------------------------------------------------------------------
       * Analiza el bloque <BuildProj>
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toProject                 (@?    OUT) Objeto con toda la informaci√≥n del proyecto analizado
-      * tcLine                    (@! IN    ) L√≠nea de datos en evaluaci√≥n
-      * taCodeLines               (@! IN    ) El array con las l√≠neas del c√≥digo donde buscar
-      * tnCodeLines               (@! IN    ) Cantidad de l√≠neas de c√≥digo
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toProject                 (@?    OUT) Objeto con toda la informaciÛn del proyecto analizado
+      * tcLine                    (@! IN    ) LÌnea de datos en evaluaciÛn
+      * taCodeLines               (@! IN    ) El array con las lÌneas del cÛdigo donde buscar
+      * tnCodeLines               (@! IN    ) Cantidad de lÌneas de cÛdigo
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *--------------------------------------------------------------------------------------------------------------
       Lparameters toProject, tcLine, taCodeLines, I, tnCodeLines, toFoxBin2Prg
@@ -15412,7 +15393,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                         * loFile: NAME,TYPE,EXCLUDE,COMMENTS
                         tcLine          = Chrtran( tcLine, ["] + '[]', "'''" )  && Convierto "[] en '
                         Store .Null. To loFile
-                        loFile          = CreateObject('CL_PROJ_FILE')
+                        loFile          = CreateObject('CL_PROJ_FILE' )
                         loFile._Name    = Alltrim( Strextract( tcLine, ['], ['] ) )
 
                         *-- Obtengo metadatos de los comentarios de FileMetadata:
@@ -15848,7 +15829,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                      Exit
 
                   Case Left( tcLine ,2 ) == '*<'
-                     *--- Se asigna con EVALUATE() tal cual est√° en el PJ2, pero quitando el marcador *< />
+                     *--- Se asigna con EVALUATE() tal cual est· en el PJ2, pero quitando el marcador *< />
                      lcLine      = Stuff( Alltrim( Strextract( tcLine, '*<', '/>' ) ), 2, 0, '_' )
                      toProject.setParsedProjInfoLine( lcLine )
 
@@ -15858,7 +15839,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                      toProject.setParsedProjInfoLine( lcLine )
 
                   Otherwise
-                     *--- Se asigna con EVALUATE() tal cual est√° en el PJ2
+                     *--- Se asigna con EVALUATE() tal cual est· en el PJ2
                      lcLine      = Stuff( Alltrim( tcLine), 2, 0, '_' )
                      toProject.setParsedProjInfoLine( lcLine )
                   Endcase
@@ -15884,7 +15865,6 @@ Enddefine
 
 
 
-
 Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
    #If .F.
       Local This As c_conversor_prg_a_scx Of 'foxbin2prg.prg'
@@ -15897,9 +15877,9 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (@!    OUT) Objeto generado de clase CL_CLASSLIB con la informaci√≥n leida del texto
-      * toEx                      (@!    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (@!    OUT) Objeto generado de clase CL_CLASSLIB con la informaciÛn leida del texto
+      * toEx                      (@!    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (@! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -15921,7 +15901,7 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
             Store .Null. To toModulo
 
             loLang              = _Screen.o_FoxBin2Prg_Lang
-            toModulo            = CreateObject('CL_CLASSLIB')
+            toModulo            = CreateObject('CL_CLASSLIB' )
             lnIDInputFile       = toFoxBin2Prg.n_ProcessedFiles
 
             If toFoxBin2Prg.getCfgValue('n_UseFormPerFile') > 0 And toFoxBin2Prg.getCfgValue('l_RedirectFormPerFileToMain')
@@ -15939,16 +15919,16 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
                .updateProgressbar( 'Loading Code...', 2, lnCodeLines, 1 )
 
-               *-- M√ÅSCARA DE B√öSQUEDA
+               *-- M¡SCARA DE B⁄SQUEDA
                lcSearchDir         = toFoxBin2Prg.getPerFileSearchDir( .c_InputFile, Justext(.c_InputFile), ;
                   toFoxBin2Prg.getCfgFlag('l_UseFormPerDir'), toFoxBin2Prg.getCfgInt('n_UseFormPerFile') )
 
                If toFoxBin2Prg.getCfgValue('n_UseFormPerFile') = 1 Then
-                  *-- Esto crea la m√°scara de b√∫squeda "filename.*.ext" para encontrar las partes
+                  *-- Esto crea la m·scara de b˙squeda "filename.*.ext" para encontrar las partes
                   lcBaseFilename      = Juststem( Juststem(.c_InputFile) )
                   lcInputFile         = Addbs( lcSearchDir ) + lcBaseFilename + '.*.' + Justext(.c_InputFile)
                Else && toFoxBin2Prg.getCfgValue('n_UseFormPerFile') = 2
-                  *-- Esto crea la m√°scara de b√∫squeda "<path>Database.*.*.ext" para encontrar las partes
+                  *-- Esto crea la m·scara de b˙squeda "<path>Database.*.*.ext" para encontrar las partes
                   *-- con la sintaxis "<path>Database.MemberType.MemberName.ext"
                   lcBaseFilename      = Juststem( Juststem( Juststem(.c_InputFile) ) )
                   lcInputFile         = Addbs( lcSearchDir ) + lcBaseFilename + '.*.*.' + Justext(.c_InputFile)
@@ -15962,7 +15942,7 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                      lcInputFile_Form    = Forcepath( Juststem( laFiles(m.I,1) ), lcSearchDir ) + '.' + Justext( .c_InputFile )
                      lcFormName          = Lower( Getwordnum( Justfname( lcInputFile_Form ), 2, '.' ) )
 
-                     *-- Verificaci√≥n de las Clases, si son Externas y se indic√≥ chequearlas
+                     *-- VerificaciÛn de las Clases, si son Externas y se indicÛ chequearlas
                      If toFoxBin2Prg.getCfgValue('l_FormPerFileCheck') And Empty(toFoxBin2Prg.c_ClassOperationType) ;
                            AND Ascan( toModulo._ExternalClasses , lcFormName, 1, 0, 1, 1+2+4 ) = 0
                         .writeLog( C_TAB + '- ' + loLang.C_OUTER_CLASS_DOES_NOT_MATCH_INNER_CLASSES_LOC + ' [' + lcInputFile_Form + ']' )
@@ -15973,7 +15953,7 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                      lcInputFile_Form    = Forcepath( Juststem( laFiles(m.I,1) ), lcSearchDir ) + '.' + Justext( .c_InputFile )
                      lcFormName          = Lower( Getwordnum( Justfname( lcInputFile_Form ), 2, '.' ) + '.' + Getwordnum( Justfname( lcInputFile_Form ), 3, '.' ) )
 
-                     *-- Verificaci√≥n de las Clases, si son Externas y se indic√≥ chequearlas
+                     *-- VerificaciÛn de las Clases, si son Externas y se indicÛ chequearlas
                      If toFoxBin2Prg.getCfgValue('l_FormPerFileCheck') And Empty(toFoxBin2Prg.c_ClassOperationType) ;
                            AND Ascan( toModulo._ExternalClasses , lcFormName, 1, 0, 2, 1+2+4 ) = 0
                         .writeLog( C_TAB + '- ' + loLang.C_OUTER_CLASS_DOES_NOT_MATCH_INNER_CLASSES_LOC + ' [' + lcInputFile_Form + ']' )
@@ -16010,14 +15990,14 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                   toFoxBin2Prg.updateProcessedFile()
                Endif
 
-               Exit    && Si se indic√≥ no procesar, se sale aqu√≠. (Modo de simulaci√≥n)
+               Exit    && Si se indicÛ no procesar, se sale aquÌ. (Modo de simulaciÛn)
             Endif
 
             *-- Identifico los TEXT/ENDTEXT, #IF .F./#ENDIF
             .updateProgressbar( 'Identifying Excluded Blocks...', 3, lnCodeLines, 1 )
             .identifyExclusionBlocks( @laCodeLines, lnCodeLines, .F., @laLineasExclusion, @lnBloquesExclusion )
 
-            *-- Identifico el inicio/fin de bloque, definici√≥n, cabecera y cuerpo de cada clase
+            *-- Identifico el inicio/fin de bloque, definiciÛn, cabecera y cuerpo de cada clase
             .identifyCodeBlocks( @laCodeLines, lnCodeLines, @laLineasExclusion, lnBloquesExclusion, @toModulo, @toFoxBin2Prg )
 
             Do Case
@@ -16063,38 +16043,38 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
       Lparameters toModulo, toFoxBin2Prg
       *-- Estructura del objeto toModulo generado:
       *-- -----------------------------------------------------------------------------------------------------------
-      *-- Version                 Versi√≥n usada para generar la versi√≥n PRG analizada
-      *-- SourceFile              Nombre original del archivo fuente de la conversi√≥n
+      *-- Version                 VersiÛn usada para generar la versiÛn PRG analizada
+      *-- SourceFile              Nombre original del archivo fuente de la conversiÛn
       *-- Ole_Obj_Count           Cantidad de objetos definidos en el array ole_objs[]
       *-- Ole_Objs[1]             Array de objetos OLE definidos como clases
       *--     ObjName                 Nombre del objeto OLE (OLE2)
       *--     Parent                  Nombre del objeto Padre
-      *--     CheckSum                Suma de verificaci√≥n
+      *--     CheckSum                Suma de verificaciÛn
       *--     Value                   Valor del campo OLE
       *-- Clases_Count                Array con las posiciones de los addobjects, definicion y propiedades
-      *-- Clases[1]               Array con los datos de las clases, definicion, propiedades y m√©todos
+      *-- Clases[1]               Array con los datos de las clases, definicion, propiedades y mÈtodos
       *--     Nombre                  El nombre de la clase (ej: "miClase")
       *--     ObjName                 Nombre del objeto
       *--     Parent                  Nombre del objeto Padre
-      *--     Class                   Clase de la que hereda la definici√≥n
-      *--     Classloc                Librer√≠a donde est√° la definici√≥n de la clase
-      *--     Ole                     Informaci√≥n campo ole
-      *--     Ole2                    Informaci√≥n campo ole2
+      *--     Class                   Clase de la que hereda la definiciÛn
+      *--     Classloc                LibrerÌa donde est· la definiciÛn de la clase
+      *--     Ole                     InformaciÛn campo ole
+      *--     Ole2                    InformaciÛn campo ole2
       *--     OlePublic               Indica si la clase es OLEPublic o no (.T. / .F.)
-      *--     Uniqueid                ID √∫nico
+      *--     Uniqueid                ID ˙nico
       *--     Comentario              El comentario de la clase (ej: "&& Mis comentarios")
-      *--     MetaData                Informaci√≥n de metadata de la clase (baseclass, timestamp, scale)
+      *--     MetaData                InformaciÛn de metadata de la clase (baseclass, timestamp, scale)
       *--     BaseClass               Clase de base de la clase
       *--     TimeStamp               Timestamp de la clase
       *--     Scale                   Scale de la clase (pixels, foxels)
-      *--     Definicion              La definici√≥n de la clase (ej: "AS Custom OF LIBRERIA.VCX")
-      *--     Inicio/Fin              L√≠nea de inicio/fin de la clase (DEFINE CLASS/ENDDEFINE)
-      *--     Ini_Cab/Fin_Cab         L√≠nea de inicio/fin de la cabecera (def.propiedades, Hidden, Protected, #Include, CLASSDATA, DEFINED_PAM)
-      *--     Ini_Cuerpo/Fin_Cuerpo   L√≠nea de inicio/fin del cuerpo (ADD OBJECTs y PROCEDURES)
+      *--     Definicion              La definiciÛn de la clase (ej: "AS Custom OF LIBRERIA.VCX")
+      *--     Inicio/Fin              LÌnea de inicio/fin de la clase (DEFINE CLASS/ENDDEFINE)
+      *--     Ini_Cab/Fin_Cab         LÌnea de inicio/fin de la cabecera (def.propiedades, Hidden, Protected, #Include, CLASSDATA, DEFINED_PAM)
+      *--     Ini_Cuerpo/Fin_Cuerpo   LÌnea de inicio/fin del cuerpo (ADD OBJECTs y PROCEDURES)
       *--     HiddenProps             Propiedades definidas como HIDDEN (ocultas)
       *--     ProtectedProps          Propiedades definidas como PROTECTED (protegidas)
-      *--     Defined_PAM             Propiedades, eventos o m√©todos definidos por el usuario
-      *--     IncludeFile             Nombre del archivo de inclusi√≥n
+      *--     Defined_PAM             Propiedades, eventos o mÈtodos definidos por el usuario
+      *--     IncludeFile             Nombre del archivo de inclusiÛn
       *--     Props_Count             Cantidad de propiedades de la clase definicas en el array props[]
       *--     Props[1,2]              Array con todas las propiedades de la clase y sus valores. (col.1=Nombre, col.2=Comentario)
       *--     AddObject_Count         Cantidad de objetos definidos en el array addobjects[]
@@ -16103,11 +16083,11 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
       *--         ObjName                 Nombre del objeto
       *--         Parent                  Nombre del objeto Padre
       *--         Clase                   Clase del objeto
-      *--         ClassLib                Librer√≠a de clases de la que deriva la clase
+      *--         ClassLib                LibrerÌa de clases de la que deriva la clase
       *--         Baseclass               Clase de base del objeto
-      *--         Uniqueid                ID √∫nico
-      *--         Ole                     Informaci√≥n campo ole
-      *--         Ole2                    Informaci√≥n campo ole2
+      *--         Uniqueid                ID ˙nico
+      *--         Ole                     InformaciÛn campo ole
+      *--         Ole2                    InformaciÛn campo ole2
       *--         ZOrder                  Orden Z del objeto
       *--         Props_Count             Cantidad de propiedades del objeto
       *--         Props[1]                Array con todas las propiedades del objeto y sus valores
@@ -16116,15 +16096,15 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
       *--             Nombre                  Nombre del procedure
       *--             ProcType                Tipo de procedimiento (normal, hidden, protected)
       *--             Comentario              Comentario el procedure
-      *--             ProcLine_Count          Cantidad de l√≠neas del procedimiento
-      *--             ProcLines[1]            L√≠neas del procedimiento
+      *--             ProcLine_Count          Cantidad de lÌneas del procedimiento
+      *--             ProcLines[1]            LÌneas del procedimiento
       *--     Procedure_count         Cantidad de procedimientos definidos en el array procedures[]
       *--     Procedures[1]           Array con las posiciones de los procedures, definicion y comentarios
       *--         Nombre                  Nombre del procedure
       *--         ProcType                Tipo de procedimiento (normal, hidden, protected)
       *--         Comentario              Comentario el procedure
-      *--         ProcLine_Count          Cantidad de l√≠neas del procedimiento
-      *--         ProcLines[1]            L√≠neas del procedimiento
+      *--         ProcLine_Count          Cantidad de lÌneas del procedimiento
+      *--         ProcLines[1]            LÌneas del procedimiento
       *-- -----------------------------------------------------------------------------------------------------------
       #If .F.
          Local toModulo As CL_CLASSLIB Of 'foxbin2prg.prg'
@@ -16159,7 +16139,7 @@ Define Class c_conversor_prg_a_scx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                   loClase = .Null.
                   loClase = toModulo._Clases(m.I)
 
-                  *-- El dataenvironment debe estar primero, luego lo dem√°s.
+                  *-- El dataenvironment debe estar primero, luego lo dem·s.
                   If m.X = 1 And Not loClase._BaseClass == 'dataenvironment' ;
                         OR m.X = 2 And loClase._BaseClass == 'dataenvironment'
                      Loop
@@ -16307,7 +16287,6 @@ Enddefine
 
 
 
-
 Define Class c_conversor_prg_a_vcx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
    #If .F.
       Local This As c_conversor_prg_a_vcx Of 'foxbin2prg.prg'
@@ -16320,9 +16299,9 @@ Define Class c_conversor_prg_a_vcx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (@!    OUT) Objeto generado de clase CL_CLASSLIB con la informaci√≥n leida del texto
-      * toEx                      (@!    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (@!    OUT) Objeto generado de clase CL_CLASSLIB con la informaciÛn leida del texto
+      * toEx                      (@!    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (@? IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -16348,7 +16327,7 @@ Define Class c_conversor_prg_a_vcx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
             Store .Null. To toModulo
 
             loLang              = _Screen.o_FoxBin2Prg_Lang
-            toModulo            = CreateObject('CL_CLASSLIB')
+            toModulo            = CreateObject('CL_CLASSLIB' )
             lnIDInputFile       = toFoxBin2Prg.n_ProcessedFiles
 
             If toFoxBin2Prg.getCfgValue('n_UseClassPerFile') > 0 And toFoxBin2Prg.getCfgValue('l_RedirectClassPerFileToMain') ;
@@ -16370,17 +16349,17 @@ Define Class c_conversor_prg_a_vcx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                   .updateProgressbar( 'Loading Code...', 2, lnCodeLines, 1 )
                Endif
 
-               *-- M√ÅSCARA DE B√öSQUEDA
+               *-- M¡SCARA DE B⁄SQUEDA
                lcSearchDir         = toFoxBin2Prg.getPerFileSearchDir( .c_InputFile, Justext(.c_InputFile), ;
                   toFoxBin2Prg.getCfgFlag('l_UseClassPerDir'), toFoxBin2Prg.getCfgInt('n_UseClassPerFile') )
 
                If toFoxBin2Prg.getCfgValue('n_UseClassPerFile') = 1 Then
-                  *-- Esto crea la m√°scara de b√∫squeda "filename.*.ext" para encontrar las partes
+                  *-- Esto crea la m·scara de b˙squeda "filename.*.ext" para encontrar las partes
                   *-- con la sintaxis "<path>Classlib.Classname.ext" o "<path>Database.MemberName.ext"
                   lcBaseFilename      = Juststem( Juststem(.c_InputFile) )
                   lcInputFile         = Addbs( lcSearchDir ) + lcBaseFilename + '.*.' + Justext(.c_InputFile)
                Else && toFoxBin2Prg.getCfgValue('n_UseClassPerFile') = 2
-                  *-- Esto crea la m√°scara de b√∫squeda "<path>filename.*.*.ext" para encontrar las partes
+                  *-- Esto crea la m·scara de b˙squeda "<path>filename.*.*.ext" para encontrar las partes
                   *-- con la sintaxis "<path>Classlib.ClassType.Classname.ext" o "<path>Database.MemberType.MemberName.ext"
                   lcBaseFilename      = Juststem( Juststem( Juststem(.c_InputFile) ) )
                   lcInputFile         = Addbs( lcSearchDir ) + lcBaseFilename + '.*.*.' + Justext(.c_InputFile)
@@ -16419,23 +16398,23 @@ Define Class c_conversor_prg_a_vcx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                      lcInputFile_Class   = Forcepath( Juststem( laFiles(m.I,1) ), lcSearchDir ) + '.' + Justext( .c_InputFile )
                      lcClassName         = Lower( Getwordnum( Justfname( lcInputFile_Class ), 2, '.' ) )
 
-                     *-- Verificaci√≥n de las Clases, si son Externas y se indic√≥ chequearlas
+                     *-- VerificaciÛn de las Clases, si son Externas y se indicÛ chequearlas
                      If toFoxBin2Prg.getCfgValue('l_ClassPerFileCheck') And Empty(toFoxBin2Prg.c_ClassOperationType) ;
                            AND Ascan( toModulo._ExternalClasses , lcClassName, 1, 0, 1, 1+2+4 ) = 0
                         .writeLog( C_TAB + '- ' + loLang.C_OUTER_CLASS_DOES_NOT_MATCH_INNER_CLASSES_LOC + ' [' + lcInputFile_Class + ']' )
                         .writeErrorLog( C_TAB + '- ' + loLang.C_WARNING_LOC + ' ' + loLang.C_OUTER_CLASS_DOES_NOT_MATCH_INNER_CLASSES_LOC + ' [' + lcInputFile_Class + ']' )
-                        Loop    && Salteo esta clase porque se indic√≥ chequear y no concuerda con las anotadas
+                        Loop    && Salteo esta clase porque se indicÛ chequear y no concuerda con las anotadas
                      Endif
                   Else && toFoxBin2Prg.getCfgValue('n_UseClassPerFile') = 2
                      lcInputFile_Class   = Forcepath( Juststem( laFiles(m.I,1) ), lcSearchDir ) + '.' + Justext( .c_InputFile )
                      lcClassName         = Lower( Getwordnum( Justfname( lcInputFile_Class ), 2, '.' ) + '.' + Getwordnum( Justfname( lcInputFile_Class ), 3, '.' ) )
 
-                     *-- Verificaci√≥n de las Clases, si son Externas y se indic√≥ chequearlas
+                     *-- VerificaciÛn de las Clases, si son Externas y se indicÛ chequearlas
                      If toFoxBin2Prg.getCfgValue('l_ClassPerFileCheck') And Empty(toFoxBin2Prg.c_ClassOperationType) ;
                            AND Ascan( toModulo._ExternalClasses , lcClassName, 1, 0, 2, 1+2+4 ) = 0
                         .writeLog( C_TAB + '- ' + loLang.C_OUTER_CLASS_DOES_NOT_MATCH_INNER_CLASSES_LOC + ' [' + lcInputFile_Class + ']' )
                         .writeErrorLog( C_TAB + '- ' + loLang.C_WARNING_LOC + ' ' + loLang.C_OUTER_CLASS_DOES_NOT_MATCH_INNER_CLASSES_LOC + ' [' + lcInputFile_Class + ']' )
-                        Loop    && Salteo esta clase porque se indic√≥ chequear y no concuerda con las anotadas
+                        Loop    && Salteo esta clase porque se indicÛ chequear y no concuerda con las anotadas
                      Endif
                   Endif
 
@@ -16454,7 +16433,7 @@ Define Class c_conversor_prg_a_vcx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
                lnCodeLines         = Alines( laCodeLines, C_FB2PRG_CODE )
             Else
-               *-- No es clase por archivo, o no se quiere redireccionar a Main, o se us√≥
+               *-- No es clase por archivo, o no se quiere redireccionar a Main, o se usÛ
                *-- la sintaxis "classlib.vcx::classname::import"
                If toFoxBin2Prg.l_ProcessFiles Then
                   C_FB2PRG_CODE       = toFoxBin2Prg.readTextFile( .c_InputFile )
@@ -16472,14 +16451,14 @@ Define Class c_conversor_prg_a_vcx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                   toFoxBin2Prg.updateProcessedFile()
                Endif
 
-               Exit    && Si se indic√≥ no procesar, se sale aqu√≠. (Modo de simulaci√≥n)
+               Exit    && Si se indicÛ no procesar, se sale aquÌ. (Modo de simulaciÛn)
             Endif
 
             *-- Identifico los TEXT/ENDTEXT, #IF .F./#ENDIF
             .updateProgressbar( 'Identifying Excluded Blocks...', 3, lnCodeLines, 1 )
             .identifyExclusionBlocks( @laCodeLines, lnCodeLines, .F., @laLineasExclusion, @lnBloquesExclusion )
 
-            *-- Identifico el inicio/fin de bloque, definici√≥n, cabecera y cuerpo de cada clase
+            *-- Identifico el inicio/fin de bloque, definiciÛn, cabecera y cuerpo de cada clase
             .identifyCodeBlocks( @laCodeLines, lnCodeLines, @laLineasExclusion, lnBloquesExclusion, @toModulo, @toFoxBin2Prg )
 
             Do Case
@@ -16568,38 +16547,38 @@ Define Class c_conversor_prg_a_vcx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
       Lparameters toModulo, toFoxBin2Prg, tlReplaceClass
       *-- Estructura del objeto toModulo generado:
       *-- -----------------------------------------------------------------------------------------------------------
-      *-- Version                 Versi√≥n usada para generar la versi√≥n PRG analizada
-      *-- SourceFile              Nombre original del archivo fuente de la conversi√≥n
+      *-- Version                 VersiÛn usada para generar la versiÛn PRG analizada
+      *-- SourceFile              Nombre original del archivo fuente de la conversiÛn
       *-- Ole_Obj_Count           Cantidad de objetos definidos en el array ole_objs[]
       *-- Ole_Objs[1]             Array de objetos OLE definidos como clases
       *--     ObjName                 Nombre del objeto OLE (OLE2)
       *--     Parent                  Nombre del objeto Padre
-      *--     CheckSum                Suma de verificaci√≥n
+      *--     CheckSum                Suma de verificaciÛn
       *--     Value                   Valor del campo OLE
       *-- Clases_Count                Array con las posiciones de los addobjects, definicion y propiedades
-      *-- Clases[1]               Array con los datos de las clases, definicion, propiedades y m√©todos
+      *-- Clases[1]               Array con los datos de las clases, definicion, propiedades y mÈtodos
       *--     Nombre                  El nombre de la clase (ej: "miClase")
       *--     ObjName                 Nombre del objeto
       *--     Parent                  Nombre del objeto Padre
-      *--     Class                   Clase de la que hereda la definici√≥n
-      *--     Classloc                Librer√≠a donde est√° la definici√≥n de la clase
-      *--     Ole                     Informaci√≥n campo ole
-      *--     Ole2                    Informaci√≥n campo ole2
+      *--     Class                   Clase de la que hereda la definiciÛn
+      *--     Classloc                LibrerÌa donde est· la definiciÛn de la clase
+      *--     Ole                     InformaciÛn campo ole
+      *--     Ole2                    InformaciÛn campo ole2
       *--     OlePublic               Indica si la clase es OLEPublic o no (.T. / .F.)
-      *--     Uniqueid                ID √∫nico
+      *--     Uniqueid                ID ˙nico
       *--     Comentario              El comentario de la clase (ej: "&& Mis comentarios")
-      *--     MetaData                Informaci√≥n de metadata de la clase (baseclass, timestamp, scale)
+      *--     MetaData                InformaciÛn de metadata de la clase (baseclass, timestamp, scale)
       *--     BaseClass               Clase de base de la clase
       *--     TimeStamp               Timestamp de la clase
       *--     Scale                   Scale de la clase (pixels, foxels)
-      *--     Definicion              La definici√≥n de la clase (ej: "AS Custom OF LIBRERIA.VCX")
-      *--     Inicio/Fin              L√≠nea de inicio/fin de la clase (DEFINE CLASS/ENDDEFINE)
-      *--     Ini_Cab/Fin_Cab         L√≠nea de inicio/fin de la cabecera (def.propiedades, Hidden, Protected, #Include, CLASSDATA, DEFINED_PAM)
-      *--     Ini_Cuerpo/Fin_Cuerpo   L√≠nea de inicio/fin del cuerpo (ADD OBJECTs y PROCEDURES)
+      *--     Definicion              La definiciÛn de la clase (ej: "AS Custom OF LIBRERIA.VCX")
+      *--     Inicio/Fin              LÌnea de inicio/fin de la clase (DEFINE CLASS/ENDDEFINE)
+      *--     Ini_Cab/Fin_Cab         LÌnea de inicio/fin de la cabecera (def.propiedades, Hidden, Protected, #Include, CLASSDATA, DEFINED_PAM)
+      *--     Ini_Cuerpo/Fin_Cuerpo   LÌnea de inicio/fin del cuerpo (ADD OBJECTs y PROCEDURES)
       *--     HiddenProps             Propiedades definidas como HIDDEN (ocultas)
       *--     ProtectedProps          Propiedades definidas como PROTECTED (protegidas)
-      *--     Defined_PAM             Propiedades, eventos o m√©todos definidos por el usuario
-      *--     IncludeFile             Nombre del archivo de inclusi√≥n
+      *--     Defined_PAM             Propiedades, eventos o mÈtodos definidos por el usuario
+      *--     IncludeFile             Nombre del archivo de inclusiÛn
       *--     Props_Count             Cantidad de propiedades de la clase definicas en el array props[]
       *--     Props[1,2]              Array con todas las propiedades de la clase y sus valores. (col.1=Nombre, col.2=Comentario)
       *--     AddObject_Count         Cantidad de objetos definidos en el array addobjects[]
@@ -16608,11 +16587,11 @@ Define Class c_conversor_prg_a_vcx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
       *--         ObjName                 Nombre del objeto
       *--         Parent                  Nombre del objeto Padre
       *--         Clase                   Clase del objeto
-      *--         ClassLib                Librer√≠a de clases de la que deriva la clase
+      *--         ClassLib                LibrerÌa de clases de la que deriva la clase
       *--         Baseclass               Clase de base del objeto
-      *--         Uniqueid                ID √∫nico
-      *--         Ole                     Informaci√≥n campo ole
-      *--         Ole2                    Informaci√≥n campo ole2
+      *--         Uniqueid                ID ˙nico
+      *--         Ole                     InformaciÛn campo ole
+      *--         Ole2                    InformaciÛn campo ole2
       *--         ZOrder                  Orden Z del objeto
       *--         Props_Count             Cantidad de propiedades del objeto
       *--         Props[1]                Array con todas las propiedades del objeto y sus valores
@@ -16621,15 +16600,15 @@ Define Class c_conversor_prg_a_vcx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
       *--             Nombre                  Nombre del procedure
       *--             ProcType                Tipo de procedimiento (normal, hidden, protected)
       *--             Comentario              Comentario el procedure
-      *--             ProcLine_Count          Cantidad de l√≠neas del procedimiento
-      *--             ProcLines[1]            L√≠neas del procedimiento
+      *--             ProcLine_Count          Cantidad de lÌneas del procedimiento
+      *--             ProcLines[1]            LÌneas del procedimiento
       *--     Procedure_count         Cantidad de procedimientos definidos en el array procedures[]
       *--     Procedures[1]           Array con las posiciones de los procedures, definicion y comentarios
       *--         Nombre                  Nombre del procedure
       *--         ProcType                Tipo de procedimiento (normal, hidden, protected)
       *--         Comentario              Comentario el procedure
-      *--         ProcLine_Count          Cantidad de l√≠neas del procedimiento
-      *--         ProcLines[1]            L√≠neas del procedimiento
+      *--         ProcLine_Count          Cantidad de lÌneas del procedimiento
+      *--         ProcLines[1]            LÌneas del procedimiento
       *-- -----------------------------------------------------------------------------------------------------------
       #If .F.
          Local toModulo As CL_CLASSLIB Of 'foxbin2prg.prg'
@@ -16716,7 +16695,7 @@ Define Class c_conversor_prg_a_vcx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                      loClase = .Null.
                      loClase = toModulo._Clases(m.I)
 
-                     *-- El dataenvironment debe estar primero, luego lo dem√°s.
+                     *-- El dataenvironment debe estar primero, luego lo dem·s.
                      If m.X = 1 And Not loClase._BaseClass == 'dataenvironment' ;
                            OR m.X = 2 And loClase._BaseClass == 'dataenvironment'
                         Loop
@@ -16906,7 +16885,6 @@ Enddefine
 
 
 
-
 Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
    #If .F.
       Local This As c_conversor_scx_a_prg Of 'foxbin2prg.prg'
@@ -16916,9 +16894,9 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (!@    OUT) Objeto generado de clase CL_CLASSLIB con la informaci√≥n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (!@    OUT) Objeto generado de clase CL_CLASSLIB con la informaciÛn leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -16977,7 +16955,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
             .write_OLEObjectDefinitions( @toFoxBin2Prg )
 
-            *-- Escribo los m√©todos ordenados
+            *-- Escribo los mÈtodos ordenados
             lnLastObj       = 0
             lnLastClass     = 0
 
@@ -17023,7 +17001,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                loRegClass  = .Null.
                Scatter Memo Name loRegClass
 
-               *-- Normalizaci√≥n de capitalizaci√≥n y de datos seg√∫n parametrizaci√≥n
+               *-- NormalizaciÛn de capitalizaciÛn y de datos seg˙n parametrizaciÛn
                loRegClass.BaseClass    = Lower( loRegClass.BaseClass )
                loRegClass.CLASSLOC     = Lower( loRegClass.CLASSLOC )
                loRegClass.Class        = Lower( loRegClass.Class )
@@ -17044,7 +17022,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                laClasses(lnClassCount,3)   = loRegClass.BaseClass
 
                If Not toFoxBin2Prg.l_ProcessFiles Then
-                  Loop    && Si se indic√≥ no procesar, salteo el resto del proceso. (Modo de simulaci√≥n)
+                  Loop    && Si se indicÛ no procesar, salteo el resto del proceso. (Modo de simulaciÛn)
                Endif
 
                lnStep          = lnStep + 1
@@ -17061,7 +17039,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                Endif
 
                *-------------------------------------------------------------------------------
-               *-- RECORRO LOS OBJETOS DENTRO DE LA CLASE ACTUAL PARA EXPORTAR SU DEFINICI√ìN
+               *-- RECORRO LOS OBJETOS DENTRO DE LA CLASE ACTUAL PARA EXPORTAR SU DEFINICI”N
                *-------------------------------------------------------------------------------
                lnObjCount  = 0
                lnRecno = Recno()
@@ -17072,7 +17050,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                   loRegObj    = .Null.
                   Scatter Memo Name loRegObj
 
-                  *-- Normalizaci√≥n de capitalizaci√≥n y de datos seg√∫n parametrizaci√≥n
+                  *-- NormalizaciÛn de capitalizaciÛn y de datos seg˙n parametrizaciÛn
                   loRegObj.BaseClass      = Lower( loRegObj.BaseClass )
                   loRegObj.CLASSLOC       = Lower( loRegObj.CLASSLOC )
                   loRegObj.Class          = Lower( loRegObj.Class )
@@ -17127,7 +17105,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                .write_CLASS_PROPERTIES( @loRegClass, @laPropsAndValues, @laPropsAndComments, @laProtected ;
                   , @lnPropsAndValues_Count, @lnPropsAndComments_Count, @lnProtected_Count, @lcCodigo, @toFoxBin2Prg )
 
-               Asort(laObjs, 3, -1, 0, 0)  && Orden Alfab√©tico de objetos (del SCAN original)
+               Asort(laObjs, 3, -1, 0, 0)  && Orden AlfabÈtico de objetos (del SCAN original)
 
                lnStep          = lnStep + 1
                .updateProgressbar( 'Processing Form ' + lcObjName + ' > Writing Obtects with Properties...', lnStep, lnClassTotal*lnStepCount, 1 )
@@ -17137,7 +17115,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                Endfor
 
 
-               *-- OBTENGO LOS M√âTODOS DE LA CLASE PARA POSTERIOR TRATAMIENTO
+               *-- OBTENGO LOS M…TODOS DE LA CLASE PARA POSTERIOR TRATAMIENTO
                lnStep          = lnStep + 1
                .updateProgressbar( 'Processing Form ' + lcObjName + ' > Getting Methods...', lnStep, lnClassTotal*lnStepCount, 1 )
 
@@ -17153,7 +17131,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                lnLastClass     = 1
                lcMethods       = ''
 
-               *-- RECORRO LOS OBJETOS DENTRO DE LA CLASE ACTUAL PARA OBTENER SUS M√âTODOS
+               *-- RECORRO LOS OBJETOS DENTRO DE LA CLASE ACTUAL PARA OBTENER SUS M…TODOS
                lnStep          = lnStep + 1
                .updateProgressbar( 'Processing Form ' + lcObjName + ' > Getting Objects Methods...', lnStep, lnClassTotal*lnStepCount, 1 )
 
@@ -17169,7 +17147,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                   loRegObj    = .Null.
                   Scatter Memo Name loRegObj
 
-                  *-- Normalizaci√≥n de capitalizaci√≥n y de datos seg√∫n parametrizaci√≥n
+                  *-- NormalizaciÛn de capitalizaciÛn y de datos seg˙n parametrizaciÛn
                   loRegObj.BaseClass  = Lower( loRegObj.BaseClass )
                   loRegObj.CLASSLOC   = Lower( loRegObj.CLASSLOC )
                   loRegObj.Class      = Lower( loRegObj.Class )
@@ -17236,7 +17214,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                llUseFormPerDir    = toFoxBin2Prg.getCfgFlag('l_UseFormPerDir')
                lnUseFormPerFile    = toFoxBin2Prg.getCfgInt('n_UseFormPerFile')
 
-               *-- En √°rbol espejo, ensurePerFileDir se aplica en destino dentro de write_OutputFile/get_MirroredOutputFile
+               *-- En ·rbol espejo, ensurePerFileDir se aplica en destino dentro de write_OutputFile/get_MirroredOutputFile
                If lnUseFormPerFile > 0 And Empty(.cOutputFolder) Then
                   toFoxBin2Prg.ensurePerFileDir( .c_InputFile, lcSc2Ext, llUseFormPerDir, lnUseFormPerFile )
                Endif
@@ -17301,7 +17279,6 @@ Enddefine
 
 
 
-
 Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
    #If .F.
       Local This As c_conversor_vcx_a_prg Of 'foxbin2prg.prg'
@@ -17311,9 +17288,9 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
    Procedure convert
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toModulo                  (!@    OUT) Objeto generado de clase CL_CLASSLIB con la informaci√≥n leida del texto
-      * toEx                      (!@    OUT) Objeto con informaci√≥n del error
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toModulo                  (!@    OUT) Objeto generado de clase CL_CLASSLIB con la informaciÛn leida del texto
+      * toEx                      (!@    OUT) Objeto con informaciÛn del error
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
       Lparameters toModulo, toEx As Exception, toFoxBin2Prg
@@ -17347,10 +17324,10 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
             */LScheffler 20.08.2023
 
             If toFoxBin2Prg.getCfgValue('n_UseClassPerFile') = 0 Or Empty(toFoxBin2Prg.c_ClassToConvert) Then
-               *-- Exportar la librer√≠a entera a texto
+               *-- Exportar la librerÌa entera a texto
                Select _TABLAORIG.*,Recno() regnum From _TABLAORIG Into Cursor TABLABIN Readwrite
             Else
-               *-- Exportar solo una clase a texto cuando se usa ClassPerFile y se indic√≥ una clase
+               *-- Exportar solo una clase a texto cuando se usa ClassPerFile y se indicÛ una clase
                Select _TABLAORIG.*,Recno() regnum From _TABLAORIG Into Cursor TABLABIN ;
                   WHERE PLATFORM == 'WINDOWS ' ;
                   AND ( Proper(RESERVED1) == "Class" And Lower(OBJNAME) == toFoxBin2Prg.c_ClassToConvert ;
@@ -17374,7 +17351,7 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
             .write_OLEObjectDefinitions( @toFoxBin2Prg )
 
-            *-- Escribo los m√©todos ordenados
+            *-- Escribo los mÈtodos ordenados
             lnLastClass     = 0
 
             *----------------------------------------------
@@ -17406,7 +17383,7 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                loRegClass  = .Null.
                Scatter Memo Name loRegClass
 
-               *-- Normalizaci√≥n de capitalizaci√≥n y de datos seg√∫n parametrizaci√≥n
+               *-- NormalizaciÛn de capitalizaciÛn y de datos seg˙n parametrizaciÛn
                loRegClass.BaseClass    = Lower( loRegClass.BaseClass )
                loRegClass.CLASSLOC     = Lower( loRegClass.CLASSLOC )
                loRegClass.Class        = Lower( loRegClass.Class )
@@ -17427,7 +17404,7 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                laClasses(lnClassCount,3)   = loRegClass.BaseClass
 
                If Not toFoxBin2Prg.l_ProcessFiles Then
-                  Loop    && Si se indic√≥ no procesar, salteo el resto del proceso. (Modo de simulaci√≥n)
+                  Loop    && Si se indicÛ no procesar, salteo el resto del proceso. (Modo de simulaciÛn)
                Endif
 
                lnStep          = lnStep + 1
@@ -17444,7 +17421,7 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                Endif
 
                *-------------------------------------------------------------------------------
-               *-- RECORRO LOS OBJETOS DENTRO DE LA CLASE ACTUAL PARA EXPORTAR SU DEFINICI√ìN
+               *-- RECORRO LOS OBJETOS DENTRO DE LA CLASE ACTUAL PARA EXPORTAR SU DEFINICI”N
                *-------------------------------------------------------------------------------
                lnObjCount  = 0
                lnRecno = Recno()
@@ -17458,7 +17435,7 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                   loRegObj    = .Null.
                   Scatter Memo Name loRegObj
 
-                  *-- Normalizaci√≥n de capitalizaci√≥n y de datos seg√∫n parametrizaci√≥n
+                  *-- NormalizaciÛn de capitalizaciÛn y de datos seg˙n parametrizaciÛn
                   loRegObj.BaseClass      = Lower( loRegObj.BaseClass )
                   loRegObj.CLASSLOC       = Lower( loRegObj.CLASSLOC )
                   loRegObj.Class          = Lower( loRegObj.Class )
@@ -17513,7 +17490,7 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                .write_CLASS_PROPERTIES( @loRegClass, @laPropsAndValues, @laPropsAndComments, @laProtected ;
                   , @lnPropsAndValues_Count, @lnPropsAndComments_Count, @lnProtected_Count, @lcCodigo, @toFoxBin2Prg )
 
-               Asort(laObjs, 3, -1, 0, 0)  && Orden Alfab√©tico de objetos (del SCAN original)
+               Asort(laObjs, 3, -1, 0, 0)  && Orden AlfabÈtico de objetos (del SCAN original)
 
                lnStep          = lnStep + 1
                .updateProgressbar( 'Processing Class ' + lcObjName + ' > Writing Obtects with Properties...', lnStep, lnClassTotal*lnStepCount, 1 )
@@ -17523,7 +17500,7 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                Endfor
 
 
-               *-- OBTENGO LOS M√âTODOS DE LA CLASE PARA POSTERIOR TRATAMIENTO
+               *-- OBTENGO LOS M…TODOS DE LA CLASE PARA POSTERIOR TRATAMIENTO
                lnStep          = lnStep + 1
                .updateProgressbar( 'Processing Class ' + lcObjName + ' > Getting Methods...', lnStep, lnClassTotal*lnStepCount, 1 )
 
@@ -17539,7 +17516,7 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                lnLastClass     = 1
                lcMethods       = ''
 
-               *-- RECORRO LOS OBJETOS DENTRO DE LA CLASE ACTUAL PARA OBTENER SUS M√âTODOS
+               *-- RECORRO LOS OBJETOS DENTRO DE LA CLASE ACTUAL PARA OBTENER SUS M…TODOS
                lnStep          = lnStep + 1
                .updateProgressbar( 'Processing Class ' + lcObjName + ' > Getting Objects Methods...', lnStep, lnClassTotal*lnStepCount, 1 )
 
@@ -17553,7 +17530,7 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                   loRegObj    = .Null.
                   Scatter Memo Name loRegObj
 
-                  *-- Normalizaci√≥n de capitalizaci√≥n y de datos seg√∫n parametrizaci√≥n
+                  *-- NormalizaciÛn de capitalizaciÛn y de datos seg˙n parametrizaciÛn
                   loRegObj.BaseClass  = Lower( loRegObj.BaseClass )
                   loRegObj.CLASSLOC   = Lower( loRegObj.CLASSLOC )
                   loRegObj.Class      = Lower( loRegObj.Class )
@@ -17618,7 +17595,7 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                llUseClassPerDir    = toFoxBin2Prg.getCfgFlag('l_UseClassPerDir')
                lnUseClassPerFile   = toFoxBin2Prg.getCfgInt('n_UseClassPerFile')
 
-               *-- En √°rbol espejo, ensurePerFileDir se aplica en destino dentro de write_OutputFile/get_MirroredOutputFile
+               *-- En ·rbol espejo, ensurePerFileDir se aplica en destino dentro de write_OutputFile/get_MirroredOutputFile
                If lnUseClassPerFile > 0 And Empty(.cOutputFolder) Then
                   toFoxBin2Prg.ensurePerFileDir( .c_InputFile, lcVc2Ext, llUseClassPerDir, lnUseClassPerFile )
                Endif
@@ -17692,8 +17669,7 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
 Enddefine
 
-
-Define Class CL_CLASE As CL_CUS_BASE OF 'cl_cus_base.prg'
+Define Class CL_CLASE As CL_CUS_BASE Of 'foxbin2prg.prg'
     #If .F.
         Local This As CL_CLASE Of 'foxbin2prg.prg'
     #Endif
@@ -17832,7 +17808,7 @@ Define Class CL_CLASE As CL_CUS_BASE OF 'cl_cus_base.prg'
         #Endif
 
         With This As CL_CLASE Of 'foxbin2prg.prg'
-*-- Verificaci√≥n de Procedure repetido
+*-- VerificaciÛn de Procedure repetido
             If ._Procedure_Count > 0 And Ascan( ._aProcNames, toProcedure._Nombre, 1, 0, 0, 1+2+4 ) > 0 Then
                 .writeErrorLog( '* Duplicated Method "' + toProcedure._Nombre + '" of class "' ;
                     + ._Nombre + '" @line ' + Transform(toProcedure._Inicio) )
@@ -17876,7 +17852,6 @@ Define Class CL_CLASE As CL_CUS_BASE OF 'cl_cus_base.prg'
 
 
 Enddefine
-
 
 
 
@@ -17971,7 +17946,6 @@ ENDDEFINE
 
 
 
-
 Define Class CL_COL_BASE As Collection
    #If .F.
       Local This As CL_COL_BASE Of 'foxbin2prg.prg'
@@ -17992,7 +17966,7 @@ Define Class CL_COL_BASE As Collection
       + [</VFPData>]
 
    n_Debug             = 0
-   _Saved              = .F.       && Indica si la informaci√≥n fue leida y guardada en las propiedades.
+   _Saved              = .F.       && Indica si la informaciÛn fue leida y guardada en las propiedades.
 
 
    Procedure Init
@@ -18013,10 +17987,10 @@ Define Class CL_COL_BASE As Collection
 
    Procedure set_Line
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@    OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (v! IN    ) N√∫mero de l√≠nea en an√°lisis
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@    OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (v! IN    ) N˙mero de lÌnea en an·lisis
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I
       External Array taCodeLines
@@ -18031,7 +18005,7 @@ Define Class CL_COL_BASE As Collection
       tc_InputFile    = Evl(tc_InputFile,'')
 
       If Not Empty( Justext(tc_FullPath) ) Then
-         *-- Se indic√≥ PATH+archivo.ext
+         *-- Se indicÛ PATH+archivo.ext
          tc_FullPath = Justpath(tc_FullPath)
       Endif
 
@@ -18049,10 +18023,10 @@ Define Class CL_COL_BASE As Collection
 
    Procedure get_SeparatedLineAndComment
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) L√≠nea a separar del comentario
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) LÌnea a separar del comentario
       * tcComment                 (@?    OUT) Comentario
-      * tlDeepCommentAnalysis     (v? IN    ) Indica realizar un an√°lisis profundo de comentarios (para detectar casos complejos de c√≥digo con '&&' embebido)
+      * tlDeepCommentAnalysis     (v? IN    ) Indica realizar un an·lisis profundo de comentarios (para detectar casos complejos de cÛdigo con '&&' embebido)
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine As String, tcComment As String, tlDeepCommentAnalysis As Boolean
       Local ln_AT_Cmt
@@ -18063,7 +18037,7 @@ Define Class CL_COL_BASE As Collection
          If tlDeepCommentAnalysis Then
             Local laSeparador(3,3), lcSeparadoresIzq, lcSeparadoresDer, lcStr, lnAT_Amp, lnAT1, lnAT2, lnLen, I, X
 
-            lcStr   = tcLine    &&EVL(tcStr, [DEFINE BAR 2 OF Opci√≥nAsub PROMPT "Opci√≥n A&]+[&2" &]+[& Comentario Opci√≥n A-2])
+            lcStr   = tcLine    &&EVL(tcStr, [DEFINE BAR 2 OF OpciÛnAsub PROMPT "OpciÛn A&]+[&2" &]+[& Comentario OpciÛn A-2])
             laSeparador(1,1)    = '"'
             laSeparador(1,2)    = '"'
             laSeparador(1,3)    = 2
@@ -18082,16 +18056,16 @@ Define Class CL_COL_BASE As Collection
             lnAT1   = At(laSeparador(m.X,1), lcStr)
 
             *-- Funcionamiento:
-            *-- La anulaci√≥n de subcadenas se hace comenzando desde la primer comilla doble ["], y luego se va
-            *-- cancelando hasta la siguiente. A partir de ahi, se busca car√°cter a car√°cter el siguiente separador
+            *-- La anulaciÛn de subcadenas se hace comenzando desde la primer comilla doble ["], y luego se va
+            *-- cancelando hasta la siguiente. A partir de ahi, se busca car·cter a car·cter el siguiente separador
             *-- izquierdo de cadena ( '"[ ), se busca su pareja derecha y se cancela el texto entre ambos.
-            *-- La anulaci√≥n de subcadenas es temporal, solo para determinar la verdadera posici√≥n del comentario,
+            *-- La anulaciÛn de subcadenas es temporal, solo para determinar la verdadera posiciÛn del comentario,
             *-- por ejemplo, esto:
-            *-- DEFINE BAR 2 OF Opci√≥nAsub PROMPT ""+var+'aa'+["bb]+"Opci√≥n A&&2" && Comentario Opci√≥n A-2
+            *-- DEFINE BAR 2 OF OpciÛnAsub PROMPT ""+var+'aa'+["bb]+"OpciÛn A&&2" && Comentario OpciÛn A-2
             *-- se convierte temporalmente en esto:
-            *-- DEFINE BAR 2 OF Opci√≥nAsub PROMPT XX+var+XXXX+XXXXX+XXXXXXXXXXXXX && Comentario Opci√≥n A-2
+            *-- DEFINE BAR 2 OF OpciÛnAsub PROMPT XX+var+XXXX+XXXXX+XXXXXXXXXXXXX && Comentario OpciÛn A-2
             *-- lo que facilita encontrar el comentario '&&' real.
-            *-- Si se encuentra alg√∫n separador de cadena que no cierre, se genera un error 10 (Syntax Error).
+            *-- Si se encuentra alg˙n separador de cadena que no cierre, se genera un error 10 (Syntax Error).
             If lnAT1 > 0 Then
                For I = lnAT1+1 To lnLen
                   If m.X > 0 Then
@@ -18103,7 +18077,7 @@ Define Class CL_COL_BASE As Collection
                         ln_AT_Cmt   = At( '&'+'&', lcStr)
 
                         If ln_AT_Cmt = 0 Or ln_AT_Cmt < lnAT1
-                           *-- No tiene comentario '&&' real, o s√≠ lo tiene y adem√°s contiene un delimitador de cadena como parte del comentario
+                           *-- No tiene comentario '&&' real, o sÌ lo tiene y adem·s contiene un delimitador de cadena como parte del comentario
                            Exit
                         Else
                            Error 'Closing string delimiter <' + laSeparador(m.X,2) + '> not found: ' + tcLine
@@ -18111,7 +18085,7 @@ Define Class CL_COL_BASE As Collection
                      Endif
                   Endif
 
-                  *-- Verifico si el car√°cter es un separador de cadenas: '"[
+                  *-- Verifico si el car·cter es un separador de cadenas: '"[
                   X   = At( Substr(lcStr, m.I, 1), lcSeparadoresIzq)
 
                   If m.X > 0 Then
@@ -18136,13 +18110,12 @@ Define Class CL_COL_BASE As Collection
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * taArray                   (@?    OUT) Array de conexiones
       * tnArray_Count             (@?    OUT) Cantidad de conexiones
       *---------------------------------------------------------------------------------------------------
    Endproc
 Enddefine
-
 
 
 
@@ -18152,7 +18125,7 @@ Define Class CL_CUS_BASE As Custom
       , Height, HelpContextID, Left, Name ;
       , ParentClass, Picture, Tag, WhatsThisHelpID
 
-   *-- M√©todos (Se preservan: INIT, DESTROY, ERROR, ADDPROPERTY)
+   *-- MÈtodos (Se preservan: INIT, DESTROY, ERROR, ADDPROPERTY)
    *   HIDDEN ADDOBJECT, NEWOBJECT, READEXPRESSION, READMETHOD, REMOVEOBJECT ;
    *  , RESETTODEFAULT, SAVEASCLASS, SHOWWHATSTHIS, WRITEEXPRESSION, WRITEMETHOD
 
@@ -18190,10 +18163,10 @@ Define Class CL_CUS_BASE As Custom
 
    Procedure set_Line
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@    OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (v! IN    ) N√∫mero de l√≠nea en an√°lisis
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@    OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (v! IN    ) N˙mero de lÌnea en an·lisis
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I
       EXTERNAL ARRAY taCodeLines
@@ -18208,7 +18181,7 @@ Define Class CL_CUS_BASE As Custom
       tc_InputFile    = Evl(tc_InputFile,'')
 
       If Not Empty( Justext(tc_FullPath) ) Then
-         *-- Se indic√≥ PATH+archivo.ext
+         *-- Se indicÛ PATH+archivo.ext
          tc_FullPath = Justpath(tc_FullPath)
       Endif
 
@@ -18226,10 +18199,10 @@ Define Class CL_CUS_BASE As Custom
 
    Procedure get_SeparatedLineAndComment
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) L√≠nea a separar del comentario
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) LÌnea a separar del comentario
       * tcComment                 (@?    OUT) Comentario
-      * tlDeepCommentAnalysis     (v? IN    ) Indica realizar un an√°lisis profundo de comentarios (para detectar casos complejos de c√≥digo con '&&' embebido)
+      * tlDeepCommentAnalysis     (v? IN    ) Indica realizar un an·lisis profundo de comentarios (para detectar casos complejos de cÛdigo con '&&' embebido)
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine As String, tcComment As String, tlDeepCommentAnalysis As Boolean
       Local ln_AT_Cmt
@@ -18240,7 +18213,7 @@ Define Class CL_CUS_BASE As Custom
          If tlDeepCommentAnalysis Then
             Local laSeparador(3,3), lcSeparadoresIzq, lcSeparadoresDer, lcStr, lnAT_Amp, lnAT1, lnAT2, lnLen, I, X
 
-            lcStr   = tcLine    &&EVL(tcStr, [DEFINE BAR 2 OF Opci√≥nAsub PROMPT "Opci√≥n A&]+[&2" &]+[& Comentario Opci√≥n A-2])
+            lcStr   = tcLine    &&EVL(tcStr, [DEFINE BAR 2 OF OpciÛnAsub PROMPT "OpciÛn A&]+[&2" &]+[& Comentario OpciÛn A-2])
             laSeparador(1,1)    = '"'
             laSeparador(1,2)    = '"'
             laSeparador(1,3)    = 2
@@ -18259,16 +18232,16 @@ Define Class CL_CUS_BASE As Custom
             lnAT1   = At(laSeparador(m.X,1), lcStr)
 
             *-- Funcionamiento:
-            *-- La anulaci√≥n de subcadenas se hace comenzando desde la primer comilla doble ["], y luego se va
-            *-- cancelando hasta la siguiente. A partir de ahi, se busca car√°cter a car√°cter el siguiente separador
+            *-- La anulaciÛn de subcadenas se hace comenzando desde la primer comilla doble ["], y luego se va
+            *-- cancelando hasta la siguiente. A partir de ahi, se busca car·cter a car·cter el siguiente separador
             *-- izquierdo de cadena ( '"[ ), se busca su pareja derecha y se cancela el texto entre ambos.
-            *-- La anulaci√≥n de subcadenas es temporal, solo para determinar la verdadera posici√≥n del comentario,
+            *-- La anulaciÛn de subcadenas es temporal, solo para determinar la verdadera posiciÛn del comentario,
             *-- por ejemplo, esto:
-            *-- DEFINE BAR 2 OF Opci√≥nAsub PROMPT ""+var+'aa'+["bb]+"Opci√≥n A&&2" && Comentario Opci√≥n A-2
+            *-- DEFINE BAR 2 OF OpciÛnAsub PROMPT ""+var+'aa'+["bb]+"OpciÛn A&&2" && Comentario OpciÛn A-2
             *-- se convierte temporalmente en esto:
-            *-- DEFINE BAR 2 OF Opci√≥nAsub PROMPT XX+var+XXXX+XXXXX+XXXXXXXXXXXXX && Comentario Opci√≥n A-2
+            *-- DEFINE BAR 2 OF OpciÛnAsub PROMPT XX+var+XXXX+XXXXX+XXXXXXXXXXXXX && Comentario OpciÛn A-2
             *-- lo que facilita encontrar el comentario '&&' real.
-            *-- Si se encuentra alg√∫n separador de cadena que no cierre, se genera un error 10 (Syntax Error).
+            *-- Si se encuentra alg˙n separador de cadena que no cierre, se genera un error 10 (Syntax Error).
             If lnAT1 > 0 Then
                For I = lnAT1+1 To lnLen
                   If m.X > 0 Then
@@ -18280,7 +18253,7 @@ Define Class CL_CUS_BASE As Custom
                         ln_AT_Cmt   = At( '&'+'&', lcStr)
 
                         If ln_AT_Cmt = 0 Or ln_AT_Cmt < lnAT1
-                           *-- No tiene comentario '&&' real, o s√≠ lo tiene y adem√°s contiene un delimitador de cadena como parte del comentario
+                           *-- No tiene comentario '&&' real, o sÌ lo tiene y adem·s contiene un delimitador de cadena como parte del comentario
                            Exit
                         Else
                            Error 'Closing string delimiter <' + laSeparador(m.X,2) + '> not found: ' + tcLine
@@ -18288,7 +18261,7 @@ Define Class CL_CUS_BASE As Custom
                      Endif
                   Endif
 
-                  *-- Verifico si el car√°cter es un separador de cadenas: '"[
+                  *-- Verifico si el car·cter es un separador de cadenas: '"[
                   X   = At( Substr(lcStr, m.I, 1), lcSeparadoresIzq)
 
                   If m.X > 0 Then
@@ -18322,7 +18295,6 @@ Define Class CL_CUS_BASE As Custom
 
 
 Enddefine
-
 
 
 
@@ -18363,13 +18335,13 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'foxbin2prg.prg'
    __ObjectID      = 0
    _DBC            = ''
    _Name           = ''
-   _Saved          = .F.       && Indica si la informaci√≥n fue leida y guardada en las propiedades.
+   _Saved          = .F.       && Indica si la informaciÛn fue leida y guardada en las propiedades.
    _ToText         = ''        && Propiedades pasadas a Texto para guardar en archivo externo xx2
 
 
    Function add_Property
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcPropertyName            (v! IN    ) Nombre de la propiedad a agregar o modificar
       * teValue                   (v! IN    ) Valor de la propiedad
       *---------------------------------------------------------------------------------------------------
@@ -18424,11 +18396,11 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    Procedure analyzeCodeBlock_Comment
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -18448,7 +18420,7 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'foxbin2prg.prg'
                      lcValue = lcValue + CR_LF + Left( taCodeLines(m.I), At( '</Comment>', taCodeLines(m.I) ) - 1 )
                      Exit
 
-                  Otherwise   && L√≠nea de Stored Procedure
+                  Otherwise   && LÌnea de Stored Procedure
                      lcValue = lcValue + CR_LF + taCodeLines(m.I)
                   Endcase
                Endfor
@@ -18462,7 +18434,7 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    Procedure getAllPropertiesFromObjectname
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcName                    (v! IN    ) Nombre del objeto
       * tcType                    (v! IN    ) Tipo de objeto (Table, Index, Field, View, Relation)
       * taProperties              (!@    OUT) Array con las propiedades encontradas y sus valores
@@ -18584,7 +18556,7 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    Procedure getDBCPropertyIDByName
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcPropertyName            (v! IN    ) Nombre de la propiedad
       * tlRethrowError            (v? IN    ) Indica si se debe relanzar el error o solo devolver -1
       *---------------------------------------------------------------------------------------------------
@@ -18737,7 +18709,7 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    Procedure getDBCPropertyNameByID
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcPropertyID              (v! IN    ) Nombre de la propiedad
       * tlRethrowError            (v? IN    ) Indica si se debe relanzar el error o solo devolver -1
       *---------------------------------------------------------------------------------------------------
@@ -18889,7 +18861,7 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    Procedure getDBCPropertyValueTypeByPropertyID
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tnPropertyID              (v! IN    ) ID de la Propiedad
       *---------------------------------------------------------------------------------------------------
       Lparameters tnPropertyID
@@ -18926,7 +18898,7 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'foxbin2prg.prg'
       *---------------------------------------------------------------------------------------------------
       * Emula el comando DBGETPROP interno de VFP
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcName                    (v! IN    ) Nombre del objeto
       * tcType                    (v! IN    ) Tipo de objeto (Table, Index, Field, View, Relation)
       * tcProperty                (v! IN    ) Nombre de la propiedad
@@ -19013,7 +18985,7 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'foxbin2prg.prg'
       *---------------------------------------------------------------------------------------------------
       * Emula el comando DBSETPROP interno de VFP
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcName                    (v! IN    ) Nombre del objeto
       * tcType                    (v! IN    ) Tipo de objeto (Table, Index, Field, View, Relation)
       * tcProperty                (v! IN    ) Nombre de la propiedad
@@ -19078,15 +19050,15 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    Hidden Procedure DBPROP_INFO_RECNO
       *---------------------------------------------------------------------------------------------------
-      * Devuelve el campo property y el n√∫mero de registro donde lo encontr√≥
+      * Devuelve el campo property y el n˙mero de registro donde lo encontrÛ
       * para ser usado por DBGETPROP y DBSETPROP
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcName                    (v! IN    ) Nombre del objeto
       * tcType                    (v! IN    ) Tipo de objeto (Table, Index, Field, View, Relation)
       * tcProperty                (v! IN    ) Nombre de la propiedad
-      * tcInfo                    (@!    OUT) Informaci√≥n del campo memo "Property" que contiene el dato indicado
-      * tnRecno                   (@!    OUT) N√∫mero de registro del campo encontrado
+      * tcInfo                    (@!    OUT) InformaciÛn del campo memo "Property" que contiene el dato indicado
+      * tnRecno                   (@!    OUT) N˙mero de registro del campo encontrado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcName, tcType, tcProperty, tcInfo, tnRecno
 
@@ -19141,13 +19113,13 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    Hidden Procedure DBGETPROP_POS_AND_LEN
       *---------------------------------------------------------------------------------------------------
-      * Devuelve la posici√≥n y longitud del dato asociado a la propiedad indicada
+      * Devuelve la posiciÛn y longitud del dato asociado a la propiedad indicada
       * para ser usado por DBGETPROP y DBSETPROP
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcProperty                (v! IN    ) Nombre de la propiedad
-      * tcInfo                    (@! IN    ) Informaci√≥n del campo memo "Property" que contiene el dato indicado
-      * tnLastPos                 (@!    OUT) Posici√≥n del campo Property donde se encontr√≥ el dato
+      * tcInfo                    (@! IN    ) InformaciÛn del campo memo "Property" que contiene el dato indicado
+      * tnLastPos                 (@!    OUT) PosiciÛn del campo Property donde se encontrÛ el dato
       * tnRecordLen               (@!    OUT) Longitud del registro del dato
       * tcBinRecord               (@!    OUT) Registro de datos de la propiedad indicada
       * tnLenCCode                (@!    OUT) Longitud del valor de la propiedad indicada
@@ -19199,7 +19171,7 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'foxbin2prg.prg'
    Procedure getBinPropertyDataRecord
       Lparameters teData, tnPropertyID
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * teData                    (v! IN    ) Dato a codificar
       * tnPropertyID              (v! IN    ) ID de la propiedad a la que pertenece
       *---------------------------------------------------------------------------------------------------
@@ -19384,9 +19356,9 @@ Define Class CL_DBC_BASE As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    Procedure updateDBC
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tc_OutputFile             (v! IN    ) Nombre del archivo de salida
-      * tnLastID                  (!@ IN    ) √öltimo n√∫mero de ID usado
+      * tnLastID                  (!@ IN    ) ⁄ltimo n˙mero de ID usado
       * tnParentID                (v! IN    ) ID del objeto Padre
       *---------------------------------------------------------------------------------------------------
       Lparameters tc_OutputFile, tnLastID, tnParentID
@@ -19439,7 +19411,6 @@ Enddefine
 
 
 
-
 Define Class CL_DBC_COL_BASE As CL_COL_BASE Of 'foxbin2prg.prg'
    #If .F.
       Local This As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
@@ -19458,9 +19429,9 @@ Define Class CL_DBC_COL_BASE As CL_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure updateDBC
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tc_OutputFile             (v! IN    ) Nombre del archivo de salida
-      * tnLastID                  (!@ IN    ) √öltimo n√∫mero de ID usado
+      * tnLastID                  (!@ IN    ) ⁄ltimo n˙mero de ID usado
       * tnParentID                (v! IN    ) ID del objeto Padre
       *---------------------------------------------------------------------------------------------------
       Lparameters tc_OutputFile, tnLastID, tnParentID
@@ -19482,7 +19453,6 @@ Define Class CL_DBC_COL_BASE As CL_COL_BASE Of 'foxbin2prg.prg'
 
 
 Enddefine
-
 
 
 
@@ -19536,11 +19506,11 @@ Define Class CL_DBC_CONNECTION As CL_DBC_BASE Of 'foxbin2prg.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -19596,8 +19566,8 @@ Define Class CL_DBC_CONNECTION As CL_DBC_BASE Of 'foxbin2prg.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcConnection              (v! IN    ) Nombre de la Conexi√≥n
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcConnection              (v! IN    ) Nombre de la ConexiÛn
       *---------------------------------------------------------------------------------------------------
       Lparameters tcConnection
 
@@ -19708,7 +19678,6 @@ Enddefine
 
 
 
-
 Define Class CL_DBC_CONNECTIONS As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
    #If .F.
       Local This As CL_DBC_CONNECTIONS Of 'foxbin2prg.prg'
@@ -19718,11 +19687,11 @@ Define Class CL_DBC_CONNECTIONS As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -19748,9 +19717,9 @@ Define Class CL_DBC_CONNECTIONS As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
                      Exit
 
                   Case C_CONNECTION_I $ tcLine
-                     loConnection = CreateObject('CL_DBC_CONNECTION')
+                     loConnection = CreateObject('CL_DBC_CONNECTION' )
                      loConnection.analyzeCodeBlock( @tcLine, @taCodeLines, @m.I, tnCodeLines )
-                     *-- El siguiente PADR() es porque si no "estoXXX" est√° antes que "esto" cuando keysort=2 (raro...)
+                     *-- El siguiente PADR() es porque si no "estoXXX" est· antes que "esto" cuando keysort=2 (raro...)
                      .Add( loConnection, Padr(loConnection._Name,128) )
 
                   Case '<Comment>' $ tcLine
@@ -19787,7 +19756,7 @@ Define Class CL_DBC_CONNECTIONS As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       *---------------------------------------------------------------------------------------------------
       Lparameters toFoxBin2Prg
@@ -19843,7 +19812,7 @@ Define Class CL_DBC_CONNECTIONS As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure read_BinDataToProperties
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       *---------------------------------------------------------------------------------------------------
       Lparameters toFoxBin2Prg
@@ -19867,9 +19836,9 @@ Define Class CL_DBC_CONNECTIONS As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
             If lnConnection_Count > 0
                For I = 1 To lnConnection_Count
-                  loConnection    = CreateObject('CL_DBC_CONNECTION')
+                  loConnection    = CreateObject('CL_DBC_CONNECTION' )
                   loConnection.read_BinDataToProperties( laConnections(m.I) )
-                  *-- El siguiente PADR() es porque si no "estoXXX" est√° antes que "esto" cuando keysort=2 (raro...)
+                  *-- El siguiente PADR() es porque si no "estoXXX" est· antes que "esto" cuando keysort=2 (raro...)
                   .Add( loConnection, Padr(Lower(loConnection._Name),128) )
                Endfor
             Endif
@@ -19893,7 +19862,6 @@ Define Class CL_DBC_CONNECTIONS As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
 
 Enddefine
-
 
 
 
@@ -19931,11 +19899,11 @@ Define Class CL_DBC_FIELD_DB As CL_DBC_BASE Of 'foxbin2prg.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -19991,7 +19959,7 @@ Define Class CL_DBC_FIELD_DB As CL_DBC_BASE Of 'foxbin2prg.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcTable                   (v! IN    ) Nombre de la Tabla
       * tcField                   (v! IN    ) Nombre del campo
       *---------------------------------------------------------------------------------------------------
@@ -20086,7 +20054,6 @@ Enddefine
 
 
 
-
 Define Class CL_DBC_FIELD_VW As CL_DBC_BASE Of 'foxbin2prg.prg'
    #If .F.
       Local This As CL_DBC_FIELD_VW Of 'foxbin2prg.prg'
@@ -20129,11 +20096,11 @@ Define Class CL_DBC_FIELD_VW As CL_DBC_BASE Of 'foxbin2prg.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -20190,7 +20157,7 @@ Define Class CL_DBC_FIELD_VW As CL_DBC_BASE Of 'foxbin2prg.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcView                    (v! IN    ) Nombre de la Vista
       * tcField                   (v! IN    ) Nombre del campo
       *---------------------------------------------------------------------------------------------------
@@ -20292,7 +20259,6 @@ Enddefine
 
 
 
-
 Define Class CL_DBC_FIELDS_DB As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
    #If .F.
       Local This As CL_DBC_FIELDS_DB Of 'foxbin2prg.prg'
@@ -20305,17 +20271,17 @@ Define Class CL_DBC_FIELDS_DB As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
       + [</VFPData>]
 
 
-   Dimension a_Campos(1,2) && col.1=campo, col.2=definici√≥n
+   Dimension a_Campos(1,2) && col.1=campo, col.2=definiciÛn
    n_Campos        = 0
 
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -20342,12 +20308,12 @@ Define Class CL_DBC_FIELDS_DB As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
                      Exit
 
                   Case C_FIELD_I $ tcLine
-                     loField = CreateObject('CL_DBC_FIELD_DB')
+                     loField = CreateObject('CL_DBC_FIELD_DB' )
                      loField.analyzeCodeBlock( @tcLine, @taCodeLines, @m.I, tnCodeLines )
 
                      If .n_Campos = 0 Then
                         *-- MODO LEGACY: Cuando no existe tag de ordenamiento de campos, se agregan en el orden que se leen
-                        *-- El siguiente PADR() es porque si no "estoXXX" est√° antes que "esto" cuando keysort=2 (raro...)
+                        *-- El siguiente PADR() es porque si no "estoXXX" est· antes que "esto" cuando keysort=2 (raro...)
                         .Add( loField, Padr(Lower(loField._Name),128) )
                      Else
                         lnPos   = Ascan( .a_Campos, loField._Name, 1, 0, 1, 1+2+4+8 )
@@ -20361,7 +20327,7 @@ Define Class CL_DBC_FIELDS_DB As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
                *-- Restablezco el orden de los campos (Solo si n_Campos > 0, que significa que tiene el nuevo tag especial de orden)
                For lnPos = 1 To .n_Campos
-                  *-- El siguiente PADR() es porque si no "estoXXX" est√° antes que "esto" cuando keysort=2 (raro...)
+                  *-- El siguiente PADR() es porque si no "estoXXX" est· antes que "esto" cuando keysort=2 (raro...)
                   .Add( .a_Campos( lnPos, 2), Padr(Lower(.a_Campos( lnPos, 1)),128) )
                Endfor
             Endwith && THIS
@@ -20390,11 +20356,11 @@ Define Class CL_DBC_FIELDS_DB As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure analyzeOrderCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -20448,7 +20414,7 @@ Define Class CL_DBC_FIELDS_DB As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcTable                   (v! IN    ) Nombre de la Tabla
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       *---------------------------------------------------------------------------------------------------
@@ -20527,8 +20493,8 @@ Define Class CL_DBC_FIELDS_DB As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure read_BinDataToProperties
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcTable                   (@! IN    ) Nombre de la tabla de la que se obtendr√°n los campos
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcTable                   (@! IN    ) Nombre de la tabla de la que se obtendr·n los campos
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       *---------------------------------------------------------------------------------------------------
       Lparameters tcTable, toFoxBin2Prg
@@ -20559,9 +20525,9 @@ Define Class CL_DBC_FIELDS_DB As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
             If lnField_Count > 0
                For I = 1 To lnField_Count
-                  loField = CreateObject('CL_DBC_FIELD_DB')
+                  loField = CreateObject('CL_DBC_FIELD_DB' )
                   loField.read_BinDataToProperties( tcTable, laFields(m.I) )
-                  *-- El siguiente PADR() es porque si no "estoXXX" est√° antes que "esto" cuando keysort=2 (raro...)
+                  *-- El siguiente PADR() es porque si no "estoXXX" est· antes que "esto" cuando keysort=2 (raro...)
                   .Add( loField, Padr(Lower(loField._Name),128) )
                Endfor
             Endif
@@ -20592,7 +20558,6 @@ Enddefine
 
 
 
-
 Define Class CL_DBC_FIELDS_VW As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
    #If .F.
       Local This As CL_DBC_FIELDS_VW Of 'foxbin2prg.prg'
@@ -20604,17 +20569,17 @@ Define Class CL_DBC_FIELDS_VW As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
       + [<memberdata name="n_campos" display="n_Campos"/>] ;
       + [</VFPData>]
 
-   Dimension a_Campos(1,2) && col.1=campo, col.2=definici√≥n
+   Dimension a_Campos(1,2) && col.1=campo, col.2=definiciÛn
    n_Campos        = 0
 
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -20642,12 +20607,12 @@ Define Class CL_DBC_FIELDS_VW As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
                   Case C_FIELD_I $ tcLine
                      loField = .Null.
-                     loField = CreateObject('CL_DBC_FIELD_VW')
+                     loField = CreateObject('CL_DBC_FIELD_VW' )
                      loField.analyzeCodeBlock( @tcLine, @taCodeLines, @m.I, tnCodeLines )
 
                      If .n_Campos = 0 Then
                         *-- MODO LEGACY: Cuando no existe tag de ordenamiento de campos, se agregan en el orden que se leen
-                        *-- El siguiente PADR() es porque si no "estoXXX" est√° antes que "esto" cuando keysort=2 (raro...)
+                        *-- El siguiente PADR() es porque si no "estoXXX" est· antes que "esto" cuando keysort=2 (raro...)
                         .Add( loField, Padr(Lower(loField._Name),128) )
                      Else
                         lnPos   = Ascan( .a_Campos, loField._Name, 1, 0, 1, 1+2+4+8 )
@@ -20661,7 +20626,7 @@ Define Class CL_DBC_FIELDS_VW As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
                *-- Restablezco el orden de los campos (Solo si n_Campos > 0, que significa que tiene el nuevo tag especial de orden)
                For lnPos = 1 To .n_Campos
-                  *-- El siguiente PADR() es porque si no "estoXXX" est√° antes que "esto" cuando keysort=2 (raro...)
+                  *-- El siguiente PADR() es porque si no "estoXXX" est· antes que "esto" cuando keysort=2 (raro...)
                   .Add( .a_Campos( lnPos, 2), Padr(Lower(.a_Campos( lnPos, 1)),128) )
                Endfor
             Endwith && THIS
@@ -20691,11 +20656,11 @@ Define Class CL_DBC_FIELDS_VW As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure analyzeOrderCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -20749,7 +20714,7 @@ Define Class CL_DBC_FIELDS_VW As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcView                    (v! IN    ) Nombre de la Vista
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       *---------------------------------------------------------------------------------------------------
@@ -20826,8 +20791,8 @@ Define Class CL_DBC_FIELDS_VW As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure read_BinDataToProperties
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcView                    (@! IN    ) Nombre de la vista de la que se obtendr√°n los campos
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcView                    (@! IN    ) Nombre de la vista de la que se obtendr·n los campos
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       *---------------------------------------------------------------------------------------------------
       Lparameters tcView, toFoxBin2Prg
@@ -20858,9 +20823,9 @@ Define Class CL_DBC_FIELDS_VW As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
             If lnField_Count > 0
                For I = 1 To lnField_Count
-                  loField = CreateObject('CL_DBC_FIELD_VW')
+                  loField = CreateObject('CL_DBC_FIELD_VW' )
                   loField.read_BinDataToProperties( tcView, laFields(m.I) )
-                  *-- El siguiente PADR() es porque si no "estoXXX" est√° antes que "esto" cuando keysort=2 (raro...)
+                  *-- El siguiente PADR() es porque si no "estoXXX" est· antes que "esto" cuando keysort=2 (raro...)
                   .Add( loField, Padr(Lower(loField._Name),128) )
                Endfor
             Endif
@@ -20891,7 +20856,6 @@ Enddefine
 
 
 
-
 Define Class CL_DBC_INDEX_DB As CL_DBC_BASE Of 'foxbin2prg.prg'
    #If .F.
       Local This As CL_DBC_INDEX_DB Of 'foxbin2prg.prg'
@@ -20912,11 +20876,11 @@ Define Class CL_DBC_INDEX_DB As CL_DBC_BASE Of 'foxbin2prg.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -20972,8 +20936,8 @@ Define Class CL_DBC_INDEX_DB As CL_DBC_BASE Of 'foxbin2prg.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcIndex                   (v! IN    ) Nombre del √≠ndice en la forma "tabla.indice"
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcIndex                   (v! IN    ) Nombre del Ìndice en la forma "tabla.indice"
       *---------------------------------------------------------------------------------------------------
       Lparameters tcIndex
 
@@ -21041,10 +21005,8 @@ Enddefine
 
 
 
-
 Define Class CL_DBC_INDEX_VW As CL_DBC_INDEX_DB Of 'foxbin2prg.prg'
 Enddefine
-
 
 
 
@@ -21059,11 +21021,11 @@ Define Class CL_DBC_INDEXES_DB As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -21090,9 +21052,9 @@ Define Class CL_DBC_INDEXES_DB As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
                   Case C_INDEX_I $ tcLine
                      loIndex = .Null.
-                     loIndex = CreateObject('CL_DBC_INDEX_DB')
+                     loIndex = CreateObject('CL_DBC_INDEX_DB' )
                      loIndex.analyzeCodeBlock( @tcLine, @taCodeLines, @m.I, tnCodeLines )
-                     *-- El siguiente PADR() es porque si no "estoXXX" est√° antes que "esto" cuando keysort=2 (raro...)
+                     *-- El siguiente PADR() es porque si no "estoXXX" est· antes que "esto" cuando keysort=2 (raro...)
                      .Add( loIndex, Padr(Lower(loIndex._Name),128) )
 
                   Otherwise   && Otro valor
@@ -21125,7 +21087,7 @@ Define Class CL_DBC_INDEXES_DB As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcTable                   (v! IN    ) Nombre de la Tabla
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       *---------------------------------------------------------------------------------------------------
@@ -21184,7 +21146,7 @@ Define Class CL_DBC_INDEXES_DB As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure read_BinDataToProperties
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcTable                   (v! IN    ) Nombre de la Tabla
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       *---------------------------------------------------------------------------------------------------
@@ -21215,9 +21177,9 @@ Define Class CL_DBC_INDEXES_DB As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
             If lnIndex_Count > 0
                For I = 1 To lnIndex_Count
-                  loIndex = CreateObject('CL_DBC_INDEX_DB')
+                  loIndex = CreateObject('CL_DBC_INDEX_DB' )
                   loIndex.read_BinDataToProperties( tcTable + '.' + laIndexes(m.I) )
-                  *-- El siguiente PADR() es porque si no "estoXXX" est√° antes que "esto" cuando keysort=2 (raro...)
+                  *-- El siguiente PADR() es porque si no "estoXXX" est· antes que "esto" cuando keysort=2 (raro...)
                   .Add( loIndex, Padr(Lower(loIndex._Name),128) )
                Endfor
             Endif
@@ -21248,10 +21210,8 @@ Enddefine
 
 
 
-
 Define Class CL_DBC_INDEXES_VW As CL_DBC_INDEXES_DB Of 'foxbin2prg.prg'
 Enddefine
-
 
 
 
@@ -21280,11 +21240,11 @@ Define Class CL_DBC_RELATION As CL_DBC_BASE Of 'foxbin2prg.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -21337,9 +21297,9 @@ Define Class CL_DBC_RELATION As CL_DBC_BASE Of 'foxbin2prg.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * taRelations               (!@ IN    ) Array de relaciones
-      * X                         (!@ IN    ) N√∫mero de relaci√≥n evaluado
+      * X                         (!@ IN    ) N˙mero de relaciÛn evaluado
       *---------------------------------------------------------------------------------------------------
       Lparameters taRelations, X
 
@@ -21400,9 +21360,9 @@ Define Class CL_DBC_RELATION As CL_DBC_BASE Of 'foxbin2prg.prg'
 
    Procedure read_BinDataToProperties
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * taRelations               (!@ IN    ) Array de relaciones
-      * I                         (!@ IN    ) N√∫mero de relaci√≥n evaluado
+      * I                         (!@ IN    ) N˙mero de relaciÛn evaluado
       *---------------------------------------------------------------------------------------------------
       Lparameters taRelations, I
 
@@ -21427,7 +21387,6 @@ Enddefine
 
 
 
-
 Define Class CL_DBC_RELATIONS As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
    #If .F.
       Local This As CL_DBC_RELATIONS Of 'foxbin2prg.prg'
@@ -21436,11 +21395,11 @@ Define Class CL_DBC_RELATIONS As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -21467,14 +21426,14 @@ Define Class CL_DBC_RELATIONS As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
                   Case C_RELATION_I $ tcLine
                      loRelation = .Null.
-                     loRelation = CreateObject('CL_DBC_RELATION')
+                     loRelation = CreateObject('CL_DBC_RELATION' )
                      loRelation.analyzeCodeBlock( @tcLine, @taCodeLines, @m.I, tnCodeLines )
 
                      Try
-                        *-- El siguiente PADR() es porque si no "estoXXX" est√° antes que "esto" cuando keysort=2 (raro...)
+                        *-- El siguiente PADR() es porque si no "estoXXX" est· antes que "esto" cuando keysort=2 (raro...)
                         .Add( loRelation, Padr(Lower(loRelation._Name),128) )
                      Catch To loEx When loEx.ErrorNo = 2062  && The specified Key already exists.
-                        *-- Saltear este error, porque implica que la relaci√≥n est√° duplicada
+                        *-- Saltear este error, porque implica que la relaciÛn est· duplicada
                      Endtry
 
                   Otherwise   && Otro valor
@@ -21507,7 +21466,7 @@ Define Class CL_DBC_RELATIONS As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcTable                   (v! IN    ) Tabla de la que obtener las relaciones
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       *---------------------------------------------------------------------------------------------------
@@ -21561,7 +21520,7 @@ Define Class CL_DBC_RELATIONS As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure read_BinDataToProperties
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcTable                   (v! IN    ) Tabla de la que obtener las relaciones
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       *---------------------------------------------------------------------------------------------------
@@ -21591,12 +21550,12 @@ Define Class CL_DBC_RELATIONS As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
                For I = 1 To lnRelation_Count
                   If laRelations(m.I,1) == Upper( Rtrim( tcTable ) )
-                     loRelation  = CreateObject('CL_DBC_RELATION')
+                     loRelation  = CreateObject('CL_DBC_RELATION' )
                      loRelation.read_BinDataToProperties( @laRelations, m.I )
                      Try
                         .Add( loRelation, Padr(Lower(loRelation._Name),128) )
                      Catch To loEx When loEx.ErrorNo = 2062  && The specified Key already exists.
-                        *-- Saltear este error, porque implica que la relaci√≥n est√° duplicada
+                        *-- Saltear este error, porque implica que la relaciÛn est· duplicada
                      Endtry
                   Endif
                Endfor
@@ -21623,7 +21582,6 @@ Define Class CL_DBC_RELATIONS As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
 
 Enddefine
-
 
 
 
@@ -21663,20 +21621,20 @@ Define Class CL_DBC_TABLE As CL_DBC_BASE Of 'foxbin2prg.prg'
       DoDefault()
       *--
       With This As CL_DBC_TABLE Of 'foxbin2prg.prg'
-         .NewObject("_Fields", "CL_DBC_FIELDS_DB", "cl_dbc_fields_db.prg")
-         .NewObject("_Indexes", "CL_DBC_INDEXES_DB", "cl_dbc_indexes_db.prg")
-         .NewObject("_Relations", "CL_DBC_RELATIONS", "cl_dbc_relations.prg")
+         .AddObject("_Fields", "CL_DBC_FIELDS_DB" )
+         .AddObject("_Indexes", "CL_DBC_INDEXES_DB" )
+         .AddObject("_Relations", "CL_DBC_RELATIONS" )
       Endwith && THIS
    Endproc
 
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -21756,7 +21714,7 @@ Define Class CL_DBC_TABLE As CL_DBC_BASE Of 'foxbin2prg.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcTable                   (v! IN    ) Nombre de la Tabla
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       *---------------------------------------------------------------------------------------------------
@@ -21777,13 +21735,13 @@ Define Class CL_DBC_TABLE As CL_DBC_BASE Of 'foxbin2prg.prg'
             Store '' To lcText, lcFields, lcIndexes, lcRelations
             .read_BinDataToProperties(tcTable)
 
-            loFields    = CreateObject('CL_DBC_FIELDS_DB')
+            loFields    = CreateObject('CL_DBC_FIELDS_DB' )
             lcFields    = loFields.toText( tcTable, @toFoxBin2Prg )
 
-            loIndexes   = CreateObject('CL_DBC_INDEXES_DB')
+            loIndexes   = CreateObject('CL_DBC_INDEXES_DB' )
             lcIndexes   = loIndexes.toText( tcTable, @toFoxBin2Prg )
 
-            loRelations = CreateObject('CL_DBC_RELATIONS')
+            loRelations = CreateObject('CL_DBC_RELATIONS' )
             lcRelations = loRelations.toText( tcTable, @toFoxBin2Prg )
 
             TEXT TO lcText ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
@@ -21829,9 +21787,9 @@ Define Class CL_DBC_TABLE As CL_DBC_BASE Of 'foxbin2prg.prg'
 
    Procedure updateDBC
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tc_OutputFile             (v! IN    ) Nombre del archivo de salida
-      * tnLastID                  (!@ IN    ) √öltimo n√∫mero de ID usado
+      * tnLastID                  (!@ IN    ) ⁄ltimo n˙mero de ID usado
       * tnParentID                (v! IN    ) ID del objeto Padre
       *---------------------------------------------------------------------------------------------------
       Lparameters tc_OutputFile, tnLastID, tnParentID
@@ -21892,7 +21850,6 @@ Enddefine
 
 
 
-
 Define Class CL_DBC_TABLES As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
    #If .F.
       Local This As CL_DBC_TABLES Of 'foxbin2prg.prg'
@@ -21902,11 +21859,11 @@ Define Class CL_DBC_TABLES As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -21932,9 +21889,9 @@ Define Class CL_DBC_TABLES As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
                      Exit
 
                   Case C_TABLE_I $ tcLine
-                     loTable = CreateObject('CL_DBC_TABLE')
+                     loTable = CreateObject('CL_DBC_TABLE' )
                      loTable.analyzeCodeBlock( @tcLine, @taCodeLines, @m.I, tnCodeLines )
-                     *-- El siguiente PADR() es porque si no "estoXXX" est√° antes que "esto" cuando keysort=2 (raro...)
+                     *-- El siguiente PADR() es porque si no "estoXXX" est· antes que "esto" cuando keysort=2 (raro...)
                      .Add( loTable, Padr(Lower(loTable._Name),128) )
 
                   Otherwise   && Otro valor
@@ -21968,7 +21925,7 @@ Define Class CL_DBC_TABLES As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       *---------------------------------------------------------------------------------------------------
       Lparameters toFoxBin2Prg
@@ -22029,7 +21986,7 @@ Define Class CL_DBC_TABLES As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure read_BinDataToProperties
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       *---------------------------------------------------------------------------------------------------
       Lparameters toFoxBin2Prg
@@ -22054,9 +22011,9 @@ Define Class CL_DBC_TABLES As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
             If lnTable_Count > 0
                For I = 1 To lnTable_Count
-                  loTable = CreateObject('CL_DBC_TABLE')
+                  loTable = CreateObject('CL_DBC_TABLE' )
                   loTable.read_BinDataToProperties( laTables(m.I) )
-                  *-- El siguiente PADR() es porque si no "estoXXX" est√° antes que "esto" cuando keysort=2 (raro...)
+                  *-- El siguiente PADR() es porque si no "estoXXX" est· antes que "esto" cuando keysort=2 (raro...)
                   .Add( loTable, Padr(Lower(loTable._Name),128) )
                Endfor
             Endif
@@ -22082,7 +22039,6 @@ Define Class CL_DBC_TABLES As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
 
 Enddefine
-
 
 
 
@@ -22159,20 +22115,20 @@ Define Class CL_DBC_VIEW As CL_DBC_BASE Of 'foxbin2prg.prg'
       DoDefault()
       *--
       With This As CL_DBC_VIEW Of 'foxbin2prg.prg'
-         .NewObject("_Fields", "CL_DBC_FIELDS_VW", "cl_dbc_fields_vw.prg")
-         .NewObject("_Indexes", "CL_DBC_INDEXES_VW", "cl_dbc_indexes_vw.prg")
-         .NewObject("_Relations", "CL_DBC_RELATIONS", "cl_dbc_relations.prg")
+         .AddObject("_Fields", "CL_DBC_FIELDS_VW" )
+         .AddObject("_Indexes", "CL_DBC_INDEXES_VW" )
+         .AddObject("_Relations", "CL_DBC_RELATIONS" )
       Endwith && THIS
    Endproc
 
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -22255,8 +22211,8 @@ Define Class CL_DBC_VIEW As CL_DBC_BASE Of 'foxbin2prg.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcView                    (v! IN    ) Vista en evaluaci√≥n
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcView                    (v! IN    ) Vista en evaluaciÛn
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       *---------------------------------------------------------------------------------------------------
       Lparameters tcView, toFoxBin2Prg
@@ -22355,9 +22311,9 @@ Define Class CL_DBC_VIEW As CL_DBC_BASE Of 'foxbin2prg.prg'
 
    Procedure updateDBC
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tc_OutputFile             (v! IN    ) Nombre del archivo de salida
-      * tnLastID                  (!@ IN    ) √öltimo n√∫mero de ID usado
+      * tnLastID                  (!@ IN    ) ⁄ltimo n˙mero de ID usado
       * tnParentID                (v! IN    ) ID del objeto Padre
       *---------------------------------------------------------------------------------------------------
       Lparameters tc_OutputFile, tnLastID, tnParentID
@@ -22416,8 +22372,8 @@ Define Class CL_DBC_VIEW As CL_DBC_BASE Of 'foxbin2prg.prg'
 
    Procedure read_BinDataToProperties
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcView                    (v! IN    ) Vista en evaluaci√≥n
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcView                    (v! IN    ) Vista en evaluaciÛn
       *---------------------------------------------------------------------------------------------------
       Lparameters tcView
 
@@ -22460,7 +22416,6 @@ Enddefine
 
 
 
-
 Define Class CL_DBC_VIEWS As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
    #If .F.
       Local This As CL_DBC_VIEWS Of 'foxbin2prg.prg'
@@ -22469,11 +22424,11 @@ Define Class CL_DBC_VIEWS As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -22500,9 +22455,9 @@ Define Class CL_DBC_VIEWS As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
                   Case C_VIEW_I $ tcLine
                      loView = .Null.
-                     loView = CreateObject('CL_DBC_VIEW')
+                     loView = CreateObject('CL_DBC_VIEW' )
                      loView.analyzeCodeBlock( @tcLine, @taCodeLines, @m.I, tnCodeLines )
-                     *-- El siguiente PADR() es porque si no "estoXXX" est√° antes que "esto" cuando keysort=2 (raro...)
+                     *-- El siguiente PADR() es porque si no "estoXXX" est· antes que "esto" cuando keysort=2 (raro...)
                      .Add( loView, Padr(Lower(loView._Name),128) )
 
                   Otherwise   && Otro valor
@@ -22535,7 +22490,7 @@ Define Class CL_DBC_VIEWS As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       *---------------------------------------------------------------------------------------------------
       Lparameters toFoxBin2Prg
@@ -22596,7 +22551,7 @@ Define Class CL_DBC_VIEWS As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure read_BinDataToProperties
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       *---------------------------------------------------------------------------------------------------
       Lparameters toFoxBin2Prg
@@ -22627,9 +22582,9 @@ Define Class CL_DBC_VIEWS As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
             If lnView_Count > 0
                For I = 1 To lnView_Count
-                  loView = CreateObject('CL_DBC_VIEW')
+                  loView = CreateObject('CL_DBC_VIEW' )
                   loView.read_BinDataToProperties( laViews(m.I) )
-                  *-- El siguiente PADR() es porque si no "estoXXX" est√° antes que "esto" cuando keysort=2 (raro...)
+                  *-- El siguiente PADR() es porque si no "estoXXX" est· antes que "esto" cuando keysort=2 (raro...)
                   .Add( loView, Padr(Lower(loView._Name),128) )
                Endfor
             Endif
@@ -22655,7 +22610,6 @@ Define Class CL_DBC_VIEWS As CL_DBC_COL_BASE Of 'foxbin2prg.prg'
 
 
 Enddefine
-
 
 
 
@@ -22710,20 +22664,20 @@ Define Class CL_DBC As CL_DBC_BASE Of 'foxbin2prg.prg'
       DoDefault()
       *--
       With This As CL_DBC Of 'foxbin2prg.prg'
-         .NewObject("_Connections", "CL_DBC_CONNECTIONS", "cl_dbc_connections.prg")
-         .NewObject("_Tables", "CL_DBC_TABLES", "cl_dbc_tables.prg")
-         .NewObject("_Views", "CL_DBC_VIEWS", "cl_dbc_views.prg")
+         .AddObject("_Connections", "CL_DBC_CONNECTIONS" )
+         .AddObject("_Tables", "CL_DBC_TABLES" )
+         .AddObject("_Views", "CL_DBC_VIEWS" )
       Endwith && THIS
    Endproc
 
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       * toFoxBin2Prg              (v! IN    ) Referencia al objeto principal
       *--------------------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, toFoxBin2Prg
@@ -22826,11 +22780,11 @@ Define Class CL_DBC As CL_DBC_BASE Of 'foxbin2prg.prg'
 
    Procedure analyzeCodeBlock_SP
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -22847,7 +22801,7 @@ Define Class CL_DBC As CL_DBC_BASE Of 'foxbin2prg.prg'
                Case C_STORED_PROC_F $ tcLine   && Fin
                   Exit
 
-               Otherwise   && L√≠nea de Stored Procedure
+               Otherwise   && LÌnea de Stored Procedure
                   lcValue = lcValue + CR_LF + taCodeLines(m.I)
                Endcase
             Endfor
@@ -22860,9 +22814,9 @@ Define Class CL_DBC As CL_DBC_BASE Of 'foxbin2prg.prg'
 
    Procedure updateDBC
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tc_OutputFile             (v! IN    ) Nombre del archivo de salida
-      * tnLastID                  (!@ IN    ) √öltimo n√∫mero de ID usado
+      * tnLastID                  (!@ IN    ) ⁄ltimo n˙mero de ID usado
       * tnParentID                (v! IN    ) ID del objeto Padre
       *---------------------------------------------------------------------------------------------------
       Lparameters tc_OutputFile, tnLastID, tnParentID
@@ -23043,7 +22997,6 @@ Enddefine
 
 
 
-
 Define Class CL_DBF_CFG As Custom
    _MemberData = [<VFPData>] ;
       + [<memberdata name="dbf_conversion_support" display="DBF_Conversion_Support"/>] ;
@@ -23068,7 +23021,7 @@ Define Class CL_DBF_CFG As Custom
       LPARAMETERS toHost, tlGenerateLog
       LOCAL loCfg
 
-      loCfg = CreateObject('CL_DBF_CFG')
+      loCfg = CreateObject('CL_DBF_CFG' )
 
       IF VARTYPE(toHost) <> 'O' OR !PEMSTATUS(toHost, 'getCfgValue', 5)
          RETURN loCfg
@@ -23087,7 +23040,6 @@ Define Class CL_DBF_CFG As Custom
    ENDFUNC
 
 Enddefine
-
 
 
 
@@ -23142,11 +23094,11 @@ Define Class CL_DBF_FIELD As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -23199,9 +23151,9 @@ Define Class CL_DBF_FIELD As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * taFields                  (!@ IN    ) Array de informaci√≥n de campos
-      * I                         (!@ IN    ) Campo en evaluaci√≥n
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taFields                  (!@ IN    ) Array de informaciÛn de campos
+      * I                         (!@ IN    ) Campo en evaluaciÛn
       *---------------------------------------------------------------------------------------------------
       Lparameters taFields, I
 
@@ -23252,7 +23204,6 @@ Enddefine
 
 
 
-
 Define Class CL_DBF_FIELDS As CL_COL_BASE Of 'foxbin2prg.prg'
    #If .F.
       Local This As CL_DBF_FIELDS Of 'foxbin2prg.prg'
@@ -23262,11 +23213,11 @@ Define Class CL_DBF_FIELDS As CL_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -23294,7 +23245,7 @@ Define Class CL_DBF_FIELDS As CL_COL_BASE Of 'foxbin2prg.prg'
 
                   Case C_FIELD_I $ tcLine
                      loField = .Null.
-                     loField = CreateObject('CL_DBF_FIELD')
+                     loField = CreateObject('CL_DBF_FIELD' )
                      loField.analyzeCodeBlock( @tcLine, @taCodeLines, @m.I, tnCodeLines )
                      .Add( loField, loField._Name )
 
@@ -23328,8 +23279,8 @@ Define Class CL_DBF_FIELDS As CL_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * taFields                  (@?    OUT) Array de informaci√≥n de campos
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taFields                  (@?    OUT) Array de informaciÛn de campos
       * tnField_Count             (@?    OUT) Cantidad de campos
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       *---------------------------------------------------------------------------------------------------
@@ -23354,7 +23305,7 @@ Define Class CL_DBF_FIELDS As CL_COL_BASE Of 'foxbin2prg.prg'
          ENDTEXT
 
          tnField_Count   = Afields(taFields)
-         loField         = CreateObject('CL_DBF_FIELD')
+         loField         = CreateObject('CL_DBF_FIELD' )
 
          For I = 1 To tnField_Count
             If taFields(m.I,17) > 0 And toFoxBin2Prg.getCfgValue('n_ExcludeDBFAutoincNextval') = 1
@@ -23393,7 +23344,6 @@ Enddefine
 
 
 
-
 Define Class CL_DBF_INDEX As CL_CUS_BASE Of 'foxbin2prg.prg'
    #If .F.
       Local This As CL_DBF_INDEX Of 'foxbin2prg.prg'
@@ -23425,11 +23375,11 @@ Define Class CL_DBF_INDEX As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, tcIndexFile, tlStandAlone
       External Array taCodeLines
@@ -23485,9 +23435,9 @@ Define Class CL_DBF_INDEX As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * taTagInfo                 (@! IN    ) Array de informaci√≥n de indices
-      * I                         (@! IN    ) Indice en evaluaci√≥n
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taTagInfo                 (@! IN    ) Array de informaciÛn de indices
+      * I                         (@! IN    ) Indice en evaluaciÛn
       *---------------------------------------------------------------------------------------------------
       Lparameters taTagInfo, I
 
@@ -23531,7 +23481,6 @@ Enddefine
 
 
 
-
 Define Class CL_DBF_INDEXES As CL_COL_BASE Of 'foxbin2prg.prg'
    #If .F.
       Local This As CL_DBF_INDEXES Of 'foxbin2prg.prg'
@@ -23540,11 +23489,11 @@ Define Class CL_DBF_INDEXES As CL_COL_BASE Of 'foxbin2prg.prg'
    * LScheffler
    Procedure analyzeIndexFilesBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -23594,11 +23543,11 @@ Define Class CL_DBF_INDEXES As CL_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure analyzeIndexFileBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines
       External Array taCodeLines
@@ -23651,11 +23600,11 @@ Define Class CL_DBF_INDEXES As CL_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, tcIndexFile, tlStandAlone
       External Array taCodeLines
@@ -23681,7 +23630,7 @@ Define Class CL_DBF_INDEXES As CL_COL_BASE Of 'foxbin2prg.prg'
 
                   Case C_INDEX_I $ tcLine
                      loIndex = .Null.
-                     loIndex = CreateObject('CL_DBF_INDEX')
+                     loIndex = CreateObject('CL_DBF_INDEX' )
                      loIndex.analyzeCodeBlock( @tcLine, @taCodeLines, @m.I, tnCodeLines, tcIndexFile, tlStandAlone )
                      .Add( loIndex, loIndex._TagName )
 
@@ -23712,9 +23661,9 @@ Define Class CL_DBF_INDEXES As CL_COL_BASE Of 'foxbin2prg.prg'
    * LScheffler proc wrapping index
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * taTagInfo                 (@?    OUT) Array de informaci√≥n de indices
-      * tnTagInfo_Count           (@?    OUT) Cantidad de √≠ndices
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taTagInfo                 (@?    OUT) Array de informaciÛn de indices
+      * tnTagInfo_Count           (@?    OUT) Cantidad de Ìndices
       * tc_InputFile              (v! IN    ) Archivo de entrada (el DBF)
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       * tc_DBF_IndexList          (?  IN    ) comm a delimited list of non structuiral index files
@@ -23776,7 +23725,7 @@ Define Class CL_DBF_INDEXES As CL_COL_BASE Of 'foxbin2prg.prg'
 
             *!* /Changed by: LScheffler 18.3.2021
             Asort( m.taTagInfo, 1, -1, 0, 1 )
-            loIndex         = CreateObject('CL_DBF_INDEX')
+            loIndex         = CreateObject('CL_DBF_INDEX' )
 
             For I = 1 To m.tnTagInfo_Count
                lcText  = m.lcText + m.loIndex.toText( @taTagInfo, m.I )
@@ -23817,7 +23766,7 @@ Define Class CL_DBF_INDEXES As CL_COL_BASE Of 'foxbin2prg.prg'
 
                      lnTagInfo_Count = Ataginfo( laTagInfo , m.lcIndexFile)
                      Asort( laTagInfo, 1, -1, 0, 1 )
-                     loIndex         = CreateObject('CL_DBF_INDEX')
+                     loIndex         = CreateObject('CL_DBF_INDEX' )
 
                      For I = 1 To lnTagInfo_Count
                         lcText  = lcText + loIndex.toText( @laTagInfo, m.I )
@@ -23883,7 +23832,6 @@ Enddefine
 
 
 
-
 Define Class CL_DBF_RECORD As CL_CUS_BASE Of 'foxbin2prg.prg'
    #If .F.
       Local This As CL_DBF_RECORD Of 'foxbin2prg.prg'
@@ -23895,11 +23843,11 @@ Define Class CL_DBF_RECORD As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (!=Obligatorio | ?=Opcional) (@=Pasar por referencia | v=Pasar por valor) (IN/OUT)
-      * tcLine                    (@! IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (@! IN    ) Array de l√≠neas del programa analizado
-      * I                         (@! IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (@! IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (!=Obligatorio | ?=Opcional) (@=Pasar por referencia | v=Pasar por valor) (IN/OUT)
+      * tcLine                    (@! IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (@! IN    ) Array de lÌneas del programa analizado
+      * I                         (@! IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (@! IN    ) Cantidad de lÌneas del programa analizado
       * toFields                  (@! IN    ) Estructura de los campos
       * tl_DBF_BinChar_Base64     out of settings (folder or per-file) Transform NocPTrans fields base64
       *---------------------------------------------------------------------------------------------------
@@ -24006,7 +23954,7 @@ Define Class CL_DBF_RECORD As CL_CUS_BASE Of 'foxbin2prg.prg'
                            If llOneLineOnly And Atc('<![CDATA[', lcValue) = 0
                               luValue = .Decode(lcValue, .F.)
                            Else
-                              * Si el memo es multi-l√≠nea, leer hasta encontrar el final ']]>' del CDATA.
+                              * Si el memo es multi-lÌnea, leer hasta encontrar el final ']]>' del CDATA.
                               luValue = ''
                               Do While Not Empty(lcValue)
                                  If ']]>' $ tcLine Or '</' + lcFieldName + '>' $ tcLine Then
@@ -24089,8 +24037,8 @@ Define Class CL_DBF_RECORD As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (!=Obligatorio | ?=Opcional) (@=Pasar por referencia | v=Pasar por valor) (IN/OUT)
-      * taFields                  (@! IN    ) Array de informaci√≥n de campos
+      * PAR¡METROS:               (!=Obligatorio | ?=Opcional) (@=Pasar por referencia | v=Pasar por valor) (IN/OUT)
+      * taFields                  (@! IN    ) Array de informaciÛn de campos
       * tnField_Count             (@! IN    ) Cantidad de campos
       * tl_DBF_BinChar_Base64     out of settings (folder or per-file) Transform NocPTrans fields base64
       *---------------------------------------------------------------------------------------------------
@@ -24140,7 +24088,7 @@ Define Class CL_DBF_RECORD As CL_CUS_BASE Of 'foxbin2prg.prg'
                   luValue     = Evaluate("TABLABIN."+lcField)
 
                   Do Case
-                  Case lcFieldType $ 'GWQVCM' And luValue == '' ; && Vac√≠o
+                  Case lcFieldType $ 'GWQVCM' And luValue == '' ; && VacÌo
                      Or lcFieldType $ 'DT' And luValue == {} ;
                         OR lcFieldType $ 'YIBFN' And luValue == 0
 
@@ -24261,10 +24209,10 @@ Define Class CL_DBF_RECORD As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    Procedure set_Line
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@    OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (v! IN    ) N√∫mero de l√≠nea en an√°lisis
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@    OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (v! IN    ) N˙mero de lÌnea en an·lisis
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I
       External Array taCodeLines
@@ -24273,7 +24221,6 @@ Define Class CL_DBF_RECORD As CL_CUS_BASE Of 'foxbin2prg.prg'
 
 
 Enddefine
-
 
 
 
@@ -24286,11 +24233,11 @@ Define Class CL_DBF_RECORDS As CL_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (!=Obligatorio | ?=Opcional) (@=Pasar por referencia | v=Pasar por valor) (IN/OUT)
-      * tcLine                    (@! IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (@! IN    ) Array de l√≠neas del programa analizado
-      * I                         (@! IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (@! IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (!=Obligatorio | ?=Opcional) (@=Pasar por referencia | v=Pasar por valor) (IN/OUT)
+      * tcLine                    (@! IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (@! IN    ) Array de lÌneas del programa analizado
+      * I                         (@! IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (@! IN    ) Cantidad de lÌneas del programa analizado
       * toFields                  (@! IN    ) Estructura de los campos
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       * tl_DBF_BinChar_Base64     out of settings (folder or per-file) Transform NocPTrans fields base64
@@ -24318,7 +24265,7 @@ Define Class CL_DBF_RECORDS As CL_COL_BASE Of 'foxbin2prg.prg'
                lcAlias     = Alias()
                CursorSetProp("Buffering", 3)
                loRecord    = .Null.
-               loRecord    = CreateObject('CL_DBF_RECORD')
+               loRecord    = CreateObject('CL_DBF_RECORD' )
 
                For I = m.I + 1 To tnCodeLines
                   .set_Line( @tcLine, @taCodeLines, m.I )
@@ -24394,10 +24341,10 @@ Define Class CL_DBF_RECORDS As CL_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:                   (!=Obligatorio | ?=Opcional) (@=Pasar por referencia | v=Pasar por valor) (IN/OUT)
-      * taFields                      (@! IN    ) Array de informaci√≥n de campos
+      * PAR¡METROS:                   (!=Obligatorio | ?=Opcional) (@=Pasar por referencia | v=Pasar por valor) (IN/OUT)
+      * taFields                      (@! IN    ) Array de informaciÛn de campos
       * tnField_Count                 (v! IN    ) Cantidad de campos
-      * tc_DBF_Conversion_Condition   (v? IN    ) Condici√≥n de filtro para la conversi√≥n. Solo se exporta lo que la cumpla.
+      * tc_DBF_Conversion_Condition   (v? IN    ) CondiciÛn de filtro para la conversiÛn. Solo se exporta lo que la cumpla.
       * toFoxBin2Prg                  (@! IN    ) Referencia de toFoxBin2Prg
       * tl_DBF_BinChar_Base64         out of settings (folder or per-file) Transform NocPTrans fields base64
       * tl_DBF_IncludeDeleted         out of settings (folder or per-file) Include deleted records
@@ -24429,7 +24376,7 @@ Define Class CL_DBF_RECORDS As CL_COL_BASE Of 'foxbin2prg.prg'
          *FWRITE( toFoxBin2Prg.n_FileHandle, lcText )
          loTextStream.WriteLine( lcText )        && Replace VFP low-level file funcs.because the 8-16KB limit.
          lcText  = ''
-         loRecord = CreateObject('CL_DBF_RECORD')
+         loRecord = CreateObject('CL_DBF_RECORD' )
 
          If Empty(tc_DBF_Conversion_Condition)
             tc_DBF_Conversion_Condition = '.T.'
@@ -24501,10 +24448,10 @@ Define Class CL_DBF_RECORDS As CL_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure set_Line
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@    OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (v! IN    ) N√∫mero de l√≠nea en an√°lisis
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@    OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (v! IN    ) N˙mero de lÌnea en an·lisis
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I
       External Array taCodeLines
@@ -24513,7 +24460,6 @@ Define Class CL_DBF_RECORDS As CL_COL_BASE Of 'foxbin2prg.prg'
 
 
 Enddefine
-
 
 
 
@@ -24568,20 +24514,20 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE Of 'foxbin2prg.prg'
    Procedure Init
       DoDefault()
       *--
-      This.NewObject("_Fields", "CL_DBF_FIELDS", "cl_dbf_fields.prg")
-      This.NewObject("_Indexes", "CL_DBF_INDEXES", "cl_dbf_indexes.prg")
+      This.AddObject("_Fields", "CL_DBF_FIELDS" )
+      This.AddObject("_Indexes", "CL_DBF_INDEXES" )
       *** DH 06/02/2014: added _Records
-      This.NewObject("_Records", "CL_DBF_RECORDS", "cl_dbf_records.prg")
+      This.AddObject("_Records", "CL_DBF_RECORDS" )
    Endproc
 
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       * tl_DBF_BinChar_Base64     out of settings (folder or per-file) Transform NocPTrans fields base64
       * tl_DBF_IncludeDeleted     out of settings (folder or per-file) Include deleted records
@@ -24633,11 +24579,11 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE Of 'foxbin2prg.prg'
 
                   Case C_RECORDS_I $ tcLine
                      If llFieldsEvaluated
-                        * Pensado para poder llamar a este m√©todo 2 veces:
+                        * Pensado para poder llamar a este mÈtodo 2 veces:
                         * > La 1ra.para evaluar Campos e Indices, y poder crear la estructura de la tabla
                         *   al finalizar este paso.
                         * > La 2da.para cargar los registros, luego de que se haya creado la tabla,
-                        *   as√≠ se van volcando directamente y no se guardan en memoria.
+                        *   asÌ se van volcando directamente y no se guardan en memoria.
                         Exit
                      Endif
 
@@ -24685,14 +24631,14 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tc_FileTypeDesc           (v! IN    ) Tipo de archivo (en Hex)
       * tl_FileHasCDX             (v! IN    ) Indica si el archivo tiene CDX asociado
       * tl_FileHasMemo            (v! IN    ) Indica si el archivo tiene MEMO (FPT) asociado
       * tl_FileIsDBC              (v! IN    ) Indica si el archivo es un DBC
       * tc_DBC_Name               (v! IN    ) Nombre del DBC (si tiene)
       * tc_InputFile              (v! IN    ) Nombre del archivo de salida
-      * tc_FileTypeDesc           (v! IN    ) Descripci√≥n del Tipo de archivo
+      * tc_FileTypeDesc           (v! IN    ) DescripciÛn del Tipo de archivo
       * toFoxBin2Prg              (@! IN    ) Referencia de toFoxBin2Prg
       *---------------------------------------------------------------------------------------------------
       Lparameters tn_HexFileType, tl_FileHasCDX, tl_FileHasMemo, tl_FileIsDBC, tc_DBC_Name, tc_InputFile, tc_FileTypeDesc, toFoxBin2Prg
@@ -24738,7 +24684,7 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE Of 'foxbin2prg.prg'
          lcText      = lcText + loFields.toText(@laFields, @lnFieldCount, @toFoxBin2Prg)
 
          *-- DBF settings from session CFG (no per-table .dbf.cfg on disk)
-         loDBF_CFG   = CreateObject('CL_DBF_CFG')
+         loDBF_CFG   = CreateObject('CL_DBF_CFG' )
          loDBF_CFG   = loDBF_CFG.FromGlobal( toFoxBin2Prg, .T. )
          lnFileCount = IIF(VARTYPE(loDBF_CFG) = 'O' AND !ISNULL(loDBF_CFG), 1, 0)
 
@@ -24746,11 +24692,11 @@ Define Class CL_DBF_TABLE As CL_CUS_BASE Of 'foxbin2prg.prg'
 
          Do Case
          Case Inlist(ln_DBF_Conversion_Support, 4, 8)
-            *-- Si hay un archivo DBF.CFG, manda sobre la configuraci√≥n general
+            *-- Si hay un archivo DBF.CFG, manda sobre la configuraciÛn general
             llExportData        = .T.
 
          Case ln_DBF_Conversion_Support > 0
-            *-- Si hay un archivo DBF.CFG, manda sobre la configuraci√≥n general
+            *-- Si hay un archivo DBF.CFG, manda sobre la configuraciÛn general
             * Asume llExportData=.F.
 
             *!*                     Case Inlist(toFoxBin2Prg.getCfgValue('n_DBF_Conversion_Support'), 4, 8)    && BIN2TXT (DATA EXPORT FOR DIFF)
@@ -24849,7 +24795,6 @@ Enddefine
 
 
 
-
 Define Class CL_DBF_UTILS_FIELD As Custom
    _MemberData = [<VFPData>] ;
       + [<memberdata name="fieldname" display="FieldName"/>] ;
@@ -24926,7 +24871,6 @@ Enddefine
 
 
 
-
 Define Class CL_DBF_UTILS As Session
    _MemberData = [<VFPData>] ;
       + [<memberdata name="fields" display="Fields"/>] ;
@@ -24990,9 +24934,9 @@ Define Class CL_DBF_UTILS As Session
 
    Procedure getDBFmetadata
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tc_FileName               (v! IN    ) Nombre del DBF a analizar
-      * tn_HexFileType            (@?    OUT) Tipo de archivo en hexadecimal (Est√° detallado en la ayuda de Fox)
+      * tn_HexFileType            (@?    OUT) Tipo de archivo en hexadecimal (Est· detallado en la ayuda de Fox)
       * tl_FileHasCDX             (@?    OUT) Indica si el archivo tiene CDX asociado
       * tl_FileHasMemo            (@?    OUT) Indica si el archivo tiene archivo MEMO asociado
       * tl_FileIsDBC              (@?    OUT) Indica si el archivo es un DBC (base de datos)
@@ -25058,7 +25002,7 @@ Define Class CL_DBF_UTILS As Session
             *lcStr                      = FREAD(lnHandle,32 * lnFieldCount) && 32-n         Field subrecords (los salteo)
             *---
             For I = 1 To .n_FieldCount
-               loField = CreateObject('CL_DBF_UTILS_FIELD')
+               loField = CreateObject('CL_DBF_UTILS_FIELD' )
 
                With loField As CL_DBF_UTILS_FIELD Of 'foxbin2prg.prg'
                   lcStr                       = Fread(lnHandle,11)
@@ -25120,8 +25064,8 @@ Define Class CL_DBF_UTILS As Session
 
    Procedure fileTypeDescription
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tn_HexFileType            (@? IN    ) Tipo de archivo en hexadecimal (Est√° detallado en la ayuda de Fox)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tn_HexFileType            (@? IN    ) Tipo de archivo en hexadecimal (Est· detallado en la ayuda de Fox)
       *---------------------------------------------------------------------------------------------------
       Lparameters tn_HexFileType
       Local lcFileType
@@ -25179,10 +25123,10 @@ Define Class CL_DBF_UTILS As Session
 
    Procedure getCodePageInfo
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tnHexCodePage             (v! IN    ) C√≥digo de p√°gina en hexadecimal (Est√° detallado en la ayuda de Fox)
-      * tnCodePage                (@?    OUT) C√≥digo de p√°gina normal
-      * tcDescrip                 (@?    OUT) Descripci√≥n del c√≥digo de p√°gina
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tnHexCodePage             (v! IN    ) CÛdigo de p·gina en hexadecimal (Est· detallado en la ayuda de Fox)
+      * tnCodePage                (@?    OUT) CÛdigo de p·gina normal
+      * tcDescrip                 (@?    OUT) DescripciÛn del cÛdigo de p·gina
       *---------------------------------------------------------------------------------------------------
       Lparameters tnHexCodePage, tnCodePage, tcDescrip
 
@@ -25308,7 +25252,7 @@ Define Class CL_DBF_UTILS As Session
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       *---------------------------------------------------------------------------------------------------
       Local lcText, loField As CL_DBF_UTILS_FIELD Of 'foxbin2prg.prg'
       lcText  = ''
@@ -25362,10 +25306,10 @@ Define Class CL_DBF_UTILS As Session
 
    Procedure write_DBC_BackLink
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tc_FileName               (v! IN    ) Nombre del DBF a analizar
       * tcDBC_Name                (v! IN    ) Nombre del DBC a asociar
-      * tdLastUpdate              (v! IN    ) Fecha de √∫ltima actualizaci√≥n
+      * tdLastUpdate              (v! IN    ) Fecha de ˙ltima actualizaciÛn
       *---------------------------------------------------------------------------------------------------
       Lparameters tc_FileName, tcDBC_Name, tdLastUpdate
 
@@ -25502,7 +25446,6 @@ Define Class CL_DBF_UTILS As Session
    Endproc
 
 Enddefine
-
 
 
 Define Class CL_CFG As Custom
@@ -25709,7 +25652,6 @@ Define Class CL_CFG As Custom
 
 
 Enddefine
-
 
 
 
@@ -26374,7 +26316,6 @@ ENDDEFINE
 
 
 
-
 DEFINE CLASS cl_fb2prg_mirror AS Custom
    o_Host = .NULL.
 
@@ -26737,7 +26678,6 @@ ENDDEFINE
 
 
 
-
 DEFINE CLASS cl_fb2prg_special_props AS Custom
 
    DIMENSION a_SpecialProps(1)     , a_SpecialProps_Chk(1) , a_SpecialProps_Coll(1) ;
@@ -26776,7 +26716,7 @@ DEFINE CLASS cl_fb2prg_special_props AS Custom
 
    FUNCTION getPropSortIndex
       *--------------------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcBaseClass               (v! IN    ) BaseClass del objeto o clase evaluada
       * tcPropName                (v! IN    ) Nombre de la propiedad
       *--------------------------------------------------------------------------------------------------------------
@@ -26805,7 +26745,7 @@ DEFINE CLASS cl_fb2prg_special_props AS Custom
 
       TRY
 
-         WITH This AS cl_fb2prg_special_props OF 'cl_fb2prg_special_props.prg'
+         WITH This AS cl_fb2prg_special_props Of 'foxbin2prg.prg'
             .SpecialPropsFiles_Add( "props_all.txt"                , "a_SpecialProps"        , "all"             )
             .SpecialPropsFiles_Add( "props_checkbox.txt"           , "a_SpecialProps_Chk"    , "checkbox"        )
             .SpecialPropsFiles_Add( "props_collection.txt"         , "a_SpecialProps_Coll"   , "collection"      )
@@ -26883,7 +26823,6 @@ DEFINE CLASS cl_fb2prg_special_props AS Custom
    ENDPROC
 
 ENDDEFINE
-
 
 
 
@@ -27490,494 +27429,6 @@ ENDDEFINE
 
 
 
-
-*---------------------------------------------------------------------------------------------------
-*- English strings for CL_LANG (fallback)
-*---------------------------------------------------------------------------------------------------
-
-PROCEDURE Lang_Apply_EN
-   LPARAMETERS toLang
-
-   WITH toLang
-      .C_ALLOWED_VALUES_ARE_LOC                                       = "Allowed values are"
-      .C_ASTERISK_EXT_NOT_ALLOWED_LOC                                 = "* and ? extensions are not allowed because it's dangerous (binaries can be overwritten with xx2 empty files)"
-      .C_BACKLINK_CANT_UPDATE_BL_LOC                                  = "Could not update backlink"
-      .C_BACKLINK_OF_TABLE_LOC                                        = "of table"
-      .C_BACKUP_OF_LOC                                                = "Doing Backup of: "
-      .C_CANT_GENERATE_FILE_BECAUSE_IT_IS_READONLY_LOC                = "Cannot generate file [<<THIS.c_OutputFile>>] because it is ReadOnly"
-      .C_CLASSPERFILE_OPTIMIZATION_BASE_ALREADY_PROCESSED_LOC         = "Optimization: Base File [<<JUSTFNAME(.c_InputFile)>>] already processed, skipping processing of file [<<tc_InputFile>>]"
-      .C_CONVERSION_CANCELLED_BY_USER_LOC                             = "Conversion Cancelled by the user"
-      .C_CONVERT_ALL_FILES_IN_A_PROJECT_LOC                           = "Convert all files in a Project"
-      .C_CONVERT_FOLDER_LOC                                           = "Convert Folder"
-      .C_BINARY_TO_TEXT_LOC                                           = "Binary to Text"
-      .C_TEXT_TO_BINARY_LOC                                           = "Text to Binary"
-      .C_CONVERT_FOLDER_NONE_LOC                                      = "None"
-      .C_CONVERT_FOLDER_QUESTION_LOC                                  = "What conversion should be performed on the files of this folder?"
-      .C_CONVERTER_UNLOAD_LOC                                         = "Converter unload"
-      .C_CONVERTING_FILE_LOC                                          = "Converting file"
-      .C_DATA_ERROR_CANT_PARSE_UNPAIRING_DOUBLE_QUOTES_LOC            = "Data Error: Can't parse because of unpaired double-quotes on line <<lcMetadatos>>"
-      .C_DUPLICATED_FILE_LOC                                          = "Duplicated file"
-      .C_DUPLICATED_OBJECT_LOC                                        = "Duplicated Object"
-      .C_ENDDEFINE_MARKER_NOT_FOUND_LOC                               = "Cannot find end marker [ENDDEFINE] of line <<TRANSFORM( toClase._Inicio )>> for ID [<<toClase._Nombre>>]"
-      .C_END_MARKER_NOT_FOUND_LOC                                     = "Cannot find end marker [<<ta_ID_Bloques(lnPrimerID,2)>>] that closes start marker [<<ta_ID_Bloques(lnPrimerID,1)>>] on line <<TRANSFORM(taBloquesExclusion(tnBloquesExclusion,1))>>"
-      .C_END_OF_PROCESS_LOC                                           = "End of Process"
-      .C_ERRORS_FOUND_IN_FILE_LOC                                     = "ERRORS FOUND IN FILE"
-      .C_EXTERNAL_CLASS_NAME_WAS_NOT_FOUND_LOC                        = "External class was not found"
-      .C_EXTERNAL_MEMBER_NAME_WAS_NOT_FOUND_LOC                       = "External member name was not found"
-      .C_EXTERNAL_PARAMETERS_LOC                                      = "EXTERNAL PARAMETERS"
-      .C_FIELD_NOT_FOUND_ON_FILE_STRUCTURE_LOC                        = "Field [<<laProps(m.I)>>] not found in structure of file <<DBF('TABLABIN')>>"
-      .C_FILE_DOESNT_EXIST_LOC                                        = "File does not exist:"
-      .C_FILE_NAME_IS_NOT_SUPPORTED_LOC                               = "File [<<.c_InputFile>>] is not supported"
-      .C_FILE_NOT_FOUND_LOC                                           = "File not found"
-      .C_FILENAME_LOC                                                 = "File"
-      .C_FOXBIN2PRG_ERROR_CAPTION_LOC                                 = "ERROR"
-      .C_FOXBIN2PRG_SYNTAX_INFO_LOC                                   = "CONFIGURATION REFERENCE"
-      .C_CFG_REF_TITLE_LOC                                            = "Configuration reference"
-      .C_CFG_REF_INTRO_LOC                                            = "Programmatic configuration for FoxBin2Prg (no .cfg files on disk)."
-      TEXT TO .C_CFG_REF_USAGE_LOC TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-         <<>>loCfg = loF2b.newConfig()  && clone factory defaults
-         <<>>loCfg.l_NoTimestamps = .T. && override properties
-         <<>>loF2b.exportProjectTree( lcPjx, lcDest, loCfg )
-         <<>>loF2b.importProjectTree( lcPj2, lcDest, loCfg )
-         <<>>DO main.prg WITH lcFile, '', loCfg"
-      ENDTEXT
-      .C_CFG_REF_SEC_GENERAL_LOC                                      = "General"
-      .C_CFG_REF_SEC_TIMESTAMPS_LOC                                   = "Timestamps / metadata"
-      .C_CFG_REF_SEC_CLASSFORM_LOC                                    = "Classes / Forms"
-      .C_CFG_REF_SEC_MIRROR_LOC                                       = "Mirrored tree (exportProjectTree)"
-      .C_CFG_REF_SEC_DBF_LOC                                          = "DBF / DBC / conversion support"
-      .C_CFG_REF_SEC_EXTENSIONS_LOC                                   = "Text file extensions"
-      .C_ClassTwice_Header_LOC                                        = CR_LF+"Class defined twice."+CR_LF
-      .C_ClassTwice_Lib_LOC                                           = CR_LF+"Library: "
-      .C_ClassTwice_Class_LOC                                         = CR_LF+"Class: "
-
-      .C_FOXBIN2PRG_JUST_VFP_9_LOC                                    = "FOXBIN2PRG is only for Visual FoxPro 9.0!"
-      .C_FOXBIN2PRG_WARN_CAPTION_LOC                                  = "WARNING!"
-      .C_GENERATING_BINARY_LOC                                        = "Generating Binary"
-      .C_INCLUDING_CLASS_LOC                                          = "Including class"
-      .C_INCLUDING_MEMBER_LOC                                         = "Including member"
-      .C_INCORRECT_VFP9_VERSION__MISSING_SP1_LOC                      = "Incorrect VFP 9 version - Missing SP1! Expected: 3504 or later, actual: " + VERSION(4)
-      .C_INVALID_PARAMETER_LOC                                        = "Invalid parameter"
-      .C_IS_A_FILE_LOC                                                = "is a FILE"
-      .C_IS_A_DIRECTORY_LOC                                           = "is a DIRECTORY"
-      .C_IS_UNSUPPORTED_LOC                                           = "is unsupported"
-      .C_LANGUAGE_LOC                                                 = "EN"
-      .C_MAIN_EXECUTION_LOC                                           = "MAIN EXECUTION"
-      .C_MENU_NOT_IN_VFP9_FORMAT_LOC                                  = "Menu [<<THIS.c_InputFile>>] is NOT in VFP 9 Format! - Please convert to VFP 9 with MODIFY MENU '<<THIS.c_InputFile>>'"
-      .C_NAMES_CAPITALIZATION_PROGRAM_FOUND_LOC                       = "* Names capitalization program [<<lcEXE_CAPS>>] found"
-      .C_NAMES_CAPITALIZATION_PROGRAM_NOT_FOUND_LOC                   = "* Names capitalization program [<<lcEXE_CAPS>>] not found"
-      .C_OBJECT_NAME_WITHOUT_OBJECT_OREG_LOC                          = "Object [<<toObj.CLASS>>] does not contain oReg object (level <<TRANSFORM(tnNivel)>>)"
-      .C_ONLY_SETNAME_AND_GETNAME_RECOGNIZED_LOC                      = "Operation not recognized. Only SETNAME and GETNAME allowed."
-      .C_OPTION_LOC                                                   = "Option"
-      .C_OUTER_CLASS_DOES_NOT_MATCH_INNER_CLASSES_LOC                 = "The outer class does not match the inner classes"
-      .C_OUTER_MEMBER_DOES_NOT_MATCH_INNER_MEMBERS_LOC                = "The outer member does not match the inner members"
-      .C_OUTPUT_FILE_IS_NOT_OVERWRITEN_LOC                            = "Optimization: output file [<<lcOutputFile>>] was not overwritten because it is the same as the existing one."
-      .C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimization: output file [<<THIS.c_OutputFile>>] was not regenerated because it's filestamp is equal than the inputfile."
-      .C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimization: output file [<<THIS.c_OutputFile>>] was not regenerated because it's filestamp is newer than the inputfile."
-      .C_PRESS_ESC_TO_CANCEL                                          = "Press Esc to Cancel"
-      .C_PROCEDURE_NOT_CLOSED_ON_LINE_LOC                             = "Procedure not closed. Last line of code must be ENDPROC. [<<laLineas(1)>>, Recno:<<RECNO()>>]"
-      .C_PROCESSING_LOC                                               = "Processing file"
-      .C_PROCESS_PROGRESS_LOC                                         = "Process Progress:"
-      .C_PROPERTY_NAME_NOT_RECOGNIZED_LOC                             = "Property [<<TRANSFORM(tnPropertyID)>>] is not recognized."
-      .C_REPORT_NOT_IN_VFP9_FORMAT_LOC                                = "Report [<<THIS.c_InputFile>>] is NOT in VFP 9 Format! - Please convert to VFP 9 with MODIFY REPORT '<<THIS.c_InputFile>>'"
-      .C_REQUESTING_CAPITALIZATION_OF_FILE_LOC                        = "- Requesting capitalization of file [<<tcFileName>>]"
-      .C_SCANNING_FILE_AND_DIR_INFO_LOC                               = "Scanning file and directory information for"
-      .C_SOURCEFILE_LOC                                               = "Source file: "
-      .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_LOC                 = "Nesting structure error. ENDPROC expected but found ENDDEFINE on class <<toClase._Nombre>> (<<loProcedure._Nombre>>), line <<TRANSFORM(m.I)>> of file <<THIS.c_InputFile>>"
-      .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_2_LOC               = "Nesting structure error. ENDPROC expected but found ENDDEFINE on class <<toClase._Nombre>> (<<toObjeto._Nombre>>.<<loProcedure._Nombre>>), line <<TRANSFORM(m.I)>> of file <<THIS.c_InputFile>>"
-      .C_UNKNOWN_CLASS_NAME_LOC                                       = "Unknown class [<<THIS.CLASS>>]"
-      .C_USE_FILE_TIMESTAMP_OPTIMIZATION_LOC                          = "Use file timestamp Optimization"
-      .C_WARNING_LOC                                                  = "WARNING!"
-      .C_WARN_TABLE_ALIAS_ON_INDEX_EXPRESSION_LOC                     = "WARNING!" + CR_LF+ "MAKE SURE YOU ARE NOT USING A TABLE ALIAS ON INDEX KEY EXPRESSIONS!! (ex: index on <<UPPER(JUSTSTEM(THIS.c_InputFile))>>.campo tag keyname)"
-      .C_WITH_ERRORS_LOC                                              = "with errors"
-
-      .C_INDEX2TXT_PROCESSING_LOC                                     = " Processing index"
-      .C_INDEX2TXT_EXTRAFILES_LOC                                     = "  Additional index files"
-      .C_INDEX2TXT_NOFILE_LOC                                         = "     Not a File "
-      .C_INDEX2TXT_NOTTHISTABLE_LOC                                   = "   Index does not match table "
-      .C_INDEX2BIN_PROCESSING_LOC                                     = " Creating index"
-      .C_INDEX2BIN_STRUCTURAL_LOC                                     = "  TAGs for structural index"
-      .C_INDEX2BIN_STANDALONE_LOC                                     = "  Standalone index "
-      .C_INDEX2BIN_COMPOUND_LOC                                       = "  TAGs for compound index "
-      .C_PJXPATH_ERR_LOC1                                             = CR_LF + 'Main file "'
-      .C_PJXPATH_ERR_LOC2                                             = CR_LF + 'Project icon file "'
-      .C_PJXPATH_ERR_LOC3                                             = CR_LF + 'File ""'
-      .C_PJXPATH_ERR_LOC4                                             = '"' + CR_LF + 'not in PJX folder structure, "'
-      .C_PJXPATH_ERR_LOC5                                             = '",' + 0h0D0A + 'check option "CheckFileInPath".' + CR_LF+CR_LF
-
-      .n_LanguageSelectedMethod   = 0 && 0=Automatic with VERSION(3)
-   ENDWITH
-
-ENDPROC
-
-
-
-
-*---------------------------------------------------------------------------------------------------
-*- French strings for CL_LANG
-*---------------------------------------------------------------------------------------------------
-
-PROCEDURE Lang_Apply_FR
-   LPARAMETERS toLang
-
-   WITH toLang
-      .C_ALLOWED_VALUES_ARE_LOC                                       = "Les valeurs autoris√©es sont"
-      .C_ASTERISK_EXT_NOT_ALLOWED_LOC                                 = "* Et ? extensions ne sont pas autoris√©es car il est dangereux (binaires peuvent √™tre remplac√©s par des fichiers vides de XX2)"
-      .C_BACKLINK_CANT_UPDATE_BL_LOC                                  = "Impossible de mettre √† jour backlink"
-      .C_BACKLINK_OF_TABLE_LOC                                        = "de la table"
-      .C_BACKUP_OF_LOC                                                = "Faire de sauvegarde des: "
-      .C_CANT_GENERATE_FILE_BECAUSE_IT_IS_READONLY_LOC                = "Vous ne pouvez pas g√©n√©rer un fichier [<<THIS.c_OutputFile>>] car il est en lecture seule"
-      .C_CLASSPERFILE_OPTIMIZATION_BASE_ALREADY_PROCESSED_LOC         = "Optimisation: Fichier de base [<<JUSTFNAME(.c_InputFile)>>] D√©j√† trait√©e, en sautant traitement de fichier [<<tc_InputFile>>]"
-      .C_CONVERSION_CANCELLED_BY_USER_LOC                             = "Conversion Annul√© par l'utilisateur"
-      .C_CONVERT_ALL_FILES_IN_A_PROJECT_LOC                           = "Convertir tous les fichiers dans un Projet"
-      .C_CONVERT_FOLDER_LOC                                           = "Convertir un Dossier"
-      .C_BINARY_TO_TEXT_LOC                                           = "Binaire en Texte"
-      .C_TEXT_TO_BINARY_LOC                                           = "Texte √† Binaire"
-      .C_CONVERT_FOLDER_NONE_LOC                                      = "Aucun"
-      .C_CONVERT_FOLDER_QUESTION_LOC                                  = "Que la conversion doit √™tre effectu√©e sur les fichiers de ce dossier?"
-      .C_CONVERTER_UNLOAD_LOC                                         = "Convertisseur d√©chargement"
-      .C_CONVERTING_FILE_LOC                                          = "Conversion de fichiers"
-      .C_DATA_ERROR_CANT_PARSE_UNPAIRING_DOUBLE_QUOTES_LOC            = "Erreur de donn√©es: ne peut pas analyser en raison de guillemets non appari√©s en ligne <<lcMetadatos>>"
-      .C_DUPLICATED_FILE_LOC                                          = "fichier dupliqu√©"
-      .C_DUPLICATED_OBJECT_LOC                                        = "Object dupliqu√©"
-      .C_ENDDEFINE_MARKER_NOT_FOUND_LOC                               = "Vous ne trouvez pas marqueur de fin [ENDDEFINE] de la ligne <<TRANSFORM(toClase._Inicio)>> ID [<<toClase._Nombre>>]"
-      .C_END_MARKER_NOT_FOUND_LOC                                     = "Vous ne trouvez pas fin marqueur [<<ta_ID_Bloques(lnPrimerID, 2)>>] qui ferme marqueur de d√©but [<<ta_ID_Bloques(lnPrimerID, 1) >>] en ligne <<TRANSFORM(taBloquesExclusion (tnBloquesExclusion, 1))>>"
-      .C_END_OF_PROCESS_LOC                                           = "Fin du processus"
-      .C_ERRORS_FOUND_IN_FILE_LOC                                     = "ERREURS TROUV√â DANS LE FICHIER"
-      .C_EXTERNAL_CLASS_NAME_WAS_NOT_FOUND_LOC                        = "Aucune classe externe est trouv√©"
-      .C_EXTERNAL_MEMBER_NAME_WAS_NOT_FOUND_LOC                       = "Nom de membre externe n'a pas √©t√© trouv√©"
-      .C_EXTERNAL_PARAMETERS_LOC                                      = "PARAM√àTRES EXTERNES"
-      .C_FIELD_NOT_FOUND_ON_FILE_STRUCTURE_LOC                        = "Champ [<< laProps (m.I) >>] ne trouve pas dans la structure du fichier DBF <<('TABLABIN')>>"
-      .C_FILE_DOESNT_EXIST_LOC                                        = "Fichier ne existe pas:"
-      .C_FILE_NAME_IS_NOT_SUPPORTED_LOC                               = "File [<<.c_InputFile>>] ne est pas support√©"
-      .C_FILE_NOT_FOUND_LOC                                           = "Fichier introuvable"
-      .C_FILENAME_LOC                                                 = "Fichier"
-      .C_FOXBIN2PRG_ERROR_CAPTION_LOC                                 = "ERREUR"
-      .C_FOXBIN2PRG_SYNTAX_INFO_LOC                                   = "R√âF√âRENCE DE CONFIGURATION"
-      .C_CFG_REF_TITLE_LOC                                            = "R√©f√©rence de configuration"
-      .C_CFG_REF_INTRO_LOC                                            = "Configuration programmatique pour FoxBin2Prg (pas de fichiers .cfg sur disque)."
-      TEXT TO .C_CFG_REF_USAGE_LOC TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-         <<>>loCfg = loF2b.newConfig()  && cloner les valeurs d'usine
-         <<>>loCfg.l_NoTimestamps = .T. && remplacer les propri√©t√©s
-         <<>>loF2b.exportProjectTree( lcPjx, lcDest, loCfg )
-         <<>>loF2b.importProjectTree( lcPj2, lcDest, loCfg )
-         <<>>DO main.prg WITH lcFile, '', loCfg"
-      ENDTEXT
-      .C_CFG_REF_SEC_GENERAL_LOC                                      = "G√©n√©ral"
-      .C_CFG_REF_SEC_TIMESTAMPS_LOC                                   = "Horodatages / m√©tadonn√©es"
-      .C_CFG_REF_SEC_CLASSFORM_LOC                                    = "Classes / Formulaires"
-      .C_CFG_REF_SEC_MIRROR_LOC                                       = "Arbre miroir (exportProjectTree)"
-      .C_CFG_REF_SEC_DBF_LOC                                          = "DBF / DBC / prise en charge conversion"
-      .C_CFG_REF_SEC_EXTENSIONS_LOC                                   = "Extensions de fichiers texte"
-      .C_ClassTwice_Header_LOC                                        = CR_LF+"Classe d√©finie deux fois."+CR_LF
-      .C_ClassTwice_Lib_LOC                                           = CR_LF+"Biblioth√®que: "
-      .C_ClassTwice_Class_LOC                                         = CR_LF+"Classe: "
-      .C_FOXBIN2PRG_JUST_VFP_9_LOC                                    = "FOXBIN2PRG est seulement pour Visual FoxPro 9.0!"
-      .C_FOXBIN2PRG_WARN_CAPTION_LOC                                  = "AVERTISSEMENT!"
-      .C_GENERATING_BINARY_LOC                                        = "G√©n√©ration Binaire"
-      .C_INCLUDING_CLASS_LOC                                          = "classe, y compris"
-      .C_INCLUDING_MEMBER_LOC                                         = "membres, y compris"
-      .C_INCORRECT_VFP9_VERSION__MISSING_SP1_LOC                      = "Version VFP 9 incorrecte - SP1 manquant! Attendu: 3504 ou plus tard, actuel: " + Version(4)
-      .C_INVALID_PARAMETER_LOC                                        = "Param√®tre non valide"
-      .C_IS_A_FILE_LOC                                                = "est un FICHIER"
-      .C_IS_A_DIRECTORY_LOC                                           = "est un R√âPERTOIRE"
-      .C_IS_UNSUPPORTED_LOC                                           = "ne est pas support√©"
-      .C_LANGUAGE_LOC                                                 = "FR"
-      .C_MAIN_EXECUTION_LOC                                           = "EX√âCUTION PRINCIPALE"
-      .C_MENU_NOT_IN_VFP9_FORMAT_LOC                                  = "Menu [<<THIS.c_InputFile>>] ne est pas dans VFP 9 Format! - Se il vous pla√Æt se convertir √† VFP 9 avec MODIFY MENU '<<THIS.c_InputFile>>'"
-      .C_NAMES_CAPITALIZATION_PROGRAM_FOUND_LOC                       = "* Programme des noms de capitalisation [<<lcEXE_CAPS>>] trouv√©"
-      .C_NAMES_CAPITALIZATION_PROGRAM_NOT_FOUND_LOC                   = "* Programme des noms de capitalisation [<<lcEXE_CAPS>>] introuvables"
-      .C_OBJECT_NAME_WITHOUT_OBJECT_OREG_LOC                          = "Object [<<toObj.CLASS>>] ne contient pas l'objet oReg (niveau <<TRANSFORM(tnNivel)>>)"
-      .C_ONLY_SETNAME_AND_GETNAME_RECOGNIZED_LOC                      = "Op√©ration non reconnu. Seulement SETNAME et GETNAME permis."
-      .C_OPTION_LOC                                                   = "Option"
-      .C_OUTER_CLASS_DOES_NOT_MATCH_INNER_CLASSES_LOC                 = "La classe externe ne correspond pas √† la classe interne"
-      .C_OUTER_MEMBER_DOES_NOT_MATCH_INNER_MEMBERS_LOC                = "L'√©l√©ment ext√©rieur ne correspond pas aux √©l√©ments int√©rieur"
-      .C_OUTPUT_FILE_IS_NOT_OVERWRITEN_LOC                            = "Optimisation: fichier de sortie [<<lcOutputFile>>] ne √©tait pas √©cras√© parce que ce est la m√™me que celle g√©n√©r√©e."
-      .C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimisation: le fichier de sortie [<<THIS.c_OutputFile>>] pas r√©g√©n√©r√© en ayant le m√™me horodatage que l'entr√©e."
-      .C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimisation: le fichier de sortie [<<THIS.c_OutputFile>>] n'a pas √©t√© r√©g√©n√©r√© car il est plus r√©cent que le fichier d'entr√©e."
-      .C_PRESS_ESC_TO_CANCEL                                          = "Appuyez sur Esc pour Annuler"
-      .C_PROCEDURE_NOT_CLOSED_ON_LINE_LOC                             = "Proc√©dure pas ferm√©. Derni√®re ligne de code doit √™tre ENDPROC. [<<laLineas(1)>>, Recno:<<RECNO()>>]"
-      .C_PROCESSING_LOC                                               = "Traitement du fichier"
-      .C_PROCESS_PROGRESS_LOC                                         = "Processus Progr√®s:"
-      .C_PROPERTY_NAME_NOT_RECOGNIZED_LOC                             = "Propri√©t√© [<<TRANSFORM(tnPropertyID)>>] ne est pas reconnu."
-      .C_REPORT_NOT_IN_VFP9_FORMAT_LOC                                = "Rapport [<<THIS.c_InputFile>>] ne est pas dans VFP 9 Format! - Se il vous pla√Æt se convertir √† VFP 9 avec MODIFY REPORT '<<THIS.c_InputFile>>'"
-      .C_REQUESTING_CAPITALIZATION_OF_FILE_LOC                        = "- Demande de capitalisation de fichier [<<tcFileName>>]"
-      .C_SCANNING_FILE_AND_DIR_INFO_LOC                               = "Fichier de num√©risation et de l'information de r√©pertoire pour"
-      .C_SOURCEFILE_LOC                                               = "Fichier source: "
-      .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_LOC                 = "Nesting erreur de structure. ENDPROC pr√©vu, mais a trouv√© ENDDEFINE sur la classe <<toClase._Nombre>> (<<loProcedure._Nombre>>), ligne <<TRANSFORM(m.I)>> du fichier <<THIS.c_InputFile>>"
-      .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_2_LOC               = "Nesting erreur de structure. ENDPROC attendue, mais ENDDEFINE sur la classe <<toClase._Nombre>> (<<toObjeto._Nombre>>.<<loProcedure._Nombre>>), ligne <<TRANSFORM(m.I)>> du fichier <<THIS.c_InputFile>>"
-      .C_UNKNOWN_CLASS_NAME_LOC                                       = "Classe inconnue[<<THIS.CLASS>>]"
-      .C_USE_FILE_TIMESTAMP_OPTIMIZATION_LOC                          = "Utilisez le fichier Optimisation d'horodatage"
-      .C_WARNING_LOC                                                  = "AVERTISSEMENT!"
-      .C_WARN_TABLE_ALIAS_ON_INDEX_EXPRESSION_LOC                     = "AVERTISSEMENT!" + CR_LF+ "ASSUREZ VOUS NE UTILISEZ PAS UN ALIAS DE TABLE SUR LES EXPRESSIONS INDEX CL√âS!! (exemple: index on <<UPPER(JUSTSTEM(THIS.c_InputFile))>>.campo tag keyname)"
-      .C_WITH_ERRORS_LOC                                              = "avec des erreurs"
-
-      .C_INDEX2TXT_PROCESSING_LOC                                     = " Traitement de l'index"
-      .C_INDEX2TXT_EXTRAFILES_LOC                                     = "  Fichiers d'index suppl√©mentaires"
-      .C_INDEX2TXT_NOFILE_LOC                                         = "     Pas un fichier "
-      .C_INDEX2TXT_NOTTHISTABLE_LOC                                   = "   L'index ne correspond pas √† la table "
-      .C_INDEX2BIN_PROCESSING_LOC                                     = " Cr√©ation de l'index"
-      .C_INDEX2BIN_STRUCTURAL_LOC                                     = "  TAGs pour l'index structurel"
-      .C_INDEX2BIN_STANDALONE_LOC                                     = "  Index autonome "
-      .C_INDEX2BIN_COMPOUND_LOC                                       = "  TAGs pour l'index compos√© "
-      .C_PJXPATH_ERR_LOC1                                             = CR_LF + 'Fichier principal "'
-      .C_PJXPATH_ERR_LOC2                                             = CR_LF + 'Fichier ic√¥ne du projet "'
-      .C_PJXPATH_ERR_LOC3                                             = CR_LF + 'Fichier ""'
-      .C_PJXPATH_ERR_LOC4                                             = '"' + CR_LF + 'absent de la structure de dossiers PJX, "'
-      .C_PJXPATH_ERR_LOC5                                             = '",' + 0h0D0A + 'voir l''option "CheckFileInPath".' + CR_LF+CR_LF
-
-      .n_LanguageSelectedMethod   = 0 && 0=Automatic with VERSION(3)
-   ENDWITH
-
-ENDPROC
-
-
-
-
-*---------------------------------------------------------------------------------------------------
-*- Spanish strings for CL_LANG
-*---------------------------------------------------------------------------------------------------
-
-PROCEDURE Lang_Apply_ES
-   LPARAMETERS toLang
-
-   WITH toLang
-      .C_ALLOWED_VALUES_ARE_LOC                                       = "Los valores permitidos son"
-      .C_ASTERISK_EXT_NOT_ALLOWED_LOC                                 = "No se admiten extensiones * o ? porque es peligroso (se pueden pisar binarios con archivo xx2 vac√≠os)."
-      .C_BACKLINK_CANT_UPDATE_BL_LOC                                  = "No se pudo actualizar el backlink"
-      .C_BACKLINK_OF_TABLE_LOC                                        = "de la tabla"
-      .C_BACKUP_OF_LOC                                                = "Haciendo Backup de: "
-      .C_CANT_GENERATE_FILE_BECAUSE_IT_IS_READONLY_LOC                = "No se puede generar el archivo [<<THIS.c_OutputFile>>] porque es ReadOnly"
-      .C_CLASSPERFILE_OPTIMIZATION_BASE_ALREADY_PROCESSED_LOC         = "Optimizaci√≥n: El archivo Base [<<JUSTFNAME(.c_InputFile)>>] ya fue procesado, ignorando el procesamiento del archivo [<<tc_InputFile>>]"
-      .C_CONVERSION_CANCELLED_BY_USER_LOC                             = "Conversi√≥n Cancelada por el usuario"
-      .C_CONVERT_ALL_FILES_IN_A_PROJECT_LOC                           = "Convertir todos los archivos de un Proyecto"
-      .C_CONVERT_FOLDER_LOC                                           = "Convertir Carpeta"
-      .C_BINARY_TO_TEXT_LOC                                           = "Binario a Texto"
-      .C_TEXT_TO_BINARY_LOC                                           = "Texto a Binario"
-      .C_CONVERT_FOLDER_NONE_LOC                                      = "Ninguna"
-      .C_CONVERT_FOLDER_QUESTION_LOC                                  = "¬øQu√© tipo de conversi√≥n se debe hacer en esta carpeta?"
-      .C_CONVERTER_UNLOAD_LOC                                         = "Descarga del conversor"
-      .C_CONVERTING_FILE_LOC                                          = "Convirtiendo archivo"
-      .C_DATA_ERROR_CANT_PARSE_UNPAIRING_DOUBLE_QUOTES_LOC            = "Error de datos: No se puede parsear porque las comillas no son pares en la l√≠nea <<lcMetadatos>>"
-      .C_DUPLICATED_FILE_LOC                                          = "Archivo duplicado"
-      .C_DUPLICATED_OBJECT_LOC                                        = "Objeto Duplicado"
-      .C_ENDDEFINE_MARKER_NOT_FOUND_LOC                               = "No se ha encontrado el marcador de fin [ENDDEFINE] de la l√≠nea <<TRANSFORM( toClase._Inicio )>> para el identificador [<<toClase._Nombre>>]"
-      .C_END_MARKER_NOT_FOUND_LOC                                     = "No se ha encontrado el marcador de fin [<<ta_ID_Bloques(lnPrimerID,2)>>] que cierra al marcador de inicio [<<ta_ID_Bloques(lnPrimerID,1)>>] de la l√≠nea <<TRANSFORM(taBloquesExclusion(tnBloquesExclusion,1))>>"
-      .C_END_OF_PROCESS_LOC                                           = "Fin del Proceso"
-      .C_ERRORS_FOUND_IN_FILE_LOC                                     = "SE HAN ENCONTRADOS ERRORES EN EL ARCHIVO"
-      .C_EXTERNAL_CLASS_NAME_WAS_NOT_FOUND_LOC                        = "No se encontr√≥ la clase externa"
-      .C_EXTERNAL_MEMBER_NAME_WAS_NOT_FOUND_LOC                       = "No se encontr√≥ el miembro externo"
-      .C_EXTERNAL_PARAMETERS_LOC                                      = "PAR√ÅMETROS EXTERNOS"
-      .C_FIELD_NOT_FOUND_ON_FILE_STRUCTURE_LOC                        = "No se encontr√≥ el campo [<<laProps(m.I)>>] en la estructura del archivo <<DBF('TABLABIN')>>"
-      .C_FILE_DOESNT_EXIST_LOC                                        = "El archivo no existe:"
-      .C_FILE_NAME_IS_NOT_SUPPORTED_LOC                               = "El archivo [<<.c_InputFile>>] no est√° soportado"
-      .C_FILE_NOT_FOUND_LOC                                           = "No se encontr√≥ el archivo"
-      .C_FILENAME_LOC                                                 = "Archivo"
-      .C_FOXBIN2PRG_ERROR_CAPTION_LOC                                 = "ERROR"
-      .C_FOXBIN2PRG_SYNTAX_INFO_LOC                                   = "REFERENCIA DE CONFIGURACI√ìN"
-      .C_CFG_REF_TITLE_LOC                                            = "Referencia de configuraci√≥n"
-      .C_CFG_REF_INTRO_LOC                                            = "Configuraci√≥n program√°tica para FoxBin2Prg (sin archivos .cfg en disco)."
-      TEXT TO .C_CFG_REF_USAGE_LOC TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-         <<>>loCfg = loF2b.newConfig()  && clonar valores de f√°brica
-         <<>>loCfg.l_NoTimestamps = .T. && sobrescribir propiedades
-         <<>>loF2b.exportProjectTree( lcPjx, lcDest, loCfg )
-         <<>>loF2b.importProjectTree( lcPj2, lcDest, loCfg )
-         <<>>DO main.prg WITH lcFile, '', loCfg"
-      ENDTEXT
-      .C_CFG_REF_SEC_GENERAL_LOC                                      = "General"
-      .C_CFG_REF_SEC_TIMESTAMPS_LOC                                   = "Marcas de tiempo / metadatos"
-      .C_CFG_REF_SEC_CLASSFORM_LOC                                    = "Clases / Formularios"
-      .C_CFG_REF_SEC_MIRROR_LOC                                       = "√Årbol espejo (exportProjectTree)"
-      .C_CFG_REF_SEC_DBF_LOC                                          = "DBF / DBC / soporte de conversi√≥n"
-      .C_CFG_REF_SEC_EXTENSIONS_LOC                                   = "Extensiones de archivos de texto"
-      .C_ClassTwice_Header_LOC                                        = CR_LF+"Clase definida dos veces."+CR_LF
-      .C_ClassTwice_Lib_LOC                                           = CR_LF+"Biblioteca: "
-      .C_ClassTwice_Class_LOC                                         = CR_LF+"Clase: "
-
-      .C_FOXBIN2PRG_JUST_VFP_9_LOC                                    = "¬°FOXBIN2PRG es solo para Visual FoxPro 9.0!"
-      .C_FOXBIN2PRG_WARN_CAPTION_LOC                                  = "¬°ATENCI√ìN!"
-      .C_GENERATING_BINARY_LOC                                        = "Generando Binario"
-      .C_INCLUDING_CLASS_LOC                                          = "Incluyendo clase"
-      .C_INCLUDING_MEMBER_LOC                                         = "Incluyendo miembro"
-      .C_INCORRECT_VFP9_VERSION__MISSING_SP1_LOC                      = "Versi√≥n Incorrecta de VFP 9 - Falta el SP1! Esperado: 3504 o posterior, actual: " + Version(4)
-      .C_INVALID_PARAMETER_LOC                                        = "Par√°metro inv√°lido"
-      .C_IS_A_FILE_LOC                                                = "es un ARCHIVO"
-      .C_IS_A_DIRECTORY_LOC                                           = "es un DIRECTORIO"
-      .C_IS_UNSUPPORTED_LOC                                           = "no est√° soportado"
-      .C_LANGUAGE_LOC                                                 = "ES"
-      .C_MAIN_EXECUTION_LOC                                           = "EJECUCI√ìN PRINCIPAL"
-      .C_MENU_NOT_IN_VFP9_FORMAT_LOC                                  = "El Men√∫ [<<THIS.c_InputFile>>] NO est√° en formato VFP 9! - Por favor convertirlo a VFP 9 con MODIFY MENU '<<THIS.c_InputFile>>'"
-      .C_NAMES_CAPITALIZATION_PROGRAM_FOUND_LOC                       = "* Se ha encontrado el programa de capitalizaci√≥n de nombres [<<lcEXE_CAPS>>]"
-      .C_NAMES_CAPITALIZATION_PROGRAM_NOT_FOUND_LOC                   = "* No se ha encontrado el programa de capitalizaci√≥n de nombres [<<lcEXE_CAPS>>]"
-      .C_OBJECT_NAME_WITHOUT_OBJECT_OREG_LOC                          = "Objeto [<<toObj.CLASS>>] no contiene el objeto oReg (nivel <<TRANSFORM(tnNivel)>>)"
-      .C_ONLY_SETNAME_AND_GETNAME_RECOGNIZED_LOC                      = "Operaci√≥n no reconocida. Solo re reconoce SETNAME y GETNAME."
-      .C_OPTION_LOC                                                   = "Opci√≥n"
-      .C_OUTER_CLASS_DOES_NOT_MATCH_INNER_CLASSES_LOC                 = "La clase externa no coincide con las clases internas"
-      .C_OUTER_MEMBER_DOES_NOT_MATCH_INNER_MEMBERS_LOC                = "El miembro externo no coincide con los miembros internos"
-      .C_OUTPUT_FILE_IS_NOT_OVERWRITEN_LOC                            = "Optimizaci√≥n: el archivo de salida [<<lcOutputFile>>] no se sobreescribe por ser igual al ya existente."
-      .C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimizaci√≥n: el archivo de salida [<<THIS.c_OutputFile>>] no se regenera por tener el mismo timestamp que el de entrada."
-      .C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimizaci√≥n: el archivo de salida [<<THIS.c_OutputFile>>] no se regenera por tener un timestamp m√°s nuevo que el de entrada."
-      .C_PRESS_ESC_TO_CANCEL                                          = "Pulse Esc para Cancelar"
-      .C_PROCEDURE_NOT_CLOSED_ON_LINE_LOC                             = "Procedimiento sin cerrar. La √∫ltima l√≠nea de c√≥digo debe ser ENDPROC. [<<laLineas(1)>>, Recno:<<RECNO()>>]"
-      .C_PROCESSING_LOC                                               = "Procesando archivo"
-      .C_PROCESS_PROGRESS_LOC                                         = "Avance del proceso:"
-      .C_PROPERTY_NAME_NOT_RECOGNIZED_LOC                             = "Propiedad [<<TRANSFORM(tnPropertyID)>>] no reconocida."
-      .C_REPORT_NOT_IN_VFP9_FORMAT_LOC                                = "El Reporte [<<THIS.c_InputFile>>] NO est√° en formato VFP 9! - Por favor convertirlo a VFP 9 con MODIFY REPORT '<<THIS.c_InputFile>>'"
-      .C_REQUESTING_CAPITALIZATION_OF_FILE_LOC                        = "- Solicitado capitalizar el archivo [<<tcFileName>>]"
-      .C_SCANNING_FILE_AND_DIR_INFO_LOC                               = "Escaneando archivos e informaci√≥n de directorio para"
-      .C_SOURCEFILE_LOC                                               = "Archivo origen: "
-      .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_LOC                 = "Error de anidamiento de estructuras. Se esperaba ENDPROC pero se encontr√≥ ENDDEFINE en la clase <<toClase._Nombre>> (<<loProcedure._Nombre>>), l√≠nea <<TRANSFORM(m.I)>> del archivo <<THIS.c_InputFile>>"
-      .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_2_LOC               = "Error de anidamiento de estructuras. Se esperaba ENDPROC pero se encontr√≥ ENDDEFINE en la clase <<toClase._Nombre>> (<<toObjeto._Nombre>>.<<loProcedure._Nombre>>), l√≠nea <<TRANSFORM(m.I)>> del archivo <<THIS.c_InputFile>>"
-      .C_UNKNOWN_CLASS_NAME_LOC                                       = "Clase [<<THIS.CLASS>>] desconocida"
-      .C_USE_FILE_TIMESTAMP_OPTIMIZATION_LOC                          = "Usar Optimizaci√≥n de filestamp de archivo"
-      .C_WARNING_LOC                                                  = "¬°ATENCI√ìN!"
-      .C_WARN_TABLE_ALIAS_ON_INDEX_EXPRESSION_LOC                     = "¬°ATENCI√ìN!" + CR_LF+ "ASEG√öRESE DE QUE NO EST√Å USANDO UN ALIAS DE TABLA EN LAS EXPRESIONES DE LOS √çNDICES!! (ej: index on <<UPPER(JUSTSTEM(THIS.c_InputFile))>>.campo tag nombreclave)"
-      .C_WITH_ERRORS_LOC                                              = "con errores"
-
-      .C_INDEX2TXT_PROCESSING_LOC                                     = " Procesando √≠ndice"
-      .C_INDEX2TXT_EXTRAFILES_LOC                                     = "  Archivos de √≠ndice adicionales"
-      .C_INDEX2TXT_NOFILE_LOC                                         = "     No es un archivo "
-      .C_INDEX2TXT_NOTTHISTABLE_LOC                                   = "   El √≠ndice no coincide con la tabla "
-      .C_INDEX2BIN_PROCESSING_LOC                                     = " Creando √≠ndice"
-      .C_INDEX2BIN_STRUCTURAL_LOC                                     = "  TAGs para √≠ndice estructural"
-      .C_INDEX2BIN_STANDALONE_LOC                                     = "  √çndice independiente "
-      .C_INDEX2BIN_COMPOUND_LOC                                       = "  TAGs para √≠ndice compuesto "
-      .C_PJXPATH_ERR_LOC1                                             = CR_LF + 'Archivo principal "'
-      .C_PJXPATH_ERR_LOC2                                             = CR_LF + 'Archivo de icono del proyecto "'
-      .C_PJXPATH_ERR_LOC3                                             = CR_LF + 'Archivo ""'
-      .C_PJXPATH_ERR_LOC4                                             = '"' + CR_LF + 'no est√° en la estructura de carpetas PJX, "'
-      .C_PJXPATH_ERR_LOC5                                             = '",' + 0h0D0A + 'revise la opci√≥n "CheckFileInPath".' + CR_LF+CR_LF
-
-      .n_LanguageSelectedMethod   = 0 && 0=Automatic with VERSION(3)
-   ENDWITH
-
-ENDPROC
-
-
-
-
-*---------------------------------------------------------------------------------------------------
-*- German strings for CL_LANG
-*---------------------------------------------------------------------------------------------------
-
-PROCEDURE Lang_Apply_DE
-   LPARAMETERS toLang
-
-   WITH toLang
-      .C_ALLOWED_VALUES_ARE_LOC                                       = "Erlaubte Werte sind"
-      .C_ASTERISK_EXT_NOT_ALLOWED_LOC                                 = "Die Erweiterungen * und ? sind nicht erlaubt, da sie gef√§hrlich sind (Binaries k√∂nnten mit xx2 leeren Dateien √ºberschrieben werden)"
-      .C_BACKLINK_CANT_UPDATE_BL_LOC                                  = "Backlink kann nicht aktualisiert werden"
-      .C_BACKLINK_OF_TABLE_LOC                                        = "von Tabelle"
-      .C_BACKUP_OF_LOC                                                = "Erzeuge Backup von: "
-      .C_CANT_GENERATE_FILE_BECAUSE_IT_IS_READONLY_LOC                = "Kann Datei [<<THIS.c_OutputFile>>] nicht generieren, da sie schreibgesch√ºtzt ist"
-      .C_CLASSPERFILE_OPTIMIZATION_BASE_ALREADY_PROCESSED_LOC         = "Optimierung: Grund Datei [<<JUSTFNAME(.c_InputFile)>>] Schon verarbeitet, das √úberspringen Verarbeitung der Datei [<<tc_InputFile>>]"
-      .C_CONVERSION_CANCELLED_BY_USER_LOC                             = "Konvertierung durch den Benutzer abgebrochen"
-      .C_CONVERT_ALL_FILES_IN_A_PROJECT_LOC                           = "alle Dateien in einem Projekt zu konvertieren"
-      .C_CONVERT_FOLDER_LOC                                           = "Konvertieren Verzeichnis"
-      .C_BINARY_TO_TEXT_LOC                                           = "Bin√§r zu Text"
-      .C_TEXT_TO_BINARY_LOC                                           = "Text zu Bin√§r"
-      .C_CONVERT_FOLDER_NONE_LOC                                      = "Nichts"
-      .C_CONVERT_FOLDER_QUESTION_LOC                                  = "Welche Umwandlung sollte sich auf die Dateien dieses Verzeichnis durchgef√ºhrt werden?"
-      .C_CONVERTER_UNLOAD_LOC                                         = "Konverter wird entladen"
-      .C_CONVERTING_FILE_LOC                                          = "Konvertiere Datei"
-      .C_DATA_ERROR_CANT_PARSE_UNPAIRING_DOUBLE_QUOTES_LOC            = "Datenfehler: Keine Analyse m√∂glich, da ungepaarte Anf√ºhrungszeichen in Zeile <<lcMetadatos>> sind."
-      .C_DUPLICATED_FILE_LOC                                          = "Doppelte Datei"
-      .C_DUPLICATED_OBJECT_LOC                                        = "Doppelte Objekt"
-      .C_ENDDEFINE_MARKER_NOT_FOUND_LOC                               = "Kann keinen Ende Marker [ENDDEFINE] in Zeile <<TRANSFORM( toClase._Inicio )>> f√ºr die ID [<<toClase._Nombre>>] finden"
-      .C_END_MARKER_NOT_FOUND_LOC                                     = "Kann keinen Ende Marker [<<ta_ID_Bloques(lnPrimerID,2)>>] welcher den Start Marker [<<ta_ID_Bloques(lnPrimerID,1)>>] in Zeile <<TRANSFORM(taBloquesExclusion(tnBloquesExclusion,1))>> schlie√üt"
-      .C_END_OF_PROCESS_LOC                                           = "Ende des Prozesses"
-      .C_ERRORS_FOUND_IN_FILE_LOC                                     = "FEHLER IN FILE GEFUNDEN"
-      .C_EXTERNAL_CLASS_NAME_WAS_NOT_FOUND_LOC                        = "Keine externe Klasse gefunden"
-      .C_EXTERNAL_MEMBER_NAME_WAS_NOT_FOUND_LOC                       = "Externe Mitglied wurde nicht gefunden"
-      .C_EXTERNAL_PARAMETERS_LOC                                      = "EXTERNE PARAMETER"
-      .C_FIELD_NOT_FOUND_ON_FILE_STRUCTURE_LOC                        = "Feld [<<laProps(m.I)>>] nicht in der Struktur von Datei <<DBF('TABLABIN')>> gefunden"
-      .C_FILE_DOESNT_EXIST_LOC                                        = "Datei existiert nicht:"
-      .C_FILE_NAME_IS_NOT_SUPPORTED_LOC                               = "Datei [<<.c_InputFile>>] wird nicht unterst√ºtzt"
-      .C_FILE_NOT_FOUND_LOC                                           = "Datei nicht gefunden"
-      .C_FILENAME_LOC                                                 = "Datei"
-      .C_FOXBIN2PRG_ERROR_CAPTION_LOC                                 = "FEHLER"
-      .C_FOXBIN2PRG_SYNTAX_INFO_LOC                                   = "KONFIGURATIONSREFERENZ"
-      .C_CFG_REF_TITLE_LOC                                            = "Konfigurationsreferenz"
-      .C_CFG_REF_INTRO_LOC                                            = "Programmatische Konfiguration f√ºr FoxBin2Prg (keine .cfg-Dateien auf der Festplatte)."
-      TEXT TO .C_CFG_REF_USAGE_LOC TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-         <<>>loCfg = loF2b.newConfig()  && Werkseinstellungen klonen
-         <<>>loCfg.l_NoTimestamps = .T. && Eigenschaften √ºberschreiben
-         <<>>loF2b.exportProjectTree( lcPjx, lcDest, loCfg )
-         <<>>loF2b.importProjectTree( lcPj2, lcDest, loCfg )
-         <<>>DO main.prg WITH lcFile, '', loCfg"
-      ENDTEXT
-      .C_CFG_REF_SEC_GENERAL_LOC                                      = "Allgemein"
-      .C_CFG_REF_SEC_TIMESTAMPS_LOC                                   = "Zeitstempel / Metadaten"
-      .C_CFG_REF_SEC_CLASSFORM_LOC                                    = "Klassen / Formulare"
-      .C_CFG_REF_SEC_MIRROR_LOC                                       = "Gespiegelter Baum (exportProjectTree)"
-      .C_CFG_REF_SEC_DBF_LOC                                          = "DBF / DBC / Konvertierungsunterst√ºtzung"
-      .C_CFG_REF_SEC_EXTENSIONS_LOC                                   = "Textdatei-Erweiterungen"
-      .C_ClassTwice_Header_LOC                                        = CR_LF+"Klasse doppelt deklariert."+CR_LF
-      .C_ClassTwice_Lib_LOC                                           = CR_LF+"Bibliothek: "
-      .C_ClassTwice_Class_LOC                                         = CR_LF+"Klasse: "
-
-      .C_FOXBIN2PRG_JUST_VFP_9_LOC                                    = "FOXBIN2PRG arbeitet nur f√ºr Visual FoxPro 9.0!"
-      .C_FOXBIN2PRG_WARN_CAPTION_LOC                                  = "WARNUNG!"
-      .C_GENERATING_BINARY_LOC                                        = "Gene Binary"
-      .C_INCLUDING_CLASS_LOC                                          = "einschlie√ülich Klasse"
-      .C_INCLUDING_MEMBER_LOC                                         = "inklusive Mitglied"
-      .C_INCORRECT_VFP9_VERSION__MISSING_SP1_LOC                      = "Falsche VFP 9 Version - SP1 fehlt! Erwartet: 3504 oder h√∂her, aktuell: " + Version(4)
-      .C_INVALID_PARAMETER_LOC                                        = "Ung√ºltige Parameter"
-      .C_IS_A_FILE_LOC                                                = "ist eine DATEI"
-      .C_IS_A_DIRECTORY_LOC                                           = "ist ein VERZEICHNIS"
-      .C_IS_UNSUPPORTED_LOC                                           = "wird nicht unterst√ºtzt"
-      .C_LANGUAGE_LOC                                                 = "DE"
-      .C_MAIN_EXECUTION_LOC                                           = "HAUPTAUSF√úHRUNG"
-      .C_MENU_NOT_IN_VFP9_FORMAT_LOC                                  = "Men√º [<<THIS.c_InputFile>>] ist NICHT im VFP 9 Format! - Bitte zuerst mit MODIFY MENU '<<THIS.c_InputFile>>' nach VFP 9 konvertieren."
-      .C_NAMES_CAPITALIZATION_PROGRAM_FOUND_LOC                       = "* Programm f√ºr Gro√üschreibungssetzung [<<lcEXE_CAPS>>] gefunden"
-      .C_NAMES_CAPITALIZATION_PROGRAM_NOT_FOUND_LOC                   = "* Programm f√ºr Gro√üschreibungssetzung [<<lcEXE_CAPS>>] nicht gefunden"
-      .C_OBJECT_NAME_WITHOUT_OBJECT_OREG_LOC                          = "Objekt [<<toObj.CLASS>>] enth√§lt nicht das oReg Objekt (level <<TRANSFORM(tnNivel)>>)"
-      .C_ONLY_SETNAME_AND_GETNAME_RECOGNIZED_LOC                      = "Befehl nicht erkannt. Nur SETNAME und GETNAME erlaubt."
-      .C_OPTION_LOC                                                   = "Option"
-      .C_OUTER_CLASS_DOES_NOT_MATCH_INNER_CLASSES_LOC                 = "Die √§u√üere Klasse zeigt nicht die die innere Klassifizierung an"
-      .C_OUTER_MEMBER_DOES_NOT_MATCH_INNER_MEMBERS_LOC                = "Das √§u√üere Element entspricht nicht den inneren Elementen"
-      .C_OUTPUT_FILE_IS_NOT_OVERWRITEN_LOC                            = "Optimierung: Ausgabedatei [<<lcOutputFile>>] wurde nicht √ºberschrieben, da sie dieselbe ist wie die neu generierte."
-      .C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimierung: Ausgabedatei [<<THIS.c_OutputFile>>] wurde nicht verl√§ngert, weil ihre Zeitmarke die gleiche der Quelldatei ist."
-      .C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimierung: Ausgabedatei [<<THIS.c_OutputFile>>] wurde nicht erneuert, da sie neuer als die Ursprungsdatei ist."
-      .C_PRESS_ESC_TO_CANCEL                                          = "Dr√ºcken Sie Esc zum Abbrechen"
-      .C_PROCEDURE_NOT_CLOSED_ON_LINE_LOC                             = "Prozedur nicht geschlossen. Letzte Zeile des Codes muss ENDPROC sein. [<<laLineas(1)>>, Recno:<<RECNO()>>]"
-      .C_PROCESSING_LOC                                               = "Bearbeite Datei"
-      .C_PROCESS_PROGRESS_LOC                                         = "Bearbeitungsfortschritt:"
-      .C_PROPERTY_NAME_NOT_RECOGNIZED_LOC                             = "Eigenschaft [<<TRANSFORM(tnPropertyID)>>] nicht erkannt."
-      .C_REPORT_NOT_IN_VFP9_FORMAT_LOC                                = "Report [<<THIS.c_InputFile>>] ist NICHT in VFP 9 Format! - Bitte zuerst nach VFP 9 konvertieren mit MODIFY REPORT '<<THIS.c_InputFile>>'"
-      .C_REQUESTING_CAPITALIZATION_OF_FILE_LOC                        = "- Fordere Gro√üschreibung f√ºr Datei [<<tcFileName>>] an"
-      .C_SCANNING_FILE_AND_DIR_INFO_LOC                               = "Scanne Datei- und Verzeichnisinformationen f√ºr"
-      .C_SOURCEFILE_LOC                                               = "Quell Datei: "
-      .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_LOC                 = "Fehler in Verschachtelungsstruktur. ENDPROC erwartet, aber es wurde ENDDEFINE in Klasse <<toClase._Nombre>> (<<loProcedure._Nombre>>), Zeile <<TRANSFORM(m.I)>> der Datei <<THIS.c_InputFile>> gefunden"
-      .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_2_LOC               = "Fehler in Verschachtelungsstruktur. ENDPROC wurde erwartet, aber es wurde ENDDEFINE in Klasse <<toClase._Nombre>> (<<toObjeto._Nombre>>.<<loProcedure._Nombre>>), Zeile <<TRANSFORM(m.I)>> der Datei <<THIS.c_InputFile>> gefunden"
-      .C_UNKNOWN_CLASS_NAME_LOC                                       = "Unbekannte Klasse [<<THIS.CLASS>>]"
-      .C_USE_FILE_TIMESTAMP_OPTIMIZATION_LOC                          = "Verwenden Sie die Datei-Zeitstempel-Optimierung"
-      .C_WARNING_LOC                                                  = "WARNUNG!"
-      .C_WARN_TABLE_ALIAS_ON_INDEX_EXPRESSION_LOC                     = "WARNUNG!" + CR_LF+ "STELLEN SIE SICHER, DAS KEIN TABELLENALIAS IM INDEXAUSDRUCK BENUTZT WIRD!! (z.B.: index on <<UPPER(JUSTSTEM(THIS.c_InputFile))>>.campo tag keyname)"
-      .C_WITH_ERRORS_LOC                                              = "mit Fehlern"
-
-      .C_INDEX2TXT_PROCESSING_LOC                                     = " Ermittle Index"
-      .C_INDEX2TXT_EXTRAFILES_LOC                                     = "  Zus√§tzliche Index Dateien"
-      .C_INDEX2TXT_NOFILE_LOC                                         = "     Keine Datei "
-      .C_INDEX2TXT_NOTTHISTABLE_LOC                                   = "   Index passt nicht zur Tabelle "
-      .C_INDEX2BIN_PROCESSING_LOC                                     = " Erstelle Index"
-      .C_INDEX2BIN_STRUCTURAL_LOC                                     = "  TAGs f√ºr den strukturellen Index"
-      .C_INDEX2BIN_STANDALONE_LOC                                     = "  Eigenst√§ndige Indexdatei: "
-      .C_INDEX2BIN_COMPOUND_LOC                                       = "  TAGs f√ºr verbundene Indexdatei: "
-      .C_PJXPATH_ERR_LOC1                                             = CR_LF + 'Hauptdatei "'
-      .C_PJXPATH_ERR_LOC2                                             = CR_LF + 'Projekt-Icon Datei "'
-      .C_PJXPATH_ERR_LOC3                                             = CR_LF + 'Datei ""'
-      .C_PJXPATH_ERR_LOC4                                             = '"' + CR_LF + 'ist nicht in der PJX Ordner Struktur, "'
-      .C_PJXPATH_ERR_LOC5                                             = '",' + CR_LF + 'siehe Option "CheckFileInPath".' + CR_LF+CR_LF
-
-      .n_LanguageSelectedMethod   = 0 && 0=Automatic with VERSION(3)
-   ENDWITH
-
-ENDPROC
-
-
-
-
 Define Class CL_LANG As Custom
    _MemberData = [<VFPData>] ;
       + [<memberdata name="n_languageselectedmethod" display="n_LanguageSelectedMethod"/>] ;
@@ -27988,7 +27439,6 @@ Define Class CL_LANG As Custom
    #Endif
 
    n_LanguageSelectedMethod    = 0 && 0=Automatic by version(3)
-
    C_ALLOWED_VALUES_ARE_LOC                                        = ""
    C_ASTERISK_EXT_NOT_ALLOWED_LOC                                  = ""
    C_BACKLINK_CANT_UPDATE_BL_LOC                                   = ""
@@ -28089,29 +27539,12 @@ Define Class CL_LANG As Custom
    C_PJXPATH_ERR_LOC4                                              = ""
    C_PJXPATH_ERR_LOC5                                              = ""
 
-   Procedure ensureLangProcedures
-      *---------------------------------------------------------------------------------------------------
-      * When running modular sources (not the unified foxbin2prg.prg), load lang/*.prg procedures.
-      *---------------------------------------------------------------------------------------------------
-      IF TYPE('Lang_Apply_EN') = 'U'
-         LOCAL lcLangDir
-         lcLangDir = ADDBS(JUSTPATH(LOCFILE('cl_lang.prg'))) + 'lang\'
-         SET PROCEDURE TO (lcLangDir + 'lang_en.prg') ADDITIVE
-         SET PROCEDURE TO (lcLangDir + 'lang_fr.prg') ADDITIVE
-         SET PROCEDURE TO (lcLangDir + 'lang_es.prg') ADDITIVE
-         SET PROCEDURE TO (lcLangDir + 'lang_de.prg') ADDITIVE
-      ENDIF
-   Endproc
-
-
    Procedure Init
       Lparameters tcLanguage
 
       Try
-         This.ensureLangProcedures()
-
          With This As CL_LANG Of 'foxbin2prg.prg'
-            *-- El lenguaje pasado por par√°metro prevalece sobre el existente.
+            *-- El lenguaje pasado por par?metro prevalece sobre el existente.
             tcLanguage  = Evl(tcLanguage,'')
 
             If Empty(tcLanguage)
@@ -28122,23 +27555,463 @@ Define Class CL_LANG As Custom
 
             tcLanguage  = Upper( Evl(tcLanguage, Version(3)) )
 
-            *-- Strings per language: lang/lang_*.prg (Lang_Apply_* procedures)
             Do Case
-            Case Inlist(tcLanguage, '33', 'FR') && French (Franc√©s)
-               Lang_Apply_FR(This)
-            Case Inlist(tcLanguage, '34', 'ES') && Spanish (Espa√±ol)
-               Lang_Apply_ES(This)
-            Case Inlist(tcLanguage, '49', 'DE') && German (Alem√°n)
-               Lang_Apply_DE(This)
-            Otherwise   && English (Ingl√©s) ‚Äî fallback; most up-to-date translations
-               Lang_Apply_EN(This)
+            Case Inlist(tcLanguage, '33', 'FR') && French (Franc?s)
+               .Lang_Apply_FR()
+            Case Inlist(tcLanguage, '34', 'ES') && Spanish (Espa?ol)
+               .Lang_Apply_ES()
+            Case Inlist(tcLanguage, '49', 'DE') && German (Alem?n)
+               .Lang_Apply_DE()
+            Otherwise   && English (Ingl?s) ? fallback; most up-to-date translations
+               .Lang_Apply_EN()
             Endcase
-         Endwith && THIS AS CL_LANG OF 'cl_lang.prg'
+         Endwith && THIS AS CL_LANG Of 'foxbin2prg.prg'
       Endtry
    Endproc
 
-Enddefine
+   Procedure Lang_Apply_EN
+      With This As CL_LANG Of 'foxbin2prg.prg'
+         .C_ALLOWED_VALUES_ARE_LOC                                       = "Allowed values are"
+         .C_ASTERISK_EXT_NOT_ALLOWED_LOC                                 = "* and ? extensions are not allowed because it's dangerous (binaries can be overwritten with xx2 empty files)"
+         .C_BACKLINK_CANT_UPDATE_BL_LOC                                  = "Could not update backlink"
+         .C_BACKLINK_OF_TABLE_LOC                                        = "of table"
+         .C_BACKUP_OF_LOC                                                = "Doing Backup of: "
+         .C_CANT_GENERATE_FILE_BECAUSE_IT_IS_READONLY_LOC                = "Cannot generate file [<<THIS.c_OutputFile>>] because it is ReadOnly"
+         .C_CLASSPERFILE_OPTIMIZATION_BASE_ALREADY_PROCESSED_LOC         = "Optimization: Base File [<<JUSTFNAME(.c_InputFile)>>] already processed, skipping processing of file [<<tc_InputFile>>]"
+         .C_CONVERSION_CANCELLED_BY_USER_LOC                             = "Conversion Cancelled by the user"
+         .C_CONVERT_ALL_FILES_IN_A_PROJECT_LOC                           = "Convert all files in a Project"
+         .C_CONVERT_FOLDER_LOC                                           = "Convert Folder"
+         .C_BINARY_TO_TEXT_LOC                                           = "Binary to Text"
+         .C_TEXT_TO_BINARY_LOC                                           = "Text to Binary"
+         .C_CONVERT_FOLDER_NONE_LOC                                      = "None"
+         .C_CONVERT_FOLDER_QUESTION_LOC                                  = "What conversion should be performed on the files of this folder?"
+         .C_CONVERTER_UNLOAD_LOC                                         = "Converter unload"
+         .C_CONVERTING_FILE_LOC                                          = "Converting file"
+         .C_DATA_ERROR_CANT_PARSE_UNPAIRING_DOUBLE_QUOTES_LOC            = "Data Error: Can't parse because of unpaired double-quotes on line <<lcMetadatos>>"
+         .C_DUPLICATED_FILE_LOC                                          = "Duplicated file"
+         .C_DUPLICATED_OBJECT_LOC                                        = "Duplicated Object"
+         .C_ENDDEFINE_MARKER_NOT_FOUND_LOC                               = "Cannot find end marker [ENDDEFINE] of line <<TRANSFORM( toClase._Inicio )>> for ID [<<toClase._Nombre>>]"
+         .C_END_MARKER_NOT_FOUND_LOC                                     = "Cannot find end marker [<<ta_ID_Bloques(lnPrimerID,2)>>] that closes start marker [<<ta_ID_Bloques(lnPrimerID,1)>>] on line <<TRANSFORM(taBloquesExclusion(tnBloquesExclusion,1))>>"
+         .C_END_OF_PROCESS_LOC                                           = "End of Process"
+         .C_ERRORS_FOUND_IN_FILE_LOC                                     = "ERRORS FOUND IN FILE"
+         .C_EXTERNAL_CLASS_NAME_WAS_NOT_FOUND_LOC                        = "External class was not found"
+         .C_EXTERNAL_MEMBER_NAME_WAS_NOT_FOUND_LOC                       = "External member name was not found"
+         .C_EXTERNAL_PARAMETERS_LOC                                      = "EXTERNAL PARAMETERS"
+         .C_FIELD_NOT_FOUND_ON_FILE_STRUCTURE_LOC                        = "Field [<<laProps(m.I)>>] not found in structure of file <<DBF('TABLABIN')>>"
+         .C_FILE_DOESNT_EXIST_LOC                                        = "File does not exist:"
+         .C_FILE_NAME_IS_NOT_SUPPORTED_LOC                               = "File [<<.c_InputFile>>] is not supported"
+         .C_FILE_NOT_FOUND_LOC                                           = "File not found"
+         .C_FILENAME_LOC                                                 = "File"
+         .C_FOXBIN2PRG_ERROR_CAPTION_LOC                                 = "ERROR"
+         .C_FOXBIN2PRG_SYNTAX_INFO_LOC                                   = "CONFIGURATION REFERENCE"
+         .C_CFG_REF_TITLE_LOC                                            = "Configuration reference"
+         .C_CFG_REF_INTRO_LOC                                            = "Programmatic configuration for FoxBin2Prg (no .cfg files on disk)."
+         TEXT TO .C_CFG_REF_USAGE_LOC TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
+            <<>>loCfg = loF2b.newConfig()  && clone factory defaults
+            <<>>loCfg.l_NoTimestamps = .T. && override properties
+            <<>>loF2b.exportProjectTree( lcPjx, lcDest, loCfg )
+            <<>>loF2b.importProjectTree( lcPj2, lcDest, loCfg )
+            <<>>DO main.prg WITH lcFile, '', loCfg"
+         ENDTEXT
+         .C_CFG_REF_SEC_GENERAL_LOC                                      = "General"
+         .C_CFG_REF_SEC_TIMESTAMPS_LOC                                   = "Timestamps / metadata"
+         .C_CFG_REF_SEC_CLASSFORM_LOC                                    = "Classes / Forms"
+         .C_CFG_REF_SEC_MIRROR_LOC                                       = "Mirrored tree (exportProjectTree)"
+         .C_CFG_REF_SEC_DBF_LOC                                          = "DBF / DBC / conversion support"
+         .C_CFG_REF_SEC_EXTENSIONS_LOC                                   = "Text file extensions"
+         .C_ClassTwice_Header_LOC                                        = CR_LF+"Class defined twice."+CR_LF
+         .C_ClassTwice_Lib_LOC                                           = CR_LF+"Library: "
+         .C_ClassTwice_Class_LOC                                         = CR_LF+"Class: "
 
+         .C_FOXBIN2PRG_JUST_VFP_9_LOC                                    = "FOXBIN2PRG is only for Visual FoxPro 9.0!"
+         .C_FOXBIN2PRG_WARN_CAPTION_LOC                                  = "WARNING!"
+         .C_GENERATING_BINARY_LOC                                        = "Generating Binary"
+         .C_INCLUDING_CLASS_LOC                                          = "Including class"
+         .C_INCLUDING_MEMBER_LOC                                         = "Including member"
+         .C_INCORRECT_VFP9_VERSION__MISSING_SP1_LOC                      = "Incorrect VFP 9 version - Missing SP1! Expected: 3504 or later, actual: " + VERSION(4)
+         .C_INVALID_PARAMETER_LOC                                        = "Invalid parameter"
+         .C_IS_A_FILE_LOC                                                = "is a FILE"
+         .C_IS_A_DIRECTORY_LOC                                           = "is a DIRECTORY"
+         .C_IS_UNSUPPORTED_LOC                                           = "is unsupported"
+         .C_LANGUAGE_LOC                                                 = "EN"
+         .C_MAIN_EXECUTION_LOC                                           = "MAIN EXECUTION"
+         .C_MENU_NOT_IN_VFP9_FORMAT_LOC                                  = "Menu [<<THIS.c_InputFile>>] is NOT in VFP 9 Format! - Please convert to VFP 9 with MODIFY MENU '<<THIS.c_InputFile>>'"
+         .C_NAMES_CAPITALIZATION_PROGRAM_FOUND_LOC                       = "* Names capitalization program [<<lcEXE_CAPS>>] found"
+         .C_NAMES_CAPITALIZATION_PROGRAM_NOT_FOUND_LOC                   = "* Names capitalization program [<<lcEXE_CAPS>>] not found"
+         .C_OBJECT_NAME_WITHOUT_OBJECT_OREG_LOC                          = "Object [<<toObj.CLASS>>] does not contain oReg object (level <<TRANSFORM(tnNivel)>>)"
+         .C_ONLY_SETNAME_AND_GETNAME_RECOGNIZED_LOC                      = "Operation not recognized. Only SETNAME and GETNAME allowed."
+         .C_OPTION_LOC                                                   = "Option"
+         .C_OUTER_CLASS_DOES_NOT_MATCH_INNER_CLASSES_LOC                 = "The outer class does not match the inner classes"
+         .C_OUTER_MEMBER_DOES_NOT_MATCH_INNER_MEMBERS_LOC                = "The outer member does not match the inner members"
+         .C_OUTPUT_FILE_IS_NOT_OVERWRITEN_LOC                            = "Optimization: output file [<<lcOutputFile>>] was not overwritten because it is the same as the existing one."
+         .C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimization: output file [<<THIS.c_OutputFile>>] was not regenerated because it's filestamp is equal than the inputfile."
+         .C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimization: output file [<<THIS.c_OutputFile>>] was not regenerated because it's filestamp is newer than the inputfile."
+         .C_PRESS_ESC_TO_CANCEL                                          = "Press Esc to Cancel"
+         .C_PROCEDURE_NOT_CLOSED_ON_LINE_LOC                             = "Procedure not closed. Last line of code must be ENDPROC. [<<laLineas(1)>>, Recno:<<RECNO()>>]"
+         .C_PROCESSING_LOC                                               = "Processing file"
+         .C_PROCESS_PROGRESS_LOC                                         = "Process Progress:"
+         .C_PROPERTY_NAME_NOT_RECOGNIZED_LOC                             = "Property [<<TRANSFORM(tnPropertyID)>>] is not recognized."
+         .C_REPORT_NOT_IN_VFP9_FORMAT_LOC                                = "Report [<<THIS.c_InputFile>>] is NOT in VFP 9 Format! - Please convert to VFP 9 with MODIFY REPORT '<<THIS.c_InputFile>>'"
+         .C_REQUESTING_CAPITALIZATION_OF_FILE_LOC                        = "- Requesting capitalization of file [<<tcFileName>>]"
+         .C_SCANNING_FILE_AND_DIR_INFO_LOC                               = "Scanning file and directory information for"
+         .C_SOURCEFILE_LOC                                               = "Source file: "
+         .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_LOC                 = "Nesting structure error. ENDPROC expected but found ENDDEFINE on class <<toClase._Nombre>> (<<loProcedure._Nombre>>), line <<TRANSFORM(m.I)>> of file <<THIS.c_InputFile>>"
+         .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_2_LOC               = "Nesting structure error. ENDPROC expected but found ENDDEFINE on class <<toClase._Nombre>> (<<toObjeto._Nombre>>.<<loProcedure._Nombre>>), line <<TRANSFORM(m.I)>> of file <<THIS.c_InputFile>>"
+         .C_UNKNOWN_CLASS_NAME_LOC                                       = "Unknown class [<<THIS.CLASS>>]"
+         .C_USE_FILE_TIMESTAMP_OPTIMIZATION_LOC                          = "Use file timestamp Optimization"
+         .C_WARNING_LOC                                                  = "WARNING!"
+         .C_WARN_TABLE_ALIAS_ON_INDEX_EXPRESSION_LOC                     = "WARNING!" + CR_LF+ "MAKE SURE YOU ARE NOT USING A TABLE ALIAS ON INDEX KEY EXPRESSIONS!! (ex: index on <<UPPER(JUSTSTEM(THIS.c_InputFile))>>.campo tag keyname)"
+         .C_WITH_ERRORS_LOC                                              = "with errors"
+
+         .C_INDEX2TXT_PROCESSING_LOC                                     = " Processing index"
+         .C_INDEX2TXT_EXTRAFILES_LOC                                     = "  Additional index files"
+         .C_INDEX2TXT_NOFILE_LOC                                         = "     Not a File "
+         .C_INDEX2TXT_NOTTHISTABLE_LOC                                   = "   Index does not match table "
+         .C_INDEX2BIN_PROCESSING_LOC                                     = " Creating index"
+         .C_INDEX2BIN_STRUCTURAL_LOC                                     = "  TAGs for structural index"
+         .C_INDEX2BIN_STANDALONE_LOC                                     = "  Standalone index "
+         .C_INDEX2BIN_COMPOUND_LOC                                       = "  TAGs for compound index "
+         .C_PJXPATH_ERR_LOC1                                             = CR_LF + 'Main file "'
+         .C_PJXPATH_ERR_LOC2                                             = CR_LF + 'Project icon file "'
+         .C_PJXPATH_ERR_LOC3                                             = CR_LF + 'File ""'
+         .C_PJXPATH_ERR_LOC4                                             = '"' + CR_LF + 'not in PJX folder structure, "'
+         .C_PJXPATH_ERR_LOC5                                             = '",' + CR_LF + 'check option "CheckFileInPath".' + CR_LF+CR_LF
+
+      Endwith
+   Endproc
+
+   Procedure Lang_Apply_FR
+      With This As CL_LANG Of 'foxbin2prg.prg'
+         .C_ALLOWED_VALUES_ARE_LOC                                       = "Les valeurs autoris?es sont"
+         .C_ASTERISK_EXT_NOT_ALLOWED_LOC                                 = "* Et ? extensions ne sont pas autoris?es car il est dangereux (binaires peuvent ?tre remplac?s par des fichiers vides de XX2)"
+         .C_BACKLINK_CANT_UPDATE_BL_LOC                                  = "Impossible de mettre ? jour backlink"
+         .C_BACKLINK_OF_TABLE_LOC                                        = "de la table"
+         .C_BACKUP_OF_LOC                                                = "Faire de sauvegarde des: "
+         .C_CANT_GENERATE_FILE_BECAUSE_IT_IS_READONLY_LOC                = "Vous ne pouvez pas g?n?rer un fichier [<<THIS.c_OutputFile>>] car il est en lecture seule"
+         .C_CLASSPERFILE_OPTIMIZATION_BASE_ALREADY_PROCESSED_LOC         = "Optimisation: Fichier de base [<<JUSTFNAME(.c_InputFile)>>] D?j? trait?e, en sautant traitement de fichier [<<tc_InputFile>>]"
+         .C_CONVERSION_CANCELLED_BY_USER_LOC                             = "Conversion Annul? par l'utilisateur"
+         .C_CONVERT_ALL_FILES_IN_A_PROJECT_LOC                           = "Convertir tous les fichiers dans un Projet"
+         .C_CONVERT_FOLDER_LOC                                           = "Convertir un Dossier"
+         .C_BINARY_TO_TEXT_LOC                                           = "Binaire en Texte"
+         .C_TEXT_TO_BINARY_LOC                                           = "Texte ? Binaire"
+         .C_CONVERT_FOLDER_NONE_LOC                                      = "Aucun"
+         .C_CONVERT_FOLDER_QUESTION_LOC                                  = "Que la conversion doit ?tre effectu?e sur les fichiers de ce dossier?"
+         .C_CONVERTER_UNLOAD_LOC                                         = "Convertisseur d?chargement"
+         .C_CONVERTING_FILE_LOC                                          = "Conversion de fichiers"
+         .C_DATA_ERROR_CANT_PARSE_UNPAIRING_DOUBLE_QUOTES_LOC            = "Erreur de donn?es: ne peut pas analyser en raison de guillemets non appari?s en ligne <<lcMetadatos>>"
+         .C_DUPLICATED_FILE_LOC                                          = "fichier dupliqu?"
+         .C_DUPLICATED_OBJECT_LOC                                        = "Object dupliqu?"
+         .C_ENDDEFINE_MARKER_NOT_FOUND_LOC                               = "Vous ne trouvez pas marqueur de fin [ENDDEFINE] de la ligne <<TRANSFORM(toClase._Inicio)>> ID [<<toClase._Nombre>>]"
+         .C_END_MARKER_NOT_FOUND_LOC                                     = "Vous ne trouvez pas fin marqueur [<<ta_ID_Bloques(lnPrimerID, 2)>>] qui ferme marqueur de d?but [<<ta_ID_Bloques(lnPrimerID, 1) >>] en ligne <<TRANSFORM(taBloquesExclusion (tnBloquesExclusion, 1))>>"
+         .C_END_OF_PROCESS_LOC                                           = "Fin du processus"
+         .C_ERRORS_FOUND_IN_FILE_LOC                                     = "ERREURS TROUV? DANS LE FICHIER"
+         .C_EXTERNAL_CLASS_NAME_WAS_NOT_FOUND_LOC                        = "Aucune classe externe est trouv?"
+         .C_EXTERNAL_MEMBER_NAME_WAS_NOT_FOUND_LOC                       = "Nom de membre externe n'a pas ?t? trouv?"
+         .C_EXTERNAL_PARAMETERS_LOC                                      = "PARAM?TRES EXTERNES"
+         .C_FIELD_NOT_FOUND_ON_FILE_STRUCTURE_LOC                        = "Champ [<< laProps (m.I) >>] ne trouve pas dans la structure du fichier DBF <<('TABLABIN')>>"
+         .C_FILE_DOESNT_EXIST_LOC                                        = "Fichier ne existe pas:"
+         .C_FILE_NAME_IS_NOT_SUPPORTED_LOC                               = "File [<<.c_InputFile>>] ne est pas support?"
+         .C_FILE_NOT_FOUND_LOC                                           = "Fichier introuvable"
+         .C_FILENAME_LOC                                                 = "Fichier"
+         .C_FOXBIN2PRG_ERROR_CAPTION_LOC                                 = "ERREUR"
+         .C_FOXBIN2PRG_SYNTAX_INFO_LOC                                   = "R?F?RENCE DE CONFIGURATION"
+         .C_CFG_REF_TITLE_LOC                                            = "R?f?rence de configuration"
+         .C_CFG_REF_INTRO_LOC                                            = "Configuration programmatique pour FoxBin2Prg (pas de fichiers .cfg sur disque)."
+         TEXT TO .C_CFG_REF_USAGE_LOC TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
+            <<>>loCfg = loF2b.newConfig()  && cloner les valeurs d'usine
+            <<>>loCfg.l_NoTimestamps = .T. && remplacer les propri?t?s
+            <<>>loF2b.exportProjectTree( lcPjx, lcDest, loCfg )
+            <<>>loF2b.importProjectTree( lcPj2, lcDest, loCfg )
+            <<>>DO main.prg WITH lcFile, '', loCfg"
+         ENDTEXT
+         .C_CFG_REF_SEC_GENERAL_LOC                                      = "G?n?ral"
+         .C_CFG_REF_SEC_TIMESTAMPS_LOC                                   = "Horodatages / m?tadonn?es"
+         .C_CFG_REF_SEC_CLASSFORM_LOC                                    = "Classes / Formulaires"
+         .C_CFG_REF_SEC_MIRROR_LOC                                       = "Arbre miroir (exportProjectTree)"
+         .C_CFG_REF_SEC_DBF_LOC                                          = "DBF / DBC / prise en charge conversion"
+         .C_CFG_REF_SEC_EXTENSIONS_LOC                                   = "Extensions de fichiers texte"
+         .C_ClassTwice_Header_LOC                                        = CR_LF+"Classe d?finie deux fois."+CR_LF
+         .C_ClassTwice_Lib_LOC                                           = CR_LF+"Biblioth?que: "
+         .C_ClassTwice_Class_LOC                                         = CR_LF+"Classe: "
+         .C_FOXBIN2PRG_JUST_VFP_9_LOC                                    = "FOXBIN2PRG est seulement pour Visual FoxPro 9.0!"
+         .C_FOXBIN2PRG_WARN_CAPTION_LOC                                  = "AVERTISSEMENT!"
+         .C_GENERATING_BINARY_LOC                                        = "G?n?ration Binaire"
+         .C_INCLUDING_CLASS_LOC                                          = "classe, y compris"
+         .C_INCLUDING_MEMBER_LOC                                         = "membres, y compris"
+         .C_INCORRECT_VFP9_VERSION__MISSING_SP1_LOC                      = "Version VFP 9 incorrecte - SP1 manquant! Attendu: 3504 ou plus tard, actuel: " + Version(4)
+         .C_INVALID_PARAMETER_LOC                                        = "Param?tre non valide"
+         .C_IS_A_FILE_LOC                                                = "est un FICHIER"
+         .C_IS_A_DIRECTORY_LOC                                           = "est un R?PERTOIRE"
+         .C_IS_UNSUPPORTED_LOC                                           = "ne est pas support?"
+         .C_LANGUAGE_LOC                                                 = "FR"
+         .C_MAIN_EXECUTION_LOC                                           = "EX?CUTION PRINCIPALE"
+         .C_MENU_NOT_IN_VFP9_FORMAT_LOC                                  = "Menu [<<THIS.c_InputFile>>] ne est pas dans VFP 9 Format! - Se il vous pla?t se convertir ? VFP 9 avec MODIFY MENU '<<THIS.c_InputFile>>'"
+         .C_NAMES_CAPITALIZATION_PROGRAM_FOUND_LOC                       = "* Programme des noms de capitalisation [<<lcEXE_CAPS>>] trouv?"
+         .C_NAMES_CAPITALIZATION_PROGRAM_NOT_FOUND_LOC                   = "* Programme des noms de capitalisation [<<lcEXE_CAPS>>] introuvables"
+         .C_OBJECT_NAME_WITHOUT_OBJECT_OREG_LOC                          = "Object [<<toObj.CLASS>>] ne contient pas l'objet oReg (niveau <<TRANSFORM(tnNivel)>>)"
+         .C_ONLY_SETNAME_AND_GETNAME_RECOGNIZED_LOC                      = "Op?ration non reconnu. Seulement SETNAME et GETNAME permis."
+         .C_OPTION_LOC                                                   = "Option"
+         .C_OUTER_CLASS_DOES_NOT_MATCH_INNER_CLASSES_LOC                 = "La classe externe ne correspond pas ? la classe interne"
+         .C_OUTER_MEMBER_DOES_NOT_MATCH_INNER_MEMBERS_LOC                = "L'?l?ment ext?rieur ne correspond pas aux ?l?ments int?rieur"
+         .C_OUTPUT_FILE_IS_NOT_OVERWRITEN_LOC                            = "Optimisation: fichier de sortie [<<lcOutputFile>>] ne ?tait pas ?cras? parce que ce est la m?me que celle g?n?r?e."
+         .C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimisation: le fichier de sortie [<<THIS.c_OutputFile>>] pas r?g?n?r? en ayant le m?me horodatage que l'entr?e."
+         .C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimisation: le fichier de sortie [<<THIS.c_OutputFile>>] n'a pas ?t? r?g?n?r? car il est plus r?cent que le fichier d'entr?e."
+         .C_PRESS_ESC_TO_CANCEL                                          = "Appuyez sur Esc pour Annuler"
+         .C_PROCEDURE_NOT_CLOSED_ON_LINE_LOC                             = "Proc?dure pas ferm?. Derni?re ligne de code doit ?tre ENDPROC. [<<laLineas(1)>>, Recno:<<RECNO()>>]"
+         .C_PROCESSING_LOC                                               = "Traitement du fichier"
+         .C_PROCESS_PROGRESS_LOC                                         = "Processus Progr?s:"
+         .C_PROPERTY_NAME_NOT_RECOGNIZED_LOC                             = "Propri?t? [<<TRANSFORM(tnPropertyID)>>] ne est pas reconnu."
+         .C_REPORT_NOT_IN_VFP9_FORMAT_LOC                                = "Rapport [<<THIS.c_InputFile>>] ne est pas dans VFP 9 Format! - Se il vous pla?t se convertir ? VFP 9 avec MODIFY REPORT '<<THIS.c_InputFile>>'"
+         .C_REQUESTING_CAPITALIZATION_OF_FILE_LOC                        = "- Demande de capitalisation de fichier [<<tcFileName>>]"
+         .C_SCANNING_FILE_AND_DIR_INFO_LOC                               = "Fichier de num?risation et de l'information de r?pertoire pour"
+         .C_SOURCEFILE_LOC                                               = "Fichier source: "
+         .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_LOC                 = "Nesting erreur de structure. ENDPROC pr?vu, mais a trouv? ENDDEFINE sur la classe <<toClase._Nombre>> (<<loProcedure._Nombre>>), ligne <<TRANSFORM(m.I)>> du fichier <<THIS.c_InputFile>>"
+         .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_2_LOC               = "Nesting erreur de structure. ENDPROC attendue, mais ENDDEFINE sur la classe <<toClase._Nombre>> (<<toObjeto._Nombre>>.<<loProcedure._Nombre>>), ligne <<TRANSFORM(m.I)>> du fichier <<THIS.c_InputFile>>"
+         .C_UNKNOWN_CLASS_NAME_LOC                                       = "Classe inconnue[<<THIS.CLASS>>]"
+         .C_USE_FILE_TIMESTAMP_OPTIMIZATION_LOC                          = "Utilisez le fichier Optimisation d'horodatage"
+         .C_WARNING_LOC                                                  = "AVERTISSEMENT!"
+         .C_WARN_TABLE_ALIAS_ON_INDEX_EXPRESSION_LOC                     = "AVERTISSEMENT!" + CR_LF+ "ASSUREZ VOUS NE UTILISEZ PAS UN ALIAS DE TABLE SUR LES EXPRESSIONS INDEX CL?S!! (exemple: index on <<UPPER(JUSTSTEM(THIS.c_InputFile))>>.campo tag keyname)"
+         .C_WITH_ERRORS_LOC                                              = "avec des erreurs"
+
+         .C_INDEX2TXT_PROCESSING_LOC                                     = " Traitement de l'index"
+         .C_INDEX2TXT_EXTRAFILES_LOC                                     = "  Fichiers d'index suppl?mentaires"
+         .C_INDEX2TXT_NOFILE_LOC                                         = "     Pas un fichier "
+         .C_INDEX2TXT_NOTTHISTABLE_LOC                                   = "   L'index ne correspond pas ? la table "
+         .C_INDEX2BIN_PROCESSING_LOC                                     = " Cr?ation de l'index"
+         .C_INDEX2BIN_STRUCTURAL_LOC                                     = "  TAGs pour l'index structurel"
+         .C_INDEX2BIN_STANDALONE_LOC                                     = "  Index autonome "
+         .C_INDEX2BIN_COMPOUND_LOC                                       = "  TAGs pour l'index compos? "
+         .C_PJXPATH_ERR_LOC1                                             = CR_LF + 'Fichier principal "'
+         .C_PJXPATH_ERR_LOC2                                             = CR_LF + 'Fichier ic?ne du projet "'
+         .C_PJXPATH_ERR_LOC3                                             = CR_LF + 'Fichier ""'
+         .C_PJXPATH_ERR_LOC4                                             = '"' + CR_LF + 'absent de la structure de dossiers PJX, "'
+         .C_PJXPATH_ERR_LOC5                                             = '",' + CR_LF + [voir l''option "CheckFileInPath".] + CR_LF+CR_LF
+
+      Endwith
+   Endproc
+
+   Procedure Lang_Apply_ES
+      With This As CL_LANG Of 'foxbin2prg.prg'
+         .C_ALLOWED_VALUES_ARE_LOC                                       = "Los valores permitidos son"
+         .C_ASTERISK_EXT_NOT_ALLOWED_LOC                                 = "No se admiten extensiones * o ? porque es peligroso (se pueden pisar binarios con archivo xx2 vac?os)."
+         .C_BACKLINK_CANT_UPDATE_BL_LOC                                  = "No se pudo actualizar el backlink"
+         .C_BACKLINK_OF_TABLE_LOC                                        = "de la tabla"
+         .C_BACKUP_OF_LOC                                                = "Haciendo Backup de: "
+         .C_CANT_GENERATE_FILE_BECAUSE_IT_IS_READONLY_LOC                = "No se puede generar el archivo [<<THIS.c_OutputFile>>] porque es ReadOnly"
+         .C_CLASSPERFILE_OPTIMIZATION_BASE_ALREADY_PROCESSED_LOC         = "Optimizaci?n: El archivo Base [<<JUSTFNAME(.c_InputFile)>>] ya fue procesado, ignorando el procesamiento del archivo [<<tc_InputFile>>]"
+         .C_CONVERSION_CANCELLED_BY_USER_LOC                             = "Conversi?n Cancelada por el usuario"
+         .C_CONVERT_ALL_FILES_IN_A_PROJECT_LOC                           = "Convertir todos los archivos de un Proyecto"
+         .C_CONVERT_FOLDER_LOC                                           = "Convertir Carpeta"
+         .C_BINARY_TO_TEXT_LOC                                           = "Binario a Texto"
+         .C_TEXT_TO_BINARY_LOC                                           = "Texto a Binario"
+         .C_CONVERT_FOLDER_NONE_LOC                                      = "Ninguna"
+         .C_CONVERT_FOLDER_QUESTION_LOC                                  = "?Qu? tipo de conversi?n se debe hacer en esta carpeta?"
+         .C_CONVERTER_UNLOAD_LOC                                         = "Descarga del conversor"
+         .C_CONVERTING_FILE_LOC                                          = "Convirtiendo archivo"
+         .C_DATA_ERROR_CANT_PARSE_UNPAIRING_DOUBLE_QUOTES_LOC            = "Error de datos: No se puede parsear porque las comillas no son pares en la l?nea <<lcMetadatos>>"
+         .C_DUPLICATED_FILE_LOC                                          = "Archivo duplicado"
+         .C_DUPLICATED_OBJECT_LOC                                        = "Objeto Duplicado"
+         .C_ENDDEFINE_MARKER_NOT_FOUND_LOC                               = "No se ha encontrado el marcador de fin [ENDDEFINE] de la l?nea <<TRANSFORM( toClase._Inicio )>> para el identificador [<<toClase._Nombre>>]"
+         .C_END_MARKER_NOT_FOUND_LOC                                     = "No se ha encontrado el marcador de fin [<<ta_ID_Bloques(lnPrimerID,2)>>] que cierra al marcador de inicio [<<ta_ID_Bloques(lnPrimerID,1)>>] de la l?nea <<TRANSFORM(taBloquesExclusion(tnBloquesExclusion,1))>>"
+         .C_END_OF_PROCESS_LOC                                           = "Fin del Proceso"
+         .C_ERRORS_FOUND_IN_FILE_LOC                                     = "SE HAN ENCONTRADOS ERRORES EN EL ARCHIVO"
+         .C_EXTERNAL_CLASS_NAME_WAS_NOT_FOUND_LOC                        = "No se encontr? la clase externa"
+         .C_EXTERNAL_MEMBER_NAME_WAS_NOT_FOUND_LOC                       = "No se encontr? el miembro externo"
+         .C_EXTERNAL_PARAMETERS_LOC                                      = "PAR?METROS EXTERNOS"
+         .C_FIELD_NOT_FOUND_ON_FILE_STRUCTURE_LOC                        = "No se encontr? el campo [<<laProps(m.I)>>] en la estructura del archivo <<DBF('TABLABIN')>>"
+         .C_FILE_DOESNT_EXIST_LOC                                        = "El archivo no existe:"
+         .C_FILE_NAME_IS_NOT_SUPPORTED_LOC                               = "El archivo [<<.c_InputFile>>] no est? soportado"
+         .C_FILE_NOT_FOUND_LOC                                           = "No se encontr? el archivo"
+         .C_FILENAME_LOC                                                 = "Archivo"
+         .C_FOXBIN2PRG_ERROR_CAPTION_LOC                                 = "ERROR"
+         .C_FOXBIN2PRG_SYNTAX_INFO_LOC                                   = "REFERENCIA DE CONFIGURACI?N"
+         .C_CFG_REF_TITLE_LOC                                            = "Referencia de configuraci?n"
+         .C_CFG_REF_INTRO_LOC                                            = "Configuraci?n program?tica para FoxBin2Prg (sin archivos .cfg en disco)."
+         TEXT TO .C_CFG_REF_USAGE_LOC TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
+            <<>>loCfg = loF2b.newConfig()  && clonar valores de f?brica
+            <<>>loCfg.l_NoTimestamps = .T. && sobrescribir propiedades
+            <<>>loF2b.exportProjectTree( lcPjx, lcDest, loCfg )
+            <<>>loF2b.importProjectTree( lcPj2, lcDest, loCfg )
+            <<>>DO main.prg WITH lcFile, '', loCfg"
+         ENDTEXT
+         .C_CFG_REF_SEC_GENERAL_LOC                                      = "General"
+         .C_CFG_REF_SEC_TIMESTAMPS_LOC                                   = "Marcas de tiempo / metadatos"
+         .C_CFG_REF_SEC_CLASSFORM_LOC                                    = "Clases / Formularios"
+         .C_CFG_REF_SEC_MIRROR_LOC                                       = "?rbol espejo (exportProjectTree)"
+         .C_CFG_REF_SEC_DBF_LOC                                          = "DBF / DBC / soporte de conversi?n"
+         .C_CFG_REF_SEC_EXTENSIONS_LOC                                   = "Extensiones de archivos de texto"
+         .C_ClassTwice_Header_LOC                                        = CR_LF+"Clase definida dos veces."+CR_LF
+         .C_ClassTwice_Lib_LOC                                           = CR_LF+"Biblioteca: "
+         .C_ClassTwice_Class_LOC                                         = CR_LF+"Clase: "
+
+         .C_FOXBIN2PRG_JUST_VFP_9_LOC                                    = "?FOXBIN2PRG es solo para Visual FoxPro 9.0!"
+         .C_FOXBIN2PRG_WARN_CAPTION_LOC                                  = "?ATENCI?N!"
+         .C_GENERATING_BINARY_LOC                                        = "Generando Binario"
+         .C_INCLUDING_CLASS_LOC                                          = "Incluyendo clase"
+         .C_INCLUDING_MEMBER_LOC                                         = "Incluyendo miembro"
+         .C_INCORRECT_VFP9_VERSION__MISSING_SP1_LOC                      = "Versi?n Incorrecta de VFP 9 - Falta el SP1! Esperado: 3504 o posterior, actual: " + Version(4)
+         .C_INVALID_PARAMETER_LOC                                        = "Par?metro inv?lido"
+         .C_IS_A_FILE_LOC                                                = "es un ARCHIVO"
+         .C_IS_A_DIRECTORY_LOC                                           = "es un DIRECTORIO"
+         .C_IS_UNSUPPORTED_LOC                                           = "no est? soportado"
+         .C_LANGUAGE_LOC                                                 = "ES"
+         .C_MAIN_EXECUTION_LOC                                           = "EJECUCI?N PRINCIPAL"
+         .C_MENU_NOT_IN_VFP9_FORMAT_LOC                                  = "El Men? [<<THIS.c_InputFile>>] NO est? en formato VFP 9! - Por favor convertirlo a VFP 9 con MODIFY MENU '<<THIS.c_InputFile>>'"
+         .C_NAMES_CAPITALIZATION_PROGRAM_FOUND_LOC                       = "* Se ha encontrado el programa de capitalizaci?n de nombres [<<lcEXE_CAPS>>]"
+         .C_NAMES_CAPITALIZATION_PROGRAM_NOT_FOUND_LOC                   = "* No se ha encontrado el programa de capitalizaci?n de nombres [<<lcEXE_CAPS>>]"
+         .C_OBJECT_NAME_WITHOUT_OBJECT_OREG_LOC                          = "Objeto [<<toObj.CLASS>>] no contiene el objeto oReg (nivel <<TRANSFORM(tnNivel)>>)"
+         .C_ONLY_SETNAME_AND_GETNAME_RECOGNIZED_LOC                      = "Operaci?n no reconocida. Solo re reconoce SETNAME y GETNAME."
+         .C_OPTION_LOC                                                   = "Opci?n"
+         .C_OUTER_CLASS_DOES_NOT_MATCH_INNER_CLASSES_LOC                 = "La clase externa no coincide con las clases internas"
+         .C_OUTER_MEMBER_DOES_NOT_MATCH_INNER_MEMBERS_LOC                = "El miembro externo no coincide con los miembros internos"
+         .C_OUTPUT_FILE_IS_NOT_OVERWRITEN_LOC                            = "Optimizaci?n: el archivo de salida [<<lcOutputFile>>] no se sobreescribe por ser igual al ya existente."
+         .C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimizaci?n: el archivo de salida [<<THIS.c_OutputFile>>] no se regenera por tener el mismo timestamp que el de entrada."
+         .C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimizaci?n: el archivo de salida [<<THIS.c_OutputFile>>] no se regenera por tener un timestamp m?s nuevo que el de entrada."
+         .C_PRESS_ESC_TO_CANCEL                                          = "Pulse Esc para Cancelar"
+         .C_PROCEDURE_NOT_CLOSED_ON_LINE_LOC                             = "Procedimiento sin cerrar. La ?ltima l?nea de c?digo debe ser ENDPROC. [<<laLineas(1)>>, Recno:<<RECNO()>>]"
+         .C_PROCESSING_LOC                                               = "Procesando archivo"
+         .C_PROCESS_PROGRESS_LOC                                         = "Avance del proceso:"
+         .C_PROPERTY_NAME_NOT_RECOGNIZED_LOC                             = "Propiedad [<<TRANSFORM(tnPropertyID)>>] no reconocida."
+         .C_REPORT_NOT_IN_VFP9_FORMAT_LOC                                = "El Reporte [<<THIS.c_InputFile>>] NO est? en formato VFP 9! - Por favor convertirlo a VFP 9 con MODIFY REPORT '<<THIS.c_InputFile>>'"
+         .C_REQUESTING_CAPITALIZATION_OF_FILE_LOC                        = "- Solicitado capitalizar el archivo [<<tcFileName>>]"
+         .C_SCANNING_FILE_AND_DIR_INFO_LOC                               = "Escaneando archivos e informaci?n de directorio para"
+         .C_SOURCEFILE_LOC                                               = "Archivo origen: "
+         .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_LOC                 = "Error de anidamiento de estructuras. Se esperaba ENDPROC pero se encontr? ENDDEFINE en la clase <<toClase._Nombre>> (<<loProcedure._Nombre>>), l?nea <<TRANSFORM(m.I)>> del archivo <<THIS.c_InputFile>>"
+         .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_2_LOC               = "Error de anidamiento de estructuras. Se esperaba ENDPROC pero se encontr? ENDDEFINE en la clase <<toClase._Nombre>> (<<toObjeto._Nombre>>.<<loProcedure._Nombre>>), l?nea <<TRANSFORM(m.I)>> del archivo <<THIS.c_InputFile>>"
+         .C_UNKNOWN_CLASS_NAME_LOC                                       = "Clase [<<THIS.CLASS>>] desconocida"
+         .C_USE_FILE_TIMESTAMP_OPTIMIZATION_LOC                          = "Usar Optimizaci?n de filestamp de archivo"
+         .C_WARNING_LOC                                                  = "?ATENCI?N!"
+         .C_WARN_TABLE_ALIAS_ON_INDEX_EXPRESSION_LOC                     = "?ATENCI?N!" + CR_LF+ "ASEG?RESE DE QUE NO EST? USANDO UN ALIAS DE TABLA EN LAS EXPRESIONES DE LOS ?NDICES!! (ej: index on <<UPPER(JUSTSTEM(THIS.c_InputFile))>>.campo tag nombreclave)"
+         .C_WITH_ERRORS_LOC                                              = "con errores"
+
+         .C_INDEX2TXT_PROCESSING_LOC                                     = " Procesando ?ndice"
+         .C_INDEX2TXT_EXTRAFILES_LOC                                     = "  Archivos de ?ndice adicionales"
+         .C_INDEX2TXT_NOFILE_LOC                                         = "     No es un archivo "
+         .C_INDEX2TXT_NOTTHISTABLE_LOC                                   = "   El ?ndice no coincide con la tabla "
+         .C_INDEX2BIN_PROCESSING_LOC                                     = " Creando ?ndice"
+         .C_INDEX2BIN_STRUCTURAL_LOC                                     = "  TAGs para ?ndice estructural"
+         .C_INDEX2BIN_STANDALONE_LOC                                     = "  ?ndice independiente "
+         .C_INDEX2BIN_COMPOUND_LOC                                       = "  TAGs para ?ndice compuesto "
+         .C_PJXPATH_ERR_LOC1                                             = CR_LF + 'Archivo principal "'
+         .C_PJXPATH_ERR_LOC2                                             = CR_LF + 'Archivo de icono del proyecto "'
+         .C_PJXPATH_ERR_LOC3                                             = CR_LF + 'Archivo ""'
+         .C_PJXPATH_ERR_LOC4                                             = '"' + CR_LF + 'no est? en la estructura de carpetas PJX, "'
+         .C_PJXPATH_ERR_LOC5                                             = '",' + CR_LF + 'revise la opci?n "CheckFileInPath".' + CR_LF+CR_LF
+
+      Endwith
+   Endproc
+
+   Procedure Lang_Apply_DE
+      With This As CL_LANG Of 'foxbin2prg.prg'
+         .C_ALLOWED_VALUES_ARE_LOC                                       = "Erlaubte Werte sind"
+         .C_ASTERISK_EXT_NOT_ALLOWED_LOC                                 = "Die Erweiterungen * und ? sind nicht erlaubt, da sie gef?hrlich sind (Binaries k?nnten mit xx2 leeren Dateien ?berschrieben werden)"
+         .C_BACKLINK_CANT_UPDATE_BL_LOC                                  = "Backlink kann nicht aktualisiert werden"
+         .C_BACKLINK_OF_TABLE_LOC                                        = "von Tabelle"
+         .C_BACKUP_OF_LOC                                                = "Erzeuge Backup von: "
+         .C_CANT_GENERATE_FILE_BECAUSE_IT_IS_READONLY_LOC                = "Kann Datei [<<THIS.c_OutputFile>>] nicht generieren, da sie schreibgesch?tzt ist"
+         .C_CLASSPERFILE_OPTIMIZATION_BASE_ALREADY_PROCESSED_LOC         = "Optimierung: Grund Datei [<<JUSTFNAME(.c_InputFile)>>] Schon verarbeitet, das ?berspringen Verarbeitung der Datei [<<tc_InputFile>>]"
+         .C_CONVERSION_CANCELLED_BY_USER_LOC                             = "Konvertierung durch den Benutzer abgebrochen"
+         .C_CONVERT_ALL_FILES_IN_A_PROJECT_LOC                           = "alle Dateien in einem Projekt zu konvertieren"
+         .C_CONVERT_FOLDER_LOC                                           = "Konvertieren Verzeichnis"
+         .C_BINARY_TO_TEXT_LOC                                           = "Bin?r zu Text"
+         .C_TEXT_TO_BINARY_LOC                                           = "Text zu Bin?r"
+         .C_CONVERT_FOLDER_NONE_LOC                                      = "Nichts"
+         .C_CONVERT_FOLDER_QUESTION_LOC                                  = "Welche Umwandlung sollte sich auf die Dateien dieses Verzeichnis durchgef?hrt werden?"
+         .C_CONVERTER_UNLOAD_LOC                                         = "Konverter wird entladen"
+         .C_CONVERTING_FILE_LOC                                          = "Konvertiere Datei"
+         .C_DATA_ERROR_CANT_PARSE_UNPAIRING_DOUBLE_QUOTES_LOC            = "Datenfehler: Keine Analyse m?glich, da ungepaarte Anf?hrungszeichen in Zeile <<lcMetadatos>> sind."
+         .C_DUPLICATED_FILE_LOC                                          = "Doppelte Datei"
+         .C_DUPLICATED_OBJECT_LOC                                        = "Doppelte Objekt"
+         .C_ENDDEFINE_MARKER_NOT_FOUND_LOC                               = "Kann keinen Ende Marker [ENDDEFINE] in Zeile <<TRANSFORM( toClase._Inicio )>> f?r die ID [<<toClase._Nombre>>] finden"
+         .C_END_MARKER_NOT_FOUND_LOC                                     = "Kann keinen Ende Marker [<<ta_ID_Bloques(lnPrimerID,2)>>] welcher den Start Marker [<<ta_ID_Bloques(lnPrimerID,1)>>] in Zeile <<TRANSFORM(taBloquesExclusion(tnBloquesExclusion,1))>> schlie?t"
+         .C_END_OF_PROCESS_LOC                                           = "Ende des Prozesses"
+         .C_ERRORS_FOUND_IN_FILE_LOC                                     = "FEHLER IN FILE GEFUNDEN"
+         .C_EXTERNAL_CLASS_NAME_WAS_NOT_FOUND_LOC                        = "Keine externe Klasse gefunden"
+         .C_EXTERNAL_MEMBER_NAME_WAS_NOT_FOUND_LOC                       = "Externe Mitglied wurde nicht gefunden"
+         .C_EXTERNAL_PARAMETERS_LOC                                      = "EXTERNE PARAMETER"
+         .C_FIELD_NOT_FOUND_ON_FILE_STRUCTURE_LOC                        = "Feld [<<laProps(m.I)>>] nicht in der Struktur von Datei <<DBF('TABLABIN')>> gefunden"
+         .C_FILE_DOESNT_EXIST_LOC                                        = "Datei existiert nicht:"
+         .C_FILE_NAME_IS_NOT_SUPPORTED_LOC                               = "Datei [<<.c_InputFile>>] wird nicht unterst?tzt"
+         .C_FILE_NOT_FOUND_LOC                                           = "Datei nicht gefunden"
+         .C_FILENAME_LOC                                                 = "Datei"
+         .C_FOXBIN2PRG_ERROR_CAPTION_LOC                                 = "FEHLER"
+         .C_FOXBIN2PRG_SYNTAX_INFO_LOC                                   = "KONFIGURATIONSREFERENZ"
+         .C_CFG_REF_TITLE_LOC                                            = "Konfigurationsreferenz"
+         .C_CFG_REF_INTRO_LOC                                            = "Programmatische Konfiguration f?r FoxBin2Prg (keine .cfg-Dateien auf der Festplatte)."
+         TEXT TO .C_CFG_REF_USAGE_LOC TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
+            <<>>loCfg = loF2b.newConfig()  && Werkseinstellungen klonen
+            <<>>loCfg.l_NoTimestamps = .T. && Eigenschaften ?berschreiben
+            <<>>loF2b.exportProjectTree( lcPjx, lcDest, loCfg )
+            <<>>loF2b.importProjectTree( lcPj2, lcDest, loCfg )
+            <<>>DO main.prg WITH lcFile, '', loCfg"
+         ENDTEXT
+         .C_CFG_REF_SEC_GENERAL_LOC                                      = "Allgemein"
+         .C_CFG_REF_SEC_TIMESTAMPS_LOC                                   = "Zeitstempel / Metadaten"
+         .C_CFG_REF_SEC_CLASSFORM_LOC                                    = "Klassen / Formulare"
+         .C_CFG_REF_SEC_MIRROR_LOC                                       = "Gespiegelter Baum (exportProjectTree)"
+         .C_CFG_REF_SEC_DBF_LOC                                          = "DBF / DBC / Konvertierungsunterst?tzung"
+         .C_CFG_REF_SEC_EXTENSIONS_LOC                                   = "Textdatei-Erweiterungen"
+         .C_ClassTwice_Header_LOC                                        = CR_LF+"Klasse doppelt deklariert."+CR_LF
+         .C_ClassTwice_Lib_LOC                                           = CR_LF+"Bibliothek: "
+         .C_ClassTwice_Class_LOC                                         = CR_LF+"Klasse: "
+
+         .C_FOXBIN2PRG_JUST_VFP_9_LOC                                    = "FOXBIN2PRG arbeitet nur f?r Visual FoxPro 9.0!"
+         .C_FOXBIN2PRG_WARN_CAPTION_LOC                                  = "WARNUNG!"
+         .C_GENERATING_BINARY_LOC                                        = "Gene Binary"
+         .C_INCLUDING_CLASS_LOC                                          = "einschlie?lich Klasse"
+         .C_INCLUDING_MEMBER_LOC                                         = "inklusive Mitglied"
+         .C_INCORRECT_VFP9_VERSION__MISSING_SP1_LOC                      = "Falsche VFP 9 Version - SP1 fehlt! Erwartet: 3504 oder h?her, aktuell: " + Version(4)
+         .C_INVALID_PARAMETER_LOC                                        = "Ung?ltige Parameter"
+         .C_IS_A_FILE_LOC                                                = "ist eine DATEI"
+         .C_IS_A_DIRECTORY_LOC                                           = "ist ein VERZEICHNIS"
+         .C_IS_UNSUPPORTED_LOC                                           = "wird nicht unterst?tzt"
+         .C_LANGUAGE_LOC                                                 = "DE"
+         .C_MAIN_EXECUTION_LOC                                           = "HAUPTAUSF?HRUNG"
+         .C_MENU_NOT_IN_VFP9_FORMAT_LOC                                  = "Men? [<<THIS.c_InputFile>>] ist NICHT im VFP 9 Format! - Bitte zuerst mit MODIFY MENU '<<THIS.c_InputFile>>' nach VFP 9 konvertieren."
+         .C_NAMES_CAPITALIZATION_PROGRAM_FOUND_LOC                       = "* Programm f?r Gro?schreibungssetzung [<<lcEXE_CAPS>>] gefunden"
+         .C_NAMES_CAPITALIZATION_PROGRAM_NOT_FOUND_LOC                   = "* Programm f?r Gro?schreibungssetzung [<<lcEXE_CAPS>>] nicht gefunden"
+         .C_OBJECT_NAME_WITHOUT_OBJECT_OREG_LOC                          = "Objekt [<<toObj.CLASS>>] enth?lt nicht das oReg Objekt (level <<TRANSFORM(tnNivel)>>)"
+         .C_ONLY_SETNAME_AND_GETNAME_RECOGNIZED_LOC                      = "Befehl nicht erkannt. Nur SETNAME und GETNAME erlaubt."
+         .C_OPTION_LOC                                                   = "Option"
+         .C_OUTER_CLASS_DOES_NOT_MATCH_INNER_CLASSES_LOC                 = "Die ?u?ere Klasse zeigt nicht die die innere Klassifizierung an"
+         .C_OUTER_MEMBER_DOES_NOT_MATCH_INNER_MEMBERS_LOC                = "Das ?u?ere Element entspricht nicht den inneren Elementen"
+         .C_OUTPUT_FILE_IS_NOT_OVERWRITEN_LOC                            = "Optimierung: Ausgabedatei [<<lcOutputFile>>] wurde nicht ?berschrieben, da sie dieselbe ist wie die neu generierte."
+         .C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimierung: Ausgabedatei [<<THIS.c_OutputFile>>] wurde nicht verl?ngert, weil ihre Zeitmarke die gleiche der Quelldatei ist."
+         .C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC      = "Optimierung: Ausgabedatei [<<THIS.c_OutputFile>>] wurde nicht erneuert, da sie neuer als die Ursprungsdatei ist."
+         .C_PRESS_ESC_TO_CANCEL                                          = "Dr?cken Sie Esc zum Abbrechen"
+         .C_PROCEDURE_NOT_CLOSED_ON_LINE_LOC                             = "Prozedur nicht geschlossen. Letzte Zeile des Codes muss ENDPROC sein. [<<laLineas(1)>>, Recno:<<RECNO()>>]"
+         .C_PROCESSING_LOC                                               = "Bearbeite Datei"
+         .C_PROCESS_PROGRESS_LOC                                         = "Bearbeitungsfortschritt:"
+         .C_PROPERTY_NAME_NOT_RECOGNIZED_LOC                             = "Eigenschaft [<<TRANSFORM(tnPropertyID)>>] nicht erkannt."
+         .C_REPORT_NOT_IN_VFP9_FORMAT_LOC                                = "Report [<<THIS.c_InputFile>>] ist NICHT in VFP 9 Format! - Bitte zuerst nach VFP 9 konvertieren mit MODIFY REPORT '<<THIS.c_InputFile>>'"
+         .C_REQUESTING_CAPITALIZATION_OF_FILE_LOC                        = "- Fordere Gro?schreibung f?r Datei [<<tcFileName>>] an"
+         .C_SCANNING_FILE_AND_DIR_INFO_LOC                               = "Scanne Datei- und Verzeichnisinformationen f?r"
+         .C_SOURCEFILE_LOC                                               = "Quell Datei: "
+         .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_LOC                 = "Fehler in Verschachtelungsstruktur. ENDPROC erwartet, aber es wurde ENDDEFINE in Klasse <<toClase._Nombre>> (<<loProcedure._Nombre>>), Zeile <<TRANSFORM(m.I)>> der Datei <<THIS.c_InputFile>> gefunden"
+         .C_STRUCTURE_NESTING_ERROR_ENDPROC_EXPECTED_2_LOC               = "Fehler in Verschachtelungsstruktur. ENDPROC wurde erwartet, aber es wurde ENDDEFINE in Klasse <<toClase._Nombre>> (<<toObjeto._Nombre>>.<<loProcedure._Nombre>>), Zeile <<TRANSFORM(m.I)>> der Datei <<THIS.c_InputFile>> gefunden"
+         .C_UNKNOWN_CLASS_NAME_LOC                                       = "Unbekannte Klasse [<<THIS.CLASS>>]"
+         .C_USE_FILE_TIMESTAMP_OPTIMIZATION_LOC                          = "Verwenden Sie die Datei-Zeitstempel-Optimierung"
+         .C_WARNING_LOC                                                  = "WARNUNG!"
+         .C_WARN_TABLE_ALIAS_ON_INDEX_EXPRESSION_LOC                     = "WARNUNG!" + CR_LF+ "STELLEN SIE SICHER, DAS KEIN TABELLENALIAS IM INDEXAUSDRUCK BENUTZT WIRD!! (z.B.: index on <<UPPER(JUSTSTEM(THIS.c_InputFile))>>.campo tag keyname)"
+         .C_WITH_ERRORS_LOC                                              = "mit Fehlern"
+
+         .C_INDEX2TXT_PROCESSING_LOC                                     = " Ermittle Index"
+         .C_INDEX2TXT_EXTRAFILES_LOC                                     = "  Zus?tzliche Index Dateien"
+         .C_INDEX2TXT_NOFILE_LOC                                         = "     Keine Datei "
+         .C_INDEX2TXT_NOTTHISTABLE_LOC                                   = "   Index passt nicht zur Tabelle "
+         .C_INDEX2BIN_PROCESSING_LOC                                     = " Erstelle Index"
+         .C_INDEX2BIN_STRUCTURAL_LOC                                     = "  TAGs f?r den strukturellen Index"
+         .C_INDEX2BIN_STANDALONE_LOC                                     = "  Eigenst?ndige Indexdatei: "
+         .C_INDEX2BIN_COMPOUND_LOC                                       = "  TAGs f?r verbundene Indexdatei: "
+         .C_PJXPATH_ERR_LOC1                                             = CR_LF + 'Hauptdatei "'
+         .C_PJXPATH_ERR_LOC2                                             = CR_LF + 'Projekt-Icon Datei "'
+         .C_PJXPATH_ERR_LOC3                                             = CR_LF + 'Datei ""'
+         .C_PJXPATH_ERR_LOC4                                             = '"' + CR_LF + 'ist nicht in der PJX Ordner Struktur, "'
+         .C_PJXPATH_ERR_LOC5                                             = '",' + CR_LF + 'siehe Option "CheckFileInPath".' + CR_LF+CR_LF
+
+      Endwith
+   Endproc
+Enddefine
 
 
 
@@ -28164,7 +28037,7 @@ Define Class CL_MACRO_RECORD As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    Procedure ReadNextMacro(tnHandle As Integer)
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tnHandle                  (!v IN    ) FKY file handle
       *---------------------------------------------------------------------------------------------------
       Local lnMacro_Length
@@ -28185,7 +28058,7 @@ Define Class CL_MACRO_RECORD As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    Procedure toBin As String
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       *---------------------------------------------------------------------------------------------------
       Local lcText
 
@@ -28199,7 +28072,7 @@ Define Class CL_MACRO_RECORD As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    Procedure toText As String
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       *---------------------------------------------------------------------------------------------------
       Local lcText, loField As CL_MACRO_RECORD Of 'foxbin2prg.prg'
       lcText  = ''
@@ -28223,7 +28096,7 @@ Define Class CL_MACRO_RECORD As CL_CUS_BASE Of 'foxbin2prg.prg'
       *---------------------------------------------------------------------------------------------------
       * DEVLUELVE LOS LITERALES DE TODAS LAS TECLAS
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       *---------------------------------------------------------------------------------------------------
       Local lcKeystrokes, I
 
@@ -28243,9 +28116,9 @@ Define Class CL_MACRO_RECORD As CL_CUS_BASE Of 'foxbin2prg.prg'
       *---------------------------------------------------------------------------------------------------
       * DEVLUELVE EL LITERAL DE UNA TECLA
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcMacroStr                (!@ IN    ) Cadena de teclas de la macro
-      * I                         (!@ IN    ) Posici√≥n actualmente analizada de la cadena
+      * I                         (!@ IN    ) PosiciÛn actualmente analizada de la cadena
       * tlLiteralForCaption       (?v IN    ) Indica si algunos caracteres especiales se deben convertir a literal (ej: ";" => "SHIFT+SEMICOLON")
       *---------------------------------------------------------------------------------------------------
       Local lcMod, lcKey, lcKeyName, lcKeyMod, lcTecla, lnKeyVal, lcKeyPair, lnCntMod ;
@@ -28483,7 +28356,7 @@ Define Class CL_MACRO_RECORD As CL_CUS_BASE Of 'foxbin2prg.prg'
             lcKeyName   = 'ALT+Q'
 
          Case Bitand(lnKeyVal, 0x410C) = 0x410C
-            lcKeyName   = [ALT+']   && No est√° en la ayuda de VFP
+            lcKeyName   = [ALT+']   && No est· en la ayuda de VFP
 
          Case Bitand(lnKeyVal, 0x2194) = 0x2194
             lcKeyName   = 'CTRL+TAB'
@@ -28834,7 +28707,7 @@ Define Class CL_MACRO_RECORD As CL_CUS_BASE Of 'foxbin2prg.prg'
          *ENDIF
       Endif
 
-      * Tratamiento de combinaci√≥n final
+      * Tratamiento de combinaciÛn final
       Do Case
       Case Len(lcKeyName) > 1 And (Not llComplementar Or Empty(lcKeyMod))
          If tlLiteralForCaption
@@ -28863,7 +28736,6 @@ Enddefine
 
 
 
-
 Define Class CL_MACRO As CL_COL_BASE Of 'foxbin2prg.prg'
    #If .F.
       Local This As CL_MACRO Of 'foxbin2prg.prg'
@@ -28885,7 +28757,7 @@ Define Class CL_MACRO As CL_COL_BASE Of 'foxbin2prg.prg'
    _Signature          = ''
    _Debug              = .F.
    _NumberOfMacros     = ''
-   _Macros             = .Null.        && Colecci√≥n de macros
+   _Macros             = .Null.        && ColecciÛn de macros
 
 
 
@@ -28897,7 +28769,7 @@ Define Class CL_MACRO As CL_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure get_DataFromMacroFKY(tcInputFile As String, toFoxBin2Prg)
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcInputFile               (!v IN    ) Archivo de entrada
       * toFoxBin2Prg              (!@ IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
@@ -28942,12 +28814,12 @@ Define Class CL_MACRO As CL_COL_BASE Of 'foxbin2prg.prg'
             lnNumberOfMacros    = CToBin(._NumberOfMacros,'2RS')
 
             If lnFileLen < 17 + 25 * lnNumberOfMacros
-               * 25 caracteres es el tama√±o m√≠nimo de una macro sin teclas guardadas (solo la estructura)
+               * 25 caracteres es el tamaÒo mÌnimo de una macro sin teclas guardadas (solo la estructura)
                Error 'Invalid FKY Macro File size'
             Endif
 
             For I = 1 To lnNumberOfMacros
-               loMRec  = CreateObject('CL_MACRO_RECORD')
+               loMRec  = CreateObject('CL_MACRO_RECORD' )
 
                If Not loMRec.ReadNextMacro(lnHandle)
                   Exit
@@ -28957,7 +28829,7 @@ Define Class CL_MACRO As CL_COL_BASE Of 'foxbin2prg.prg'
                loMRec  = .Null.
             Endfor
 
-            * Ordenar alfab√©ticamente por keystroke
+            * Ordenar alfabÈticamente por keystroke
             loColl.KeySort = 2
 
          Endwith
@@ -28983,7 +28855,7 @@ Define Class CL_MACRO As CL_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       *---------------------------------------------------------------------------------------------------
       Local lcText, loMRec As CL_MACRO_RECORD Of 'foxbin2prg.prg'
       lcText  = ''
@@ -29002,7 +28874,6 @@ Define Class CL_MACRO As CL_COL_BASE Of 'foxbin2prg.prg'
 
 
 Enddefine
-
 
 
 
@@ -29044,7 +28915,7 @@ Define Class CL_MEMVAR_RECORD As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    Procedure ReadNextMemVar(tnHandle As Integer)
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tnHandle                  (!v IN    ) FKY file handle
       *---------------------------------------------------------------------------------------------------
       Local lnVarLength, lnVarDec, lnVarNameLength, lcVarNameLength, llVarTypeIsChar
@@ -29230,7 +29101,7 @@ Define Class CL_MEMVAR_RECORD As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    Procedure toText As String
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       *---------------------------------------------------------------------------------------------------
       Local lcText, lcVarName, lcVarType, lnVarLen, lnVarDec, lcPrecision, lnLenName ;
          , loField As CL_MACRO_RECORD Of 'foxbin2prg.prg'
@@ -29315,7 +29186,6 @@ Enddefine
 
 
 
-
 Define Class CL_MEMVAR As CL_COL_BASE Of 'foxbin2prg.prg'
    *   .MEM FILE STRUCTURE (Based on observation and testing) - Fernando D. Bozzo. 2018/03/24
    *   Complementary documentation: https://www.clicketyclick.dk/databases/xbase/format/mem.html#MEM_STRUCT
@@ -29389,7 +29259,7 @@ Define Class CL_MEMVAR As CL_COL_BASE Of 'foxbin2prg.prg'
 
    c_InputFile         = ''
    _Debug              = .F.
-   _MemVars            = .Null.        && Colecci√≥n de variables de memoria
+   _MemVars            = .Null.        && ColecciÛn de variables de memoria
 
 
 
@@ -29401,7 +29271,7 @@ Define Class CL_MEMVAR As CL_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure get_DataFromMEM(tcInputFile As String, toFoxBin2Prg)
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcInputFile               (!v IN    ) Archivo de entrada
       * toFoxBin2Prg              (!@ IN    ) Referencia al objeto principal
       *---------------------------------------------------------------------------------------------------
@@ -29435,13 +29305,13 @@ Define Class CL_MEMVAR As CL_COL_BASE Of 'foxbin2prg.prg'
             Endif
 
             *IF lnFileLen < 17 + 25 * lnNumberOfMacros
-            *   * 25 caracteres es el tama√±o m√≠nimo de una macro sin teclas guardadas (solo la estructura)
+            *   * 25 caracteres es el tamaÒo mÌnimo de una macro sin teclas guardadas (solo la estructura)
             *   ERROR 'Invalid FKY Macro File size'
             *ENDIF
 
             If lnFileLen > 1
                Do While Not Feof(lnHandle) And Fseek(lnHandle, 0, 1) < (lnFileLen - 1)
-                  loMVRec = CreateObject('CL_MEMVAR_RECORD')
+                  loMVRec = CreateObject('CL_MEMVAR_RECORD' )
 
                   If Not loMVRec.ReadNextMemVar(lnHandle)
                      Exit
@@ -29451,7 +29321,7 @@ Define Class CL_MEMVAR As CL_COL_BASE Of 'foxbin2prg.prg'
                   loMVRec = .Null.
                Enddo
 
-               * Ordenar alfab√©ticamente por nombre de variable
+               * Ordenar alfabÈticamente por nombre de variable
                loColl.KeySort = 2
             Endif
 
@@ -29478,7 +29348,7 @@ Define Class CL_MEMVAR As CL_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       *---------------------------------------------------------------------------------------------------
       Local lcText, loMVRec As CL_MEMVAR_RECORD Of 'foxbin2prg.prg'
       lcText  = ''
@@ -29500,8 +29370,7 @@ Enddefine
 
 
 
-
-Define Class CL_MENU_BARPOP As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
+Define Class CL_MENU_BARPOP As CL_MENU_COL_BASE Of 'foxbin2prg.prg'
    _MemberData = [<VFPData>] ;
       + [<memberdata name="analyzecodeblock_definepopup" display="analyzeCodeBlock_DefinePOPUP"/>] ;
       + [<memberdata name="updatemenu" display="updateMENU"/>] ;
@@ -29521,12 +29390,12 @@ Define Class CL_MENU_BARPOP As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus m√©todos
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÈtodos
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, toConversor
       External Array taCodeLines
@@ -29594,7 +29463,7 @@ Define Class CL_MENU_BARPOP As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
                      loReg.Scheme        = 4
                      loReg.Name          = Alltrim( Getwordnum( tcLine, 3 ) )
 
-                     If Right(loReg.Name,5) == '_FB2P'   && Originalmente era vac√≠o y se la hab√≠a puesto un nombre temporal.
+                     If Right(loReg.Name,5) == '_FB2P'   && Originalmente era vacÌo y se la habÌa puesto un nombre temporal.
                         loReg.Name      = ''
                      Endif
 
@@ -29624,7 +29493,7 @@ Define Class CL_MENU_BARPOP As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
                   loReg.Scheme            = Iif( loReg.OBJCODE = C_OBJCODE_MENUBARPOPUP_MENUBAR, 3, 4 )
                   loOption    = .Null.
 
-                  If I = lnLast_I && No avanz√≥, debe salir.
+                  If I = lnLast_I && No avanzÛ, debe salir.
                      Exit
                   Endif
 
@@ -29654,10 +29523,10 @@ Define Class CL_MENU_BARPOP As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toParentReg               (v! IN    ) Objeto registro Padre
       * tnNivel                   (v! IN    ) Nivel para indentar
-      * tcEndProcedures           (!@    OUT) Agregar aqu√≠ los procedimientos que ir√°n al final
+      * tcEndProcedures           (!@    OUT) Agregar aquÌ los procedimientos que ir·n al final
       * toHeader                  (v! IN    ) Objeto Registro de cabecera del menu
       *---------------------------------------------------------------------------------------------------
       Lparameters toParentReg, tnNivel, tcEndProcedures, toHeader
@@ -29671,7 +29540,7 @@ Define Class CL_MENU_BARPOP As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
          loReg   = This.oReg
          lcTab   = Replicate(Chr(9),tnNivel)
 
-         *-- Menu Bar or Popup (ObjType:2, ObjCode:0 √≥ 1)
+         *-- Menu Bar or Popup (ObjType:2, ObjCode:0 Û 1)
          If loReg.OBJCODE = C_OBJCODE_MENUBARPOPUP_MENUPAD   && (Menu Pad)
             If toHeader.ObjType = C_OBJTYPE_MENUTYPE_SHORTCUT
                *-- Shortcut
@@ -29746,7 +29615,6 @@ Enddefine
 
 
 
-
 Define Class CL_MENU_COL_BASE As CL_COL_BASE Of 'foxbin2prg.prg'
    _MemberData = [<VFPData>] ;
       + [<memberdata name="oreg" display="oReg"/>] ;
@@ -29765,7 +29633,7 @@ Define Class CL_MENU_COL_BASE As CL_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure get_DataFromTablabin
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toReg                     (v! IN    ) Objeto de datos del registro
       * toCol_LastLevelName       (v! IN    ) Objeto collection con la pila de niveles analizados
       *---------------------------------------------------------------------------------------------------
@@ -29806,8 +29674,8 @@ Define Class CL_MENU_COL_BASE As CL_COL_BASE Of 'foxbin2prg.prg'
                   Exit
 
                Case lnLastKey > 0 And lnLastKey < toCol_LastLevelName.Count
-                  *-- El nombre del analizado actual ya existe y no es el √∫ltimo,
-                  *-- as√≠ que corresponde a un nivel superior.
+                  *-- El nombre del analizado actual ya existe y no es el ˙ltimo,
+                  *-- asÌ que corresponde a un nivel superior.
                   Skip -1
                   llRetorno   = .F.
                   Exit
@@ -29875,8 +29743,8 @@ Define Class CL_MENU_COL_BASE As CL_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure updateMENU
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus m√©todos
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÈtodos
       *---------------------------------------------------------------------------------------------------
       Lparameters toConversor
    Endproc
@@ -29884,17 +29752,17 @@ Define Class CL_MENU_COL_BASE As CL_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure AnalizarSiExpresionEsComandoOProcedimiento
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcExpr                    (v! IN    ) Expresi√≥n a analizar (puede ser una l√≠nea o un Procedure)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcExpr                    (v! IN    ) ExpresiÛn a analizar (puede ser una lÌnea o un Procedure)
       * tcProcName                (!@    OUT) Nombre del Procedimiento, si se encuentra uno
-      * tcProcCode                (!@    OUT) C√≥digo del Procedimiento, si se encuentra uno
-      * tcSourceCode              (@? IN    ) Si se indica, se buscar√° el nombre de Procedure para obtener su c√≥digo
-      * tnIndentation             (v? IN    ) En caso de devolver c√≥digo, indica si se debe indentar o quitar indentaci√≥n
-      * tlAddProcEndproc          (v? IN    ) En caso de devolver c√≥digo, indica si se debe encerrar con PROCEDURE/ENDPROC
-      * tlForceProcedure          (v? IN    ) Indica que se eval√∫e como Procedure, no como Command
+      * tcProcCode                (!@    OUT) CÛdigo del Procedimiento, si se encuentra uno
+      * tcSourceCode              (@? IN    ) Si se indica, se buscar· el nombre de Procedure para obtener su cÛdigo
+      * tnIndentation             (v? IN    ) En caso de devolver cÛdigo, indica si se debe indentar o quitar indentaciÛn
+      * tlAddProcEndproc          (v? IN    ) En caso de devolver cÛdigo, indica si se debe encerrar con PROCEDURE/ENDPROC
+      * tlForceProcedure          (v? IN    ) Indica que se eval˙e como Procedure, no como Command
       *---------------------------------------------------------------------------------------------------
       * DETALLE: Los menus guardan en los primeros registros los Comandos o Procedimientos en el campo PROCEDURE,
-      *       y luego al generar el c√≥digo lo muestran como Comando si es una sola l√≠nea, y si no como Procedure.
+      *       y luego al generar el cÛdigo lo muestran como Comando si es una sola lÌnea, y si no como Procedure.
       *---------------------------------------------------------------------------------------------------
       Lparameters tcExpr, tcProcName, tcProcCode, tcSourceCode, tnIndentation, tlAddProcEndproc, tlForceProcedure
 
@@ -29916,7 +29784,7 @@ Define Class CL_MENU_COL_BASE As CL_COL_BASE Of 'foxbin2prg.prg'
             Endif
          Endfor
       Else
-         *-- ES UN COMANDO, PERO PODR√çA REFERENCIAR A UN PROCEDURE DEL MENU, SE VERIFICA.
+         *-- ES UN COMANDO, PERO PODRÕA REFERENCIAR A UN PROCEDURE DEL MENU, SE VERIFICA.
          If Not Empty(tcSourceCode)
             If Left( tcExpr, 3 ) == 'DO '
                *-- Parece un Procedimiento, vamos a confirmarlo.
@@ -29931,7 +29799,7 @@ Define Class CL_MENU_COL_BASE As CL_COL_BASE Of 'foxbin2prg.prg'
          Endif
       Endif
 
-      *-- Si se indic√≥ indentaci√≥n, se reprocesa el c√≥digo del procedimiento
+      *-- Si se indicÛ indentaciÛn, se reprocesa el cÛdigo del procedimiento
       If Not Empty(tcProcCode) And (tnIndentation <> 0 Or tlAddProcEndproc)
          lnLine_Count    = Alines( laProcLines, tcProcCode )
          tcProcCode      = ''
@@ -29956,7 +29824,7 @@ Define Class CL_MENU_COL_BASE As CL_COL_BASE Of 'foxbin2prg.prg'
 
          Otherwise
             For I = 1 To lnLine_Count
-               *-- Quitar indentaci√≥n
+               *-- Quitar indentaciÛn
                If Inlist( Left(laProcLines(m.I),1), Space(1), C_TAB )
                   tcProcCode  = tcProcCode + Substr( laProcLines(m.I), 2 ) + CR_LF
                Else
@@ -29978,8 +29846,7 @@ Enddefine
 
 
 
-
-Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
+Define Class CL_MENU_OPTION As CL_MENU_COL_BASE Of 'foxbin2prg.prg'
    _MemberData = [<VFPData>] ;
       + [<memberdata name="analyzecodeblock_definebar" display="analyzeCodeBlock_DefineBAR"/>] ;
       + [<memberdata name="analyzecodeblock_definepad" display="analyzeCodeBlock_DefinePAD"/>] ;
@@ -30002,12 +29869,12 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus m√©todos
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÈtodos
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, toConversor
       External Array taCodeLines
@@ -30049,7 +29916,7 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
                Case .analyzeCodeBlock_DefinePAD( @tcLine, @taCodeLines, @m.I, tnCodeLines, toConversor )
                   If loReg.Prompt == ''
-                     *-- Esta opci√≥n no corresponde a este nivel. Debe subir.
+                     *-- Esta opciÛn no corresponde a este nivel. Debe subir.
                      llBloqueEncontrado = .F.
                      Exit
                   Endif
@@ -30059,7 +29926,7 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
                Case .analyzeCodeBlock_DefineBAR( @tcLine, @taCodeLines, @m.I, tnCodeLines, toConversor )
                   If loReg.Prompt == ''
-                     *-- Esta opci√≥n no corresponde a este nivel. Debe subir.
+                     *-- Esta opciÛn no corresponde a este nivel. Debe subir.
                      llBloqueEncontrado = .F.
                      Exit
                   Endif
@@ -30119,8 +29986,8 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
    Procedure remove_strings
       *---------------------------------------------------------------------------------------------------
       * Remove all things between quotes
-      * PAR√ÅMETROS:
-      * tcLine                         Contenido de la l√≠nea en an√°lisis
+      * PAR¡METROS:
+      * tcLine                         Contenido de la lÌnea en an·lisis
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine
       * m.p_format_class      = parameter object
@@ -30182,12 +30049,12 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure analyzeCodeBlock_DefineBAR
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus m√©todos
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÈtodos
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, toConversor
       External Array taCodeLines
@@ -30203,21 +30070,21 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
          * Estructura ejemplo a analizar:
          *--------------------------------
-         *       DEFINE BAR _3YM1DR90Z OF _MSYSMENU PROMPT "Opci√≥n A con submen√∫" COLOR SCHEME 3 ;
+         *       DEFINE BAR _3YM1DR90Z OF _MSYSMENU PROMPT "OpciÛn A con submen˙" COLOR SCHEME 3 ;
          *           NEGOTIATE NONE, LEFT ;
          *           KEY DEL, "Pulsar <DEL>" ;
          *           SKIP FOR SKIP_FOR() ;
-         *           MESSAGE "Mensaje para Opci√≥n A con submen√∫" && Comentario
+         *           MESSAGE "Mensaje para OpciÛn A con submen˙" && Comentario
          *
-         *       ON BAR _3YM1DR90Z OF _MSYSMENU ACTIVATE POPUP Opci√≥nA_CS
+         *       ON BAR _3YM1DR90Z OF _MSYSMENU ACTIVATE POPUP OpciÛnA_CS
          *
-         *       DEFINE BAR 1 OF _MSYSMENU PROMPT "Opci√≥n A con submen√∫" ;
+         *       DEFINE BAR 1 OF _MSYSMENU PROMPT "OpciÛn A con submen˙" ;
          *           NEGOTIATE NONE, LEFT ;
          *           KEY DEL, "Pulsar <DEL>" ;
          *           SKIP FOR SKIP_FOR() ;
-         *           MESSAGE "Mensaje para Opci√≥n A con submen√∫" && Comentario
+         *           MESSAGE "Mensaje para OpciÛn A con submen˙" && Comentario
          *
-         *       ON BAR 1 OF _MSYSMENU ACTIVATE POPUP Opci√≥nA_CS
+         *       ON BAR 1 OF _MSYSMENU ACTIVATE POPUP OpciÛnA_CS
          *--------------------------------
          If Left( tcLine, 11 ) == 'DEFINE BAR '
             llBloqueEncontrado  = .T.
@@ -30378,7 +30245,7 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
                   Endfor
 
                Case .set_Line( @tcLine, @taCodeLines, m.I ) And .get_SeparatedLineAndComment( @tcLine, @lcComment )
-                  *-- Es un Bar de una sola l√≠nea y con comentarios
+                  *-- Es un Bar de una sola lÌnea y con comentarios
                   loReg.Comment   = Strtran( Strtran( lcComment, '<CR>', Chr(13) ), '<LF>', Chr(10) )
 
                Endcase
@@ -30391,7 +30258,7 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
                *!* </pdm>
 
                *!*                         If Left(lcBarName,1) == '_'
-               *!* *-- Es un BAR del Sistema, as√≠ que no tiene ON BAR ni nada m√°s.
+               *!* *-- Es un BAR del Sistema, asÌ que no tiene ON BAR ni nada m·s.
                *!*                             loReg.OBJCODE   = C_OBJCODE_MENUOPTION_BARNUM   && Bar#
                *!*                             I = m.I + 1
                *!*                             Exit
@@ -30402,9 +30269,9 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
                * Estructuras ejemplo a analizar:
                *--------------------------------
-               *   ON BAR _3YM1DR90Z OF _MSYSMENU ACTIVATE POPUP Opci√≥nA_CS
+               *   ON BAR _3YM1DR90Z OF _MSYSMENU ACTIVATE POPUP OpciÛnA_CS
                *   ON BAR _3YM1DR90Z OF _MSYSMENU wait window "algo"
-               *   ON BAR _3YM1DR90Z OF _MSYSMENU DO Menu1_Opci√≥n_A_2_Sub_SNIPPET
+               *   ON BAR _3YM1DR90Z OF _MSYSMENU DO Menu1_OpciÛn_A_2_Sub_SNIPPET
                *   ON SELECTION BAR 1 OF Contracts DO BAR_1_OF_Contracts_FB2P
                *--------------------------------
 
@@ -30417,8 +30284,8 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
                      Loop
 
                   Case Inlist( Left( tcLine, 11 ), 'DEFINE BAR ', 'DEFINE PAD ' )
-                     *-- Se encontr√≥ el siguiente DEFINE BAR/PAD, por lo que el analizado es de tipo #BAR vac√≠o
-                     *-- y no tiene ON BAR ni nada m√°s.
+                     *-- Se encontrÛ el siguiente DEFINE BAR/PAD, por lo que el analizado es de tipo #BAR vacÌo
+                     *-- y no tiene ON BAR ni nada m·s.
                      loReg.OBJCODE   = C_OBJCODE_MENUOPTION_BARNUM   && Bar#
                      Exit
 
@@ -30486,12 +30353,12 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure analyzeCodeBlock_DefinePAD
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus m√©todos
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÈtodos
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, toConversor
       External Array taCodeLines
@@ -30508,13 +30375,13 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
          * Estructura ejemplo a analizar:
          *--------------------------------
-         *       DEFINE PAD _3YM1DR90Z OF _MSYSMENU PROMPT "Opci√≥n A con submen√∫" COLOR SCHEME 3 ;
+         *       DEFINE PAD _3YM1DR90Z OF _MSYSMENU PROMPT "OpciÛn A con submen˙" COLOR SCHEME 3 ;
          *           NEGOTIATE NONE, LEFT ;
          *           KEY DEL, "Pulsar <DEL>" ;
          *           SKIP FOR SKIP_FOR() ;
-         *           MESSAGE "Mensaje para Opci√≥n A con submen√∫" && Comentario
+         *           MESSAGE "Mensaje para OpciÛn A con submen˙" && Comentario
          *
-         *       ON PAD _3YM1DR90Z OF _MSYSMENU ACTIVATE POPUP Opci√≥nA_CS
+         *       ON PAD _3YM1DR90Z OF _MSYSMENU ACTIVATE POPUP OpciÛnA_CS
          *--------------------------------
          If Left( tcLine, 11 ) == 'DEFINE PAD '
             llBloqueEncontrado  = .T.
@@ -30611,7 +30478,7 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
                   Endfor
 
                Case .set_Line( @tcLine, @taCodeLines, m.I ) And .get_SeparatedLineAndComment( @tcLine, @lcComment )
-                  *-- Es un Bar de una sola l√≠nea y con comentarios
+                  *-- Es un Bar de una sola lÌnea y con comentarios
                   loReg.Comment   = Strtran( Strtran( lcComment, '<CR>', Chr(13) ), '<LF>', Chr(10) )
 
                Endcase
@@ -30619,9 +30486,9 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
                * Estructuras ejemplo a analizar:
                *--------------------------------
-               *   ON PAD _3YM1DR90Z OF _MSYSMENU ACTIVATE POPUP Opci√≥nA_CS
+               *   ON PAD _3YM1DR90Z OF _MSYSMENU ACTIVATE POPUP OpciÛnA_CS
                *   ON PAD _3YM1DR90Z OF _MSYSMENU wait window "algo"
-               *   ON PAD _3YM1DR90Z OF _MSYSMENU DO Menu1_Opci√≥n_A_2_Sub_SNIPPET
+               *   ON PAD _3YM1DR90Z OF _MSYSMENU DO Menu1_OpciÛn_A_2_Sub_SNIPPET
                *--------------------------------
 
                *-- ANALISIS DEL "ON PAD" u "ON SELECTION PAD"
@@ -30698,10 +30565,10 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toParentReg               (v? IN    ) Objeto registro Padre
       * tnNivel                   (v? IN    ) Nivel para indentar
-      * tcEndProcedures           (!@    OUT) Agregar aqu√≠ los procedimientos que ir√°n al final
+      * tcEndProcedures           (!@    OUT) Agregar aquÌ los procedimientos que ir·n al final
       * toHeader                  (v! IN    ) Objeto Registro de cabecera del menu
       *---------------------------------------------------------------------------------------------------
       Lparameters toParentReg, tnNivel, tcEndProcedures, toHeader
@@ -30761,7 +30628,7 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
             Endif
 
 
-            *-- Menu Bar or Popup (ObjType:2 [C_OBJTYPE_MENUTYPE_BARorPOPUP], ObjCode:0 √≥ 1 [C_OBJCODE_MENUBARPOPUP_MENUPAD o C_OBJCODE_MENUBARPOPUP_MENUBAR])
+            *-- Menu Bar or Popup (ObjType:2 [C_OBJTYPE_MENUTYPE_BARorPOPUP], ObjCode:0 Û 1 [C_OBJCODE_MENUBARPOPUP_MENUPAD o C_OBJCODE_MENUBARPOPUP_MENUBAR])
             If .Count > 0
                For Each loBarPop In This FoxObject
                   If toParentReg.ObjType = C_OBJTYPE_MENUTYPE_BARorPOPUP ;
@@ -30797,7 +30664,7 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure get_DefineBarText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toReg                     (v? IN    ) Objeto registro
       * toBarPop                  (v? IN    ) Bar o Popup hijo
       * tnNivel                   (v? IN    ) Nivel para indentar
@@ -30907,7 +30774,7 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure get_DefinePadText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toReg                     (v? IN    ) Objeto registro
       * toBarPop                  (v? IN    ) Bar o Popup hijo
       * tnNivel                   (v? IN    ) Nivel para indentar
@@ -31030,8 +30897,7 @@ Enddefine
 
 
 
-
-Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
+Define Class CL_MENU As CL_MENU_COL_BASE Of 'foxbin2prg.prg'
    #If .F.
       Local This As CL_MENU Of 'foxbin2prg.prg'
    #Endif
@@ -31058,12 +30924,12 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure analyzeCodeBlock
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus m√©todos
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÈtodos
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, toConversor
       External Array taCodeLines
@@ -31161,12 +31027,12 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure analyzeCodeBlock_SetupCode
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus m√©todos
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÈtodos
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, toConversor
       
@@ -31192,7 +31058,7 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
                      I = m.I + 1
                      Exit
 
-                  Otherwise   && L√≠neas de procedure
+                  Otherwise   && LÌneas de procedure
                      lcText  = lcText + CR_LF + taCodeLines(m.I)
                   Endcase
                Endfor
@@ -31217,12 +31083,12 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure analyzeCodeBlock_CleanupCode
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus m√©todos
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÈtodos
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, toConversor
 
@@ -31248,7 +31114,7 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
                      I = m.I + 1
                      Exit
 
-                  Otherwise   && L√≠neas de procedure
+                  Otherwise   && LÌneas de procedure
                      lcText  = lcText + CR_LF + taCodeLines(m.I)
                   Endcase
                Endfor
@@ -31273,12 +31139,12 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure analyzeCodeBlock_MenuCode
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus m√©todos
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÈtodos
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, toConversor
       External Array taCodeLines
@@ -31438,12 +31304,12 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure analyzeCodeBlock_PROCEDURE
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * tcLine                    (!@ IN/OUT) Contenido de la l√≠nea en an√°lisis
-      * taCodeLines               (!@ IN    ) Array de l√≠neas del programa analizado
-      * I                         (!@ IN/OUT) N√∫mero de l√≠nea en an√°lisis
-      * tnCodeLines               (!@ IN    ) Cantidad de l√≠neas del programa analizado
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus m√©todos
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * tcLine                    (!@ IN/OUT) Contenido de la lÌnea en an·lisis
+      * taCodeLines               (!@ IN    ) Array de lÌneas del programa analizado
+      * I                         (!@ IN/OUT) N˙mero de lÌnea en an·lisis
+      * tnCodeLines               (!@ IN    ) Cantidad de lÌneas del programa analizado
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÈtodos
       *---------------------------------------------------------------------------------------------------
       Lparameters tcLine, taCodeLines, I, tnCodeLines, toConversor
       External Array taCodeLines
@@ -31468,7 +31334,7 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
                      I = m.I + 1
                      Exit
 
-                  Otherwise   && L√≠neas de procedure
+                  Otherwise   && LÌneas de procedure
                      *-- Las saltea
                   Endcase
                Endfor
@@ -31492,7 +31358,7 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure toText
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       *---------------------------------------------------------------------------------------------------
 
       Try
@@ -31644,7 +31510,7 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure get_DataFromTablabin
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       *---------------------------------------------------------------------------------------------------
       Local loReg, loCol_LastLevelName As Collection
       Store .Null. To loReg, loCol_LastLevelName
@@ -31659,8 +31525,8 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure updateMENU
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus m√©todos
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÈtodos
       *---------------------------------------------------------------------------------------------------
       Lparameters toConversor
 
@@ -31688,10 +31554,10 @@ Define Class CL_MENU As CL_MENU_COL_BASE OF 'cl_menu_col_base.prg'
 
    Procedure UpdateMenu_Recursivo
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * toObj                     (v! IN    ) Referencia del objeto CL_MENU_BARPOP o CL_MENU_OPTION
-      * tnNivel                   (v! IN    ) Nivel de indentaci√≥n (solo para debug)
-      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus m√©todos
+      * tnNivel                   (v! IN    ) Nivel de indentaciÛn (solo para debug)
+      * toConversor               (v! IN    ) Referencia al conversor para poder usar sus mÈtodos
       *---------------------------------------------------------------------------------------------------
       Lparameters toObj As Collection, tnNivel, toConversor
 
@@ -31770,7 +31636,6 @@ Enddefine
 
 
 
-
 Define Class CL_OBJETO As CL_CUS_BASE Of 'foxbin2prg.prg'
    #If .F.
       Local This As CL_OBJETO Of 'foxbin2prg.prg'
@@ -31832,7 +31697,7 @@ Define Class CL_OBJETO As CL_CUS_BASE Of 'foxbin2prg.prg'
             toProcedure._Nombre = Substr( toProcedure._Nombre, At( '.', toProcedure._Nombre, Occurs( '.', ._Nombre) ) + 1 )
          Endif
 
-         *-- Verificaci√≥n de Procedure repetido
+         *-- VerificaciÛn de Procedure repetido
          If ._Procedure_Count > 0 And Ascan( ._aProcNames, toProcedure._Nombre, 1, 0, 0, 1+2+4 ) > 0 Then
             .writeErrorLog( '* Duplicated Method "' + toProcedure._Nombre + '" of class.object "' ;
                + ._Nombre + '" @line ' + Transform(toProcedure._Inicio) )
@@ -31864,7 +31729,6 @@ Enddefine
 
 
 
-
 Define Class CL_OLE As CL_CUS_BASE Of 'foxbin2prg.prg'
    #If .F.
       Local This As CL_OLE Of 'foxbin2prg.prg'
@@ -31885,7 +31749,6 @@ Define Class CL_OLE As CL_CUS_BASE Of 'foxbin2prg.prg'
    _Value      = ''
 
 Enddefine
-
 
 
 
@@ -31927,7 +31790,6 @@ Enddefine
 
 
 
-
 Define Class CL_PROJ_FILE As CL_CUS_BASE Of 'foxbin2prg.prg'
    #If .F.
       Local This As CL_PROJ_FILE Of 'foxbin2prg.prg'
@@ -31958,7 +31820,6 @@ Define Class CL_PROJ_FILE As CL_CUS_BASE Of 'foxbin2prg.prg'
    _DevInfo            = ''
 
 Enddefine
-
 
 
 
@@ -32068,7 +31929,6 @@ Enddefine
 
 
 
-
 Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'foxbin2prg.prg'
    #If .F.
       Local This As CL_PROJ_SRV_HEAD Of 'foxbin2prg.prg'
@@ -32095,7 +31955,7 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'foxbin2prg.prg'
       + [<memberdata name="setparsedinfoline" display="setParsedInfoLine"/>] ;
       + [</VFPData>]
 
-   *-- Informaci√≥n interesante sobre Servidores OLE y corrupci√≥n de IDs: http://www.west-wind.com/wconnect/weblog/ShowEntry.blog?id=880
+   *-- InformaciÛn interesante sobre Servidores OLE y corrupciÛn de IDs: http://www.west-wind.com/wconnect/weblog/ShowEntry.blog?id=880
 
    *-- Server Head info
    Dimension _Servers[1]
@@ -32110,7 +31970,7 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    Procedure decode_SpecialCodes_CR_LF
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcText                    (!@ IN    ) Decodifica los caracteres ASCII 10 y 13 de {nCode} a CHR(nCode)
       *---------------------------------------------------------------------------------------------------
       Lparameters tcText
@@ -32121,7 +31981,7 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'foxbin2prg.prg'
 
    Procedure encode_SpecialCodes_CR_LF
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcText                    (!@ IN    ) Codifica los caracteres ASCII 10 y 13 de CHR(nCode) a {nCode}
       *---------------------------------------------------------------------------------------------------
       Lparameters tcText
@@ -32191,7 +32051,7 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'foxbin2prg.prg'
 
 
    Procedure getServerDataObject
-      Return CreateObject('CL_PROJ_SRV_DATA')
+      Return CreateObject('CL_PROJ_SRV_DATA' )
    Endproc
 
 
@@ -32215,7 +32075,7 @@ Define Class CL_PROJ_SRV_HEAD As CL_CUS_BASE Of 'foxbin2prg.prg'
                ._ServerType    = .getDataFromPair_LenData_Structure( @tcServerInfo, @lnPos, @lnLen )
                ._TypeLib       = .getDataFromPair_LenData_Structure( @tcServerInfo, @lnPos, @lnLen )
 
-               *-- Informaci√≥n de los servidores
+               *-- InformaciÛn de los servidores
                For I = 1 To lnServerCount
                   loServerData    = .Null.
                   loServerData    = .getServerDataObject()
@@ -32346,7 +32206,6 @@ Enddefine
 
 
 
-
 Define Class CL_PROJECT As CL_COL_BASE Of 'foxbin2prg.prg'
    #If .F.
       Local This As CL_PROJECT Of 'foxbin2prg.prg'
@@ -32454,14 +32313,14 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure Init
       DoDefault()
-      This._ServerHead    = CreateObject('CL_PROJ_SRV_HEAD')
+      This._ServerHead    = CreateObject('CL_PROJ_SRV_HEAD' )
    Endproc
 
 
 
    Procedure decode_SpecialCodes_CR_LF
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcText                    (!@ IN    ) Decodifica los caracteres ASCII 10 y 13 de {nCode} a CHR(nCode)
       *---------------------------------------------------------------------------------------------------
       Lparameters tcText
@@ -32473,7 +32332,7 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'foxbin2prg.prg'
 
    Procedure encode_SpecialCodes_CR_LF
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * tcText                    (!@ IN    ) Codifica los caracteres ASCII 10 y 13 de CHR(nCode) a {nCode}
       *---------------------------------------------------------------------------------------------------
       Lparameters tcText
@@ -32671,7 +32530,7 @@ Define Class CL_PROJECT As CL_COL_BASE Of 'foxbin2prg.prg'
 
    Function getFilesNotFound(taFiles) As Integer
       *---------------------------------------------------------------------------------------------------
-      * PAR√ÅMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * PAR¡METROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
       * taFiles                   (?@    OUT) Codifica los caracteres ASCII 10 y 13 de CHR(nCode) a {nCode}
       *---------------------------------------------------------------------------------------------------
       External Array taFiles
@@ -32714,7 +32573,6 @@ Enddefine
 
 
 
-
 Define Class CL_REPORT As CL_COL_BASE Of 'foxbin2prg.prg'
    #If .F.
       Local This As CL_REPORT Of 'foxbin2prg.prg'
@@ -32736,5 +32594,4 @@ Define Class CL_REPORT As CL_COL_BASE Of 'foxbin2prg.prg'
    _cpid =      Cpcurrent()
 
 Enddefine
-
 
