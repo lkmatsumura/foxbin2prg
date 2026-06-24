@@ -553,6 +553,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       + [<memberdata name="changefiletime" display="changeFileTime"/>] ;
       + [<memberdata name="changelanguage" display="changeLanguage"/>] ;
       + [<memberdata name="cinputroot" display="cInputRoot"/>] ;
+      + [<memberdata name="clearconfigurationcache" display="clearConfigurationCache"/>] ;
       + [<memberdata name="clearprocessedfiles" display="clearProcessedFiles"/>] ;
       + [<memberdata name="comparedfilesareequal" display="comparedFilesAreEqual"/>] ;
       + [<memberdata name="compilefoxprobinary" display="compileFoxProBinary"/>] ;
@@ -834,9 +835,16 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       CATCH
 
       FINALLY
+         IF VARTYPE(This.c_Foxbin2prg_ConfigFile) = 'O'
+            This.c_Foxbin2prg_ConfigFile = .NULL.
+         ENDIF
+         IF VARTYPE(This.o_Cfg) = 'O' AND !ISNULL(This.o_Cfg)
+            This.o_Cfg.clearConfigurationCache()
+         ENDIF
          This.o_FSO  = .NULL.
          This.o_WSH  = .NULL.
          This.o_FNC  = .NULL.
+         This.o_TextStream = .NULL.
          IF VARTYPE(This.o_FileUtils) = 'O' AND !ISNULL(This.o_FileUtils)
             This.o_FileUtils.clearDll()
          ENDIF
@@ -958,6 +966,16 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          .l_Error                = .F.
          .l_Errors               = .F.
       ENDWITH
+   ENDPROC
+
+
+   PROCEDURE clearConfigurationCache
+      *---------------------------------------------------------------------------------------------------
+      * Drops per-directory CFG cache on o_Cfg (factory/master CFG are kept).
+      *---------------------------------------------------------------------------------------------------
+      IF VARTYPE(This.o_Cfg) = 'O' AND !ISNULL(This.o_Cfg)
+         This.o_Cfg.clearConfigurationCache()
+      ENDIF
    ENDPROC
 
 
@@ -2921,6 +2939,11 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          IF EMPTY(lnCodError) AND This.l_Errors
             SET STEP ON
             lnCodError = 1098
+         ENDIF
+
+         This.clearConfigurationCache()
+         IF VARTYPE(This.c_Foxbin2prg_ConfigFile) = 'O'
+            This.c_Foxbin2prg_ConfigFile = FORCEEXT(This.c_Foxbin2prg_FullPath, 'CFG')
          ENDIF
 
          SET NOTIFY &lc_OldSetNotify.
@@ -11719,6 +11742,10 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
          Local toProject As CL_PROJECT Of 'foxbin2prg.prg'
       #Endif
 
+      Local lcProjectName
+      lcProjectName = Forcepath( Evl(This.c_OriginalFileName, This.c_OutputFile), toProject._HomeDir)
+      lcProjectName = Forceext( lcProjectName, Justext( This.c_OutputFile ) )
+
       Insert Into TABLABIN ;
          ( Name ;
          , Type ;
@@ -11740,7 +11767,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
          , User ;
          , Key ) ;
          VALUES ;
-         ( Upper( Forcepath( Evl(This.c_OriginalFileName,This.c_OutputFile), toProject._HomeDir) ) + Chr(0) ;
+         ( Upper( lcProjectName ) + Chr(0) ;
          , 'H' ;
          , 0 ;
          , '<Source>' + Chr(0) ;
@@ -11753,7 +11780,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
          , 260 ;
          , toProject.getRowDevInfo() ;
          , Lower(toProject._HomeDir) + Chr(0) ;
-         , Upper( Forcepath( Evl(This.c_OriginalFileName,This.c_OutputFile), toProject._HomeDir) ) + Chr(0) ;
+         , Upper( lcProjectName ) + Chr(0) ;
          , toProject._ServerHead.getRowServerInfo() ;
          , toProject._SccData ;
          , .T. ;
@@ -26671,6 +26698,42 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
    ENDPROC
 
 
+   PROCEDURE DESTROY
+      LOCAL I
+
+      IF VARTYPE(This.o_Configuration) = 'O' AND !ISNULL(This.o_Configuration)
+         FOR I = This.o_Configuration.COUNT TO 1 STEP -1
+            This.o_Configuration.REMOVE(I)
+         ENDFOR
+      ENDIF
+
+      This.o_Configuration = .NULL.
+      This.o_MasterCFG     = .NULL.
+      This.o_FactoryCFG    = .NULL.
+      This.o_Host          = .NULL.
+   ENDPROC
+
+
+   PROCEDURE clearConfigurationCache
+      *---------------------------------------------------------------------------------------------------
+      * Drops per-directory CFG cache entries. Keeps o_FactoryCFG and o_MasterCFG intact.
+      *---------------------------------------------------------------------------------------------------
+      LOCAL I
+
+      IF VARTYPE(This.o_Configuration) <> 'O' OR ISNULL(This.o_Configuration)
+         RETURN
+      ENDIF
+
+      FOR I = This.o_Configuration.COUNT TO 1 STEP -1
+         This.o_Configuration.REMOVE(I)
+      ENDFOR
+
+      This.n_CFG_Actual            = 0
+      This.l_CFG_CachedAccess      = .F.
+      This.n_CFG_EvaluateFromParam = 0
+   ENDPROC
+
+
    PROCEDURE evaluateConfiguration
       *--------------------------------------------------------------------------------------------------------------
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
@@ -27515,7 +27578,20 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
                lo_CFG.l_ShowErrors = NOT (Transform(tcDontShowErrors) == '1')
             ENDIF
 
-            lo_CFG.l_Recompile = (Empty(tcRecompile) OR Transform(tcRecompile) == '1' OR Directory(tcRecompile))
+            * Mode C (loCfg / importProjectTree / exportProjectTree): l_Recompile comes from the
+            * programmatic object (lockMasterFromObject). Do not derive it from tcRecompile path
+            * (execute sets tcRecompile to JUSTPATH(input) which would override loCfg.l_Recompile).
+            IF .n_CFG_EvaluateFromParam = 1
+               DO CASE
+               CASE Transform(tcRecompile) == '0'
+                  lo_CFG.l_Recompile = .F.
+               CASE Transform(tcRecompile) == '1'
+                  lo_CFG.l_Recompile = .T.
+               * OTHERWISE keep lo_CFG.l_Recompile from loCfg object
+               ENDCASE
+            ELSE
+               lo_CFG.l_Recompile = (Empty(tcRecompile) OR Transform(tcRecompile) == '1' OR Directory(tcRecompile))
+            ENDIF
 
             IF InList( Transform(tcNoTimestamps), '0', '1' ) THEN
                lo_CFG.l_NoTimestamps = NOT (TRANSFORM(tcNoTimestamps) == '0')
@@ -28149,6 +28225,11 @@ DEFINE CLASS cl_fb2prg_mirror AS Custom
    ENDPROC
 
 
+   PROCEDURE DESTROY
+      This.o_Host = .NULL.
+   ENDPROC
+
+
    FUNCTION isActive
       RETURN VARTYPE(This.o_Host) = 'O' AND !EMPTY(This.o_Host.cOutputFolder)
    ENDFUNC
@@ -28651,6 +28732,11 @@ DEFINE CLASS cl_file_utils AS Custom
    PROCEDURE INIT
       LPARAMETERS toHost
       This.o_Host = toHost
+   ENDPROC
+
+
+   PROCEDURE DESTROY
+      This.o_Host = .NULL.
    ENDPROC
 
 
