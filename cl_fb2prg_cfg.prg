@@ -49,6 +49,42 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
    ENDPROC
 
 
+   PROCEDURE DESTROY
+      LOCAL I
+
+      IF VARTYPE(This.o_Configuration) = 'O' AND !ISNULL(This.o_Configuration)
+         FOR I = This.o_Configuration.COUNT TO 1 STEP -1
+            This.o_Configuration.REMOVE(I)
+         ENDFOR
+      ENDIF
+
+      This.o_Configuration = .NULL.
+      This.o_MasterCFG     = .NULL.
+      This.o_FactoryCFG    = .NULL.
+      This.o_Host          = .NULL.
+   ENDPROC
+
+
+   PROCEDURE clearConfigurationCache
+      *---------------------------------------------------------------------------------------------------
+      * Drops per-directory CFG cache entries. Keeps o_FactoryCFG and o_MasterCFG intact.
+      *---------------------------------------------------------------------------------------------------
+      LOCAL I
+
+      IF VARTYPE(This.o_Configuration) <> 'O' OR ISNULL(This.o_Configuration)
+         RETURN
+      ENDIF
+
+      FOR I = This.o_Configuration.COUNT TO 1 STEP -1
+         This.o_Configuration.REMOVE(I)
+      ENDFOR
+
+      This.n_CFG_Actual            = 0
+      This.l_CFG_CachedAccess      = .F.
+      This.n_CFG_EvaluateFromParam = 0
+   ENDPROC
+
+
    PROCEDURE evaluateConfiguration
       *--------------------------------------------------------------------------------------------------------------
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)

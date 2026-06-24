@@ -9,6 +9,11 @@ DEFINE CLASS cl_fb2prg_mirror AS Custom
    ENDPROC
 
 
+   PROCEDURE DESTROY
+      This.o_Host = .NULL.
+   ENDPROC
+
+
    FUNCTION isActive
       RETURN VARTYPE(This.o_Host) = 'O' AND !EMPTY(This.o_Host.cOutputFolder)
    ENDFUNC

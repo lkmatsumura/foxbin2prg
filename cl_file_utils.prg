@@ -9,6 +9,11 @@ DEFINE CLASS cl_file_utils AS Custom
    ENDPROC
 
 
+   PROCEDURE DESTROY
+      This.o_Host = .NULL.
+   ENDPROC
+
+
    PROCEDURE declareDLL
       *-- Functions for writing to StdOut
       DECLARE INTEGER 'GetStdHandle' IN WIN32API AS fb2p_GetStdHandle INTEGER nHandleType

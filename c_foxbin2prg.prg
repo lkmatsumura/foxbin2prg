@@ -16,6 +16,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       + [<memberdata name="changefiletime" display="changeFileTime"/>] ;
       + [<memberdata name="changelanguage" display="changeLanguage"/>] ;
       + [<memberdata name="cinputroot" display="cInputRoot"/>] ;
+      + [<memberdata name="clearconfigurationcache" display="clearConfigurationCache"/>] ;
       + [<memberdata name="clearprocessedfiles" display="clearProcessedFiles"/>] ;
       + [<memberdata name="comparedfilesareequal" display="comparedFilesAreEqual"/>] ;
       + [<memberdata name="compilefoxprobinary" display="compileFoxProBinary"/>] ;
@@ -297,9 +298,16 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       CATCH
 
       FINALLY
+         IF VARTYPE(This.c_Foxbin2prg_ConfigFile) = 'O'
+            This.c_Foxbin2prg_ConfigFile = .NULL.
+         ENDIF
+         IF VARTYPE(This.o_Cfg) = 'O' AND !ISNULL(This.o_Cfg)
+            This.o_Cfg.clearConfigurationCache()
+         ENDIF
          This.o_FSO  = .NULL.
          This.o_WSH  = .NULL.
          This.o_FNC  = .NULL.
+         This.o_TextStream = .NULL.
          IF VARTYPE(This.o_FileUtils) = 'O' AND !ISNULL(This.o_FileUtils)
             This.o_FileUtils.clearDll()
          ENDIF
@@ -421,6 +429,16 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          .l_Error                = .F.
          .l_Errors               = .F.
       ENDWITH
+   ENDPROC
+
+
+   PROCEDURE clearConfigurationCache
+      *---------------------------------------------------------------------------------------------------
+      * Drops per-directory CFG cache on o_Cfg (factory/master CFG are kept).
+      *---------------------------------------------------------------------------------------------------
+      IF VARTYPE(This.o_Cfg) = 'O' AND !ISNULL(This.o_Cfg)
+         This.o_Cfg.clearConfigurationCache()
+      ENDIF
    ENDPROC
 
 
@@ -2384,6 +2402,11 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          IF EMPTY(lnCodError) AND This.l_Errors
             SET STEP ON
             lnCodError = 1098
+         ENDIF
+
+         This.clearConfigurationCache()
+         IF VARTYPE(This.c_Foxbin2prg_ConfigFile) = 'O'
+            This.c_Foxbin2prg_ConfigFile = FORCEEXT(This.c_Foxbin2prg_FullPath, 'CFG')
          ENDIF
 
          SET NOTIFY &lc_OldSetNotify.
