@@ -164,10 +164,10 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       EXTERNAL ARRAY taCat
       LOCAL lnLn
       lnLn = ALEN(taCat, 1)
-      IF ! ( lnLn = 1 AND EMPTY(taCat(1, 2)) )
+      IF lnLn != 1 OR Alen(taCat, 2) == 4
          lnLn = lnLn + 1
-         DIMENSION taCat(lnLn, 5)
       ENDIF
+      DIMENSION taCat(lnLn, 4)
 
       taCat(lnLn, 1) = tcSec
       taCat(lnLn, 2) = tcProp
@@ -185,7 +185,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       *---------------------------------------------------------------------------------------------------
       LPARAMETERS taCat
 
-      DIMENSION laCat(1, 4)
+      DIMENSION taCat(1)
       *-- 1 General
       This.appendCfgCatalogRow(@taCat, '1', 'n_Debug',                 'N', '0|1|2')
       This.appendCfgCatalogRow(@taCat, '1', 'l_ShowErrors',            'L', '.T.|.F.')
@@ -215,7 +215,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       This.appendCfgCatalogRow(@taCat, '3', 'l_FormPerFileCheck',            'L', '.T.|.F.')
 
       *-- 4 Mirror
-      This.appendCfgCatalogRow(@laCat, '4', 'l_CopyNonConvertible',    'L', '.T.|.F.')
+      This.appendCfgCatalogRow(@taCat, '4', 'l_CopyNonConvertible',    'L', '.T.|.F.')
       This.appendCfgCatalogRow(@taCat, '4', 'l_CopyExcludedPjxFiles',  'L', '.T.|.F.')
       This.appendCfgCatalogRow(@taCat, '4', 'l_CopyLowercaseNames',    'L', '.T.|.F.')
       This.appendCfgCatalogRow(@taCat, '4', 'c_ExcludedSubdirs',       'C', 'list;sep')
@@ -240,7 +240,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       This.appendCfgCatalogRow(@taCat, '5', 'n_MNX_Conversion_Support',  'N', '0|1|2')
 
       *-- 6 Extensions
-      This.appendCfgCatalogRow(@laCat, '6', 'c_VC2', 'C', 'ext')
+      This.appendCfgCatalogRow(@taCat, '6', 'c_VC2', 'C', 'ext')
       This.appendCfgCatalogRow(@taCat, '6', 'c_SC2', 'C', 'ext')
       This.appendCfgCatalogRow(@taCat, '6', 'c_PJ2', 'C', 'ext')
       This.appendCfgCatalogRow(@taCat, '6', 'c_FR2', 'C', 'ext')
@@ -249,7 +249,6 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       This.appendCfgCatalogRow(@taCat, '6', 'c_DC2', 'C', 'ext')
       This.appendCfgCatalogRow(@taCat, '6', 'c_MN2', 'C', 'ext')
 
-      RETURN @laCat
    ENDPROC
 
 

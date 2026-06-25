@@ -237,7 +237,8 @@ IF _vfp.StartMode > 0 THEN
 ENDIF
 
 LOCAL loCnv AS c_foxbin2prg Of 'foxbin2prg.prg' ;
-    , loEx  AS EXCEPTION
+    , loEx  AS EXCEPTION ;
+    , loFrm_Main AS frm_main Of 'foxbin2prg.prg'
 
 LOCAL lnResp
 
@@ -251,7 +252,15 @@ ENDIF
 TRY
    loEx  = .NULL.
    loCnv = GetObj_F2b()
-   lnResp = loCnv.execute( tc_InputFile, tcType, toCfg, @loEx )
+
+   IF EMPTY(tc_InputFile) AND NOT INLIST( UPPER(tcType), 'BIN3PRG', 'PRG3BIN' )
+      loFrm_Main = CreateObject( 'frm_main' ,  loCnv )
+      loFrm_Main.SHOW()
+      READ EVENTS
+      lnResp = 0
+   ELSE
+      lnResp = loCnv.execute( tc_InputFile, tcType, toCfg, @loEx )
+   ENDIF
 
 CATCH TO loEx
    lnResp = loEx.ErrorNo
@@ -267,19 +276,19 @@ ENDTRY
 AddProperty(_screen, 'ExitCode', lnResp)
 
 IF _VFP.STARTMODE <> 4 OR NOT SYS(16) == SYS(16,0)
-   STORE .NULL. TO loEx, loCnv
-   RELEASE loEx, loCnv
+   STORE .NULL. TO loEx, loCnv, loFrm_Main
+   RELEASE loEx, loCnv, loFrm_Main
    RETURN lnResp
 ENDIF
 
 IF EMPTY(lnResp)
-   STORE .NULL. TO loEx, loCnv
-   RELEASE loEx, loCnv
+   STORE .NULL. TO loEx, loCnv, loFrm_Main
+   RELEASE loEx, loCnv, loFrm_Main
    QUIT
 ENDIF
 
-STORE .NULL. TO loEx, loCnv
-RELEASE loEx, loCnv
+STORE .NULL. TO loEx, loCnv, loFrm_Main
+RELEASE loEx, loCnv, loFrm_Main
 
 DECLARE INTEGER OpenProcess      IN Win32API INTEGER dwDesiredAccess, INTEGER bInheritHandle, INTEGER dwProcessID
 DECLARE INTEGER TerminateProcess IN Win32API INTEGER hProcess, INTEGER uExitCode
@@ -25481,10 +25490,13 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       * Appends one row to the configuration catalog array (VFP: one statement per line).
       *---------------------------------------------------------------------------------------------------
       LPARAMETERS taCat, tcSec, tcProp, tcType, tcValues
-      External Array taCat
-      Local lnLn
-      lnLn = Alen(taCat,1)
-      DIMENSION taCat(lnLn + 1, 5)
+      EXTERNAL ARRAY taCat
+      LOCAL lnLn
+      lnLn = ALEN(taCat, 1)
+      IF lnLn != 1 OR Alen(taCat, 2) == 4
+         lnLn = lnLn + 1
+      ENDIF
+      DIMENSION taCat(lnLn, 4)
 
       taCat(lnLn, 1) = tcSec
       taCat(lnLn, 2) = tcProp
@@ -25500,76 +25512,72 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       * Metadata for frm_main configuration reference (section, property, type, values).
       * RETURN: array of rows (1=section, 2=prop, 3=type, 4=values)
       *---------------------------------------------------------------------------------------------------
-      LOCAL laCat(1, 5), ln
+      LPARAMETERS taCat
 
-      ln = 0
-      DIMENSION laCat(50, 5)
-
+      DIMENSION taCat(1)
       *-- 1 General
-      This.appendCfgCatalogRow(@laCat, '1', 'n_Debug',                 'N', '0|1|2')
-      This.appendCfgCatalogRow(@laCat, '1', 'l_ShowErrors',            'L', '.T.|.F.')
-      This.appendCfgCatalogRow(@laCat, '1', 'n_ShowProgressbar',       'N', '0|1')
-      This.appendCfgCatalogRow(@laCat, '1', 'l_Recompile',             'L', '.T.|.F.')
-      This.appendCfgCatalogRow(@laCat, '1', 'n_ExtraBackupLevels',     'N', '0+')
-      This.appendCfgCatalogRow(@laCat, '1', 'n_OptimizeByFilestamp',   'N', '0|1|2')
-      This.appendCfgCatalogRow(@laCat, '1', 'l_ExportUTF8',            'L', '.T.|.F.')
-      This.appendCfgCatalogRow(@laCat, '1', 'n_HomeDir',               'N', '0|1')
+      This.appendCfgCatalogRow(@taCat, '1', 'n_Debug',                 'N', '0|1|2')
+      This.appendCfgCatalogRow(@taCat, '1', 'l_ShowErrors',            'L', '.T.|.F.')
+      This.appendCfgCatalogRow(@taCat, '1', 'n_ShowProgressbar',       'N', '0|1')
+      This.appendCfgCatalogRow(@taCat, '1', 'l_Recompile',             'L', '.T.|.F.')
+      This.appendCfgCatalogRow(@taCat, '1', 'n_ExtraBackupLevels',     'N', '0+')
+      This.appendCfgCatalogRow(@taCat, '1', 'n_OptimizeByFilestamp',   'N', '0|1|2')
+      This.appendCfgCatalogRow(@taCat, '1', 'l_ExportUTF8',            'L', '.T.|.F.')
+      This.appendCfgCatalogRow(@taCat, '1', 'n_HomeDir',               'N', '0|1')
 
       *-- 2 Timestamps / metadata
-      This.appendCfgCatalogRow(@laCat, '2', 'l_NoTimestamps',          'L', '.T.|.F.')
-      This.appendCfgCatalogRow(@laCat, '2', 'l_ClearUniqueID',         'L', '.T.|.F.')
-      This.appendCfgCatalogRow(@laCat, '2', 'l_ClearDBFLastUpdate',    'L', '.T.|.F.')
+      This.appendCfgCatalogRow(@taCat, '2', 'l_NoTimestamps',          'L', '.T.|.F.')
+      This.appendCfgCatalogRow(@taCat, '2', 'l_ClearUniqueID',         'L', '.T.|.F.')
+      This.appendCfgCatalogRow(@taCat, '2', 'l_ClearDBFLastUpdate',    'L', '.T.|.F.')
 
       *-- 3 Classes / forms
-      This.appendCfgCatalogRow(@laCat, '3', 'n_UseClassPerFile',             'N', '0|1|2')
-      This.appendCfgCatalogRow(@laCat, '3', 'l_UseClassPerDir',              'L', '.T.|.F.')
-      This.appendCfgCatalogRow(@laCat, '3', 'l_RedirectClassPerFileToMain',  'L', '.T.|.F.')
-      This.appendCfgCatalogRow(@laCat, '3', 'n_RedirectClassType',           'N', '0|1|2')
-      This.appendCfgCatalogRow(@laCat, '3', 'l_ClassPerFileCheck',           'L', '.T.|.F.')
-      This.appendCfgCatalogRow(@laCat, '3', 'l_UseFormSettings',             'L', '.T.|.F.')
-      This.appendCfgCatalogRow(@laCat, '3', 'n_UseFormPerFile',              'N', '0|1|2')
-      This.appendCfgCatalogRow(@laCat, '3', 'l_UseFormPerDir',               'L', '.T.|.F.')
-      This.appendCfgCatalogRow(@laCat, '3', 'l_RedirectFormPerFileToMain',   'L', '.T.|.F.')
-      This.appendCfgCatalogRow(@laCat, '3', 'n_RedirectFormType',            'N', '0|1|2')
-      This.appendCfgCatalogRow(@laCat, '3', 'l_FormPerFileCheck',            'L', '.T.|.F.')
+      This.appendCfgCatalogRow(@taCat, '3', 'n_UseClassPerFile',             'N', '0|1|2')
+      This.appendCfgCatalogRow(@taCat, '3', 'l_UseClassPerDir',              'L', '.T.|.F.')
+      This.appendCfgCatalogRow(@taCat, '3', 'l_RedirectClassPerFileToMain',  'L', '.T.|.F.')
+      This.appendCfgCatalogRow(@taCat, '3', 'n_RedirectClassType',           'N', '0|1|2')
+      This.appendCfgCatalogRow(@taCat, '3', 'l_ClassPerFileCheck',           'L', '.T.|.F.')
+      This.appendCfgCatalogRow(@taCat, '3', 'l_UseFormSettings',             'L', '.T.|.F.')
+      This.appendCfgCatalogRow(@taCat, '3', 'n_UseFormPerFile',              'N', '0|1|2')
+      This.appendCfgCatalogRow(@taCat, '3', 'l_UseFormPerDir',               'L', '.T.|.F.')
+      This.appendCfgCatalogRow(@taCat, '3', 'l_RedirectFormPerFileToMain',   'L', '.T.|.F.')
+      This.appendCfgCatalogRow(@taCat, '3', 'n_RedirectFormType',            'N', '0|1|2')
+      This.appendCfgCatalogRow(@taCat, '3', 'l_FormPerFileCheck',            'L', '.T.|.F.')
 
       *-- 4 Mirror
-      This.appendCfgCatalogRow(@laCat, '4', 'l_CopyNonConvertible',    'L', '.T.|.F.')
-      This.appendCfgCatalogRow(@laCat, '4', 'l_CopyExcludedPjxFiles',  'L', '.T.|.F.')
-      This.appendCfgCatalogRow(@laCat, '4', 'l_CopyLowercaseNames',    'L', '.T.|.F.')
-      This.appendCfgCatalogRow(@laCat, '4', 'c_ExcludedSubdirs',       'C', 'list;sep')
+      This.appendCfgCatalogRow(@taCat, '4', 'l_CopyNonConvertible',    'L', '.T.|.F.')
+      This.appendCfgCatalogRow(@taCat, '4', 'l_CopyExcludedPjxFiles',  'L', '.T.|.F.')
+      This.appendCfgCatalogRow(@taCat, '4', 'l_CopyLowercaseNames',    'L', '.T.|.F.')
+      This.appendCfgCatalogRow(@taCat, '4', 'c_ExcludedSubdirs',       'C', 'list;sep')
 
       *-- 5 DBF / DBC / conversion support
-      This.appendCfgCatalogRow(@laCat, '5', 'n_DBF_Conversion_Support',  'N', '0|1|2|4|8')
-      This.appendCfgCatalogRow(@laCat, '5', 'n_DBC_Conversion_Support',  'N', '0|1|2')
-      This.appendCfgCatalogRow(@laCat, '5', 'l_DBF_BinChar_Base64',      'L', '.T.|.F.')
-      This.appendCfgCatalogRow(@laCat, '5', 'l_DBF_IncludeDeleted',      'L', '.T.|.F.')
-      This.appendCfgCatalogRow(@laCat, '5', 'n_UseFilesPerDBC',          'N', '0|1|2')
-      This.appendCfgCatalogRow(@laCat, '5', 'c_DBF_Conversion_Included', 'C', 'masks')
-      This.appendCfgCatalogRow(@laCat, '5', 'c_DBF_Conversion_Excluded', 'C', 'masks')
-      This.appendCfgCatalogRow(@laCat, '5', 'c_DBF_Conversion_Order',     'C', 'index expr')
-      This.appendCfgCatalogRow(@laCat, '5', 'c_DBF_Conversion_Condition', 'C', 'logical expr')
-      This.appendCfgCatalogRow(@laCat, '5', 'c_DBF_IndexList',            'C', 'idx,cdx list')
-      This.appendCfgCatalogRow(@laCat, '5', 'n_VCX_Conversion_Support',  'N', '0|1|2')
-      This.appendCfgCatalogRow(@laCat, '5', 'n_SCX_Conversion_Support',  'N', '0|1|2')
-      This.appendCfgCatalogRow(@laCat, '5', 'n_PJX_Conversion_Support',  'N', '0|1|2')
-      This.appendCfgCatalogRow(@laCat, '5', 'n_ProjectDevInfo',          'N', '0|1')
-      This.appendCfgCatalogRow(@laCat, '5', 'n_BodyDevInfo',             'N', '0|1|2')
-      This.appendCfgCatalogRow(@laCat, '5', 'n_FRX_Conversion_Support',  'N', '0|1|2')
-      This.appendCfgCatalogRow(@laCat, '5', 'n_MNX_Conversion_Support',  'N', '0|1|2')
+      This.appendCfgCatalogRow(@taCat, '5', 'n_DBF_Conversion_Support',  'N', '0|1|2|4|8')
+      This.appendCfgCatalogRow(@taCat, '5', 'n_DBC_Conversion_Support',  'N', '0|1|2')
+      This.appendCfgCatalogRow(@taCat, '5', 'l_DBF_BinChar_Base64',      'L', '.T.|.F.')
+      This.appendCfgCatalogRow(@taCat, '5', 'l_DBF_IncludeDeleted',      'L', '.T.|.F.')
+      This.appendCfgCatalogRow(@taCat, '5', 'n_UseFilesPerDBC',          'N', '0|1|2')
+      This.appendCfgCatalogRow(@taCat, '5', 'c_DBF_Conversion_Included', 'C', 'masks')
+      This.appendCfgCatalogRow(@taCat, '5', 'c_DBF_Conversion_Excluded', 'C', 'masks')
+      This.appendCfgCatalogRow(@taCat, '5', 'c_DBF_Conversion_Order',     'C', 'index expr')
+      This.appendCfgCatalogRow(@taCat, '5', 'c_DBF_Conversion_Condition', 'C', 'logical expr')
+      This.appendCfgCatalogRow(@taCat, '5', 'c_DBF_IndexList',            'C', 'idx,cdx list')
+      This.appendCfgCatalogRow(@taCat, '5', 'n_VCX_Conversion_Support',  'N', '0|1|2')
+      This.appendCfgCatalogRow(@taCat, '5', 'n_SCX_Conversion_Support',  'N', '0|1|2')
+      This.appendCfgCatalogRow(@taCat, '5', 'n_PJX_Conversion_Support',  'N', '0|1|2')
+      This.appendCfgCatalogRow(@taCat, '5', 'n_ProjectDevInfo',          'N', '0|1')
+      This.appendCfgCatalogRow(@taCat, '5', 'n_BodyDevInfo',             'N', '0|1|2')
+      This.appendCfgCatalogRow(@taCat, '5', 'n_FRX_Conversion_Support',  'N', '0|1|2')
+      This.appendCfgCatalogRow(@taCat, '5', 'n_MNX_Conversion_Support',  'N', '0|1|2')
 
       *-- 6 Extensions
-      This.appendCfgCatalogRow(@laCat, '6', 'c_VC2', 'C', 'ext')
-      This.appendCfgCatalogRow(@laCat, '6', 'c_SC2', 'C', 'ext')
-      This.appendCfgCatalogRow(@laCat, '6', 'c_PJ2', 'C', 'ext')
-      This.appendCfgCatalogRow(@laCat, '6', 'c_FR2', 'C', 'ext')
-      This.appendCfgCatalogRow(@laCat, '6', 'c_LB2', 'C', 'ext')
-      This.appendCfgCatalogRow(@laCat, '6', 'c_DB2', 'C', 'ext')
-      This.appendCfgCatalogRow(@laCat, '6', 'c_DC2', 'C', 'ext')
-      This.appendCfgCatalogRow(@laCat, '6', 'c_MN2', 'C', 'ext')
+      This.appendCfgCatalogRow(@taCat, '6', 'c_VC2', 'C', 'ext')
+      This.appendCfgCatalogRow(@taCat, '6', 'c_SC2', 'C', 'ext')
+      This.appendCfgCatalogRow(@taCat, '6', 'c_PJ2', 'C', 'ext')
+      This.appendCfgCatalogRow(@taCat, '6', 'c_FR2', 'C', 'ext')
+      This.appendCfgCatalogRow(@taCat, '6', 'c_LB2', 'C', 'ext')
+      This.appendCfgCatalogRow(@taCat, '6', 'c_DB2', 'C', 'ext')
+      This.appendCfgCatalogRow(@taCat, '6', 'c_DC2', 'C', 'ext')
+      This.appendCfgCatalogRow(@taCat, '6', 'c_MN2', 'C', 'ext')
 
-      DIMENSION laCat(ln, 5)
-      RETURN laCat
    ENDPROC
 
 
@@ -25688,9 +25696,9 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       *---------------------------------------------------------------------------------------------------
       * Builds help text for frm_main from catalog + factory defaults.
       *---------------------------------------------------------------------------------------------------
-      LOCAL laCat(1,5), loDefaults, loLang, lcText, ln, lcProp, lcVal, lcEffect, lcSection, lcSecTitle
+      LOCAL laCat(1), loDefaults, loLang, lcText, ln, lcProp, lcVal, lcEffect, lcSection, lcSecTitle
 
-      laCat      = This.getConfigPropertyCatalog()
+      This.getConfigPropertyCatalog(@laCat)
       loDefaults = This.newConfig()
       loLang     = _SCREEN.o_FoxBin2Prg_Lang
       lcText     = ''
