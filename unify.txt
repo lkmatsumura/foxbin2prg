@@ -59,6 +59,9 @@ cl_fb2prg_mirror.prg
 cl_fb2prg_special_props.prg
 cl_file_utils.prg
 cl_lang.prg
+cl_lang_de.prg
+cl_lang_es.prg
+cl_lang_fr.prg
 cl_macro_record.prg
 cl_macro.prg
 cl_memvar_record.prg
