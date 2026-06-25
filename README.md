@@ -1,6 +1,9 @@
-# FoxBin2Prg (refactored SCM fork)
+# FoxBin2Prg — mirrored-tree edition (`mirrortree` branch)
 
 **Binary/text conversion for Microsoft Visual FoxPro 9** — modular source tree derived from the original [FoxBin2Prg](https://github.com/fdbozzo/foxbin2prg) project.
+
+> **Branch:** `mirrortree`  
+> This branch is a **slim, purpose-built variant** of the [refactor](https://github.com/lkmatsumura/foxbin2prg/tree/refactor) fork. It keeps only what is needed for the **mirrored-tree** SCM workflow and removes the rest of the upstream surface area so the tool is simpler to operate and lighter to maintain.
 
 ---
 
@@ -8,7 +11,7 @@
 
 FoxBin2Prg converts Visual FoxPro binary artifacts (VCX, SCX, PJX, DBC, DBF, FRX, MNX, and others) into PRG-style text files (VC2, SC2, PJ2, DC2, DB2, FR2, MN2, …) suitable for source control, diff, and merge. The text format is not compilable code, but it can be edited and compared like a PRG, and the original binaries can be regenerated from it.
 
-It is intended for use with SCM/DVCS tools (Git, SVN, Mercurial, etc.) or as a standalone diff/merge helper, and can substitute for tools such as SccText/X and TwoFox.
+On this branch, that capability exists **only to serve mirrored-tree export/import**: one VFP project folder (binaries) mirrored into a separate text tree (Git), driven by `.PJX` / `.PJ2` membership. It is **not** a drop-in replacement for the full upstream FoxBin2Prg distribution (Thor, VFPX, interactive batch modes, disk-based configuration inheritance, and related tooling).
 
 ---
 
@@ -30,49 +33,65 @@ This work is licensed under the MIT License.
 
 ---
 
-## About this fork
+## About this branch
 
-The upstream FoxBin2Prg shipped as a single `foxbin2prg.prg` with more than **35,000 lines** of code. That made it hard to explore the structure, understand how configuration propagated through the routines, or reuse parts of the tool in simpler, project-specific workflows.
+The upstream FoxBin2Prg shipped as a single `foxbin2prg.prg` with more than **35,000 lines** of code. The **refactor** branch split that monolith into modular `.prg` files for readability and added a mirrored-tree API (`exportProjectTree` / `importProjectTree`).
 
-This fork is a **readability refactor**: the monolith was split into many `.prg` files so each class and concern lives in its own module. The goal is to make the codebase easier to navigate, adapt, or mine for pieces that fit custom tooling.
+The **`mirrortree` branch goes further**: it trims everything that is not required for mirrored-tree operation. The conversion engine remains (it is what produces the text files), but configuration, CLI entry points, and auxiliary modules that exist mainly for the full upstream product were removed or simplified.
 
-During the refactor, the main use case that emerged was **mirrored-tree export**: keeping VFP binary sources in one folder while maintaining a separate text tree in Git, driven by `.PJX` project membership rather than only single-file conversion.
+| | `refactor` branch | `mirrortree` branch (this) |
+|--|-------------------|----------------------------|
+| Goal | Readable full FoxBin2Prg fork | Mirrored-tree SCM workflow only |
+| Configuration | Programmatic CFG + legacy disk CFG support | **Programmatic only** (`newConfig()` objects) |
+| Primary driver | `mirror.prg`, API, or full `main.prg` modes | **`mirror.prg`** and `exportProjectTree` / `importProjectTree` |
+| CLI | Full upstream-style modes (`BIN2PRG`, `PRG2BIN`, folders, …) | **Minimal** `main.prg` (single file + config reference) |
+| Distribution | Optional monolith via `unify.prg` | Same; no Thor / VFPX release path |
 
-Please show your support for the original project's repository.
-This fork was created to meet my specific needs, but if you find it useful, feel free to use it and suggest improvements.
+Use **`refactor`** or **`master`** if you need parity with the broader FoxBin2Prg feature set. Use **`mirrortree`** when your workflow is exclusively: binaries in one tree, text in Git, sync via project mirror.
+
+Please show your support for the original project's repository. This fork was created to meet my specific needs, but if you find it useful, feel free to use it and suggest improvements.
 
 ---
 
-## Refactoring overview
+## What was removed or simplified
 
-The work proceeded in stages:
+These changes keep the codebase focused on mirrored-tree use:
 
-1. **One class per file** — every class definition was moved to its own `.prg`, which alone improved navigation.
-2. **Configuration extraction** — settings moved out of `c_foxbin2prg` into `cl_fb2prg_cfg` (`createCfgShell`, `newConfig()`, programmatic `loCfg`).
-3. **Special properties singleton** — `cl_fb2prg_special_props` loads the `a_SpecialProps*` arrays once and shares them across all `c_conversor_*` instances (previously reloaded on every converter instantiation).
-4. **File utilities** — `cl_file_utils` separates file I/O from the orchestrator.
-5. **Mirrored tree** — `cl_fb2prg_mirror` plus `exportProjectTree` / `importProjectTree` support full-project export/import with replicated subfolder structure.
+| Removed / simplified | Why |
+|----------------------|-----|
+| `foxbin2prg.cfg` on disk, per-directory inheritance | Settings are passed as CFG objects (`loCfg = loFb2p.newConfig()`) — see [mirror.prg](mirror.prg) |
+| `cl_cfg.prg`, `cl_dbf_cfg.prg` | Disk CFG and per-DBF CFG loaders |
+| `foxbin2prg.cfg.txt`, `foxbin2prg.dbf.cfg.txt` | Sample disk configuration files |
+| `frm_interactive.prg` | Interactive batch driver not needed for mirror workflow |
+| Full `main.prg` CLI surface | Replaced by a minimal entry point; project work goes through the mirror API |
+| Large parts of `cl_fb2prg_cfg.prg` and `c_foxbin2prg.prg` | Factory/session CFG only; orchestration trimmed to mirror + essential conversion paths |
+
+**Still included:** all `c_conversor_*` modules (conversion is required), `cl_fb2prg_mirror`, [mirror.prg](mirror.prg), [create_mirrored.prg](create_mirrored.prg), optional [unify.prg](unify.prg) to rebuild `foxbin2prg.prg`, and [ReCreate_FoxBin2Prg.prg](ReCreate_FoxBin2Prg.prg) to build the EXE from this tree.
+
+---
+
+## Architecture (mirrored-tree focus)
 
 ```mermaid
 flowchart LR
-    monolith["foxbin2prg.prg\n35k+ lines"]
-    split["One class per .prg"]
-    cfg["cl_fb2prg_cfg"]
-    props["cl_fb2prg_special_props"]
-    files["cl_file_utils"]
-    mirror["cl_fb2prg_mirror\n+ create_mirrored.prg"]
+    monolith["foxbin2prg.prg\n35k+ lines (upstream)"]
+    split["refactor: modular .prg"]
+    mirror["mirrortree: mirror-only trim"]
+    api["exportProjectTree\nimportProjectTree"]
+    driver["mirror.prg"]
 
-    monolith --> split --> cfg --> props --> files --> mirror
+    monolith --> split --> mirror --> api --> driver
 ```
 
 | Module | File | Purpose |
 |--------|------|---------|
-| Orchestrator (slimmed) | [c_foxbin2prg.prg](c_foxbin2prg.prg) (~3,800 lines) | Coordinates conversion; delegates configuration |
-| Config manager | [cl_fb2prg_cfg.prg](cl_fb2prg_cfg.prg) | CFG schema (`createCfgShell`), session `o_CFG`, `newConfig()`, `applyConfig()` |
+| Orchestrator (slimmed) | [c_foxbin2prg.prg](c_foxbin2prg.prg) (~3,300 lines) | Coordinates conversion; `exportProjectTree` / `importProjectTree` |
+| Config manager | [cl_fb2prg_cfg.prg](cl_fb2prg_cfg.prg) | `createCfgShell`, `newConfig()`, programmatic `loCfg` only |
 | Special props (singleton) | [cl_fb2prg_special_props.prg](cl_fb2prg_special_props.prg) | Loads `a_SpecialProps*` once for all converters |
 | File helpers | [cl_file_utils.prg](cl_file_utils.prg) | File I/O separation |
-| Mirror tree API | [cl_fb2prg_mirror.prg](cl_fb2prg_mirror.prg) | Used by `exportProjectTree` / `importProjectTree` in c_foxbin2prg |
+| Mirror tree API | [cl_fb2prg_mirror.prg](cl_fb2prg_mirror.prg) | Path mapping for mirrored export/import |
 | Converters | [c_conversor_*.prg](c_conversor_base.prg) | All derive from `c_conversor_base` |
+| Mirror driver | [mirror.prg](mirror.prg) | Interactive import/export for this repository's layout |
 
 Further reading: [docs/arquitetura.md](docs/arquitetura.md), [docs/export_import_mirror.md](docs/export_import_mirror.md).
 
@@ -94,29 +113,37 @@ loFb2p.importProjectTree('d:\export\app\app.pj2', 'd:\src\app', loCfg)
 
 **Interactive driver for this repository** — [mirror.prg](mirror.prg) batch-processes the projects bundled here (`foxbin2prg`, `Others`, `Fb2P_Diff`, `FileName_Caps`, `dont_convert`) between the `scm` text tree and the parent binary folder.
 
+**Minimal CLI** — single-file conversion only (for ad-hoc tests, not full-project mirror):
+
+```foxpro
+DO main.prg WITH "<path>\file.vcx"
+DO main.prg WITH "<path>\file.vc2"
+DO main.prg                              && configuration reference form
+```
+
 ---
 
 ## Fork-specific settings
 
-These settings were added or are central to the mirrored-tree workflow in this fork. They can be set on a CFG object (`loCfg.l_UseClassPerDir = .T.`) or in a `.cfg` file (keys shown in the first column).
+These settings are central to the mirrored-tree workflow. Set them on a CFG object (`loCfg.l_UseClassPerDir = .T.`) — there is **no** `foxbin2prg.cfg` file on this branch.
 
-| `.cfg` key / property | Purpose |
-|-----------------------|---------|
-| `UseClassPerDir` / `l_UseClassPerDir` | When `UseClassPerFile` > 0, create a subdirectory named after the class library for per-class files |
-| `UseFormPerDir` / `l_UseFormPerDir` | Same concept for forms |
-| `CopyExcludedPjxFiles` / `l_CopyExcludedPjxFiles` | Export/import PJX members marked **Exclude** |
-| `CopyNonConvertible` / `l_CopyNonConvertible` | Copy non-convertible files (PJX, VCX, SCX, etc.) into the mirrored tree |
-| `CopyLowercaseNames` / `l_CopyLowercaseNames` | Copy non-converted files with lowercase names |
-| `ExcludedSubdirs` / `c_ExcludedSubdirs` | Skip listed subpaths (`;` or `,` separated, relative to project root) |
-| `ExportUtf8` / `l_ExportUtf8` | Write converted text as UTF-8; text files matched by `isTextFileForEncoding()` use `strconv(str, 9)` on export and `strconv(str, 11)` on import |
+| Property | Purpose |
+|----------|---------|
+| `l_UseClassPerDir` | When `UseClassPerFile` > 0, create a subdirectory named after the class library for per-class files |
+| `l_UseFormPerDir` | Same concept for forms |
+| `l_CopyExcludedPjxFiles` | Export/import PJX members marked **Exclude** |
+| `l_CopyNonConvertible` | Copy non-convertible files (PJX, VCX, SCX, etc.) into the mirrored tree |
+| `l_CopyLowercaseNames` | Copy non-converted files with lowercase names |
+| `c_ExcludedSubdirs` | Skip listed subpaths (`;` or `,` separated, relative to project root) |
+| `l_ExportUtf8` | Write converted text as UTF-8; text files matched by `isTextFileForEncoding()` use `strconv(str, 9)` on export and `strconv(str, 11)` on import |
 
-> **Note:** Lutz Scheffler pointed out that some of these behaviors overlap with existing upstream options. This fork currently relies on the settings above for the mirrored-tree mode and does not aim to use every upstream CFG feature.
+> **Note:** Some of these behaviors overlap with upstream options. This branch uses only the programmatic settings above for mirrored-tree mode and does not aim to support every upstream CFG keyword.
 
 ---
 
 ## Encoding, Git, and naming conventions
 
-**Source PRGs in this repository** are saved as **Windows-1252 (CP1252)** for Visual FoxPro compatibility. Editors and AI tools that default to UTF-8 caused accent and encoding problems during development; it is unclear whether the original FoxBin2Prg would accept PRG sources in another code page.
+**Source PRGs in this repository** are saved as **Windows-1252 (CP1252)** for Visual FoxPro compatibility. Editors and AI tools that default to UTF-8 caused accent and encoding problems during development.
 
 **Converted output** can be written as UTF-8 when `l_ExportUtf8` is enabled, which plays better with Git and modern editors.
 
@@ -155,7 +182,7 @@ foxbin2prg/          ← binary (VFP) working tree
    ```
    mkdir foxbin2prg
    ```
-2. Clone this repository into `foxbin2prg\scm`.
+2. Clone this repository into `foxbin2prg\scm` (check out the **`mirrortree`** branch).
 3. In Visual FoxPro, `CD` to the `scm` folder and run:
    ```foxpro
    DO mirror.prg
@@ -177,19 +204,21 @@ foxbin2prg/          ← binary (VFP) working tree
 
    Equivalent commands from [ReCreate_FoxBin2Prg.prg](ReCreate_FoxBin2Prg.prg): `DO Main.PRG ... Prg2Bin` followed by `BUILD EXE`.
 
-After a `git pull` that changes text sources, re-run `mirror.prg` (import) and then `ReCreate_FoxBin2Prg.prg`.
-If you change binary source export the changes to the scm with `mirror.prg`
+After a `git pull` that changes text sources, re-run `mirror.prg` (import) and then `ReCreate_FoxBin2Prg.prg`. If you change binary sources, export the changes to `scm` with `mirror.prg`.
 
 ---
 
+## Further documentation
 
-### Further documentation
-
-- [docs/FoxBin2Prg.md](docs/FoxBin2Prg.md) — full usage
-- [docs/FoxBin2Prg_Run.md](docs/FoxBin2Prg_Run.md) — run modes and parameters
-- [docs/ChangeLog.md](docs/ChangeLog.md) — change history
-- [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) — contribution guidelines
+| Document | Relevance on `mirrortree` |
+|----------|---------------------------|
+| [docs/export_import_mirror.md](docs/export_import_mirror.md) | **Primary** — mirrored export/import guide |
+| [docs/arquitetura.md](docs/arquitetura.md) | Architecture; mirror and CFG sections apply |
+| [docs/FoxBin2Prg.md](docs/FoxBin2Prg.md) | Upstream-oriented; many CLI/CFG topics do not apply here |
+| [docs/FoxBin2Prg_Run.md](docs/FoxBin2Prg_Run.md) | Upstream run modes; only single-file `main.prg` usage applies |
+| [docs/ChangeLog.md](docs/ChangeLog.md) | Change history |
+| [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) | Contribution guidelines |
 
 ---
 
-Last updated: _2026/06/22_ ![Picture](./docs/pictures/vfpxpoweredby_alternative.gif)
+Last updated: _2026/06/25_ ![Picture](./docs/pictures/vfpxpoweredby_alternative.gif)
