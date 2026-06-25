@@ -79,6 +79,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       AddProperty(loCfg, 'c_Language_In', '(auto)')
       AddProperty(loCfg, 'n_Debug', 0)
       AddProperty(loCfg, 'n_BodyDevInfo', 0)
+      AddProperty(loCfg, 'n_ProjectDevInfo', 1)
       AddProperty(loCfg, 'l_ShowErrors', .T.)
       AddProperty(loCfg, 'n_ShowProgressbar', 1)
       AddProperty(loCfg, 'n_OptimizeByFilestamp', 0)
@@ -232,6 +233,8 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       This.appendCfgCatalogRow(@laCat, '5', 'n_VCX_Conversion_Support',  'N', '0|1|2')
       This.appendCfgCatalogRow(@laCat, '5', 'n_SCX_Conversion_Support',  'N', '0|1|2')
       This.appendCfgCatalogRow(@laCat, '5', 'n_PJX_Conversion_Support',  'N', '0|1|2')
+      This.appendCfgCatalogRow(@laCat, '5', 'n_ProjectDevInfo',          'N', '0|1')
+      This.appendCfgCatalogRow(@laCat, '5', 'n_BodyDevInfo',             'N', '0|1|2')
       This.appendCfgCatalogRow(@laCat, '5', 'n_FRX_Conversion_Support',  'N', '0|1|2')
       This.appendCfgCatalogRow(@laCat, '5', 'n_MNX_Conversion_Support',  'N', '0|1|2')
 
@@ -347,6 +350,10 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
          RETURN 'SCX support: 0=none, 1=diff, 2=merge.'
       CASE tcProp == 'n_PJX_Conversion_Support'
          RETURN 'PJX support: 0=none, 1=diff, 2=merge.'
+      CASE tcProp == 'n_ProjectDevInfo'
+         RETURN '0=omit project *<DevInfo> block from PJ2, 1=include (author, version, etc.).'
+      CASE tcProp == 'n_BodyDevInfo'
+         RETURN '0=omit DevInfo on PJX file records, 1=keep, 2=omit DevInfo and ObjRev on file records.'
       CASE tcProp == 'n_FRX_Conversion_Support'
          RETURN 'FRX support: 0=none, 1=diff, 2=merge.'
       CASE tcProp == 'n_MNX_Conversion_Support'

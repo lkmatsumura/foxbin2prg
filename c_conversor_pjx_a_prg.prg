@@ -97,8 +97,10 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                         <<>>
                ENDTEXT
 
-               *-- Información del programa
-               C_FB2PRG_CODE   = C_FB2PRG_CODE + loProject.getFormattedDevInfoText()
+               *-- Información del programa (project header DevInfo)
+               If toFoxBin2Prg.getCfgValue('n_ProjectDevInfo') = 1
+                  C_FB2PRG_CODE   = C_FB2PRG_CODE + loProject.getFormattedDevInfoText()
+               Endif
 
                *-- Información de los Servidores definidos
                If Not Empty(loProject._ServerInfo)
@@ -429,7 +431,9 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
             loProject._Debug        = loReg.Debug
             loProject._Encrypted    = loReg.Encrypt
             loProject._User         = loReg.User
-            loProject.parseDevInfo( loReg.DEVINFO )
+            If toFoxBin2Prg.getCfgValue('n_ProjectDevInfo') = 1
+               loProject.parseDevInfo( loReg.DEVINFO )
+            Endif
 
             *-- Información de los Servidores definidos
             If Not Empty(loProject._ServerInfo)

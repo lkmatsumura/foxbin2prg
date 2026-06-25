@@ -284,7 +284,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
                         llFoxBin2Prg_Completed  = .T.
 
                    Case Not llDevInfo_Completed ;
-                        And .analyzeCodeBlock_DevInfo( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
+                        And .analyzeCodeBlock_DevInfo( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines, @toFoxBin2Prg )
                         llDevInfo_Completed = .T.
 
                    Case NOT llServerHead_Completed ;
@@ -485,18 +485,20 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
       *------------------------------------------------------
       *-- Analiza el bloque <DevInfo>
       *------------------------------------------------------
-      Lparameters toProject, tcLine, taCodeLines, I, tnCodeLines
+      Lparameters toProject, tcLine, taCodeLines, I, tnCodeLines, toFoxBin2Prg
       External Array taCodeLines
 
       #If .F.
          Local toProject As CL_PROJECT Of 'cl_project.prg'
+         Local toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
       #Endif
 
       Try
-         Local llBloqueEncontrado
+         Local llBloqueEncontrado, llKeepDevInfo
 
          If Left( tcLine, Len(C_DEVINFO_I) ) == C_DEVINFO_I
             llBloqueEncontrado  = .T.
+            llKeepDevInfo       = ( toFoxBin2Prg.getCfgValue('n_ProjectDevInfo') = 1 )
 
             With This As c_conversor_prg_a_pjx Of 'c_conversor_prg_a_pjx.prg'
                For I = m.I + 1 To tnCodeLines
@@ -511,7 +513,9 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
                      Loop    && Saltear comentarios
 
                   Otherwise
-                     toProject.setParsedProjInfoLine( @tcLine )
+                     If llKeepDevInfo
+                        toProject.setParsedProjInfoLine( @tcLine )
+                     Endif
                   Endcase
                Endfor
             Endwith && THIS

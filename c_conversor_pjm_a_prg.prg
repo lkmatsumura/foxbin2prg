@@ -173,8 +173,10 @@ Define Class c_conversor_pjm_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
             ENDTEXT
 
 
-            *-- Información del programa
-            C_FB2PRG_CODE   = C_FB2PRG_CODE + loProject.getFormattedDevinfoText() + CR_LF
+            *-- Información del programa (project header DevInfo)
+            If toFoxBin2Prg.getCfgValue('n_ProjectDevInfo') = 1
+               C_FB2PRG_CODE   = C_FB2PRG_CODE + loProject.getFormattedDevinfoText() + CR_LF
+            Endif
 
 
             *-- Información de los Servidores definidos
