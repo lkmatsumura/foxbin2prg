@@ -27,7 +27,8 @@ IF _vfp.StartMode > 0 THEN
 ENDIF
 
 LOCAL loCnv AS c_foxbin2prg OF 'c_foxbin2prg.PRG' ;
-    , loEx  AS EXCEPTION
+    , loEx  AS EXCEPTION ;
+    , loFrm_Main AS frm_main OF 'frm_main.PRG'
 
 LOCAL lnResp
 
@@ -41,7 +42,15 @@ ENDIF
 TRY
    loEx  = .NULL.
    loCnv = GetObj_F2b()
-   lnResp = loCnv.execute( tc_InputFile, tcType, toCfg, @loEx )
+
+   IF EMPTY(tc_InputFile) AND NOT INLIST( UPPER(tcType), 'BIN3PRG', 'PRG3BIN' )
+      loFrm_Main = NewObject( 'frm_main', 'frm_main.prg', NULL, loCnv )
+      loFrm_Main.SHOW()
+      READ EVENTS
+      lnResp = 0
+   ELSE
+      lnResp = loCnv.execute( tc_InputFile, tcType, toCfg, @loEx )
+   ENDIF
 
 CATCH TO loEx
    lnResp = loEx.ErrorNo
@@ -57,19 +66,19 @@ ENDTRY
 AddProperty(_screen, 'ExitCode', lnResp)
 
 IF _VFP.STARTMODE <> 4 OR NOT SYS(16) == SYS(16,0)
-   STORE .NULL. TO loEx, loCnv
-   RELEASE loEx, loCnv
+   STORE .NULL. TO loEx, loCnv, loFrm_Main
+   RELEASE loEx, loCnv, loFrm_Main
    RETURN lnResp
 ENDIF
 
 IF EMPTY(lnResp)
-   STORE .NULL. TO loEx, loCnv
-   RELEASE loEx, loCnv
+   STORE .NULL. TO loEx, loCnv, loFrm_Main
+   RELEASE loEx, loCnv, loFrm_Main
    QUIT
 ENDIF
 
-STORE .NULL. TO loEx, loCnv
-RELEASE loEx, loCnv
+STORE .NULL. TO loEx, loCnv, loFrm_Main
+RELEASE loEx, loCnv, loFrm_Main
 
 DECLARE INTEGER OpenProcess      IN Win32API INTEGER dwDesiredAccess, INTEGER bInheritHandle, INTEGER dwProcessID
 DECLARE INTEGER TerminateProcess IN Win32API INTEGER hProcess, INTEGER uExitCode
