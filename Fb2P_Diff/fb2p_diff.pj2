@@ -6,7 +6,6 @@
 LPARAMETERS tcDir
 
 lcCurdir = SYS(5)+CURDIR()
-CD ( EVL( tcDir, JUSTPATH( SYS(16) ) ) )
 
 *<DevInfo>
 _Author = "Fernando D. Bozzo"
@@ -61,15 +60,14 @@ WITH loProject.FILES
 	*</ExcludedFiles>
 
 	*<TextFiles>
-	.ITEM(lcCurdir + 'config.fpw').Type = 'T'
+	.ITEM('config.fpw').Type = 'T'
 	*</TextFiles>
 ENDWITH
 
 WITH loProject
 	*<ProjectProperties>
-	.SetMain(lcCurdir + 'main_fb2p_diff.prg')
-
-	.Icon = lcCurdir + 'fb2p_diff.ico'
+	.SetMain('main_fb2p_diff.prg')
+	.Icon = 'fb2p_diff.ico'
 	.Debug = .T.
 	.Encrypted = .F.
 	*<.CmntStyle = 1 />

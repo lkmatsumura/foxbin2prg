@@ -6,7 +6,6 @@
 LPARAMETERS tcDir
 
 lcCurdir = SYS(5)+CURDIR()
-CD ( EVL( tcDir, JUSTPATH( SYS(16) ) ) )
 
 *<DevInfo>
 _Author = ""
@@ -59,14 +58,13 @@ WITH loProject.FILES
 	*</ExcludedFiles>
 
 	*<TextFiles>
-	.ITEM(lcCurdir + 'config\config.fpw').Type = 'T'
+	.ITEM('config\config.fpw').Type = 'T'
 	*</TextFiles>
 ENDWITH
 
 WITH loProject
 	*<ProjectProperties>
-	.SetMain(lcCurdir + 'filename_caps.prg')
-
+	.SetMain('filename_caps.prg')
 	.Debug = .T.
 	.Encrypted = .F.
 	*<.CmntStyle = 1 />

@@ -6,7 +6,6 @@
 LPARAMETERS tcDir
 
 lcCurdir = SYS(5)+CURDIR()
-CD ( EVL( tcDir, JUSTPATH( SYS(16) ) ) )
 
 *<DevInfo>
 _Author = ""
@@ -68,8 +67,7 @@ ENDWITH
 
 WITH loProject
 	*<ProjectProperties>
-	.SetMain(lcCurdir + 'mirror.prg')
-
+	.SetMain('mirror.prg')
 	.Debug = .T.
 	.Encrypted = .F.
 	*<.CmntStyle = 1 />

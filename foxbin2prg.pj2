@@ -6,7 +6,6 @@
 LPARAMETERS tcDir
 
 lcCurdir = SYS(5)+CURDIR()
-CD ( EVL( tcDir, JUSTPATH( SYS(16) ) ) )
 
 *<DevInfo>
 _Author = "Fernando D. Bozzo / Lutz Scheffler"
@@ -140,21 +139,20 @@ WITH loProject.FILES
 	*</FileComments>
 
 	*<ExcludedFiles>
-	.ITEM(lcCurdir + 'foxbin2prg.cfg.txt').Exclude = .T.
-	.ITEM(lcCurdir + 'foxbin2prg.dbf.cfg.txt').Exclude = .T.
+	.ITEM('foxbin2prg.cfg.txt').Exclude = .T.
+	.ITEM('foxbin2prg.dbf.cfg.txt').Exclude = .T.
 	*</ExcludedFiles>
 
 	*<TextFiles>
-	.ITEM(lcCurdir + 'config\config.fpw').Type = 'T'
-	.ITEM(lcCurdir + 'foxbin2prg.h').Type = 'T'
+	.ITEM('config\config.fpw').Type = 'T'
+	.ITEM('foxbin2prg.h').Type = 'T'
 	*</TextFiles>
 ENDWITH
 
 WITH loProject
 	*<ProjectProperties>
-	.SetMain(lcCurdir + 'main.prg')
-
-	.Icon = lcCurdir + 'foxbin2prg.ico'
+	.SetMain('main.prg')
+	.Icon = 'foxbin2prg.ico'
 	.Debug = .T.
 	.Encrypted = .F.
 	*<.CmntStyle = 1 />

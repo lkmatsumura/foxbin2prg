@@ -9583,7 +9583,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                      Error 1941
                   Endif
 
-                  For Each loReg In loProject &&FOXOBJECT
+                  For Each loReg In loProject
                      If !Empty( Justdrive( Sys( 2014, loReg.Name,m.lcStr))) Then
                         lcStr = loLang.C_PJXPATH_ERR_LOC3 + loReg.Name + loLang.C_PJXPATH_ERR_LOC4 + m.lcStr + loLang.C_PJXPATH_ERR_LOC5
                         Error 1941
@@ -9597,7 +9597,6 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                   LPARAMETERS tcDir
                   <<>>
                   lcCurdir = SYS(5)+CURDIR()
-                  CD ( EVL( tcDir, JUSTPATH( SYS(16) ) ) )
                   <<>>
                ENDTEXT
 
@@ -9710,9 +9709,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
                For Each loReg In loProject &&FOXOBJECT
                   If Not Empty(loReg.COMMENTS)
-                     C_FB2PRG_CODE = C_FB2PRG_CODE + Chr(13) + Chr(10) + Chr(9) + ".ITEM(" +;
-                        THIS.GetPathFromHome(m.loReg.Name, m.lcStr, "lcCurdir + '", "'", toFoxBin2Prg) +;
-                        ").Description = '" + loReg.COMMENTS + "'"
+                     C_FB2PRG_CODE = C_FB2PRG_CODE + Chr(13) + Chr(10) + Chr(9) + ".ITEM('" + m.loReg.Name +"').Description = '" + loReg.COMMENTS + "'"
                   Endif
                   loReg   = .Null.
                Endfor
@@ -9729,10 +9726,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
                For Each loReg In loProject &&FOXOBJECT
                   If loReg.EXCLUDE
-                     *                               C_FB2PRG_CODE = C_FB2PRG_CODE + Chr(13) + Chr(10) + Chr(9) + ".ITEM(lcCurdir + '" + loReg.Name + "').Exclude = .T."
-                     C_FB2PRG_CODE = C_FB2PRG_CODE + Chr(13) + Chr(10) + Chr(9) + ".ITEM(" +;
-                        THIS.GetPathFromHome(m.loReg.Name, m.lcStr, "lcCurdir + '", "'", toFoxBin2Prg) +;
-                        ").Exclude = .T."
+                     C_FB2PRG_CODE = C_FB2PRG_CODE + Chr(13) + Chr(10) + Chr(9) + ".ITEM('" + m.loReg.Name +"').Exclude = .T."
                   Endif
                   loReg   = .Null.
                Endfor
@@ -9749,10 +9743,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
                For Each loReg In loProject &&FOXOBJECT
                   If Inlist( Upper( Justext( loReg.Name ) ), 'H','FPW' )
-                     *                               C_FB2PRG_CODE = C_FB2PRG_CODE + Chr(13) + Chr(10) + Chr(9) + ".ITEM(lcCurdir + '" + loReg.Name + "').Type = 'T'"
-                     C_FB2PRG_CODE = C_FB2PRG_CODE + Chr(13) + Chr(10) + Chr(9) + ".ITEM(" +;
-                        THIS.GetPathFromHome(m.loReg.Name, m.lcStr, "lcCurdir + '", "'", toFoxBin2Prg) +;
-                        ").Type = 'T'"
+                     C_FB2PRG_CODE = C_FB2PRG_CODE + Chr(13) + Chr(10) + Chr(9) + ".ITEM('" + m.loReg.Name + "').Type = 'T'"
                   Endif
                   loReg   = .Null.
                Endfor
@@ -9768,17 +9759,14 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                ENDTEXT
 
                If Not Empty(loProject._MainProg)
-                  *                           <<>>    .SetMain(lcCurdir + '<<loProject._MainProg>>')
                   TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                            <<Chr(9)>>.SetMain(<<THIS.GetPathFromHome(m.loProject._MainProg, m.lcStr, "lcCurdir + '", "'", m.toFoxBin2Prg)>>)
-
+                     <<Chr(9)>>.SetMain('<<m.loProject._MainProg>>')
                   ENDTEXT
                Endif
 
                If Not Empty(loProject._Icon)
-                  *                           <<>>    .Icon = lcCurdir + '<<loProject._Icon>>'
                   TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                            <<Chr(9)>>.Icon = <<THIS.GetPathFromHome(m.loProject._Icon, m.lcStr, "lcCurdir + '", "'", toFoxBin2Prg)>>
+                     <<Chr(9)>>.Icon = '<<m.loProject._Icon>>'
                   ENDTEXT
                Endif
 
@@ -10098,8 +10086,6 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
       + [<memberdata name="createclasslib_recordheader" display="createClasslib_RecordHeader"/>] ;
       + [<memberdata name="createform" display="createForm"/>] ;
       + [<memberdata name="createform_recordheader" display="createForm_RecordHeader"/>] ;
-      + [<memberdata name="createproject" display="createProject"/>] ;
-      + [<memberdata name="createproject_recordheader" display="createProject_RecordHeader"/>] ;
       + [<memberdata name="createreport" display="createReport"/>] ;
       + [<memberdata name="createmenu" display="createMenu"/>] ;
       + [<memberdata name="defined_pam2memo" display="defined_PAM2Memo"/>] ;
@@ -10224,53 +10210,6 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'foxbin2prg.prg'
 
       Release toModulo, tcLine, taCodeLines, I, tnCodeLines, laPropsAndValues, lnPropsAndValues_Count
       Return llBloqueEncontrado
-   Endproc
-
-
-   Procedure createProject
-      Lparameters toProject
-
-      Local lcCodepage
-
-      *!* LScheffler 20.08.2023
-      *issue #96, [KestasL] keep CodePage relavant information for binary sources
-      lcCodepage = Str(toProject._CPID)
-
-      Create Table (This.c_OutputFile) ;
-         CODEPAGE = &lcCodepage.  ;
-         ( Name          M ;
-         , Type          C(1) ;
-         , Id            N(10) ;
-         , Timestamp     N(10) ;
-         , OUTFILE       M ;
-         , HomeDir       M ;
-         , EXCLUDE       L ;
-         , MAINPROG      L ;
-         , SAVECODE      L ;
-         , Debug         L ;
-         , Encrypt       L ;
-         , NOLOGO        L ;
-         , CMNTSTYLE     N(1) ;
-         , OBJREV        N(5) ;
-         , DEVINFO       M ;
-         , SYMBOLS       M ;
-         , Object        M ;
-         , CKVAL         N(6) ;
-         , CPID          N(5) ;
-         , OSTYPE        C(4) ;
-         , OSCREATOR     C(4) ;
-         , COMMENTS      M ;
-         , RESERVED1     M ;
-         , RESERVED2     M ;
-         , SCCDATA       M ;
-         , Local         L ;
-         , Key           C(32) ;
-         , User          M )
-
-      Use (This.c_OutputFile) Alias TABLABIN Again Shared
-
-      Set NoCPTrans To Name,OUTFILE,HomeDir,DEVINFO,SYMBOLS,Object,COMMENTS,RESERVED1,RESERVED2,SCCDATA,User
-
    Endproc
 
 
@@ -14373,6 +14312,8 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
       + [<memberdata name="analyzecodeblock_serverdata" display="analyzeCodeBlock_ServerData"/>] ;
       + [<memberdata name="analyzecodeblock_textfiles" display="analyzeCodeBlock_TextFiles"/>] ;
       + [<memberdata name="analyzecodeblock_projectproperties" display="analyzeCodeBlock_ProjectProperties"/>] ;
+      + [<memberdata name="createproject" display="createProject"/>] ;
+      + [<memberdata name="createproject_recordheader" display="createProject_RecordHeader"/>] ;
       + [</VFPData>]
 
    c_Type = 'PJ2'
@@ -14473,7 +14414,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
 
          With This As c_conversor_prg_a_pjx Of 'foxbin2prg.prg'
             Store .Null. To loFile, loServerHead
-            toProject._HomeDir  = Addbs( Justpath( .c_OutputFile ) )
+            toProject._HomeDir  = Chrtran( toProject._HomeDir, ['], [] )
             toProject._SccData  = Chr(3) + Chr(0) + Chr(1) + Replicate( Chr(0), 651 )
 
             *-- addProcessedFile( tcFile, tcInOutType, tcProcessed, tcHasErrors, tcSupported, tcExpanded )
@@ -14490,7 +14431,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
             lcMainProg  = ''
 
             If Not Empty(toProject._MainProg)
-               lcMainProg  = Lower( Sys(2014, toProject._MainProg, Addbs(toProject._HomeDir) ) )
+               lcMainProg  = Lower( Sys(2014, toProject._MainProg, toProject._HomeDir ) )
             Endif
 
             If Empty(toProject._TimeStamp)
@@ -14524,7 +14465,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
                   , Local ;
                   , Key ) ;
                   VALUES ;
-                  ( Sys(2014, toProject._Icon, Addbs(Justpath(Addbs(toProject._HomeDir)))) + Chr(0) ;
+                  ( Sys(2014, toProject._Icon, toProject._HomeDir ) + Chr(0) ;
                   , 'i' ;
                   , .T. ;
                   , Upper(Juststem(toProject._Icon)) )
@@ -14595,12 +14536,63 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
       Return lnCodError
    Endproc
 
+
+   Procedure createProject
+      Lparameters toProject
+
+      Local lcCodepage
+
+      *!* LScheffler 20.08.2023
+      *issue #96, [KestasL] keep CodePage relavant information for binary sources
+      lcCodepage = Str(toProject._CPID)
+
+      Create Table (This.c_OutputFile) ;
+         CODEPAGE = &lcCodepage.  ;
+         ( Name          M ;
+         , Type          C(1) ;
+         , Id            N(10) ;
+         , Timestamp     N(10) ;
+         , OUTFILE       M ;
+         , HomeDir       M ;
+         , EXCLUDE       L ;
+         , MAINPROG      L ;
+         , SAVECODE      L ;
+         , Debug         L ;
+         , Encrypt       L ;
+         , NOLOGO        L ;
+         , CMNTSTYLE     N(1) ;
+         , OBJREV        N(5) ;
+         , DEVINFO       M ;
+         , SYMBOLS       M ;
+         , Object        M ;
+         , CKVAL         N(6) ;
+         , CPID          N(5) ;
+         , OSTYPE        C(4) ;
+         , OSCREATOR     C(4) ;
+         , COMMENTS      M ;
+         , RESERVED1     M ;
+         , RESERVED2     M ;
+         , SCCDATA       M ;
+         , Local         L ;
+         , Key           C(32) ;
+         , User          M )
+
+      Use (This.c_OutputFile) Alias TABLABIN Again Shared
+
+      Set NoCPTrans To Name,OUTFILE,HomeDir,DEVINFO,SYMBOLS,Object,COMMENTS,RESERVED1,RESERVED2,SCCDATA,User
+
+   Endproc
+
+
    Procedure createProject_RecordHeader
       Lparameters toProject
 
       #If .F.
          Local toProject As CL_PROJECT Of 'foxbin2prg.prg'
       #Endif
+      LOCAL lcOutputFile
+
+      lcOutputFile = Fullpath(This.c_OutputFile)
 
       Insert Into TABLABIN ;
          ( Name ;
@@ -14623,11 +14615,11 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
          , User ;
          , Key ) ;
          VALUES ;
-         ( Fullpath(This.c_OutputFile) + chr(0) ;
+         ( lcOutputFile + chr(0) ;
          , 'H' ;
          , 0 ;
          , '<Source>' + Chr(0) ;
-         , Lower(Justpath(This.c_OutputFile)) + Chr(0) ;
+         , Lower(Justpath(lcOutputFile)) + Chr(0) ;
          , toProject._SaveCode ;
          , toProject._Debug ;
          , toProject._Encrypted ;
@@ -14635,8 +14627,8 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
          , toProject._CmntStyle ;
          , 260 ;
          , toProject.getRowDevInfo() ;
-         , Lower(Justpath(This.c_OutputFile)) + Chr(0) ;
-         , Fullpath(This.c_OutputFile) + chr(0);
+         , Lower(Justpath(lcOutputFile)) + Chr(0) ;
+         , lcOutputFile  + chr(0);
          , toProject._ServerHead.getRowServerInfo() ;
          , toProject._SccData ;
          , .T. ;
