@@ -83,6 +83,6 @@ ENDWITH
 
 
 _VFP.Projects('others.pjx').Close()
-*ERASE '__newproject.f2b'
+ERASE '__newproject.f2b'
 CD (lcCurdir)
 RETURN

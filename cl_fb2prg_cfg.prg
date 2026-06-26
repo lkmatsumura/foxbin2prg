@@ -149,7 +149,6 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       AddProperty(loCfg, 'c_ExcludedSubdirs', '')
       AddProperty(loCfg, 'c_BackgroundImage', '')
       AddProperty(loCfg, 'n_PRG_Compat_Level', 0)
-      AddProperty(loCfg, 'n_HomeDir', 0)
       AddProperty(loCfg, 'l_AllowFolder', .T.)
 
       RETURN loCfg
@@ -194,7 +193,6 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       This.appendCfgCatalogRow(@taCat, '1', 'n_ExtraBackupLevels',     'N', '0+')
       This.appendCfgCatalogRow(@taCat, '1', 'n_OptimizeByFilestamp',   'N', '0|1|2')
       This.appendCfgCatalogRow(@taCat, '1', 'l_ExportUTF8',            'L', '.T.|.F.')
-      This.appendCfgCatalogRow(@taCat, '1', 'n_HomeDir',               'N', '0|1')
 
       *-- 2 Timestamps / metadata
       This.appendCfgCatalogRow(@taCat, '2', 'l_NoTimestamps',          'L', '.T.|.F.')
@@ -269,8 +267,6 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
          RETURN 'Skip reconversion when timestamps unchanged (risky with branches).'
       CASE tcProp == 'l_ExportUTF8'
          RETURN 'UTF-8 encode copied text files in mirrored tree.'
-      CASE tcProp == 'n_HomeDir'
-         RETURN '0=omit HomeDir from PJ2, 1=include.'
       CASE tcProp == 'l_NoTimestamps'
          RETURN 'Clear binary timestamps in output (better for SCM diff).'
       CASE tcProp == 'l_ClearUniqueID'

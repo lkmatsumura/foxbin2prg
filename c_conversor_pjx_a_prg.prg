@@ -94,7 +94,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                   <<>>
                   lcCurdir = SYS(5)+CURDIR()
                   CD ( EVL( tcDir, JUSTPATH( SYS(16) ) ) )
-                        <<>>
+                  <<>>
                ENDTEXT
 
                *-- Información del programa (project header DevInfo)
@@ -109,13 +109,6 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
 
                *-- Generación del proyecto
-               If toFoxBin2Prg.getCfgValue('n_HomeDir') = 1
-                  * only output HomeDir if we're supposed to
-                  TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                     <<>>*<.HomeDir = <<loProject._HomeDir>> />
-                  ENDTEXT
-               ENDIF
-
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                   <<>>
                   FOR EACH loProject IN _VFP.Projects FOXOBJECT
@@ -307,19 +300,12 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
                *-- Restauro Directorio de inicio
                TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                  *ERASE '__newproject.f2b'
+                  ERASE '__newproject.f2b'
                   CD (lcCurdir)
                   RETURN
                ENDTEXT
 
             Endif
-
-            Do Case
-            Case toFoxBin2Prg.c_SimulateError = 'SIMERR_I1'
-               Error 'InputFile Error Simulation'
-            Case toFoxBin2Prg.c_SimulateError = 'SIMERR_I0'
-               .writeErrorLog( '*** SIMULATED ERROR' )
-            Endcase
 
             If .l_Error
                .writeLog( '*** ERRORS found - Generation Cancelled' )
@@ -336,7 +322,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
             Else
                .write_OutputFile( (C_FB2PRG_CODE), .c_OutputFile, @toFoxBin2Prg )
             Endif
-         Endwith && THIS
+         Endwith
 
 
       Catch To toEx

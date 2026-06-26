@@ -168,6 +168,6 @@ ENDWITH
 
 
 _VFP.Projects('foxbin2prg.pjx').Close()
-*ERASE '__newproject.f2b'
+ERASE '__newproject.f2b'
 CD (lcCurdir)
 RETURN

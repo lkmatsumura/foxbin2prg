@@ -37,7 +37,6 @@ IF lOk
    loCfg.n_ExtraBackupLevels = 0         && 0 = Sem backups , > 0 qtde de niveis de backup (default = 1)
 
    loCfg.l_ExportUtf8 = .T.
-   loCfg.n_Homedir = 0
    loCfg.n_Debug = 0
 
    *-- Class export behahior

@@ -113,7 +113,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
          With This As c_conversor_prg_a_pjx Of 'c_conversor_prg_a_pjx.prg'
             Store .Null. To loFile, loServerHead
-            toProject._HomeDir  = Chrtran( toProject._HomeDir, ['], [] )
+            toProject._HomeDir  = Addbs( Justpath( .c_OutputFile ) )
             toProject._SccData  = Chr(3) + Chr(0) + Chr(1) + Replicate( Chr(0), 651 )
 
             *-- addProcessedFile( tcFile, tcInOutType, tcProcessed, tcHasErrors, tcSupported, tcExpanded )
@@ -263,7 +263,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
          , User ;
          , Key ) ;
          VALUES ;
-         ( Upper(JustFname(This.c_OutputFile)) + chr(0) ;
+         ( Fullpath(This.c_OutputFile) + chr(0) ;
          , 'H' ;
          , 0 ;
          , '<Source>' + Chr(0) ;
@@ -276,7 +276,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
          , 260 ;
          , toProject.getRowDevInfo() ;
          , Lower(Justpath(This.c_OutputFile)) + Chr(0) ;
-         , Upper(JustFname(This.c_OutputFile)) + chr(0);
+         , Fullpath(This.c_OutputFile) + chr(0);
          , toProject._ServerHead.getRowServerInfo() ;
          , toProject._SccData ;
          , .T. ;
@@ -309,7 +309,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
       Try
          Local I, lc_Comentario, lcLine
-         LOCAL llBuildProj_Completed    , llDevInfo_Completed     , llHomedir_Completed ;
+         LOCAL llBuildProj_Completed    , llDevInfo_Completed ;
              , llServerHead_Completed   , llFileComments_Completed, llFoxBin2Prg_Completed ;
              , llExcludedFiles_Completed, llTextFiles_Completed, llProjectProperties_Completed
 
@@ -319,7 +319,6 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
             If tnCodeLines > 1
                toProject           = NewObject('CL_PROJECT', 'cl_project.prg')
-               *toProject._HomeDir = ADDBS(JUSTPATH(.c_OutputFile))
 
                For I = 1 To tnCodeLines
                   .set_Line( @lcLine, @taCodeLines, m.I )
@@ -355,16 +354,9 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
                         llServerHead_Completed  = .T.
                         llDevInfo_Completed = .T.  && No DevInfo expected after ServerHead
 
-                   Case Not llHomedir_Completed ;
-                        And .analyzeCodeBlock_Homedir( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
-                        llHomedir_Completed = .T.
-                        llDevInfo_Completed = .T.  && No DevInfo expected after HomeDir
-                        llServerHead_Completed  = .T. && No ServerHead expected after HomeDir
-
                    Case Not llBuildProj_Completed ;
                         And .analyzeCodeBlock_BuildProj( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines, @toFoxBin2Prg )
                         llBuildProj_Completed   = .T.
-                        llHomedir_Completed = .T. && No HomeDir expected after BuildProj
                         llDevInfo_Completed = .T.  && No DevInfo expected after BuildProj
                         llServerHead_Completed  = .T. && No ServerHead expected after BuildProj
 
@@ -406,46 +398,6 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
       Return
    Endproc
-
-
-   Procedure analyzeCodeBlock_Homedir
-      *--------------------------------------------------------------------------------------------------------------
-      * Analiza el bloque <HomeDir>
-      *--------------------------------------------------------------------------------------------------------------
-      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
-      * toProject                 (@?    OUT) Objeto con toda la información del proyecto analizado
-      * tcLine                    (@! IN    ) Línea de datos en evaluación
-      * taCodeLines               (@! IN    ) El array con las líneas del código donde buscar
-      * tnCodeLines               (@! IN    ) Cantidad de líneas de código
-      *--------------------------------------------------------------------------------------------------------------
-      Lparameters toProject, tcLine, taCodeLines, I, tnCodeLines
-      External Array taCodeLines
-
-      #If .F.
-         Local toProject As CL_PROJECT Of 'cl_project.prg'
-      #Endif
-
-      Try
-         Local llBloqueEncontrado
-
-         If Upper( Left( tcLine, 10 ) ) == Upper( '*<.HomeDir' )
-            toProject._HomeDir  = Strextract( tcLine, "'", "'" )
-
-            llBloqueEncontrado  = .T.
-         Endif
-
-      Catch To loEx
-         If This.n_Debug > 0 And _vfp.StartMode = 0
-            Set Step On
-         Endif
-
-         Throw
-
-      Endtry
-
-      Return llBloqueEncontrado
-   Endproc
-
 
 
    Procedure analyzeCodeBlock_BuildProj
