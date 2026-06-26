@@ -2376,10 +2376,6 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
             .c_OriginalFileName = EVL( tcOriginalFileName, .c_InputFile )
 
-            IF UPPER( JUSTEXT(.c_OriginalFileName) ) = 'PJM' AND .getCfgValue('c_PJ2') <> 'PJM'
-               .c_OriginalFileName = FORCEEXT(.c_OriginalFileName,'pjx')
-            ENDIF
-
             *-- addProcessedFile( tcFile, tcInOutType, tcProcessed, tcHasErrors, tcSupported, tcExpanded )
             IF NOT .addProcessedFile( .c_InputFile, 'I', 'P1', 'E0', 'S1', 'X0' ) THEN
                *.writeLog( 'OPTIMIZATION: Base file [' + JUSTFNAME(lc_BaseFile) + '] was already processed, so [' + JUSTFNAME(.c_InputFile) + '] will not be processed' )
@@ -2431,14 +2427,6 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_PJ2') )
                loConversor     = NewObject( 'c_conversor_pjx_a_prg' , 'c_conversor_pjx_a_prg.prg' )
 
-               .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_PJ2') ), lcForceAttribs )
-
-            CASE lcExtension = 'PJM' AND .getCfgValue('c_PJ2') <> 'PJM'
-               IF NOT INLIST(.getCfgValue('n_PJX_Conversion_Support'), 1, 2)
-                  ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-               ENDIF
-               .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_PJ2') )
-               loConversor     = NewObject( 'c_conversor_pjm_a_prg', 'c_conversor_pjm_a_prg.prg' )
                .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_PJ2') ), lcForceAttribs )
 
             CASE lcExtension = 'FRX'
@@ -3539,10 +3527,6 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
             .c_OriginalFileName = EVL( tcOriginalFileName, .c_InputFile )
 
-            IF UPPER( JUSTEXT(.c_OriginalFileName) ) = 'PJM' AND .getCfgValue('c_PJ2') <> 'PJM'
-               .c_OriginalFileName = FORCEEXT(.c_OriginalFileName,'pjx')
-            ENDIF
-
             lnIDInputFile   = .n_ProcessedFiles
 
             .writeLog( C_TAB + 'c_OriginalFileName:           ' + .c_OriginalFileName )
@@ -3561,9 +3545,6 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
             CASE lcExtension = 'PJX'
                loConversor     = NewObject( 'c_conversor_pjx_a_prg' , 'c_conversor_pjx_a_prg.prg' )
-
-            CASE lcExtension = 'PJM' AND .getCfgValue('c_PJ2') <> 'PJM'
-               loConversor     = NewObject( 'c_conversor_pjm_a_prg', 'c_conversor_pjm_a_prg.prg' )
 
             CASE lcExtension = 'FRX'
                loConversor     = NewObject( 'c_conversor_frx_a_prg' , 'c_conversor_frx_a_prg.prg' )

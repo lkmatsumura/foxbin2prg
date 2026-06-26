@@ -10,7 +10,6 @@ c_conversor_fky_a_prg.prg
 c_conversor_frx_a_prg.prg
 c_conversor_mem_a_prg.prg
 c_conversor_mnx_a_prg.prg
-c_conversor_pjm_a_prg.prg
 c_conversor_pjx_a_prg.prg
 c_conversor_prg_a_bin.prg
 c_conversor_prg_a_dbc.prg
