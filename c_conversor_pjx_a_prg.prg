@@ -79,7 +79,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                      Error 1941
                   Endif
 
-                  For Each loReg In loProject &&FOXOBJECT
+                  For Each loReg In loProject
                      If !Empty( Justdrive( Sys( 2014, loReg.Name,m.lcStr))) Then
                         lcStr = loLang.C_PJXPATH_ERR_LOC3 + loReg.Name + loLang.C_PJXPATH_ERR_LOC4 + m.lcStr + loLang.C_PJXPATH_ERR_LOC5
                         Error 1941
@@ -93,7 +93,6 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                   LPARAMETERS tcDir
                   <<>>
                   lcCurdir = SYS(5)+CURDIR()
-                  CD ( EVL( tcDir, JUSTPATH( SYS(16) ) ) )
                   <<>>
                ENDTEXT
 
@@ -206,9 +205,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
                For Each loReg In loProject &&FOXOBJECT
                   If Not Empty(loReg.COMMENTS)
-                     C_FB2PRG_CODE = C_FB2PRG_CODE + Chr(13) + Chr(10) + Chr(9) + ".ITEM(" +;
-                        THIS.GetPathFromHome(m.loReg.Name, m.lcStr, "lcCurdir + '", "'", toFoxBin2Prg) +;
-                        ").Description = '" + loReg.COMMENTS + "'"
+                     C_FB2PRG_CODE = C_FB2PRG_CODE + Chr(13) + Chr(10) + Chr(9) + ".ITEM('" + m.loReg.Name +"').Description = '" + loReg.COMMENTS + "'"
                   Endif
                   loReg   = .Null.
                Endfor
@@ -225,10 +222,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
                For Each loReg In loProject &&FOXOBJECT
                   If loReg.EXCLUDE
-                     *                               C_FB2PRG_CODE = C_FB2PRG_CODE + Chr(13) + Chr(10) + Chr(9) + ".ITEM(lcCurdir + '" + loReg.Name + "').Exclude = .T."
-                     C_FB2PRG_CODE = C_FB2PRG_CODE + Chr(13) + Chr(10) + Chr(9) + ".ITEM(" +;
-                        THIS.GetPathFromHome(m.loReg.Name, m.lcStr, "lcCurdir + '", "'", toFoxBin2Prg) +;
-                        ").Exclude = .T."
+                     C_FB2PRG_CODE = C_FB2PRG_CODE + Chr(13) + Chr(10) + Chr(9) + ".ITEM('" + m.loReg.Name +"').Exclude = .T."
                   Endif
                   loReg   = .Null.
                Endfor
@@ -245,10 +239,7 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
                For Each loReg In loProject &&FOXOBJECT
                   If Inlist( Upper( Justext( loReg.Name ) ), 'H','FPW' )
-                     *                               C_FB2PRG_CODE = C_FB2PRG_CODE + Chr(13) + Chr(10) + Chr(9) + ".ITEM(lcCurdir + '" + loReg.Name + "').Type = 'T'"
-                     C_FB2PRG_CODE = C_FB2PRG_CODE + Chr(13) + Chr(10) + Chr(9) + ".ITEM(" +;
-                        THIS.GetPathFromHome(m.loReg.Name, m.lcStr, "lcCurdir + '", "'", toFoxBin2Prg) +;
-                        ").Type = 'T'"
+                     C_FB2PRG_CODE = C_FB2PRG_CODE + Chr(13) + Chr(10) + Chr(9) + ".ITEM('" + m.loReg.Name + "').Type = 'T'"
                   Endif
                   loReg   = .Null.
                Endfor
@@ -264,17 +255,14 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                ENDTEXT
 
                If Not Empty(loProject._MainProg)
-                  *                           <<>>    .SetMain(lcCurdir + '<<loProject._MainProg>>')
                   TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                            <<Chr(9)>>.SetMain(<<THIS.GetPathFromHome(m.loProject._MainProg, m.lcStr, "lcCurdir + '", "'", m.toFoxBin2Prg)>>)
-
+                     <<Chr(9)>>.SetMain('<<m.loProject._MainProg>>')
                   ENDTEXT
                Endif
 
                If Not Empty(loProject._Icon)
-                  *                           <<>>    .Icon = lcCurdir + '<<loProject._Icon>>'
                   TEXT TO C_FB2PRG_CODE ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                            <<Chr(9)>>.Icon = <<THIS.GetPathFromHome(m.loProject._Icon, m.lcStr, "lcCurdir + '", "'", toFoxBin2Prg)>>
+                     <<Chr(9)>>.Icon = '<<m.loProject._Icon>>'
                   ENDTEXT
                Endif
 

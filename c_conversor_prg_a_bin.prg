@@ -29,8 +29,6 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
       + [<memberdata name="createclasslib_recordheader" display="createClasslib_RecordHeader"/>] ;
       + [<memberdata name="createform" display="createForm"/>] ;
       + [<memberdata name="createform_recordheader" display="createForm_RecordHeader"/>] ;
-      + [<memberdata name="createproject" display="createProject"/>] ;
-      + [<memberdata name="createproject_recordheader" display="createProject_RecordHeader"/>] ;
       + [<memberdata name="createreport" display="createReport"/>] ;
       + [<memberdata name="createmenu" display="createMenu"/>] ;
       + [<memberdata name="defined_pam2memo" display="defined_PAM2Memo"/>] ;
@@ -155,53 +153,6 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
 
       Release toModulo, tcLine, taCodeLines, I, tnCodeLines, laPropsAndValues, lnPropsAndValues_Count
       Return llBloqueEncontrado
-   Endproc
-
-
-   Procedure createProject
-      Lparameters toProject
-
-      Local lcCodepage
-
-      *!* LScheffler 20.08.2023
-      *issue #96, [KestasL] keep CodePage relavant information for binary sources
-      lcCodepage = Str(toProject._CPID)
-
-      Create Table (This.c_OutputFile) ;
-         CODEPAGE = &lcCodepage.  ;
-         ( Name          M ;
-         , Type          C(1) ;
-         , Id            N(10) ;
-         , Timestamp     N(10) ;
-         , OUTFILE       M ;
-         , HomeDir       M ;
-         , EXCLUDE       L ;
-         , MAINPROG      L ;
-         , SAVECODE      L ;
-         , Debug         L ;
-         , Encrypt       L ;
-         , NOLOGO        L ;
-         , CMNTSTYLE     N(1) ;
-         , OBJREV        N(5) ;
-         , DEVINFO       M ;
-         , SYMBOLS       M ;
-         , Object        M ;
-         , CKVAL         N(6) ;
-         , CPID          N(5) ;
-         , OSTYPE        C(4) ;
-         , OSCREATOR     C(4) ;
-         , COMMENTS      M ;
-         , RESERVED1     M ;
-         , RESERVED2     M ;
-         , SCCDATA       M ;
-         , Local         L ;
-         , Key           C(32) ;
-         , User          M )
-
-      Use (This.c_OutputFile) Alias TABLABIN Again Shared
-
-      Set NoCPTrans To Name,OUTFILE,HomeDir,DEVINFO,SYMBOLS,Object,COMMENTS,RESERVED1,RESERVED2,SCCDATA,User
-
    Endproc
 
 
