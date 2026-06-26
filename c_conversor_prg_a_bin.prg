@@ -205,61 +205,6 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
    Endproc
 
 
-   Procedure createProject_RecordHeader
-      Lparameters toProject
-
-      #If .F.
-         Local toProject As CL_PROJECT Of 'cl_project.prg'
-      #Endif
-
-      Local lcProjectName
-      lcProjectName = Forcepath( Evl(This.c_OriginalFileName, This.c_OutputFile), toProject._HomeDir)
-      lcProjectName = Upper( Forceext( lcProjectName, Justext( This.c_OutputFile ) ) ) + chr(0)
-
-      Insert Into TABLABIN ;
-         ( Name ;
-         , Type ;
-         , Timestamp ;
-         , OUTFILE ;
-         , HomeDir ;
-         , SAVECODE ;
-         , Debug ;
-         , Encrypt ;
-         , NOLOGO ;
-         , CMNTSTYLE ;
-         , OBJREV ;
-         , DEVINFO ;
-         , Object ;
-         , RESERVED1 ;
-         , RESERVED2 ;
-         , SCCDATA ;
-         , Local ;
-         , User ;
-         , Key ) ;
-         VALUES ;
-         ( lcProjectName ;
-         , 'H' ;
-         , 0 ;
-         , '<Source>' + Chr(0) ;
-         , Lower(toProject._HomeDir) + Chr(0) ;
-         , toProject._SaveCode ;
-         , toProject._Debug ;
-         , toProject._Encrypted ;
-         , toProject._NoLogo ;
-         , toProject._CmntStyle ;
-         , 260 ;
-         , toProject.getRowDevInfo() ;
-         , Lower(toProject._HomeDir) + Chr(0) ;
-         , lcProjectName;
-         , toProject._ServerHead.getRowServerInfo() ;
-         , toProject._SccData ;
-         , .T. ;
-         , Strconv(toProject._User,14) ;
-         , Upper( Juststem( This.c_OutputFile) ) )
-
-   Endproc
-
-
    Procedure createClasslib
       Lparameters toModulo
 

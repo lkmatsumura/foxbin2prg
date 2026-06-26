@@ -235,6 +235,56 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
       Return lnCodError
    Endproc
 
+   Procedure createProject_RecordHeader
+      Lparameters toProject
+
+      #If .F.
+         Local toProject As CL_PROJECT Of 'cl_project.prg'
+      #Endif
+
+      Insert Into TABLABIN ;
+         ( Name ;
+         , Type ;
+         , Timestamp ;
+         , OUTFILE ;
+         , HomeDir ;
+         , SAVECODE ;
+         , Debug ;
+         , Encrypt ;
+         , NOLOGO ;
+         , CMNTSTYLE ;
+         , OBJREV ;
+         , DEVINFO ;
+         , Object ;
+         , RESERVED1 ;
+         , RESERVED2 ;
+         , SCCDATA ;
+         , Local ;
+         , User ;
+         , Key ) ;
+         VALUES ;
+         ( Upper(Justext(This.c_OutputFile)) + chr(0) ;
+         , 'H' ;
+         , 0 ;
+         , '<Source>' + Chr(0) ;
+         , Lower(Justpath(This.c_OutputFile)) + Chr(0) ;
+         , toProject._SaveCode ;
+         , toProject._Debug ;
+         , toProject._Encrypted ;
+         , toProject._NoLogo ;
+         , toProject._CmntStyle ;
+         , 260 ;
+         , toProject.getRowDevInfo() ;
+         , Lower(Justpath(This.c_OutputFile)) + Chr(0) ;
+         , Upper(Justext(This.c_OutputFile)) + chr(0);
+         , toProject._ServerHead.getRowServerInfo() ;
+         , toProject._SccData ;
+         , .T. ;
+         , Strconv(toProject._User,14) ;
+         , Upper( Juststem( This.c_OutputFile) ) )
+
+   Endproc
+
 
    Procedure identifyCodeBlocks
       Lparameters taCodeLines, tnCodeLines, taLineasExclusion, tnBloquesExclusion, toProject, toFoxBin2Prg
@@ -275,7 +325,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
                   .set_Line( @lcLine, @taCodeLines, m.I )
 
                   Do Case
-                   Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario ) 
+                   Case .lineIsOnlyCommentAndNoMetadata( @lcLine, @lc_Comentario )
                         && Vacía o solo Comentarios
                         Loop
 
@@ -296,21 +346,27 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
                                  LOOP
 
                             CASE .analyzeCodeBlock_ServerData( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
-                            
+
                             OTHERWISE
                                  EXIT
 
                            ENDCASE
                         ENDDO
                         llServerHead_Completed  = .T.
+                        llDevInfo_Completed = .T.  && No DevInfo expected after ServerHead
 
                    Case Not llHomedir_Completed ;
                         And .analyzeCodeBlock_Homedir( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
                         llHomedir_Completed = .T.
+                        llDevInfo_Completed = .T.  && No DevInfo expected after HomeDir
+                        llServerHead_Completed  = .T. && No ServerHead expected after HomeDir
 
                    Case Not llBuildProj_Completed ;
                         And .analyzeCodeBlock_BuildProj( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines, @toFoxBin2Prg )
                         llBuildProj_Completed   = .T.
+                        llHomedir_Completed = .T. && No HomeDir expected after BuildProj
+                        llDevInfo_Completed = .T.  && No DevInfo expected after BuildProj
+                        llServerHead_Completed  = .T. && No ServerHead expected after BuildProj
 
                    Case Not llFileComments_Completed ;
                         And .analyzeCodeBlock_FileComments( toProject, @lcLine, @taCodeLines, @m.I, tnCodeLines )
@@ -374,7 +430,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
 
          If Upper( Left( tcLine, 10 ) ) == Upper( '*<.HomeDir' )
             toProject._HomeDir  = Strextract( tcLine, "'", "'" )
-    
+
             llBloqueEncontrado  = .T.
          Endif
 
