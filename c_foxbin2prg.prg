@@ -1080,6 +1080,649 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDPROC
 
 
+   *==============================================================================================================
+   * execute() helpers — session, context, dispatch (SRP decomposition)
+   *==============================================================================================================
+
+   PROTECTED FUNCTION isBinToTextMode
+      LPARAMETERS tcType
+      RETURN ATC('-BIN2PRG', ('-' + tcType)) > 0 ;
+         OR ATC('-BIN2TEXT', ('-' + tcType)) > 0
+   ENDFUNC
+
+   PROTECTED FUNCTION isTextToBinMode
+      LPARAMETERS tcType
+      RETURN ATC('-PRG2BIN', ('-' + tcType)) > 0 ;
+         OR ATC('-TEXT2BIN', ('-' + tcType)) > 0
+   ENDFUNC
+
+   PROTECTED PROCEDURE restoreEscapeKey
+      LPARAMETERS llEscKeyRestored, lcOldSetEscape, lcOldOnEscape
+      IF NOT llEscKeyRestored AND This.l_CancelWithEscKey THEN
+         IF EMPTY(lcOldOnEscape)
+            ON ESCAPE
+         ELSE
+            ON ESCAPE &lcOldOnEscape
+         ENDIF
+         IF EMPTY(lcOldSetEscape)
+            SET ESCAPE OFF
+         ELSE
+            SET ESCAPE &lcOldSetEscape
+         ENDIF
+      ENDIF
+   ENDPROC
+
+   PROTECTED FUNCTION mergeExecuteConfig
+      LPARAMETERS toCfg
+      LOCAL loCFG
+      loCFG = .NULL.
+      This.ensureCfg()
+      IF VARTYPE(toCfg) = "O" AND !ISNULL(toCfg)
+         IF This.isCfg( toCfg )
+            loCFG = toCfg
+         ELSE
+            loCFG = This.configFromObject( toCfg )
+         ENDIF
+         This.o_Cfg.lockMasterFromObject( loCFG )
+      ENDIF
+      RETURN loCFG
+   ENDFUNC
+
+   PROTECTED PROCEDURE beginExecuteSession
+      LPARAMETERS loSession
+      WITH This
+         loSession.lc_OldSetNotify  = SET("Notify")
+         SET NOTIFY OFF
+         .declareDLL()
+         loSession.llEscKeyRestored = .T.
+         loSession.lcOldSetEscape   = ''
+         loSession.lcOldOnEscape    = ''
+         IF .l_CancelWithEscKey THEN
+            loSession.lcOldSetEscape = SET("Escape")
+            loSession.lcOldOnEscape  = ON("Escape")
+            ON ESCAPE ERROR 1799
+            SET ESCAPE ON
+            loSession.llEscKeyRestored = .F.
+         ENDIF
+         IF .l_AutoClearProcessedFiles THEN
+            .clearProcessedFiles()
+         ENDIF
+         .l_Error = .F.
+      ENDWITH
+   ENDPROC
+
+   PROTECTED PROCEDURE validateExecuteEnvironment
+      LPARAMETERS lnVFPVersion, tcType
+      LOCAL loLang AS CL_LANG OF 'cl_lang.prg'
+      loLang = _SCREEN.o_FoxBin2Prg_Lang
+      DO CASE
+      CASE lnVFPVersion = 900 AND Int( Val( Substr( Version(4), Rat('.', Version(4)) + 1 ) ) ) < 3504
+         ERROR loLang.C_INCORRECT_VFP9_VERSION__MISSING_SP1_LOC
+      CASE lnVFPVersion < 900
+         ERROR loLang.C_INCORRECT_VFP9_VERSION__MISSING_SP1_LOC
+      CASE '\' $ tcType
+         ERROR loLang.C_INVALID_PARAMETER_LOC + ':' + CR_LF ;
+            + 'tcType = "' + tcType + '"' + CR_LF ;
+            + CR_LF ;
+            + loLang.C_ALLOWED_VALUES_ARE_LOC + ': ' + CR_LF ;
+            + '*, *-, Bin3Prg, Prg3Bin, -BIN2PRG, -PRG2BIN'
+      ENDCASE
+   ENDPROC
+
+   PROTECTED FUNCTION parseClassOperationSyntax
+      LPARAMETERS tc_InputFile
+      IF '::' $ tc_InputFile THEN
+         tc_InputFile = STRTRAN(tc_InputFile, '::', '|')
+         This.c_ClassOperationType = Evl( Upper( Left( Alltrim( GetWordNum( tc_InputFile, 3, '|' ) ), 1) ), 'E')
+         This.c_ClassToConvert     = Lower( Alltrim( GetWordNum( tc_InputFile, 2, '|' ) ) )
+         tc_InputFile = Lower( Alltrim( GetWordNum( tc_InputFile, 1, '|' ) ) )
+      ELSE
+         This.c_ClassOperationType = ''
+      ENDIF
+      RETURN tc_InputFile
+   ENDFUNC
+
+   PROTECTED FUNCTION detectInputFileType
+      LPARAMETERS tc_InputFile
+      LOCAL laDirInfo(1,5), lcInputFile_Type
+      lcInputFile_Type = ''
+      IF NOT EMPTY(tc_InputFile)
+         IF ADIR(laDirInfo, JustPath(tc_InputFile), "D") = 1 AND Substr( laDirInfo(1,5), 5, 1 ) = "D"
+            lcInputFile_Type = C_FILETYPE_DIRECTORY
+         ELSE
+            lcInputFile_Type = C_FILETYPE_FILE
+         ENDIF
+      ENDIF
+      RETURN lcInputFile_Type
+   ENDFUNC
+
+   PROTECTED FUNCTION resolveRecompileTarget
+      LPARAMETERS tc_InputFile, lcInputFile_Type, tcRecompile
+      IF EMPTY(tcRecompile) AND NOT EMPTY(lcInputFile_Type)
+         IF lcInputFile_Type == C_FILETYPE_DIRECTORY
+            tcRecompile = tc_InputFile
+         ELSE
+            tcRecompile = JUSTPATH( tc_InputFile )
+         ENDIF
+      ENDIF
+      IF This.getCfgFlag('l_Recompile', .T.)
+         tcRecompile = EVL(tcRecompile, '1')
+      ELSE
+         tcRecompile = '0'
+      ENDIF
+      This.c_Recompile = tcRecompile
+      RETURN tcRecompile
+   ENDFUNC
+
+   PROTECTED PROCEDURE logExecuteParameters
+      LPARAMETERS tc_InputFile, lcType, toCfg
+      LOCAL loLang AS CL_LANG OF 'cl_lang.prg'
+      loLang = _SCREEN.o_FoxBin2Prg_Lang
+      WITH This
+         .writeLog( REPLICATE( '*', 100 ) )
+         .writeLog( loLang.C_MAIN_EXECUTION_LOC, 2 )
+         .writeLog( REPLICATE( '*', 100 ) )
+         .writeLog( '> ' + loLang.C_EXTERNAL_PARAMETERS_LOC + ':' )
+         .writeLog( C_TAB + 'tc_InputFile:                 ' + TRANSFORM( EVL(tc_InputFile, '(empty)' ) ) )
+         .writeLog( C_TAB + 'tcType:                       ' + TRANSFORM( EVL(lcType, '(empty)' ) ) )
+         .writeLog( C_TAB + 'toCfg:                        ' + TRANSFORM( IIF(VARTYPE(toCfg)='O' AND !ISNULL(toCfg), '(object)', '(empty)' ) ) )
+         .writeLog( )
+      ENDWITH
+   ENDPROC
+
+   PROTECTED FUNCTION rewritePerObjectInputPath
+      LPARAMETERS tc_InputFile, tcType, lcExt
+      LOCAL laFiles(1,5), lnRedirect, lnUsePerFile, lcTextExt, lcUsePerDir, llIsClass, llIsForm
+      IF INLIST(LOWER(EVL(tcType,'')), '-c', 'c', '-t', 't')
+         RETURN tc_InputFile
+      ENDIF
+      llIsClass = INLIST(lcExt, This.getCfgValue('c_VC2'), "VCX")
+      llIsForm  = INLIST(lcExt, This.getCfgValue('c_SC2'), "SCX")
+      IF llIsClass
+         lnRedirect   = This.getCfgValue('n_RedirectClassType')
+         lnUsePerFile = This.getCfgValue('n_UseClassPerFile')
+         lcTextExt    = This.getCfgValue('c_VC2')
+         lcUsePerDir  = 'l_UseClassPerDir'
+      ELSE
+         IF llIsForm
+            lnRedirect   = This.getCfgValue('n_RedirectFormType')
+            lnUsePerFile = This.getCfgValue('n_UseFormPerFile')
+            lcTextExt    = This.getCfgValue('c_SC2')
+            lcUsePerDir  = 'l_UseFormPerDir'
+         ELSE
+            RETURN tc_InputFile
+         ENDIF
+      ENDIF
+      IF lnRedirect = 2 AND EMPTY(This.c_ClassToConvert) AND lnUsePerFile > 0 ;
+            AND '.' $ JUSTSTEM(JUSTFNAME(tc_InputFile))
+         This.c_ClassToConvert = LOWER( JUSTEXT( JUSTSTEM( tc_InputFile ) ) )
+         tc_InputFile = LOWER( JUSTPATH( tc_InputFile ) + '\' + JUSTSTEM( JUSTSTEM( tc_InputFile ) ) + '.' + JUSTEXT( tc_InputFile ) )
+         IF lnUsePerFile = 2
+            tc_InputFile = LOWER( JUSTPATH( tc_InputFile ) + '\' + JUSTSTEM( JUSTSTEM( tc_InputFile ) ) + '.' + JUSTEXT( tc_InputFile ) )
+         ENDIF
+         This.c_ClassOperationType = IIF( This.isBinToTextMode(tcType), 'E', 'I')
+      ENDIF
+      IF This.c_ClassOperationType = 'I'
+         IF llIsClass AND INLIST(lcExt, This.getCfgValue('c_VC2'), "VCX")
+            IF lnUsePerFile = 2
+               tc_InputFile = ADDBS( This.getPerFileDir( tc_InputFile, lcTextExt, This.getCfgFlag(lcUsePerDir), lnUsePerFile ) ) ;
+                  + JUSTSTEM(tc_InputFile) + '.*.' + This.c_ClassToConvert + '.' + lcTextExt
+               IF ADIR(laFiles, tc_InputFile) = 1
+                  tc_InputFile = FULLPATH( laFiles(1,1), tc_InputFile )
+               ENDIF
+            ELSE
+               tc_InputFile = This.getPerFileOutputPath( tc_InputFile, This.c_ClassToConvert, lcTextExt, ;
+                  This.getCfgFlag(lcUsePerDir), lnUsePerFile )
+            ENDIF
+         ENDIF
+         IF llIsForm AND INLIST(lcExt, This.getCfgValue('c_SC2'), "SCX")
+            IF lnUsePerFile = 2
+               tc_InputFile = ADDBS( This.getPerFileDir( tc_InputFile, lcTextExt, This.getCfgFlag(lcUsePerDir), lnUsePerFile ) ) ;
+                  + JUSTSTEM(tc_InputFile) + '.*.' + This.c_ClassToConvert + '.' + lcTextExt
+               IF ADIR(laFiles, tc_InputFile) = 1
+                  tc_InputFile = FULLPATH( laFiles(1,1), tc_InputFile )
+               ENDIF
+            ELSE
+               tc_InputFile = This.getPerFileOutputPath( tc_InputFile, This.c_ClassToConvert, lcTextExt, ;
+                  This.getCfgFlag(lcUsePerDir), lnUsePerFile )
+            ENDIF
+         ENDIF
+      ENDIF
+      RETURN tc_InputFile
+   ENDFUNC
+
+   PROTECTED FUNCTION buildExecuteContext
+      LPARAMETERS tc_InputFile, tcType, lcType, loCFG, tcRecompile, lcInputFile_Type, tcOriginalFileName, tcTextName
+      LOCAL loCtx
+      loCtx = CREATEOBJECT('Empty')
+      ADDPROPERTY(loCtx, 'tc_InputFile',       tc_InputFile)
+      ADDPROPERTY(loCtx, 'tcType',             tcType)
+      ADDPROPERTY(loCtx, 'lcType',             lcType)
+      ADDPROPERTY(loCtx, 'loCFG',              loCFG)
+      ADDPROPERTY(loCtx, 'tcRecompile',        tcRecompile)
+      ADDPROPERTY(loCtx, 'lcInputFile_Type',   lcInputFile_Type)
+      ADDPROPERTY(loCtx, 'tcOriginalFileName', tcOriginalFileName)
+      ADDPROPERTY(loCtx, 'tcTextName',         tcTextName)
+      ADDPROPERTY(loCtx, 'lBinToText',         This.isBinToTextMode(tcType))
+      ADDPROPERTY(loCtx, 'lTextToBin',         This.isTextToBinMode(tcType))
+      RETURN loCtx
+   ENDFUNC
+
+   PROTECTED FUNCTION resolveExecuteMode
+      LPARAMETERS tcType, tc_InputFile, lcInputFile_Type
+      LOCAL laDirInfo(1,5)
+      IF VERSION(5) < 900
+         RETURN C_EXEC_VFP8_WARN
+      ENDIF
+      IF tcType == 'BIN3PRG'
+         RETURN C_EXEC_BIN3PRG
+      ENDIF
+      IF tcType == 'PRG3BIN'
+         RETURN C_EXEC_PRG3BIN
+      ENDIF
+      IF EMPTY(tc_InputFile)
+         RETURN C_EXEC_EMPTY_UI
+      ENDIF
+      IF NOT This.isBinToTextMode(tcType) AND NOT This.isTextToBinMode(tcType) ;
+            AND lcInputFile_Type == C_FILETYPE_FILE ;
+            AND ( '*' $ JUSTEXT( tc_InputFile ) OR '?' $ JUSTEXT( tc_InputFile ) )
+         RETURN C_EXEC_WILDCARD_ERROR
+      ENDIF
+      IF lcInputFile_Type == C_FILETYPE_FILE ;
+            AND ( '*' $ JUSTSTEM( tc_InputFile ) OR '?' $ JUSTSTEM( tc_InputFile ) )
+         RETURN C_EXEC_WILDCARD
+      ENDIF
+      IF This.isBinToTextMode(tcType) AND lcInputFile_Type == C_FILETYPE_DIRECTORY
+         RETURN C_EXEC_DIR_BIN2PRG
+      ENDIF
+      IF This.isTextToBinMode(tcType) AND lcInputFile_Type == C_FILETYPE_DIRECTORY
+         RETURN C_EXEC_DIR_PRG2BIN
+      ENDIF
+      IF UPPER( JUSTEXT( EVL(tc_InputFile,'') ) ) == 'PJX' AND LEFT(EVL(tcType,'0'),1) == '*'
+         RETURN C_EXEC_PROJECT_PJX
+      ENDIF
+      IF UPPER( JUSTEXT( EVL(tc_InputFile,'') ) ) == This.getCfgValue('c_PJ2') AND LEFT(EVL(tcType,'0'),1) == '*'
+         RETURN C_EXEC_PROJECT_PJ2
+      ENDIF
+      IF This.isBinToTextMode(tcType) ;
+            AND ( NOT This.hasSupport_Bin2Prg( tc_InputFile ) OR NOT ADIR(laDirInfo, tc_InputFile) > 0 )
+         RETURN C_EXEC_UNSUPPORTED_BIN2PRG
+      ENDIF
+      IF This.isTextToBinMode(tcType) ;
+            AND ( NOT This.hasSupport_Prg2Bin( tc_InputFile ) OR NOT ADIR(laDirInfo, tc_InputFile) > 0 )
+         RETURN C_EXEC_UNSUPPORTED_PRG2BIN
+      ENDIF
+      RETURN C_EXEC_SINGLE_FILE
+   ENDFUNC
+
+   PROTECTED PROCEDURE prepareBatchLog
+      LPARAMETERS tcLogPath
+      This.c_LogFile = tcLogPath
+      IF This.getCfgValue('n_Debug') > 0 THEN
+         ERASE ( This.c_LogFile )
+      ENDIF
+   ENDPROC
+
+   PROTECTED PROCEDURE setRecompileDirectory
+      LPARAMETERS tcRecompile, tcDefaultPath, tlUseRecompileCfg
+      DO CASE
+      CASE This.getCfgValue('l_Recompile') AND LEN(tcRecompile) > 3 AND DIRECTORY(tcRecompile)
+         CD (tcRecompile)
+      CASE tlUseRecompileCfg AND This.getCfgValue('l_Recompile')
+         CD (tcDefaultPath)
+      CASE tcRecompile == '1'
+         CD (tcDefaultPath)
+      ENDCASE
+   ENDPROC
+
+   PROTECTED FUNCTION handleConvertResult
+      LPARAMETERS lnCodError, toEx, tlAccumulateError
+      LOCAL llBatchError
+      llBatchError = .F.
+      DO CASE
+      CASE lnCodError = 1799
+         ERROR 1799
+      CASE lnCodError > 0
+         This.doWriteErrorLog( @toEx )
+         IF tlAccumulateError
+            llBatchError = .T.
+            This.l_Error = .F.
+         ENDIF
+      ENDCASE
+      RETURN llBatchError
+   ENDFUNC
+
+   PROTECTED FUNCTION runConvertWithProgress
+      LPARAMETERS lcFile, tnIndex, tnTotal, tlRelanzarError, tcOriginalFileName, toModulo, toEx, tlFlushLog
+      LOCAL lnCodError, loLang AS CL_LANG OF 'cl_lang.prg'
+      loLang = _SCREEN.o_FoxBin2Prg_Lang
+      This.updateProgressbar( loLang.C_PROCESSING_LOC + ' ' + lcFile + '...', tnIndex, tnTotal, 0 )
+      lnCodError = This.convert( lcFile, @toModulo, @toEx, tlRelanzarError, tcOriginalFileName )
+      IF tlFlushLog
+         This.writeLog_Flush()
+      ENDIF
+      RETURN lnCodError
+   ENDFUNC
+
+   PROTECTED PROCEDURE setupDirectionProgressUI
+      LPARAMETERS tlBinToText
+      LOCAL loLang AS CL_LANG OF 'cl_lang.prg'
+      loLang = _SCREEN.o_FoxBin2Prg_Lang
+      IF tlBinToText
+         This.writeLog( '> ' + loLang.C_OPTION_LOC + ': BIN2PRG' )
+      ELSE
+         This.writeLog( '> ' + loLang.C_OPTION_LOC + ': PRG2BIN' )
+      ENDIF
+      IF This.getCfgValue('n_ShowProgressbar') <> 0 AND This.l_ProcessFiles THEN
+         This.loadProgressbarForm()
+         IF tlBinToText
+            This.o_Frm_Avance.CAPTION = STRTRAN( This.o_Frm_Avance.CAPTION, '> -', '(Bin>Txt) -' )
+         ELSE
+            This.o_Frm_Avance.CAPTION = STRTRAN( This.o_Frm_Avance.CAPTION, '> -', '(Txt>Bin) -' )
+         ENDIF
+      ENDIF
+   ENDPROC
+
+   PROTECTED FUNCTION executeEmptyUI
+      LOCAL loFrm_Main AS frm_main OF 'frm_main.PRG'
+      loFrm_Main = NewObject( 'frm_main', 'frm_main.prg' , null, This)
+      loFrm_Main.SHOW()
+      READ EVENTS
+      RETURN 0
+   ENDFUNC
+
+   PROTECTED FUNCTION executeBin3Prg
+      LPARAMETERS loCtx
+      LOCAL lcMirrorRoot, loLang AS CL_LANG OF 'cl_lang.prg', loCfgPass
+      loLang = _SCREEN.o_FoxBin2Prg_Lang
+      lcMirrorRoot = EVL(This.cOutputFolder, loCtx.tcTextName)
+      IF NOT EMPTY(lcMirrorRoot)
+         lcMirrorRoot = This.get_AbsolutePath(lcMirrorRoot, This.c_CurDir)
+      ENDIF
+      IF EMPTY(lcMirrorRoot)
+         ERROR loLang.C_INVALID_PARAMETER_LOC + ': Bin3Prg requires tcTextName or tcOutputFolder'
+      ENDIF
+      IF UPPER(JUSTEXT(loCtx.tc_InputFile)) <> 'PJX'
+         ERROR loLang.C_INVALID_PARAMETER_LOC + ': Bin3Prg requires a .PJX project file'
+      ENDIF
+      loCfgPass = IIF(VARTYPE(loCtx.loCFG) = 'O' AND !ISNULL(loCtx.loCFG), loCtx.loCFG, .NULL.)
+      RETURN This.exportProjectTree(loCtx.tc_InputFile, lcMirrorRoot, loCfgPass)
+   ENDFUNC
+
+   PROTECTED FUNCTION executePrg3Bin
+      LPARAMETERS loCtx
+      LOCAL lcMirrorRoot, loLang AS CL_LANG OF 'cl_lang.prg', loCfgPass
+      loLang = _SCREEN.o_FoxBin2Prg_Lang
+      lcMirrorRoot = EVL(This.cOutputFolder, loCtx.tcTextName)
+      IF NOT EMPTY(lcMirrorRoot)
+         lcMirrorRoot = This.get_AbsolutePath(lcMirrorRoot, This.c_CurDir)
+      ENDIF
+      IF EMPTY(lcMirrorRoot)
+         ERROR loLang.C_INVALID_PARAMETER_LOC + ': Prg3Bin requires tcTextName or tcOutputFolder'
+      ENDIF
+      IF UPPER(JUSTEXT(loCtx.tc_InputFile)) <> UPPER(This.getCfgValue('c_PJ2'))
+         ERROR loLang.C_INVALID_PARAMETER_LOC + ': Prg3Bin requires a .' + This.getCfgValue('c_PJ2') + ' project file'
+      ENDIF
+      loCfgPass = IIF(VARTYPE(loCtx.loCFG) = 'O' AND !ISNULL(loCtx.loCFG), loCtx.loCFG, .NULL.)
+      RETURN This.importProjectTree(loCtx.tc_InputFile, lcMirrorRoot, loCfgPass)
+   ENDFUNC
+
+   PROTECTED FUNCTION executeWildcardBatch
+      LPARAMETERS loCtx, toEx, toModulo
+      LOCAL I, lcFileSpec, lcFile, lnFileCount, lnCodError, llError, laFiles(1,5), loLang AS CL_LANG OF 'cl_lang.prg'
+      loLang = _SCREEN.o_FoxBin2Prg_Lang
+      lnCodError = 0
+      llError = .F.
+      lcFileSpec = FULLPATH( loCtx.tc_InputFile )
+      This.prepareBatchLog( ADDBS( JUSTPATH( lcFileSpec ) ) + STRTRAN( JUSTFNAME( lcFileSpec ), '*', '_ALL' ) + '.LOG' )
+      IF EVL(loCtx.tcType,'0') <> '*' THEN
+         IF This.getCfgValue('n_ShowProgressbar') <> 0 AND This.l_ProcessFiles THEN
+            This.loadProgressbarForm()
+         ENDIF
+         This.setRecompileDirectory( loCtx.tcRecompile, JUSTPATH(lcFileSpec), .F. )
+      ENDIF
+      lnFileCount = ADIR( laFiles, lcFileSpec, '', 1 )
+      FOR I = 1 TO lnFileCount
+         toModulo = .NULL.
+         lcFile = FORCEPATH( laFiles(m.I,1), JUSTPATH( lcFileSpec ) )
+         DO CASE
+         CASE UPPER( JUSTEXT( EVL(loCtx.tc_InputFile,'') ) ) == 'PJX' AND LEFT(EVL(loCtx.tcType,'0'),1) == '*'
+            This.evaluate_Full_PJX(lcFile, loCtx.tcRecompile, @toModulo, @toEx, loCtx.tcOriginalFileName, This.c_LogFile, loCtx.tcType)
+         CASE UPPER( JUSTEXT( EVL(loCtx.tc_InputFile,'') ) ) == This.getCfgValue('c_PJ2') AND LEFT(EVL(loCtx.tcType,'0'),1) == '*'
+            This.evaluate_Full_PJ2(lcFile, loCtx.tcRecompile, @toModulo, @toEx, loCtx.tcOriginalFileName, This.c_LogFile, loCtx.tcType)
+         CASE loCtx.lBinToText
+            IF This.hasSupport_Bin2Prg(lcFile) THEN
+               lnCodError = This.runConvertWithProgress( lcFile, m.I, lnFileCount, .F., loCtx.tcOriginalFileName, @toModulo, @toEx, .T. )
+               llError = llError OR This.handleConvertResult( lnCodError, @toEx, .T. )
+            ENDIF
+         CASE loCtx.lTextToBin
+            IF This.hasSupport_Prg2Bin(lcFile) THEN
+               lnCodError = This.runConvertWithProgress( lcFile, m.I, lnFileCount, .F., loCtx.tcOriginalFileName, @toModulo, @toEx, .T. )
+               llError = llError OR This.handleConvertResult( lnCodError, @toEx, .T. )
+            ENDIF
+         CASE EMPTY( JUSTEXT( EVL(loCtx.tc_InputFile,'') ) )
+            ERROR loLang.C_INVALID_PARAMETER_LOC + ': cInputFile = "' + loCtx.tc_InputFile + '"'
+         OTHERWISE
+            lnCodError = This.runConvertWithProgress( lcFile, m.I, lnFileCount, .T., loCtx.tcOriginalFileName, @toModulo, @toEx, .T. )
+            This.handleConvertResult( lnCodError, @toEx, .F. )
+         ENDCASE
+      ENDFOR
+      IF llError
+         This.l_Error = .T.
+      ENDIF
+      RETURN lnCodError
+   ENDFUNC
+
+   PROTECTED FUNCTION executeDirectoryBatch
+      LPARAMETERS loCtx, tlBinToText, toEx, toModulo
+      LOCAL I, lcFile, lnFileCount, lnCodError, laFiles(1,5), laDirInfo(1,5), loLang AS CL_LANG OF 'cl_lang.prg'
+      loLang = _SCREEN.o_FoxBin2Prg_Lang
+      lnCodError = 0
+      This.setupDirectionProgressUI( tlBinToText )
+      This.writeLog( '> InputFile ' + loLang.C_IS_A_DIRECTORY_LOC )
+      This.writeLog()
+      This.setRecompileDirectory( loCtx.tcRecompile, loCtx.tc_InputFile, .T. )
+      This.prepareBatchLog( ADDBS(loCtx.tc_InputFile) + loCtx.tcType + '.LOG' )
+      This.get_FilesFromDirectory( loCtx.tc_InputFile, @laFiles, @lnFileCount )
+      FOR I = 1 TO lnFileCount
+         toModulo = .NULL.
+         lcFile = laFiles(m.I)
+         IF tlBinToText
+            IF NOT This.hasSupport_Bin2Prg( lcFile ) OR NOT ADIR(laDirInfo, lcFile) > 0
+               LOOP
+            ENDIF
+         ELSE
+            IF NOT This.hasSupport_Prg2Bin( lcFile ) OR NOT ADIR(laDirInfo, lcFile) > 0
+               LOOP
+            ENDIF
+         ENDIF
+         lnCodError = This.runConvertWithProgress( lcFile, m.I, lnFileCount, .F., loCtx.tcOriginalFileName, @toModulo, @toEx, .F. )
+         This.handleConvertResult( lnCodError, @toEx, .F. )
+      ENDFOR
+      This.writeLog_Flush()
+      This.updateProgressbar( loLang.C_END_OF_PROCESS_LOC, lnFileCount, lnFileCount, 0 )
+      RETURN lnCodError
+   ENDFUNC
+
+   PROTECTED FUNCTION executeSingleProject
+      LPARAMETERS loCtx, toEx, toModulo
+      LOCAL tcOriginalFileName
+      tcOriginalFileName = loCtx.tcOriginalFileName
+      IF UPPER( JUSTEXT( EVL(loCtx.tc_InputFile,'') ) ) == 'PJX' AND LEFT(EVL(loCtx.tcType,'0'),1) == '*'
+         This.evaluate_Full_PJX(loCtx.tc_InputFile, loCtx.tcRecompile, @toModulo, @toEx, @tcOriginalFileName, '', loCtx.tcType)
+         loCtx.tcOriginalFileName = tcOriginalFileName
+         RETURN 0
+      ENDIF
+      IF UPPER( JUSTEXT( EVL(loCtx.tc_InputFile,'') ) ) == This.getCfgValue('c_PJ2') AND LEFT(EVL(loCtx.tcType,'0'),1) == '*'
+         This.evaluate_Full_PJ2(loCtx.tc_InputFile, loCtx.tcRecompile, @toModulo, @toEx, @tcOriginalFileName, '', loCtx.tcType)
+         loCtx.tcOriginalFileName = tcOriginalFileName
+         RETURN 0
+      ENDIF
+      RETURN 0
+   ENDFUNC
+
+   PROTECTED FUNCTION executeSingleFile
+      LPARAMETERS loCtx, toEx, toModulo
+      LOCAL laDirInfo(1,5), lnCodError, loLang AS CL_LANG OF 'cl_lang.prg'
+      loLang = _SCREEN.o_FoxBin2Prg_Lang
+      lnCodError = 0
+      IF loCtx.lBinToText OR loCtx.lTextToBin
+         This.setupDirectionProgressUI( loCtx.lBinToText )
+      ENDIF
+      IF ADIR(laDirInfo, loCtx.tc_InputFile) > 0
+         IF This.getCfgValue('n_ShowProgressbar') <> 0 AND This.l_ProcessFiles THEN
+            This.loadProgressbarForm()
+         ENDIF
+         This.writeLog( '> InputFile ' + loLang.C_IS_A_FILE_LOC )
+         This.writeLog()
+         loCtx.tc_InputFile = LOCFILE(loCtx.tc_InputFile)
+         This.setRecompileDirectory( loCtx.tcRecompile, JUSTPATH(loCtx.tc_InputFile), .F. )
+         This.prepareBatchLog( loCtx.tc_InputFile + '.LOG' )
+         lnCodError = This.convert( loCtx.tc_InputFile, @toModulo, @toEx, .T., loCtx.tcOriginalFileName )
+      ENDIF
+      RETURN lnCodError
+   ENDFUNC
+
+   PROTECTED FUNCTION executeUnsupportedInput
+      LPARAMETERS tlBinToText
+      LOCAL loLang AS CL_LANG OF 'cl_lang.prg'
+      loLang = _SCREEN.o_FoxBin2Prg_Lang
+      IF tlBinToText
+         This.setupDirectionProgressUI( .T. )
+      ELSE
+         This.setupDirectionProgressUI( .F. )
+      ENDIF
+      This.writeLog( '> InputFile ' + loLang.C_IS_A_UNSUPPORTED_LOC )
+      This.writeLog()
+      RETURN 0
+   ENDFUNC
+
+   PROTECTED FUNCTION dispatchExecuteMode
+      LPARAMETERS lnMode, loCtx, toEx, toModulo
+      LOCAL loLang AS CL_LANG OF 'cl_lang.prg'
+      loLang = _SCREEN.o_FoxBin2Prg_Lang
+      DO CASE
+      CASE lnMode = C_EXEC_VFP8_WARN
+         MESSAGEBOX( loLang.C_FOXBIN2PRG_JUST_VFP_9_LOC, 0+64+4096, ;
+            'FoxBin2Prg ' + This.c_FB2PRG_EXE_Version + ': ' + loLang.C_FOXBIN2PRG_WARN_CAPTION_LOC + ' (' + This.c_Language + ')', 60000 )
+         RETURN 1
+      CASE lnMode = C_EXEC_BIN3PRG
+         RETURN This.executeBin3Prg( loCtx )
+      CASE lnMode = C_EXEC_PRG3BIN
+         RETURN This.executePrg3Bin( loCtx )
+      CASE lnMode = C_EXEC_EMPTY_UI
+         RETURN This.executeEmptyUI()
+      CASE lnMode = C_EXEC_WILDCARD_ERROR
+         IF This.getCfgValue('l_ShowErrors')
+            MESSAGEBOX( loLang.C_ASTERISK_EXT_NOT_ALLOWED_LOC, 0+48+4096, ;
+               'FoxBin2Prg ' + This.c_FB2PRG_EXE_Version + ': ' + loLang.C_FOXBIN2PRG_ERROR_CAPTION_LOC, 60000 )
+            RETURN 0
+         ELSE
+            ERROR loLang.C_ASTERISK_EXT_NOT_ALLOWED_LOC
+         ENDIF
+      CASE lnMode = C_EXEC_WILDCARD
+         RETURN This.executeWildcardBatch( loCtx, @toEx, @toModulo )
+      CASE lnMode = C_EXEC_DIR_BIN2PRG
+         RETURN This.executeDirectoryBatch( loCtx, .T., @toEx, @toModulo )
+      CASE lnMode = C_EXEC_DIR_PRG2BIN
+         RETURN This.executeDirectoryBatch( loCtx, .F., @toEx, @toModulo )
+      CASE lnMode = C_EXEC_PROJECT_PJX OR lnMode = C_EXEC_PROJECT_PJ2
+         RETURN This.executeSingleProject( loCtx, @toEx, @toModulo )
+      CASE lnMode = C_EXEC_UNSUPPORTED_BIN2PRG
+         RETURN This.executeUnsupportedInput( .T. )
+      CASE lnMode = C_EXEC_UNSUPPORTED_PRG2BIN
+         RETURN This.executeUnsupportedInput( .F. )
+      CASE lnMode = C_EXEC_SINGLE_FILE
+         RETURN This.executeSingleFile( loCtx, @toEx, @toModulo )
+      ENDCASE
+      RETURN 0
+   ENDFUNC
+
+   PROTECTED PROCEDURE enrichExecuteException
+      LPARAMETERS toEx, tcType, tc_InputFile, lcInputFile_Type
+
+      IF toEx.ERRORNO <> 1799
+         toEx.USERVALUE = toEx.USERVALUE + 'FoxBin2Prg: [' + This.c_Foxbin2prg_FullPath + '] (EXE Version: ' + This.c_FB2PRG_EXE_Version + ')' + CR_LF
+      ENDIF
+
+      IF ATC('-SHOWMSG', ('-' + tcType)) > 0
+         IF toEx.ERRORNO <> 1799
+            toEx.USERVALUE = toEx.USERVALUE + 'lcInputFile_Type  = [' + TRANSFORM(lcInputFile_Type) + ']' + CR_LF
+         ENDIF
+         This.setCfgValue( 'l_ShowErrors', .F. )
+      ENDIF
+
+      IF toEx.ERRORNO <> 1799
+         toEx.USERVALUE = toEx.USERVALUE + 'tc_InputFile = [' + TRANSFORM(tc_InputFile) + ']' + CR_LF
+      ENDIF
+   ENDPROC
+
+
+   PROTECTED FUNCTION finalizeExecuteSession
+      LPARAMETERS lnCodError, tcType, toEx, loSession, loLang, laDirInfo
+      LOCAL loLangLocal AS CL_LANG OF 'cl_lang.prg'
+      LOCAL lcOldNotify
+
+      IF VARTYPE(loLang) <> 'O'
+         loLangLocal = NewObject("CL_LANG", "cl_lang.prg", null, "EN")
+      ELSE
+         loLangLocal = loLang
+      ENDIF
+
+      This.restoreEscapeKey( loSession.llEscKeyRestored, loSession.lcOldSetEscape, loSession.lcOldOnEscape )
+
+      USE IN (SELECT("TABLABIN"))
+
+      This.writeLog_Flush()
+      This.unloadProgressbarForm()
+
+      CD (JUSTPATH(This.c_CurDir))
+
+      IF ATC('-SHOWMSG', ('-' + tcType)) > 0 ;
+            OR This.getCfgValue('l_ShowErrors') AND lnCodError > 0 AND NOT ISNULL(toEx)
+
+         This.writeErrorLog_Flush()
+
+         DO CASE
+         CASE lnCodError = 1098
+            MESSAGEBOX( toEx.MESSAGE, 0+64+4096, 'FoxBin2Prg ' + This.c_FB2PRG_EXE_Version, 60000 )
+            This.wscriptshell_run( This.c_ErrorLogFile, 3 )
+
+         CASE lnCodError = 1799
+            MESSAGEBOX( loLangLocal.C_CONVERSION_CANCELLED_BY_USER_LOC + '!', 0+64+4096, 'FoxBin2Prg ' + This.c_FB2PRG_EXE_Version, 60000 )
+
+         CASE This.l_Errors
+            IF ADIR(laDirInfo, This.c_ErrorLogFile) > 0 THEN
+               MESSAGEBOX( loLangLocal.C_END_OF_PROCESS_LOC + '! (' + loLangLocal.C_WITH_ERRORS_LOC + ')', 0+48+4096, 'FoxBin2Prg ' + This.c_FB2PRG_EXE_Version, 60000 )
+               This.wscriptshell_run( This.c_ErrorLogFile, 3 )
+            ELSE
+               MESSAGEBOX( loLangLocal.C_END_OF_PROCESS_LOC + '! (' + loLangLocal.C_WITH_ERRORS_LOC + ')' + CR_LF + "[Warning: Can't show Error LOG file because does not exist!]", 0+48+4096, 'FoxBin2Prg ' + This.c_FB2PRG_EXE_Version, 60000 )
+            ENDIF
+
+         OTHERWISE
+            MESSAGEBOX( loLangLocal.C_END_OF_PROCESS_LOC + '', 0+64+4096, 'FoxBin2Prg ' + This.c_FB2PRG_EXE_Version, 60000 )
+
+         ENDCASE
+      ENDIF
+
+      IF EMPTY(lnCodError) AND This.l_Errors
+         SET STEP ON
+         lnCodError = 1098
+      ENDIF
+
+      This.clearConfigurationCache()
+      IF VARTYPE(This.c_Foxbin2prg_ConfigFile) = 'O'
+         This.c_Foxbin2prg_ConfigFile = FORCEEXT(This.c_Foxbin2prg_FullPath, 'CFG')
+      ENDIF
+      
+      lcOldNotify = loSession.lc_OldSetNotify
+
+      SET NOTIFY &lcOldNotify
+      
+      RETURN lnCodError
+   ENDFUNC
+
+
    PROCEDURE execute
       *--------------------------------------------------------------------------------------------------------------
       * tc_InputFile  Full path of file/directory to convert (empty = show configuration reference form)
@@ -1089,680 +1732,72 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       *--------------------------------------------------------------------------------------------------------------
       LPARAMETERS tc_InputFile, tcType, toCfg, toEx AS EXCEPTION
 
-      LOCAL tcTextName, tlGenText
-      LOCAL toModulo, tlRelanzarError, tcOriginalFileName, tcRecompile
+      LOCAL tcTextName, tcOriginalFileName, tcRecompile
+      LOCAL toModulo, tlRelanzarError
+      LOCAL lnCodError, lcType, lcInputFile_Type, lcExt, lnMode
+      LOCAL lcErrorInfo, lnVFPVersion
+      LOCAL loLang AS CL_LANG OF 'cl_lang.prg'
+      LOCAL loSession, loCtx, loCFG
+      LOCAL laDirInfo(1,5)
 
-      STORE '' TO tcTextName
-      STORE '' TO tcOriginalFileName, tcRecompile
-      tlGenText       = .F.
+      STORE '' TO tcTextName, tcOriginalFileName, tcRecompile
       toModulo        = .NULL.
       tlRelanzarError = .F.
+      lnCodError      = 0
+
+      loSession = CREATEOBJECT('Empty')
+      ADDPROPERTY(loSession, 'lc_OldSetNotify', '')
+      ADDPROPERTY(loSession, 'lcOldSetEscape', '')
+      ADDPROPERTY(loSession, 'lcOldOnEscape', '')
+      ADDPROPERTY(loSession, 'llEscKeyRestored', .T.)
 
       TRY
-         LOCAL I, lcPath, lnCodError, lcFileSpec, lcFile, lcInputFile_Type, lc_OldSetNotify ;
-               , lnFileCount, lcErrorInfo, lcErrorFile, lnPCount, lnConversionOption, lnErrorIcon, llError ;
-               , lcOldSetEscape, lcOldOnEscape, llEscKeyRestored, lcType, lcMirrorRoot, loCfgPass
+         lcType           = EVL(tcType,'')
+         tcType           = UPPER( lcType )
+         lnVFPVersion     = VERSION(5)
+         loLang           = _SCREEN.o_FoxBin2Prg_Lang
 
-         LOCAL laFiles(1,5)   ;
-             , laDirInfo(1,5) ;
-             , laParams(1)
+         This.beginExecuteSession( loSession )
+         This.validateExecuteEnvironment( lnVFPVersion, tcType )
 
-         LOCAL lnVFPVersion, lcCFG_File
+         tc_InputFile = This.parseClassOperationSyntax( tc_InputFile )
+         loCFG = This.mergeExecuteConfig( toCfg )
 
-         LOCAL loEx   AS EXCEPTION ;
-             , loFSO  AS Scripting.FileSystemObject ;
-             , loWSH  AS WScript.SHELL ;
-             , loCfgW
+         tc_InputFile     = This.get_AbsolutePath( tc_InputFile, This.c_CurDir )
+         lcInputFile_Type = This.detectInputFileType( tc_InputFile )
+         tcRecompile      = This.resolveRecompileTarget( tc_InputFile, lcInputFile_Type, tcRecompile )
 
-         LOCAL loCFG             ;
-             , loLang            AS CL_LANG         OF 'cl_lang.prg' ;
-             , loFrm_Main        AS frm_main        OF 'frm_main.PRG'
+         This.logExecuteParameters( tc_InputFile, lcType, toCfg )
 
+         lcExt = JustExt( tc_InputFile )
+         tc_InputFile = This.rewritePerObjectInputPath( tc_InputFile, tcType, lcExt )
 
-         WITH This AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
+         loLang = _SCREEN.o_FoxBin2Prg_Lang
+         loCtx  = This.buildExecuteContext( tc_InputFile, tcType, lcType, loCFG, tcRecompile, ;
+            lcInputFile_Type, tcOriginalFileName, tcTextName )
 
-            lc_OldSetNotify  = SET("Notify")
-            SET NOTIFY OFF
+         lnMode     = This.resolveExecuteMode( tcType, tc_InputFile, lcInputFile_Type )
+         lnCodError = This.dispatchExecuteMode( lnMode, loCtx, @toEx, @toModulo )
 
-            lnCodError       = 0
-            loLang           = _SCREEN.o_FoxBin2Prg_Lang
-            loFSO            = .o_FSO
-            loWSH            = .o_WSH
-            loCFG            = .NULL.
-            lnPCount         = 0
-            lcInputFile_Type = ''
-            .l_Error         = .F.
-            lcType           = EVL(tcType,'')
-            tcType           = UPPER( lcType )
-            llEscKeyRestored = .T.
-            lnVFPVersion     = VERSION(5)
+         * sync back mutable context fields used by error reporting
+         tc_InputFile = loCtx.tc_InputFile
 
-            .declareDLL()
-
-            IF This.l_CancelWithEscKey THEN
-               lcOldSetEscape  = SET("Escape")
-               lcOldOnEscape   = ON("Escape")
-               ON ESCAPE ERROR 1799
-               SET ESCAPE ON
-               llEscKeyRestored    = .F.
-            ENDIF
-
-            DO CASE
-             CASE lnVFPVersion = 900 AND Int( Val( Substr( Version(4), Rat('.', Version(4)) + 1 ) ) ) < 3504
-                 ERROR loLang.C_INCORRECT_VFP9_VERSION__MISSING_SP1_LOC
-
-             CASE lnVFPVersion < 900
-                  ERROR loLang.C_INCORRECT_VFP9_VERSION__MISSING_SP1_LOC
-
-             CASE '\' $ tcType
-                  ERROR loLang.C_INVALID_PARAMETER_LOC + ':' + CR_LF ;
-                      + 'tcType = "' + tcType + '"' + CR_LF ;
-                      + CR_LF ;
-                      + loLang.C_ALLOWED_VALUES_ARE_LOC + ': ' + CR_LF ;
-                      + '*, *-, Bin3Prg, Prg3Bin, -BIN2PRG, -PRG2BIN'
-
-            OTHERWISE
-                  * OK all versions from 900(3504) and up. For VFPA Guys :)
-
-            ENDCASE
-
-            IF .l_AutoClearProcessedFiles THEN
-               && To avoid accumulating previous processes
-               .clearProcessedFiles()
-            ENDIF
-
-
-            *-- Recognition of the specified class
-            *-- Ej: [c:\desa\test\library.vcx::classname]
-            IF '::' $ tc_InputFile THEN
-               tc_InputFile          = STRTRAN(tc_InputFile, '::', '|')
-
-               .c_ClassOperationType = Evl( Upper( Left( Alltrim( GetWordNum( tc_InputFile, 3, '|' ) ), 1) ), 'E')
-               .c_ClassToConvert     = Lower( Alltrim( GetWordNum( tc_InputFile, 2, '|' ) ) )
-
-               * CAUTION: evaluate this last one, otherwise the previous ones do not evaluate.
-               tc_InputFile = Lower( Alltrim( GetWordNum( tc_InputFile, 1, '|' ) ) )
-            ELSE
-               .c_ClassOperationType   = ''
-            ENDIF
-
-            This.ensureCfg()
-
-            IF VARTYPE(toCfg) = "O" AND !ISNULL(toCfg)
-               IF This.isCfg( toCfg )
-                  loCFG = toCfg
-               ELSE
-                  loCFG = This.configFromObject( toCfg )
-               ENDIF
-               This.o_Cfg.lockMasterFromObject( loCFG )
-            ENDIF
-
-            *-- Adjust the path if it is not absolute
-            tc_InputFile    = .get_AbsolutePath( tc_InputFile, .c_CurDir )
-
-            *-- Determine InputFile type (File or Directory)
-            IF Empty(lcInputFile_Type) AND NOT Empty(tc_InputFile)
-               DO CASE
-               CASE ADir(laDirInfo, JustPath(tc_InputFile), "D") = 1 AND Substr( laDirInfo(1,5), 5, 1 ) = "D"
-                  *-- Example: "c:\desa\"
-                  lcInputFile_Type    = C_FILETYPE_DIRECTORY
-
-
-               OTHERWISE
-                  *-- Example: "c:\desa\*.scx", "c:\desa\file.ext", (file list)
-                  lcInputFile_Type    = C_FILETYPE_FILE
-               ENDCASE
-            ENDIF
-
-            IF Empty(tcRecompile) AND NOT Empty(lcInputFile_Type) THEN
-               IF lcInputFile_Type == C_FILETYPE_DIRECTORY THEN
-                  tcRecompile = tc_InputFile
-               ELSE
-                  tcRecompile = JUSTPATH( tc_InputFile )
-               ENDIF
-            ENDIF
-
-            IF .getCfgFlag('l_Recompile', .T.)
-               tcRecompile  = EVL(tcRecompile, '1')
-            ELSE
-               tcRecompile  = '0'
-            ENDIF
-            .c_Recompile    = tcRecompile
-
-            .writeLog( REPLICATE( '*', 100 ) )
-            .writeLog( loLang.C_MAIN_EXECUTION_LOC, 2 )
-            .writeLog( REPLICATE( '*', 100 ) )
-            .writeLog( '> ' + loLang.C_EXTERNAL_PARAMETERS_LOC + ':' )
-            .writeLog( C_TAB + 'tc_InputFile:                 ' + TRANSFORM( EVL(tc_InputFile, '(empty)' ) ) )
-            .writeLog( C_TAB + 'tcType:                       ' + TRANSFORM( EVL(lcType, '(empty)' ) ) )
-            .writeLog( C_TAB + 'toCfg:                        ' + TRANSFORM( IIF(VARTYPE(toCfg)='O' AND !ISNULL(toCfg), '(object)', '(empty)' ) ) )
-            .writeLog( )
-
-            * for Input file in the form file[.baseclass].class.vc2 (normaly sc2 too, but no support in old code)
-            * allow to import only the class to file.VCX with n_RedirectClassType = 2
-            * n_RedirectClassType = 0 will import all classes of file.VCX (as just handing file.vc2)
-            * n_RedirectClassType = 1 will import the class to single lib file[.baseclass].class.VCX
-            lcExt = JustExt( m.tc_InputFile )
-
-            DO CASE
-            CASE ( LOWER(m.lcType)=='-c' OR LOWER(m.lcType)=='c' )
-               * not handled
-
-            CASE ( m.lcType=='-t' OR m.lcType=='t' )
-               * not handled
-
-            CASE lcExt==This.getCfgValue('c_VC2') OR lcExt=="VCX"
-               *ClassLib
-               DO CASE
-               CASE .getCfgValue('n_RedirectClassType') # 2
-                  * not handled
-
-               CASE !EMPTY(.c_ClassToConvert)
-                  * not otherwise
-
-               CASE .getCfgValue('n_UseClassPerFile') = 0
-                  * not handled
-
-               CASE '.' $ JUSTSTEM(JUSTFNAME(m.tc_InputFile))
-                  * class file (stem contains library.classname)
-
-                  *class
-                  .c_ClassToConvert = LOWER( JUSTEXT( JUSTSTEM( m.tc_InputFile ) ) )
-                  *remove class
-                  tc_InputFile = LOWER( JUSTPATH( m.tc_InputFile ) + '\' + JUSTSTEM( JUSTSTEM( m.tc_InputFile ) ) + '.' + JUSTEXT( m.tc_InputFile ) )
-                  *remove baseclass
-                  IF .getCfgValue('n_UseClassPerFile') = 2
-                     *remove baseclass
-                     tc_InputFile = LOWER( JUSTPATH( m.tc_InputFile ) + '\' + JUSTSTEM( JUSTSTEM( m.tc_InputFile ) ) + '.' + JUSTEXT( m.tc_InputFile ) )
-                  ENDIF
-                  * count anything then -BIN2PRG as import
-                  .c_ClassOperationType = IIF( ATC('-BIN2PRG','-'+tcType) > 0 OR ATC('-BIN2TEXT','-'+tcType) > 0, 'E', 'I')
-
-               OTHERWISE
-                  * not handled
-
-               ENDCASE
-
-            CASE lcExt==This.getCfgValue('c_SC2') OR lcExt=="SCX"
-               *Form
-               DO CASE
-               CASE .getCfgValue('n_RedirectFormType') # 2
-                  * not handled
-               CASE !EMPTY(.c_ClassToConvert)
-                  * not otherwise
-               CASE .getCfgValue('n_UseFormPerFile') = 0
-                  * not handled
-               CASE '.' $ JUSTSTEM(JUSTFNAME(m.tc_InputFile))
-                  * object file (stem contains form.objname)
-
-                  *Form name
-                  .c_ClassToConvert = LOWER( JUSTEXT( JUSTSTEM( m.tc_InputFile ) ) )
-                  *remove obkject
-                  tc_InputFile = LOWER( JUSTPATH( m.tc_InputFile ) + '\' + JUSTSTEM( JUSTSTEM( m.tc_InputFile ) ) + '.' + JUSTEXT( m.tc_InputFile ) )
-                  *remove baseclass
-                  IF .getCfgValue('n_UseFormPerFile') = 2
-                     *remove baseclass
-                     tc_InputFile = LOWER( JUSTPATH( m.tc_InputFile ) + '\' + JUSTSTEM( JUSTSTEM( m.tc_InputFile ) ) + '.' + JUSTEXT( m.tc_InputFile ) )
-                  ENDIF
-                  * count anything then -BIN2PRG as import
-                  .c_ClassOperationType = IIF( ATC('-BIN2PRG','-'+tcType) > 0 OR ATC('-BIN2TEXT','-'+tcType) > 0, 'E', 'I')
-
-               OTHERWISE
-                  * not handled
-               ENDCASE
-
-            OTHERWISE
-               * not handled
-            ENDCASE
-            *!* /Changed by: LScheffler 04.3.2021
-
-            *!* Changed By LScheffler 3.1.2024
-            *!* <pdm>
-            *!* <change date="{^2024-01-03,08:27:00}">Changed By LScheffler<br />
-            *!* Problem recreating ingle classes
-            *!* </change>
-            *!* </pdm>
-
-            * Redefine input file name according to conversion type (IMPORT/EXPORT)
-            IF .c_ClassOperationType = 'I'
-               * When importing, change tc_InputFile syntax to use
-               * the existing vc2 class conversion.
-               * This turns a file with syntax "classlib.vcx::classname::import" into "classlib.classname.vc2"
-               *                       IF .ATC(lcExt,c_VC2,"VCX")
-               IF INLIST(lcExt,.getCfgValue('c_VC2'),"VCX")
-                  IF .getCfgValue('n_UseClassPerFile') = 2
-                     tc_InputFile        = ADDBS( .getPerFileDir( tc_InputFile, .getCfgValue('c_VC2'), .getCfgFlag('l_UseClassPerDir'), .getCfgInt('n_UseClassPerFile') ) ) ;
-                        + JUSTSTEM(tc_InputFile) + '.*.' + .c_ClassToConvert + '.' + .getCfgValue('c_VC2')
-
-                     IF ADIR(laFiles, tc_InputFile) = 1
-                        tc_InputFile    = FULLPATH( laFiles(1,1), tc_InputFile )
-                     ENDIF
-
-                  ELSE && Asumo .getCfgValue('n_UseClassPerFile') = 1
-                     tc_InputFile        = .getPerFileOutputPath( tc_InputFile, .c_ClassToConvert, .getCfgValue('c_VC2'), ;
-                        .getCfgFlag('l_UseClassPerDir'), .getCfgInt('n_UseClassPerFile') )
-
-                  ENDIF
-               ENDIF
-
-               *                       IF .ATC(lcExt,c_SC2,"SCX")
-               IF INLIST(lcExt,.getCfgValue('c_SC2'),"SCX")
-                  IF .getCfgValue('n_UseFormPerFile') = 2
-                     tc_InputFile        = ADDBS( .getPerFileDir( tc_InputFile, .getCfgValue('c_SC2'), .getCfgFlag('l_UseFormPerDir'), .getCfgInt('n_UseFormPerFile') ) ) ;
-                        + JUSTSTEM(tc_InputFile) + '.*.' + .c_ClassToConvert + '.' + .getCfgValue('c_SC2')
-
-                     IF ADIR(laFiles, tc_InputFile) = 1
-                        tc_InputFile    = FULLPATH( laFiles(1,1), tc_InputFile )
-                     ENDIF
-
-                  ELSE && Asumo .getCfgValue('n_UseFormPerFile') = 1
-                     tc_InputFile        = .getPerFileOutputPath( tc_InputFile, .c_ClassToConvert, .getCfgValue('c_SC2'), ;
-                        .getCfgFlag('l_UseFormPerDir'), .getCfgInt('n_UseFormPerFile') )
-
-                  ENDIF
-               ENDIF
-            ENDIF
-            *!* /Changed By LScheffler 3.1.2024
-
-            loLang          = _SCREEN.o_FoxBin2Prg_Lang
-
-            DO CASE
-               CASE VERSION(5) < 900
-               *-- 'FOXBIN2PRG is for Visual FoxPro 9.0 only!'
-               MESSAGEBOX( loLang.C_FOXBIN2PRG_JUST_VFP_9_LOC, 0+64+4096, 'FoxBin2Prg ' + This.c_FB2PRG_EXE_Version + ': ' + loLang.C_FOXBIN2PRG_WARN_CAPTION_LOC + ' (' + .c_Language + ')', 60000 )
-               lnCodError  = 1
-
-               CASE tcType == 'BIN3PRG'
-               *-- Export a complete PJX project to a mirrored text tree (CLI: MAIN.PRG Bin3Prg)
-               lcMirrorRoot = EVL(.cOutputFolder, tcTextName)
-               IF NOT EMPTY(lcMirrorRoot)
-                  lcMirrorRoot = .get_AbsolutePath(lcMirrorRoot, .c_CurDir)
-               ENDIF
-               IF EMPTY(lcMirrorRoot)
-                  ERROR loLang.C_INVALID_PARAMETER_LOC + ': Bin3Prg requires tcTextName or tcOutputFolder'
-               ENDIF
-               IF UPPER(JUSTEXT(tc_InputFile)) <> 'PJX'
-                  ERROR loLang.C_INVALID_PARAMETER_LOC + ': Bin3Prg requires a .PJX project file'
-               ENDIF
-               loCfgPass  = IIF(VARTYPE(loCFG) = 'O' AND !ISNULL(loCFG), loCFG, .NULL.)
-               lnCodError = .exportProjectTree(tc_InputFile, lcMirrorRoot, loCfgPass)
-
-            CASE tcType == 'PRG3BIN'
-               *-- Import a complete PJ2 project from a mirrored text tree (CLI: MAIN.PRG Prg3Bin)
-               lcMirrorRoot = EVL(.cOutputFolder, tcTextName)
-               IF NOT EMPTY(lcMirrorRoot)
-                  lcMirrorRoot = .get_AbsolutePath(lcMirrorRoot, .c_CurDir)
-               ENDIF
-               IF EMPTY(lcMirrorRoot)
-                  ERROR loLang.C_INVALID_PARAMETER_LOC + ': Prg3Bin requires tcTextName or tcOutputFolder'
-               ENDIF
-               IF UPPER(JUSTEXT(tc_InputFile)) <> UPPER(.getCfgValue('c_PJ2'))
-                  ERROR loLang.C_INVALID_PARAMETER_LOC + ': Prg3Bin requires a .' + .getCfgValue('c_PJ2') + ' project file'
-               ENDIF
-               loCfgPass  = IIF(VARTYPE(loCFG) = 'O' AND !ISNULL(loCFG), loCFG, .NULL.)
-               lnCodError = .importProjectTree(tc_InputFile, lcMirrorRoot, loCfgPass)
-
-            CASE EMPTY(tc_InputFile)
-               *-- (Syntax and usage example)
-               loFrm_Main  = NewObject( 'frm_main', 'frm_main.prg' , null, This)
-               loFrm_Main.SHOW()
-               READ EVENTS
-               lnCodError  = 0
-
-            OTHERWISE
-               *-- NORMAL EXECUTION
-
-               *-- Evaluation of input FileSpec
-               DO CASE
-               CASE ATC('-BIN2PRG', ('-' + tcType)) = 0 AND ATC('-PRG2BIN', ('-' + tcType)) = 0 ;
-                     AND ATC('-BIN2TEXT','-'+tcType) = 0 AND ATC('-TEXT2BIN','-'+tcType) = 0 ;
-                     AND lcInputFile_Type == C_FILETYPE_FILE ;
-                     AND ( '*' $ JUSTEXT( tc_InputFile ) OR '?' $ JUSTEXT( tc_InputFile ) )
-
-                  IF .getCfgValue('l_ShowErrors')
-                     *MESSAGEBOX( 'Extensions * or ? are not allowed because it is dangerous (binaries can be overwritten with empty xx2 files).', 0+48+4096, 'FOXBIN2PRG: ERROR!!', 60000 )
-                     MESSAGEBOX( loLang.C_ASTERISK_EXT_NOT_ALLOWED_LOC, 0+48+4096, 'FoxBin2Prg ' + This.c_FB2PRG_EXE_Version + ': ' + loLang.C_FOXBIN2PRG_ERROR_CAPTION_LOC, 60000 )
-                     EXIT
-                  ELSE
-                     ERROR loLang.C_ASTERISK_EXT_NOT_ALLOWED_LOC
-                  ENDIF
-
-
-               CASE lcInputFile_Type == C_FILETYPE_FILE AND ( '*' $ JUSTSTEM( tc_InputFile ) OR '?' $ JUSTSTEM( tc_InputFile ) )
-                  *-- ALL FILES OF ONE EXTENSION ARE REQUESTED
-                  lcFileSpec  = FULLPATH( tc_InputFile )
-                  .c_LogFile  = ADDBS( JUSTPATH( lcFileSpec ) ) + STRTRAN( JUSTFNAME( lcFileSpec ), '*', '_ALL' ) + '.LOG'
-
-                  IF .getCfgValue('n_Debug') > 0 THEN
-                     ERASE ( .c_LogFile )
-                  ENDIF
-
-                  IF EVL(tcType,'0') <> '*' THEN
-                     IF .getCfgValue('n_ShowProgressbar') <> 0 AND .l_ProcessFiles THEN
-                        .loadProgressbarForm()
-                     ENDIF
-
-                     DO CASE
-                     CASE .getCfgValue('l_Recompile') AND LEN(tcRecompile) > 3 AND DIRECTORY(tcRecompile)
-                        CD (tcRecompile)
-                     CASE tcRecompile == '1'
-                        CD (JUSTPATH(lcFileSpec))
-                     ENDCASE
-                  ENDIF
-
-                  lnFileCount = ADIR( laFiles, lcFileSpec, '', 1 )
-
-                  FOR I = 1 TO lnFileCount
-                     toModulo    = .NULL.
-                     lcFile      = FORCEPATH( laFiles(m.I,1), JUSTPATH( lcFileSpec ) )
-
-                     DO CASE
-                     CASE UPPER( JUSTEXT( EVL(tc_InputFile,'') ) ) == 'PJX' AND LEFT(EVL(tcType,'0'),1) == '*'
-                        *-- CONVERT ALL FILES OF ONE OR MORE PJX PROJECTS TO TEXT
-                        *-- Filespec: "*.PJX", "*"
-                        .evaluate_Full_PJX(lcFile, tcRecompile, @toModulo, @toEx, tcOriginalFileName, .c_LogFile, tcType)
-
-                     CASE UPPER( JUSTEXT( EVL(tc_InputFile,'') ) ) == .getCfgValue('c_PJ2') AND LEFT(EVL(tcType,'0'),1) == '*'
-                        *-- CONVERT ALL FILES OF ONE OR MORE PJ2 PROJECTS TO BINARY
-                        *-- Filespec: "*.PJ2", "*"
-                        .evaluate_Full_PJ2(lcFile, tcRecompile, @toModulo, @toEx, tcOriginalFileName, .c_LogFile, tcType)
-
-                     CASE ATC('-BIN2PRG', ('-' + tcType)) > 0;
-                           OR ATC('-BIN2TEXT','-'+tcType) > 0
-                        *-- CONVERT ALL FILES IN A DIRECTORY TO TEXT
-                        *-- Filespec: "*.*"
-                        IF .hasSupport_Bin2Prg(lcFile) THEN
-                           .updateProgressbar( loLang.C_PROCESSING_LOC + ' ' + lcFile + '...', m.I, lnFileCount, 0 )
-                           lnCodError = .convert( lcFile, @toModulo, @toEx, .F., tcOriginalFileName )
-                           .writeLog_Flush()
-
-                           DO CASE
-                           CASE lnCodError = 1799  && Conversion Cancelled
-                              ERROR 1799
-
-                           CASE lnCodError > 0
-                              .doWriteErrorLog( @toEx )
-                              llError     = .T.
-                              .l_Error    = .F.
-                           ENDCASE
-                        ENDIF
-
-                     CASE ATC('-PRG2BIN', ('-' + tcType)) > 0;
-                           OR ATC('-TEXT2BIN','-'+tcType) > 0
-                        *-- CONVERT ALL FILES IN A DIRECTORY TO BINARY
-                        *-- Filespec: "*.*"
-                        IF .hasSupport_Prg2Bin(lcFile) THEN
-                           .updateProgressbar( loLang.C_PROCESSING_LOC + ' ' + lcFile + '...', m.I, lnFileCount, 0 )
-                           lnCodError = .convert( lcFile, @toModulo, @toEx, .F., tcOriginalFileName )
-                           .writeLog_Flush()
-
-                           DO CASE
-                           CASE lnCodError = 1799  && Conversion Cancelled
-                              ERROR 1799
-
-                           CASE lnCodError > 0
-                              .doWriteErrorLog( @toEx )
-                              llError     = .T.
-                              .l_Error    = .F.
-                           ENDCASE
-                        ENDIF
-
-                     CASE EMPTY( JUSTEXT( EVL(tc_InputFile,'') ) )
-                        *-- NO EXTENSION WAS SPECIFIED
-                        ERROR loLang.C_INVALID_PARAMETER_LOC + ': cInputFile = "' + tc_InputFile + '"'
-
-                     OTHERWISE
-                        *-- OTHER FILES
-                        *-- Filespec: "*.EXT"
-                        .updateProgressbar( loLang.C_PROCESSING_LOC + ' ' + lcFile + '...', m.I, lnFileCount, 0 )
-                        lnCodError = .convert( lcFile, @toModulo, @toEx, .T., tcOriginalFileName )
-                        .writeLog_Flush()
-
-                        DO CASE
-                        CASE lnCodError = 1799  && Conversion Cancelled
-                           ERROR 1799
-
-                        CASE lnCodError > 0
-                           .doWriteErrorLog( @toEx )
-                        ENDCASE
-                     ENDCASE
-                  ENDFOR && I = 1 TO lnFileCount
-
-                  IF llError
-                     .l_Error = .T.
-                  ENDIF
-
-                  EXIT
-
-
-               CASE ATC('-BIN2PRG', ('-' + tcType)) > 0;
-                     OR ATC('-BIN2TEXT','-'+tcType) > 0
-                  .writeLog( '> ' + loLang.C_OPTION_LOC + ': BIN2PRG' )
-
-                  IF .getCfgValue('n_ShowProgressbar') <> 0 AND .l_ProcessFiles THEN
-                     .loadProgressbarForm()
-                     .o_Frm_Avance.CAPTION = STRTRAN( .o_Frm_Avance.CAPTION, '> -', '(Bin>Txt) -' )
-                  ENDIF
-
-                  DO CASE
-                  CASE lcInputFile_Type == C_FILETYPE_DIRECTORY
-                     *-- BIN2PRG CONVERSION OF A DIRECTORY AND SUBDIRECTORIES
-                     .writeLog( '> InputFile ' + loLang.C_IS_A_DIRECTORY_LOC )
-                     .writeLog()
-
-                     DO CASE
-                     CASE .getCfgValue('l_Recompile') AND LEN(tcRecompile) > 3 AND DIRECTORY(tcRecompile)
-                        CD (tcRecompile)
-                     CASE .getCfgValue('l_Recompile')
-                        CD (tc_InputFile)
-                     ENDCASE
-
-                     .c_LogFile  = ADDBS(tc_InputFile) + tcType + '.LOG'
-
-                     IF .getCfgValue('n_Debug') > 0 THEN
-                        ERASE ( .c_LogFile )
-                     ENDIF
-
-                     .get_FilesFromDirectory( tc_InputFile, @laFiles, @lnFileCount )
-
-                     FOR I = 1 TO lnFileCount
-                        toModulo    = .NULL.
-                        lcFile      = laFiles(m.I)
-
-                        IF NOT .hasSupport_Bin2Prg( lcFile ) OR NOT ADIR(laDirInfo, lcFile) > 0 THEN
-                           LOOP
-                        ENDIF
-
-                        .updateProgressbar( loLang.C_PROCESSING_LOC + ' ' + lcFile + '...', m.I, lnFileCount, 0 )
-                        lnCodError = .convert( lcFile, @toModulo, @toEx, .F., tcOriginalFileName )
-                        *!* Changed by: LScheffler 15.2.2021
-                        *!* change date="{^2021-02-15,06:57:00}"
-                        * flushing the log after each file let us only see last file
-                        * why ever, it should be appended, but we simply move
-                        * .writeLog_Flush() after ENDFOR
-
-                        *                               .writeLog_Flush()
-
-                        DO CASE
-                        CASE lnCodError = 1799  && Conversion Cancelled
-                           ERROR 1799
-
-                        CASE lnCodError > 0
-                           .doWriteErrorLog( @toEx )
-                        ENDCASE
-                     ENDFOR && I = 1 TO lnFileCount
-                     .writeLog_Flush()
-                     *!* /Changed by: LScheffler 15.2.2021
-
-                     .updateProgressbar( loLang.C_END_OF_PROCESS_LOC, lnFileCount, lnFileCount, 0 )
-                     EXIT
-
-                  CASE NOT .hasSupport_Bin2Prg( tc_InputFile ) OR NOT ADIR(laDirInfo, tc_InputFile) > 0
-                     .writeLog( '> InputFile ' + loLang.C_IS_UNSUPPORTED_LOC )
-                     .writeLog()
-                     EXIT
-
-                  ENDCASE
-
-
-               CASE ATC('-PRG2BIN', ('-' + tcType)) > 0;
-                     OR ATC('-TEXT2BIN','-'+tcType) > 0
-                  .writeLog( '> ' + loLang.C_OPTION_LOC + ': PRG2BIN' )
-
-                  IF .getCfgValue('n_ShowProgressbar') <> 0 AND .l_ProcessFiles THEN
-                     .loadProgressbarForm()
-                     .o_Frm_Avance.CAPTION = STRTRAN( .o_Frm_Avance.CAPTION, '> -', '(Txt>Bin) -' )
-                  ENDIF
-
-                  DO CASE
-                  CASE lcInputFile_Type == C_FILETYPE_DIRECTORY
-                     *-- PRG2BIN CONVERSION OF A DIRECTORY AND SUBDIRECTORIES
-                     .writeLog( '> InputFile ' + loLang.C_IS_A_DIRECTORY_LOC )
-                     .writeLog()
-
-                     DO CASE
-                     CASE .getCfgValue('l_Recompile') AND LEN(tcRecompile) > 3 AND DIRECTORY(tcRecompile)
-                        CD (tcRecompile)
-                     CASE .getCfgValue('l_Recompile')
-                        CD (tc_InputFile)
-                     ENDCASE
-
-                     .c_LogFile  = ADDBS(tc_InputFile) + tcType + '.LOG'
-
-                     IF .getCfgValue('n_Debug') > 0 THEN
-                        ERASE ( .c_LogFile )
-                     ENDIF
-
-                     .get_FilesFromDirectory( tc_InputFile, @laFiles, @lnFileCount )
-
-
-                     FOR I = 1 TO lnFileCount
-                        toModulo    = .NULL.
-                        lcFile      = laFiles(m.I)
-
-                        IF NOT .hasSupport_Prg2Bin( lcFile ) OR NOT ADIR(laDirInfo, lcFile) > 0 THEN
-                           LOOP
-                        ENDIF
-
-                        .updateProgressbar( loLang.C_PROCESSING_LOC + ' ' + lcFile + '...', m.I, lnFileCount, 0 )
-                        lnCodError = .convert( lcFile, @toModulo, @toEx, .F., tcOriginalFileName )
-                        *!* Changed by: LScheffler 15.2.2021
-                        *!* change date="{^2021-02-15,06:57:00}"
-                        * flushing the log after each file let us only see last file
-                        * why ever, it should be appended, but we simply move
-                        * .writeLog_Flush() after ENDFOR
-
-                        *                               .writeLog_Flush()
-
-                        DO CASE
-                        CASE lnCodError = 1799  && Conversion Cancelled
-                           ERROR 1799
-
-                        CASE lnCodError > 0
-                           .doWriteErrorLog( @toEx )
-                        ENDCASE
-                     ENDFOR && I = 1 TO lnFileCount
-                     .writeLog_Flush()
-                     *!* /Changed by: LScheffler 15.2.2021
-
-                     .updateProgressbar( loLang.C_END_OF_PROCESS_LOC, lnFileCount, lnFileCount, 0 )
-                     EXIT
-
-                  CASE NOT .hasSupport_Prg2Bin( tc_InputFile ) OR NOT ADIR(laDirInfo, tc_InputFile) > 0
-                     .writeLog( '> InputFile ' + loLang.C_IS_UNSUPPORTED_LOC )
-                     .writeLog()
-                     EXIT
-
-                  ENDCASE
-
-
-               ENDCASE
-
-                  DO CASE
-                  CASE UPPER( JUSTEXT( EVL(tc_InputFile,'') ) ) == 'PJX' AND LEFT(EVL(tcType,'0'),1) == '*'
-                     *-- CONVERT ALL FILES OF A PJX PROJECT TO TEXT
-                     .evaluate_Full_PJX(tc_InputFile, tcRecompile, @toModulo, @toEx, @tcOriginalFileName, '', tcType)
-                     EXIT
-
-                  CASE UPPER( JUSTEXT( EVL(tc_InputFile,'') ) ) == .getCfgValue('c_PJ2') AND LEFT(EVL(tcType,'0'),1) == '*'
-                     *-- CONVERT ALL FILES OF A PJ2 PROJECT TO BINARY
-                     .evaluate_Full_PJ2(tc_InputFile, tcRecompile, @toModulo, @toEx, @tcOriginalFileName, '', tcType)
-                     EXIT
-                  ENDCASE
-
-                  IF ADIR(laDirInfo, tc_InputFile) > 0
-                     IF .getCfgValue('n_ShowProgressbar') <> 0 AND .l_ProcessFiles THEN
-                        .loadProgressbarForm()
-                     ENDIF
-
-                     .writeLog( '> InputFile ' + loLang.C_IS_A_FILE_LOC )
-                     .writeLog()
-                     tc_InputFile    = LOCFILE(tc_InputFile)
-
-                     DO CASE
-                     CASE .getCfgValue('l_Recompile') AND LEN(tcRecompile) > 3 AND DIRECTORY(tcRecompile)
-                        CD (tcRecompile)
-                     CASE tcRecompile == '1'
-                        CD (JUSTPATH(tc_InputFile))
-                     ENDCASE
-
-                     .c_LogFile  = tc_InputFile + '.LOG'
-
-                     IF .getCfgValue('n_Debug') > 0 THEN
-                        ERASE ( .c_LogFile )
-                     ENDIF
-
-                     lnCodError = .convert( tc_InputFile, @toModulo, @toEx, .T., tcOriginalFileName )
-                  ENDIF
-
-            ENDCASE
-         ENDWITH && THIS
-
+      
       CATCH TO toEx
-         IF NOT llEscKeyRestored AND This.l_CancelWithEscKey THEN
-            IF EMPTY(lcOldOnEscape)
-               ON ESCAPE
-            ELSE
-               ON ESCAPE &lcOldOnEscape.
-            ENDIF
+         This.restoreEscapeKey( loSession.llEscKeyRestored, loSession.lcOldSetEscape, loSession.lcOldOnEscape )
+         loSession.llEscKeyRestored = .T.
 
-            IF EMPTY(lcOldSetEscape)
-               SET ESCAPE OFF
-            ELSE
-               SET ESCAPE &lcOldSetEscape.
-            ENDIF
-            llEscKeyRestored = .T.
+         lnCodError = toEx.ERRORNO
+
+         IF VARTYPE(loLang) <> 'O'
+            loLang = NewObject("CL_LANG", "cl_lang.prg", null, "EN")
          ENDIF
 
-         lnCodError      = toEx.ERRORNO
-         lnErrorIcon     = 64
-
-         IF VARTYPE(loLang) <> 'O' THEN
-            loLang      = NewObject("CL_LANG", "cl_lang.prg", null, "EN")
-         ENDIF
-
-         IF lnCodError <> 1799 THEN  && Conversion Cancelled
-            toEx.USERVALUE  = toEx.USERVALUE + 'FoxBin2Prg: [' + This.c_Foxbin2prg_FullPath + '] (EXE Version: ' + This.c_FB2PRG_EXE_Version + ')' + CR_LF
-            lnErrorIcon     = 16
-         ENDIF
-
-         IF ATC('-SHOWMSG', ('-' + tcType)) > 0 THEN
-            IF lnCodError <> 1799 THEN  && Conversion Cancelled
-               toEx.USERVALUE = toEx.USERVALUE + 'lcInputFile_Type  = [' + TRANSFORM(lcInputFile_Type) + ']' + CR_LF
-            ENDIF
-            This.setCfgValue( 'l_ShowErrors', .F. )   && The "SHOWMSG" option shows its own message
-         ENDIF
-
-         IF lnCodError <> 1799 THEN  && Conversion Cancelled
-            toEx.USERVALUE = toEx.USERVALUE + 'tc_InputFile = [' + TRANSFORM(tc_InputFile) + ']' + CR_LF
-         ENDIF
-
+         This.enrichExecuteException( @toEx, tcType, tc_InputFile, lcInputFile_Type )
          This.doWriteErrorLog( @toEx, @lcErrorInfo )
 
-         IF This.getCfgValue('n_Debug') > 0 THEN
-            IF _VFP.STARTMODE = 0
-               SET STEP ON
-            ENDIF
+         IF This.getCfgValue('n_Debug') > 0 AND _VFP.STARTMODE = 0
+            SET STEP ON
          ENDIF
 
          IF tlRelanzarError
@@ -1770,73 +1805,9 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          ENDIF
 
       FINALLY
-         IF NOT llEscKeyRestored AND This.l_CancelWithEscKey THEN
-            IF EMPTY(lcOldOnEscape)
-               ON ESCAPE
-            ELSE
-               ON ESCAPE &lcOldOnEscape.
-            ENDIF
+         lnCodError = This.finalizeExecuteSession( lnCodError, tcType, @toEx, loSession, loLang, @laDirInfo )
+         STORE .NULL. TO loSession, loCtx
 
-            IF EMPTY(lcOldSetEscape)
-               SET ESCAPE OFF
-            ELSE
-               SET ESCAPE &lcOldSetEscape.
-            ENDIF
-            llEscKeyRestored = .T.
-         ENDIF
-
-         IF VARTYPE(loLang) <> 'O' THEN
-            loLang      = NewObject("CL_LANG", "cl_lang.prg", null, "EN")
-         ENDIF
-
-         USE IN (SELECT("TABLABIN"))
-         This.writeLog_Flush()
-         This.unloadProgressbarForm()
-         CD (JUSTPATH(This.c_CurDir))
-
-         DO CASE
-         CASE ATC('-SHOWMSG', ('-' + tcType)) > 0 ;
-               OR This.getCfgValue('l_ShowErrors') AND lnCodError > 0 AND NOT ISNULL(toEx)
-            This.writeErrorLog_Flush()
-
-            DO CASE
-            CASE lnCodError = 1098  && User Error
-               MESSAGEBOX( toEx.MESSAGE, 0+64+4096, 'FoxBin2Prg ' + This.c_FB2PRG_EXE_Version, 60000 )
-               *loWSH.Run( This.c_ErrorLogFile, 3 )
-               This.wscriptshell_run( This.c_ErrorLogFile, 3 )
-
-            CASE lnCodError = 1799  && Conversion Cancelled
-               MESSAGEBOX( loLang.C_CONVERSION_CANCELLED_BY_USER_LOC + '!', 0+64+4096, 'FoxBin2Prg ' + This.c_FB2PRG_EXE_Version, 60000 )
-
-            CASE This.l_Errors
-               IF ADIR(laDirInfo, This.c_ErrorLogFile) > 0 THEN
-                  MESSAGEBOX( loLang.C_END_OF_PROCESS_LOC + '! (' + loLang.C_WITH_ERRORS_LOC + ')', 0+48+4096, 'FoxBin2Prg ' + This.c_FB2PRG_EXE_Version, 60000 )
-                  *loWSH.Run( This.c_ErrorLogFile, 3 )
-                  This.wscriptshell_run( This.c_ErrorLogFile, 3 )
-               ELSE
-                  MESSAGEBOX( loLang.C_END_OF_PROCESS_LOC + '! (' + loLang.C_WITH_ERRORS_LOC + ')' + CR_LF + "[Warning: Can't show Error LOG file because does not exist!]", 0+48+4096, 'FoxBin2Prg ' + This.c_FB2PRG_EXE_Version, 60000 )
-               ENDIF
-
-            OTHERWISE
-               MESSAGEBOX( loLang.C_END_OF_PROCESS_LOC + '', 0+64+4096, 'FoxBin2Prg ' + This.c_FB2PRG_EXE_Version, 60000 )
-
-            ENDCASE
-
-         ENDCASE
-
-         IF EMPTY(lnCodError) AND This.l_Errors
-            SET STEP ON
-            lnCodError = 1098
-         ENDIF
-
-         This.clearConfigurationCache()
-         IF VARTYPE(This.c_Foxbin2prg_ConfigFile) = 'O'
-            This.c_Foxbin2prg_ConfigFile = FORCEEXT(This.c_Foxbin2prg_FullPath, 'CFG')
-         ENDIF
-
-         SET NOTIFY &lc_OldSetNotify.
-         STORE .NULL. TO loFSO, loWSH
-         RELEASE I, lcPath, lcFileSpec, lcFile, laFiles, lnFileCount, lcErrorInfo, lcErrorFile, loEx, loFSO
       ENDTRY
 
       RETURN lnCodError
@@ -2746,7 +2717,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
             ENDCASE
 
             .normalizeFileCapitalization()
-         ENDWITH &&  THIS AS c_foxbin2prg Of 'C_FOXBIN2PRG.PRG'
+         ENDWITH
 
       CATCH TO toEx
          lnCodError  = toEx.ERRORNO
@@ -2892,14 +2863,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       LPARAMETERS tcProjectFile, tcOutputRoot, toCfg, tcInputRoot
       LOCAL loEx AS EXCEPTION, loCfg
 
-      loCfg = .NULL.
-      IF VARTYPE(toCfg) = 'O' AND !ISNULL(toCfg)
-         IF This.isCfg( toCfg )
-            loCfg = toCfg
-         ELSE
-            loCfg = This.configFromObject(toCfg)
-         ENDIF
-      ENDIF
+      loCfg = This.mergeExecuteConfig( toCfg )
 
       This.ensureMirror()
       This.o_Mirror.setProjectRoots( tcOutputRoot, EVL( tcInputRoot, ADDBS( JUSTPATH( FULLPATH(tcProjectFile) ) ) ) )
@@ -2921,14 +2885,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       LPARAMETERS tcMirrorProjectFile, tcOutputRoot, toCfg, tcInputRoot
       LOCAL loEx AS EXCEPTION, loCfg
 
-      loCfg = .NULL.
-      IF VARTYPE(toCfg) = 'O' AND !ISNULL(toCfg)
-         IF This.isCfg( toCfg )
-            loCfg = toCfg
-         ELSE
-            loCfg = This.configFromObject(toCfg)
-         ENDIF
-      ENDIF
+      loCfg = This.mergeExecuteConfig( toCfg )
 
       This.ensureMirror()
       This.o_Mirror.setProjectRoots( tcOutputRoot, EVL( tcInputRoot, ADDBS( JUSTPATH( FULLPATH(tcMirrorProjectFile) ) ) ) )
