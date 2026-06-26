@@ -263,7 +263,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
          , User ;
          , Key ) ;
          VALUES ;
-         ( Upper(Justext(This.c_OutputFile)) + chr(0) ;
+         ( Upper(JustFname(This.c_OutputFile)) + chr(0) ;
          , 'H' ;
          , 0 ;
          , '<Source>' + Chr(0) ;
@@ -276,7 +276,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
          , 260 ;
          , toProject.getRowDevInfo() ;
          , Lower(Justpath(This.c_OutputFile)) + Chr(0) ;
-         , Upper(Justext(This.c_OutputFile)) + chr(0);
+         , Upper(JustFname(This.c_OutputFile)) + chr(0);
          , toProject._ServerHead.getRowServerInfo() ;
          , toProject._SccData ;
          , .T. ;
