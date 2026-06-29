@@ -1574,6 +1574,9 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROTECTED FUNCTION finalizeExecuteSession
       LPARAMETERS lnCodError, tcType, toEx, loSession, loLang, laDirInfo
+
+      EXTERNAL ARRAY laDirInfo
+
       LOCAL loLangLocal AS CL_LANG OF 'cl_lang.prg'
       LOCAL lcOldNotify
 
@@ -1728,6 +1731,382 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDPROC
 
 
+   *==============================================================================================================
+   * Project batch (evaluate_Full_PJX / evaluate_Full_PJ2) — shared setup, member loop
+   *==============================================================================================================
+
+   PROTECTED PROCEDURE setupProjectBatchEnvironment
+      *---------------------------------------------------------------------------------------------------
+      * Shared PJX/PJ2 batch setup: mirror root, progress bar, log file, recompile CD, direction log line.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcInputFile               (v! IN    ) Project file path (.PJX or .PJ2)
+      * tcLogFile                 (v? IN    ) Log file path; empty = default next to the project
+      * tcRecompile               (v? IN    ) Recompile flag or directory (same as evaluate_Full_*)
+      * tlBinToText               (v! IN    ) .T. = Bin?Txt (PJX export), .F. = Txt?Bin (PJ2 import)
+      * tcFileSpec                (@?    OUT) Full path of tcInputFile (pass with @ at call site)
+      * loLang                    (@?    OUT) CL_LANG instance from _SCREEN (pass with @ at call site)
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcInputFile, tcLogFile, tcRecompile, tlBinToText, tcFileSpec, loLang
+      loLang      = _SCREEN.o_FoxBin2Prg_Lang
+      tcFileSpec  = FULLPATH( tcInputFile )
+
+      This.ensureMirror()
+      This.o_Mirror.ensureInputRoot( tcFileSpec )
+
+      IF This.getCfgValue('n_ShowProgressbar') <> 0 AND This.l_ProcessFiles THEN
+         This.loadProgressbarForm()
+         IF tlBinToText
+            This.o_Frm_Avance.CAPTION = STRTRAN( This.o_Frm_Avance.CAPTION, '> -', '(Bin>Txt) -' )
+         ELSE
+            This.o_Frm_Avance.CAPTION = STRTRAN( This.o_Frm_Avance.CAPTION, '> -', '(Txt>Bin) -' )
+         ENDIF
+      ENDIF
+
+      IF EMPTY(tcLogFile)
+         This.c_LogFile = ADDBS( JUSTPATH( tcFileSpec ) ) + STRTRAN( JUSTFNAME( tcFileSpec ), '*', '_ALL' ) + '.LOG'
+         IF This.getCfgValue('n_Debug') > 0 THEN
+            ERASE ( This.c_LogFile )
+         ENDIF
+      ENDIF
+
+      This.writeLog( '> ' + loLang.C_CONVERT_ALL_FILES_IN_A_PROJECT_LOC + ': ' ;
+         + IIF(tlBinToText, loLang.C_BINARY_TO_TEXT_LOC, loLang.C_TEXT_TO_BINARY_LOC) )
+
+      DO CASE
+      CASE This.getCfgValue('l_Recompile') AND LEN(tcRecompile) > 3 AND DIRECTORY(tcRecompile)
+         CD (tcRecompile)
+      CASE tcRecompile == '1'
+         CD (JUSTPATH(tcFileSpec))
+      ENDCASE
+   ENDPROC
+
+
+   PROTECTED PROCEDURE collectPjxMemberList
+      *---------------------------------------------------------------------------------------------------
+      * Builds the member list from a PJX table (TABLABIN): col 1 = absolute path, col 2 = EXCLUDE flag.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcInputFile               (v! IN    ) PJX file path
+      * tcFileSpec                (v! IN    ) Full path of the project (parent for relative NAME fields)
+      * taMembers                 (@?    OUT) 2-column array: path, EXCLUDE (pass with @ at call site)
+      * tnFileCount               (@?    OUT) Number of rows in taMembers (pass with @ at call site)
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcInputFile, tcFileSpec, taMembers, tnFileCount
+
+      EXTERNAL ARRAY taMembers
+
+      tnFileCount = 0
+      SELECT 0
+      USE (tcInputFile) SHARED AGAIN NOUPDATE ALIAS TABLABIN
+
+      SCAN FOR NOT DELETED() AND TYPE <> 'H'
+         tnFileCount = tnFileCount + 1
+         DIMENSION taMembers(tnFileCount, 2)
+         taMembers(tnFileCount, 1) = This.get_AbsolutePath( ALLTRIM( NAME, 0, ' ', CHR(0) ), ADDBS( JUSTPATH( tcFileSpec ) ) )
+         taMembers(tnFileCount, 2) = EXCLUDE
+      ENDSCAN
+
+      USE IN (SELECT("TABLABIN"))
+   ENDPROC
+
+
+   PROTECTED PROCEDURE collectPj2MemberList
+      *---------------------------------------------------------------------------------------------------
+      * Parses BUILD PROJECT from a PJ2, resolves per-file text paths, fills member and exclude lists.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcInputFile               (v! IN    ) PJ2 file path
+      * tcFileSpec                (v! IN    ) Full path of the mirrored/text project
+      * taMembers                 (@?    OUT) 2-column array: text path, binary path (pass with @)
+      * tnFileCount               (@?    OUT) Number of .ADD() members (pass with @)
+      * taPjxExcluded             (@?    OUT) Array of PJX-excluded paths from FileExclusions (pass with @)
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcInputFile, tcFileSpec, taMembers, tnFileCount, taPjxExcluded
+      LOCAL lcBinFile, lcTextFile, lcFlatText, lnRow, laExcludedLocal(1), lnExcl
+
+      EXTERNAL ARRAY taMembers
+      EXTERNAL ARRAY taPjxExcluded
+
+      tnFileCount = ALINES( taMembers, STREXTRACT( FILETOSTR(tcInputFile), C_BUILDPROJ_I, C_BUILDPROJ_F ), 1+4 )
+      laExcludedLocal = This.o_Mirror.collectPj2ExcludedPaths( tcInputFile, JUSTPATH( tcFileSpec ) )
+      lnExcl          = ALEN(laExcludedLocal, 1)
+      IF lnExcl < 1
+         DIMENSION taPjxExcluded(1)
+         taPjxExcluded(1) = ''
+      ELSE
+         DIMENSION taPjxExcluded(lnExcl)
+         = ACOPY(laExcludedLocal, taPjxExcluded)
+      ENDIF
+
+      FOR lnRow = tnFileCount TO 1 STEP -1
+         IF '.ADD(' $ taMembers(m.lnRow)
+            lcBinFile   = This.get_AbsolutePath( STREXTRACT( taMembers(m.lnRow), ".ADD('", "')" ), ADDBS( JUSTPATH( tcFileSpec ) ) )
+            lcTextFile  = This.resolvePj2TextMemberPath( lcBinFile )
+            lcFlatText  = FORCEEXT( lcBinFile, This.get_TextExtForBinFile( lcBinFile ) )
+            IF lcTextFile <> lcFlatText
+               This.writeLog( C_TAB + C_TAB + '* Resolved per-dir text: ' + lcTextFile )
+            ENDIF
+            taMembers(m.lnRow, 1) = lcTextFile
+            taMembers(m.lnRow, 2) = lcBinFile
+         ELSE
+            tnFileCount = tnFileCount - 1
+            ADEL( taMembers, m.lnRow )
+            DIMENSION taMembers(tnFileCount, 2)
+         ENDIF
+      ENDFOR
+   ENDPROC
+
+
+   PROTECTED PROCEDURE convertProjectHeaderIfNeeded
+      *---------------------------------------------------------------------------------------------------
+      * Converts the project file itself (PJX?PJ2 or PJ2?PJX) when tcType is not '*-'.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcInputFile               (v! IN    ) Project file path
+      * tcType                    (v? IN    ) Batch type ('*', '*-', …); '*-' skips project conversion
+      * tcOriginalFileName        (v? IN    ) Original name for headers / PJ2 metadata
+      * toModulo                  (@?    OUT) Converter module object (unit tests)
+      * toEx                      (@?    OUT) Exception object (pass with @ at call site)
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcInputFile, tcType, tcOriginalFileName, toModulo, toEx AS EXCEPTION
+      LOCAL lcFile, lnCodError
+
+      IF tcType <> '*-' THEN
+         lcFile     = tcInputFile
+         lnCodError = This.convert( lcFile, toModulo, @toEx, .T., tcOriginalFileName )
+         This.writeLog_Flush()
+      ENDIF
+   ENDPROC
+
+
+   PROTECTED FUNCTION isProjectMemberPjxExcluded
+      *---------------------------------------------------------------------------------------------------
+      * True when the member is marked excluded in the PJX (export) or in PJ2 FileExclusions (import).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tlBinToText               (v! IN    ) .T. = check EXCLUDE column; .F. = check taPjxExcluded list
+      * taMembers                 (@! IN    ) Member array from collectPjxMemberList / collectPj2MemberList (pass with @)
+      * tnIndex                   (v! IN    ) Row index in taMembers (1 … tnFileCount)
+      * taPjxExcluded             (@! IN    ) Exclude paths from collectPj2MemberList (import only; pass with @)
+      * RETURN                    (v?    OUT) .T. if the member should be skipped as PJX-excluded
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tlBinToText AS Boolean, taMembers, tnIndex, taPjxExcluded
+
+      EXTERNAL ARRAY taMembers
+      EXTERNAL ARRAY taPjxExcluded
+
+      IF tlBinToText
+         RETURN taMembers[tnIndex, 2]
+      ENDIF
+      RETURN This.o_Mirror.isPjxExcludedFile( taMembers[tnIndex, 1], @taPjxExcluded )
+   ENDFUNC
+
+
+   PROTECTED PROCEDURE registerSkippedProjectMember
+      *---------------------------------------------------------------------------------------------------
+      * Writes a skip line to the log and registers the file in a_ProcessedFiles (P0/E0/S0/X0).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFile                    (v! IN    ) Member file path (text path on import)
+      * tcReason                  (v! IN    ) Skip reason: 'subdir' | 'pjx' | 'outside'
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcFile AS STRING, tcReason AS STRING
+      LOCAL lcMsg
+
+      DO CASE
+      CASE tcReason = 'subdir'
+         lcMsg = '* Excluded (subdir): '
+      CASE tcReason = 'pjx'
+         lcMsg = '* Excluded (PJX): '
+      CASE tcReason = 'outside'
+         lcMsg = '* Skipped (outside project root): '
+      ENDCASE
+
+      This.writeLog( C_TAB + C_TAB + lcMsg + tcFile )
+      IF This.addProcessedFile( tcFile, 'I', 'P0', 'E0', 'S0', 'X0' )
+         This.updateProcessedFile()
+      ENDIF
+   ENDPROC
+
+
+   PROTECTED FUNCTION shouldProcessProjectMemberOutsideRoot
+      *---------------------------------------------------------------------------------------------------
+      * Validates mirror mode path against cInputRoot. Returns .F. when the member must be skipped.
+      * Raises ERROR when n_CheckFileInPath = 1 and the file is outside the project root.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * lcFile                    (v! IN    ) Member file path to validate
+      * loLang                    (v! IN    ) CL_LANG for error/skip messages
+      * RETURN                    (v?    OUT) .T. = continue processing; .F. = skip (already logged)
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS lcFile AS STRING, loLang AS CL_LANG OF 'cl_lang.prg'
+      LOCAL lcStr
+
+      IF EMPTY(This.cOutputFolder) OR EMPTY(This.cInputRoot) OR This.isUnderInputRoot( lcFile )
+         RETURN .T.
+      ENDIF
+
+      IF This.getCfgValue('n_CheckFileInPath') = 1
+         lcStr = loLang.C_PJXPATH_ERR_LOC3 + lcFile + loLang.C_PJXPATH_ERR_LOC4 ;
+            + ADDBS(This.cInputRoot) + loLang.C_PJXPATH_ERR_LOC5
+         ERROR (lcStr)
+      ENDIF
+
+      This.registerSkippedProjectMember( lcFile, 'outside' )
+      RETURN .F.
+   ENDFUNC
+
+
+   PROTECTED FUNCTION isProjectMemberConvertible
+      *---------------------------------------------------------------------------------------------------
+      * Whether the member should run through convert() for the current batch direction.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * lcFile                    (v! IN    ) Member path (binary on export, text on import)
+      * lcBinFile                 (v! IN    ) Binary path (same as lcFile on export; col 2 on import)
+      * tlBinToText               (v! IN    ) Batch direction (.T. = Bin?Txt)
+      * laDirInfo                 (@! IN/OUT) ADIR() scratch array (pass with @ at call site)
+      * RETURN                    (v?    OUT) .T. if convert() should be invoked
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS lcFile AS STRING, lcBinFile AS STRING, tlBinToText AS Boolean, laDirInfo
+
+      EXTERNAL ARRAY laDirInfo
+
+      IF tlBinToText
+         RETURN This.hasSupport_Bin2Prg( UPPER(JUSTEXT(lcFile)) ) AND ADIR( laDirInfo, lcFile ) > 0
+      ENDIF
+      RETURN This.hasSupport_Prg2Bin( lcFile ) AND This.isPj2TextMemberAvailable( lcBinFile )
+   ENDFUNC
+
+
+   PROTECTED PROCEDURE copyNonConvertibleProjectMember
+      *---------------------------------------------------------------------------------------------------
+      * Optionally copies a non-convertible member into the mirrored tree and registers it as processed.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * lcFile                    (v! IN    ) Source path passed to copyUnconvertedFile (text on import)
+      * lcBinFile                 (v! IN    ) Binary path (used on import to test file existence)
+      * tlBinToText               (v! IN    ) Batch direction (.T. = Bin?Txt)
+      * laDirInfo                 (@! IN/OUT) ADIR() scratch array (pass with @ at call site)
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS lcFile AS STRING, lcBinFile AS STRING, tlBinToText AS Boolean, laDirInfo
+      LOCAL llExists
+
+      EXTERNAL ARRAY laDirInfo
+
+      IF NOT This.getCfgValue('l_CopyNonConvertible') OR EMPTY(This.cOutputFolder)
+         RETURN
+      ENDIF
+
+      llExists = ( ADIR( laDirInfo, lcFile ) > 0 )
+      IF NOT tlBinToText
+         llExists = llExists OR ( ADIR( laDirInfo, lcBinFile ) > 0 )
+      ENDIF
+
+      IF llExists AND This.copyUnconvertedFile( lcFile )
+         This.writeLog( C_TAB + C_TAB + '- Copied (not convertible): ' + This.get_MirroredPath(lcFile) ;
+            + IIF( This.isExportUTF8() AND This.isTextFileForEncoding(lcFile), ' (UTF-8)', '' ) )
+      ENDIF
+
+      IF This.addProcessedFile( lcFile, 'I', 'P0', 'E0', 'S0', 'X0' )
+         This.updateProcessedFile()
+      ENDIF
+   ENDPROC
+
+
+   PROTECTED FUNCTION convertProjectMember
+      *---------------------------------------------------------------------------------------------------
+      * Runs convert() for one project member and handles cancel (1799) and batch error accumulation.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * lcFile                    (v! IN    ) File to convert (binary path on export, text on import)
+      * tcOriginalFileName        (v? IN    ) Original name for headers / PJ2 metadata
+      * toModulo                  (@?    OUT) Converter module object (unit tests)
+      * toEx                      (@?    OUT) Exception object (pass with @ at call site)
+      * llBatchError              (@?    OUT) Set to .T. on conversion error (pass with @ at call site)
+      * RETURN                    (v?    OUT) convert() error code (1799 = user cancel)
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS lcFile AS STRING, tcOriginalFileName, toModulo, toEx AS EXCEPTION, llBatchError AS Boolean
+      LOCAL lnCodError
+
+      lnCodError = This.convert( lcFile, toModulo, @toEx, .F., tcOriginalFileName )
+      This.writeLog_Flush()
+
+      DO CASE
+      CASE lnCodError = 1799
+         ERROR 1799
+      CASE lnCodError > 0
+         This.doWriteErrorLog( @toEx )
+         llBatchError = .T.
+         This.l_Error = .F.
+      ENDCASE
+
+      RETURN lnCodError
+   ENDFUNC
+
+
+   PROTECTED PROCEDURE processProjectMembersLoop
+      *---------------------------------------------------------------------------------------------------
+      * Unified loop over project members: exclusions, convert or copy, progress and error flags.
+      * taMembers col 1 = file to convert (binary on export, text on import); col 2 = EXCLUDE or binary path.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * taMembers                 (@! IN    ) Member array from collectPjxMemberList / collectPj2MemberList (pass with @)
+      * tnFileCount               (v! IN    ) Number of rows in taMembers
+      * tcOriginalFileName        (v? IN    ) Original name forwarded to convert()
+      * toModulo                  (@?    OUT) Converter module object (unit tests)
+      * toEx                      (@?    OUT) Exception object (pass with @ at call site)
+      * loLang                    (v! IN    ) CL_LANG for progress messages
+      * tlBinToText               (v! IN    ) Batch direction (.T. = Bin?Txt / evaluate_Full_PJX)
+      * taPjxExcluded             (@! IN    ) PJ2 exclude list (import only; pass with @; empty array on export)
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS taMembers, tnFileCount, tcOriginalFileName, toModulo, toEx AS EXCEPTION, loLang AS CL_LANG OF 'cl_lang.prg', tlBinToText AS Boolean, taPjxExcluded
+      LOCAL I, lcFile, lcBinFile, llBatchError, laDirInfo(1,5)
+
+      EXTERNAL ARRAY taMembers
+      EXTERNAL ARRAY taPjxExcluded
+
+      llBatchError = .F.
+
+      FOR I = 1 TO tnFileCount
+         lcFile    = taMembers(m.I, 1)
+         lcBinFile = IIF(tlBinToText, lcFile, taMembers(m.I, 2))
+         This.updateProgressbar( loLang.C_PROCESSING_LOC + ' ' + lcFile + '...', m.I, tnFileCount, 0 )
+
+         IF This.isExcludedSubdir( lcFile )
+            This.registerSkippedProjectMember( lcFile, 'subdir' )
+            LOOP
+         ENDIF
+
+         IF NOT This.getCfgValue('l_CopyExcludedPjxFiles') AND NOT EMPTY(This.cOutputFolder) ;
+               AND This.isProjectMemberPjxExcluded( tlBinToText, @taMembers, m.I, @taPjxExcluded )
+            This.registerSkippedProjectMember( lcFile, 'pjx' )
+            LOOP
+         ENDIF
+
+         IF NOT This.shouldProcessProjectMemberOutsideRoot( lcFile, loLang )
+            LOOP
+         ENDIF
+
+         IF This.isProjectMemberConvertible( lcFile, lcBinFile, tlBinToText, @laDirInfo )
+            This.convertProjectMember( lcFile, tcOriginalFileName, toModulo, @toEx, @llBatchError )
+         ELSE
+            This.copyNonConvertibleProjectMember( lcFile, lcBinFile, tlBinToText, @laDirInfo )
+         ENDIF
+
+         This.writeLog_Flush()
+
+         IF llBatchError
+            This.l_Error = .T.
+         ENDIF
+      ENDFOR
+   ENDPROC
+
+
+   PROTECTED PROCEDURE finalizeProjectBatch
+      *---------------------------------------------------------------------------------------------------
+      * Restores l_MirrorExport and releases the batch CL_LANG reference.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * llMirrorExportSave        (v! IN    ) Value to restore into This.l_MirrorExport
+      * loLang                    (@? IN/OUT) CL_LANG to release (pass with @ at call site)
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS llMirrorExportSave AS Boolean, loLang AS CL_LANG OF 'cl_lang.prg'
+      This.l_MirrorExport = llMirrorExportSave
+      STORE .NULL. TO loLang
+      RELEASE loLang
+   ENDPROC
+
+
    PROCEDURE evaluate_Full_PJX
       *--------------------------------------------------------------------------------------------------------------
       * CONVERT ALL FILES OF A PJX PROJECT TO TEXT
@@ -1750,147 +2129,25 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       *--------------------------------------------------------------------------------------------------------------
       LPARAMETERS tc_InputFile, tcRecompile, toModulo, toEx, tcOriginalFileName, tcLogFile, tcType
 
-      LOCAL lcFileSpec, lnFileCount, laFiles(1,2), lcFile, lnCodError, I, lnFileCount, llError, laDirInfo(1,5), lcStr ;
+      LOCAL lcFileSpec, lnFileCount, laFiles(1,2), laExcluded(1) ;
          , loLang AS CL_LANG OF 'cl_lang.prg' ;
          , loEx AS EXCEPTION ;
          , llMirrorExportSave AS Boolean
 
       TRY
-         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
-            llMirrorExportSave = .l_MirrorExport
-            .l_MirrorExport     = .T.
-            loLang      = _SCREEN.o_FoxBin2Prg_Lang
-            lcFileSpec  = FULLPATH( tc_InputFile )
+         llMirrorExportSave = This.l_MirrorExport
+         This.l_MirrorExport = .T.
 
-            *-- Mirrored tree: if there is an output folder and no root was set, use the project folder
-            .ensureMirror()
-            .o_Mirror.ensureInputRoot( lcFileSpec )
-
-            IF .getCfgValue('n_ShowProgressbar') <> 0 AND .l_ProcessFiles THEN
-               .loadProgressbarForm()
-               .o_Frm_Avance.CAPTION = STRTRAN( .o_Frm_Avance.CAPTION, '> -', '(Bin>Txt) -' )
-            ENDIF
-
-            IF EMPTY(tcLogFile)
-               .c_LogFile  = ADDBS( JUSTPATH( lcFileSpec ) ) + STRTRAN( JUSTFNAME( lcFileSpec ), '*', '_ALL' ) + '.LOG'
-
-               IF .getCfgValue('n_Debug') > 0 THEN
-                  ERASE ( .c_LogFile )
-               ENDIF
-            ENDIF
-
-            .writeLog( '> ' + loLang.C_CONVERT_ALL_FILES_IN_A_PROJECT_LOC + ': ' + loLang.C_BINARY_TO_TEXT_LOC )
-
-            DO CASE
-            CASE .getCfgValue('l_Recompile') AND LEN(tcRecompile) > 3 AND DIRECTORY(tcRecompile)
-               CD (tcRecompile)
-            CASE tcRecompile == '1'
-               CD (JUSTPATH(lcFileSpec))
-            ENDCASE
-
-            SELECT 0
-            USE (tc_InputFile) SHARED AGAIN NOUPDATE ALIAS TABLABIN
-            lnFileCount = 0
-
-            SCAN FOR NOT DELETED() AND TYPE <> 'H'
-               lnFileCount = lnFileCount + 1
-               DIMENSION laFiles(lnFileCount, 2)
-               laFiles(lnFileCount, 1)  = .get_AbsolutePath( ALLTRIM( NAME, 0, ' ', CHR(0) ), ADDBS( JUSTPATH( lcFileSpec ) ) )
-               laFiles(lnFileCount, 2)  = EXCLUDE
-            ENDSCAN
-
-            USE IN (SELECT("TABLABIN"))
-
-            *-- Convert the project first
-            IF tcType <> '*-' THEN
-               lcFile      = tc_InputFile
-               lnCodError  = .convert( lcFile, toModulo, @toEx, .T., tcOriginalFileName )
-               .writeLog_Flush()
-            ENDIF
-
-            *-- Then convert the included files
-            FOR I = 1 TO lnFileCount
-               lcFile      = laFiles(m.I, 1)
-               .updateProgressbar( loLang.C_PROCESSING_LOC + ' ' + lcFile + '...', m.I, lnFileCount, 0 )
-
-               *-- Excluded subdirectory: not converted or copied to the mirrored tree
-               IF .isExcludedSubdir( lcFile )
-                  .writeLog( C_TAB + C_TAB + '* Excluded (subdir): ' + lcFile )
-                  IF .addProcessedFile( lcFile, 'I', 'P0', 'E0', 'S0', 'X0' )
-                     .updateProcessedFile()
-                  ENDIF
-                  LOOP
-               ENDIF
-
-               *-- PJX Exclude flag: not converted or copied to the mirrored tree (unless opted in)
-               IF NOT .getCfgValue('l_CopyExcludedPjxFiles') AND NOT EMPTY(.cOutputFolder) AND laFiles(m.I, 2)
-                  .writeLog( C_TAB + C_TAB + '* Excluded (PJX): ' + lcFile )
-                  IF .addProcessedFile( lcFile, 'I', 'P0', 'E0', 'S0', 'X0' )
-                     .updateProcessedFile()
-                  ENDIF
-                  LOOP
-               ENDIF
-
-               *-- Outside project root: not converted or copied to the mirrored tree
-               IF NOT EMPTY(.cOutputFolder) AND NOT EMPTY(.cInputRoot) AND NOT .isUnderInputRoot( lcFile )
-                  IF .getCfgValue('n_CheckFileInPath') = 1
-                     lcStr = loLang.C_PJXPATH_ERR_LOC3 + lcFile + loLang.C_PJXPATH_ERR_LOC4 ;
-                        + ADDBS(.cInputRoot) + loLang.C_PJXPATH_ERR_LOC5
-                     ERROR (lcStr)
-                  ELSE
-                     .writeLog( C_TAB + C_TAB + '* Skipped (outside project root): ' + lcFile )
-                     IF .addProcessedFile( lcFile, 'I', 'P0', 'E0', 'S0', 'X0' )
-                        .updateProcessedFile()
-                     ENDIF
-                     LOOP
-                  ENDIF
-               ENDIF
-
-               IF .hasSupport_Bin2Prg( UPPER(JUSTEXT(lcFile)) ) AND ADIR( laDirInfo, lcFile ) > 0 THEN
-                  lnCodError  = .convert( lcFile, toModulo, @toEx, .F., tcOriginalFileName )
-                  .writeLog_Flush()
-
-                  DO CASE
-                  CASE lnCodError = 1799  && Conversion Cancelled
-                     ERROR 1799
-
-                  CASE lnCodError > 0
-                     .doWriteErrorLog( @toEx )
-                     llError     = .T.
-                     .l_Error    = .F.
-                  ENDCASE
-               ELSE
-                  *-- Non-convertible: optionally copied to the mirrored tree
-                  IF .getCfgValue('l_CopyNonConvertible') AND NOT EMPTY(.cOutputFolder) AND ADIR( laDirInfo, lcFile ) > 0
-                     IF .copyUnconvertedFile( lcFile )
-                        .writeLog( C_TAB + C_TAB + '- Copied (not convertible): ' + .get_MirroredPath(lcFile) ;
-                           + IIF( .isExportUTF8() AND .isTextFileForEncoding(lcFile), ' (UTF-8)', '' ) )
-                     ENDIF
-                  ENDIF
-
-                  *-- addProcessedFile( tcFile, tcInOutType, tcProcessed, tcHasErrors, tcSupported, tcExpanded )
-                  IF .addProcessedFile( lcFile, 'I', 'P0', 'E0', 'S0', 'X0' )
-                     .updateProcessedFile()
-                  ENDIF
-               ENDIF
-
-               .writeLog_Flush()
-
-               IF llError
-                  .l_Error = .T.
-               ENDIF
-            ENDFOR
-         ENDWITH
+         This.setupProjectBatchEnvironment( tc_InputFile, tcLogFile, tcRecompile, .T., @lcFileSpec, @loLang )
+         This.collectPjxMemberList( tc_InputFile, lcFileSpec, @laFiles, @lnFileCount )
+         This.convertProjectHeaderIfNeeded( tc_InputFile, tcType, tcOriginalFileName, toModulo, @toEx )
+         This.processProjectMembersLoop( @laFiles, lnFileCount, tcOriginalFileName, toModulo, @toEx, loLang, .T., @laExcluded )
 
       CATCH TO loEx
          THROW
 
       FINALLY
-         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
-            .l_MirrorExport = llMirrorExportSave
-         ENDWITH
-         STORE .NULL. TO loLang
-         RELEASE loLang
+         This.finalizeProjectBatch( llMirrorExportSave, @loLang )
       ENDTRY
    ENDPROC
 
@@ -1917,157 +2174,25 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       *--------------------------------------------------------------------------------------------------------------
       LPARAMETERS tc_InputFile, tcRecompile, toModulo, toEx, tcOriginalFileName, tcLogFile, tcType
 
-      LOCAL lcFileSpec, lnFileCount, laFiles(1,2), laExcluded(1), lcFile, lcBinFile, lcTextFile, lcFlatText, lnCodError, I, lnFileCount, llError, laDirInfo(1,5), lcStr ;
+      LOCAL lcFileSpec, lnFileCount, laFiles(1,2), laExcluded(1) ;
          , loLang AS CL_LANG OF 'cl_lang.prg' ;
          , loEx AS EXCEPTION ;
          , llMirrorExportSave AS Boolean
 
       TRY
-         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
-            llMirrorExportSave = .l_MirrorExport
-            .l_MirrorExport     = .F.
-            loLang      = _SCREEN.o_FoxBin2Prg_Lang
-            lcFileSpec  = FULLPATH( tc_InputFile )
+         llMirrorExportSave = This.l_MirrorExport
+         This.l_MirrorExport = .F.
 
-            *-- Mirrored tree: if there is an output folder and no root was set, use the project folder
-            .ensureMirror()
-            .o_Mirror.ensureInputRoot( lcFileSpec )
-
-            IF .getCfgValue('n_ShowProgressbar') <> 0 AND .l_ProcessFiles THEN
-               .loadProgressbarForm()
-               .o_Frm_Avance.CAPTION = STRTRAN( .o_Frm_Avance.CAPTION, '> -', '(Txt>Bin) -' )
-            ENDIF
-
-            IF EMPTY(tcLogFile)
-               .c_LogFile  = ADDBS( JUSTPATH( lcFileSpec ) ) + STRTRAN( JUSTFNAME( lcFileSpec ), '*', '_ALL' ) + '.LOG'
-
-               IF .getCfgValue('n_Debug') > 0 THEN
-                  ERASE ( .c_LogFile )
-               ENDIF
-            ENDIF
-
-            .writeLog( '> ' + loLang.C_CONVERT_ALL_FILES_IN_A_PROJECT_LOC + ': ' + loLang.C_TEXT_TO_BINARY_LOC )
-
-            DO CASE
-            CASE .getCfgValue('l_Recompile') AND LEN(tcRecompile) > 3 AND DIRECTORY(tcRecompile)
-               CD (tcRecompile)
-            CASE tcRecompile == '1'
-               CD (JUSTPATH(lcFileSpec))
-            ENDCASE
-
-            lnFileCount = ALINES( laFiles, STREXTRACT( FILETOSTR(tc_InputFile), C_BUILDPROJ_I, C_BUILDPROJ_F ), 1+4 )
-            laExcluded  = .o_Mirror.collectPj2ExcludedPaths( tc_InputFile, JUSTPATH( lcFileSpec ) )
-
-            FOR I = lnFileCount TO 1 STEP -1
-               IF '.ADD(' $ laFiles(m.I)
-                  lcBinFile   = .get_AbsolutePath( STREXTRACT( laFiles(m.I), ".ADD('", "')" ), ADDBS( JUSTPATH( lcFileSpec ) ) )
-                  lcTextFile  = .resolvePj2TextMemberPath( lcBinFile )
-                  lcFlatText  = FORCEEXT( lcBinFile, .get_TextExtForBinFile( lcBinFile ) )
-                  IF lcTextFile <> lcFlatText
-                     .writeLog( C_TAB + C_TAB + '* Resolved per-dir text: ' + lcTextFile )
-                  ENDIF
-                  laFiles(m.I, 1) = lcTextFile
-                  laFiles(m.I, 2) = lcBinFile
-               ELSE
-                  lnFileCount = lnFileCount - 1
-                  ADEL( laFiles, m.I )
-                  DIMENSION laFiles(lnFileCount, 2)
-               ENDIF
-            ENDFOR
-
-            *-- Convert the project first
-            IF tcType <> '*-' THEN
-               lcFile  = tc_InputFile
-               lnCodError = .convert( lcFile, toModulo, @toEx, .T., tcOriginalFileName )
-               .writeLog_Flush()
-            ENDIF
-
-            *-- Then convert the included files
-            FOR I = 1 TO lnFileCount
-               lcFile      = laFiles(m.I, 1)
-               lcBinFile   = laFiles(m.I, 2)
-               .updateProgressbar( loLang.C_PROCESSING_LOC + ' ' + lcFile + '...', m.I, lnFileCount, 0 )
-
-               *-- Excluded subdirectory: not converted or copied to the mirrored tree
-               IF .isExcludedSubdir( lcFile )
-                  .writeLog( C_TAB + C_TAB + '* Excluded (subdir): ' + lcFile )
-                  IF .addProcessedFile( lcFile, 'I', 'P0', 'E0', 'S0', 'X0' )
-                     .updateProcessedFile()
-                  ENDIF
-                  LOOP
-               ENDIF
-
-               *-- PJX Exclude flag: not converted or copied to the mirrored tree (unless opted in)
-               IF NOT .getCfgValue('l_CopyExcludedPjxFiles') AND NOT EMPTY(.cOutputFolder) ;
-                     AND .o_Mirror.isPjxExcludedFile( lcFile, laExcluded )
-                  .writeLog( C_TAB + C_TAB + '* Excluded (PJX): ' + lcFile )
-                  IF .addProcessedFile( lcFile, 'I', 'P0', 'E0', 'S0', 'X0' )
-                     .updateProcessedFile()
-                  ENDIF
-                  LOOP
-               ENDIF
-
-               *-- Outside project root: not converted or copied to the mirrored tree
-               IF NOT EMPTY(.cOutputFolder) AND NOT EMPTY(.cInputRoot) AND NOT .isUnderInputRoot( lcFile )
-                  IF .getCfgValue('n_CheckFileInPath') = 1
-                     lcStr = loLang.C_PJXPATH_ERR_LOC3 + lcFile + loLang.C_PJXPATH_ERR_LOC4 ;
-                        + ADDBS(.cInputRoot) + loLang.C_PJXPATH_ERR_LOC5
-                     ERROR (lcStr)
-                  ELSE
-                     .writeLog( C_TAB + C_TAB + '* Skipped (outside project root): ' + lcFile )
-                     IF .addProcessedFile( lcFile, 'I', 'P0', 'E0', 'S0', 'X0' )
-                        .updateProcessedFile()
-                     ENDIF
-                     LOOP
-                  ENDIF
-               ENDIF
-
-               IF .hasSupport_Prg2Bin( lcFile ) AND .isPj2TextMemberAvailable( lcBinFile ) THEN
-                  lnCodError = .convert( lcFile, toModulo, @toEx, .F., tcOriginalFileName )
-                  .writeLog_Flush()
-
-                  DO CASE
-                  CASE lnCodError = 1799  && Conversion Cancelled
-                     ERROR 1799
-
-                  CASE lnCodError > 0
-                     .doWriteErrorLog( @toEx )
-                     llError     = .T.
-                     .l_Error    = .F.
-                  ENDCASE
-               ELSE
-                  *-- Non-convertible: optionally copied to the mirrored tree
-                  IF .getCfgValue('l_CopyNonConvertible') AND NOT EMPTY(.cOutputFolder) ;
-                        AND ( ADIR( laDirInfo, lcFile ) > 0 OR ADIR( laDirInfo, lcBinFile ) > 0 )
-                     IF .copyUnconvertedFile( lcFile )
-                        .writeLog( C_TAB + C_TAB + '- Copied (not convertible): ' + .get_MirroredPath(lcFile) ;
-                           + IIF( .isExportUTF8() AND .isTextFileForEncoding(lcFile), ' (UTF-8)', '' ) )
-                     ENDIF
-                  ENDIF
-
-                  *-- addProcessedFile( tcFile, tcInOutType, tcProcessed, tcHasErrors, tcSupported, tcExpanded )
-                  IF .addProcessedFile( lcFile, 'I', 'P0', 'E0', 'S0', 'X0' )
-                     .updateProcessedFile()
-                  ENDIF
-               ENDIF
-
-               .writeLog_Flush()
-
-               IF llError
-                  .l_Error = .T.
-               ENDIF
-            ENDFOR
-         ENDWITH
+         This.setupProjectBatchEnvironment( tc_InputFile, tcLogFile, tcRecompile, .F., @lcFileSpec, @loLang )
+         This.collectPj2MemberList( tc_InputFile, lcFileSpec, @laFiles, @lnFileCount, @laExcluded )
+         This.convertProjectHeaderIfNeeded( tc_InputFile, tcType, tcOriginalFileName, toModulo, @toEx )
+         This.processProjectMembersLoop( @laFiles, lnFileCount, tcOriginalFileName, toModulo, @toEx, loLang, .F., @laExcluded )
 
       CATCH TO loEx
          THROW
 
       FINALLY
-         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
-            .l_MirrorExport = llMirrorExportSave
-         ENDWITH
-         STORE .NULL. TO loLang
-         RELEASE loLang
+         This.finalizeProjectBatch( llMirrorExportSave, @loLang )
       ENDTRY
    ENDPROC
 

@@ -185,8 +185,77 @@ Propriedades `n_UseClassPerFile`, `l_UseClassPerDir`, `n_UseFormPerFile`, `n_Use
 
 | Método | Finalidade |
 |---|---|
-| **`evaluate_Full_PJX`** | Bin→Txt de todos os membros do PJX (~1731–1895) |
-| **`evaluate_Full_PJ2`** | Txt→Bin a partir do bloco `BUILD PROJECT` no PJ2 (~1898–2072) |
+| **`evaluate_Full_PJX`** | Bin→Txt de todos os membros do PJX (~1977–2019); delega ao pipeline compartilhado |
+| **`evaluate_Full_PJ2`** | Txt→Bin a partir do bloco `BUILD PROJECT` no PJ2 (~2022–2064); delega ao pipeline compartilhado |
+
+Helpers protegidos compartilhados (linhas ~1735–1974). Convenção: parâmetros **OUT** ou arrays mutáveis são passados com `@` na **chamada**; em `LPARAMETERS` o nome aparece **sem** `@`. Arrays recebidos por parâmetro exigem `EXTERNAL ARRAY <nome>` logo após `LPARAMETERS` (antes de `LOCAL`). Em `collectPj2MemberList`, `taPjxExcluded` é preenchido com `DIMENSION`/`ACOPY` (não atribuição `=`), para respeitar a referência do caller.
+
+#### `setupProjectBatchEnvironment`
+
+| Parâmetro | Modo | Descrição |
+|---|---|---|
+| `tcInputFile` | IN | Caminho do projeto (.PJX ou .PJ2) |
+| `tcLogFile` | IN | Log explícito; vazio = `<pasta_projeto>\*_ALL.LOG` |
+| `tcRecompile` | IN | `'1'`, diretório ou vazio (mesma semântica de `evaluate_Full_*`) |
+| `tlBinToText` | IN | `.T.` export PJX; `.F.` import PJ2 |
+| `tcFileSpec` | OUT | `FULLPATH(tcInputFile)` — passar `@tcFileSpec` |
+| `loLang` | OUT | `_SCREEN.o_FoxBin2Prg_Lang` — passar `@loLang` |
+
+#### `collectPjxMemberList`
+
+| Parâmetro | Modo | Descrição |
+|---|---|---|
+| `tcInputFile` | IN | Caminho do .PJX |
+| `tcFileSpec` | IN | Caminho completo do projeto (base para `NAME` relativos) |
+| `taMembers` | OUT | Array 2 colunas: `(1)` path absoluto, `(2)` flag `EXCLUDE` — passar `@taMembers` |
+| `tnFileCount` | OUT | Quantidade de membros — passar `@tnFileCount` |
+
+#### `collectPj2MemberList`
+
+| Parâmetro | Modo | Descrição |
+|---|---|---|
+| `tcInputFile` | IN | Caminho do .PJ2 |
+| `tcFileSpec` | IN | Caminho completo do projeto espelhado |
+| `taMembers` | OUT | Array 2 colunas: `(1)` texto, `(2)` binário — passar `@taMembers` |
+| `tnFileCount` | OUT | Linhas `.ADD('…')` válidas — passar `@tnFileCount` |
+| `taPjxExcluded` | OUT | Paths excluídos via `FileExclusions` — passar `@taPjxExcluded` |
+
+#### `convertProjectHeaderIfNeeded`
+
+| Parâmetro | Modo | Descrição |
+|---|---|---|
+| `tcInputFile` | IN | PJX ou PJ2 |
+| `tcType` | IN | `'*-'` pula conversão do cabeçalho do projeto |
+| `tcOriginalFileName` | IN | Nome original para metadados |
+| `toModulo` | OUT | Objeto conversor (testes) |
+| `toEx` | OUT | Exceção — passar `@toEx` |
+
+#### `processProjectMembersLoop`
+
+| Parâmetro | Modo | Descrição |
+|---|---|---|
+| `taMembers` | IN (`@`) | Lista de membros (ver `collectPjx*` / `collectPj2*`) |
+| `tnFileCount` | IN | Total de linhas |
+| `tcOriginalFileName` | IN | Repassado a `convert()` |
+| `toModulo` | OUT | Objeto conversor |
+| `toEx` | OUT | Exceção — passar `@toEx` |
+| `loLang` | IN | Mensagens de progresso |
+| `tlBinToText` | IN | Direção do batch |
+| `taPjxExcluded` | IN (`@`) | Lista de exclude no import; array vazio no export |
+
+#### Demais helpers (resumo)
+
+| Método | Parâmetros principais | Retorno |
+|---|---|---|
+| **`isProjectMemberPjxExcluded`** | `tlBinToText`, `@taMembers`, `tnIndex`, `@taPjxExcluded` | `.T.` se exclude PJX |
+| **`registerSkippedProjectMember`** | `tcFile`, `tcReason` (`subdir` \| `pjx` \| `outside`) | — |
+| **`shouldProcessProjectMemberOutsideRoot`** | `lcFile`, `loLang` | `.T.` continua; `.F.` skip; ERROR se `n_CheckFileInPath=1` |
+| **`isProjectMemberConvertible`** | `lcFile`, `lcBinFile`, `tlBinToText`, `@laDirInfo` | `.T.` se deve converter |
+| **`copyNonConvertibleProjectMember`** | `lcFile`, `lcBinFile`, `tlBinToText`, `@laDirInfo` | — |
+| **`convertProjectMember`** | `lcFile`, `tcOriginalFileName`, `toModulo`, `toEx`, `llBatchError` | Código de erro; `@llBatchError` |
+| **`finalizeProjectBatch`** | `llMirrorExportSave`, `loLang` | Restaura mirror; `@loLang` |
+
+Métodos com `EXTERNAL ARRAY` (parâmetro array): `collectPjxMemberList` (`taMembers`), `collectPj2MemberList` (`taMembers`, `taPjxExcluded`), `isProjectMemberPjxExcluded` (`taMembers`, `taPjxExcluded`), `isProjectMemberConvertible` / `copyNonConvertibleProjectMember` (`laDirInfo`), `processProjectMembersLoop` (`taMembers`, `taPjxExcluded`). Fora do batch: `get_Processed`, `get_FilesFromDirectory`, `readInputVFPParams`, `set_Line`, `finalizeExecuteSession` (`laDirInfo`).
 
 ### 7. Configuração (`cl_fb2prg_cfg` via `o_Cfg`)
 
@@ -277,9 +346,10 @@ Delegação: lógica em `cl_fb2prg_cfg.prg`; `c_foxbin2prg` expõe wrappers (`en
 | 443–473 | `ensureFileUtils` / `ensureMirror` / `ensureCfg` / `ensureSpecialProps` / `ensureConversionFactory` / `ensureLogger` |
 | 997–1637 | Métodos protegidos do pipeline `execute` |
 | 1640 | `execute` |
-| 1731 | `evaluate_Full_PJX` |
-| 1898 | `evaluate_Full_PJ2` |
-| 2082 | `convert` (Protected) |
+| 1735–1974 | Helpers project batch (`setupProjectBatchEnvironment`, `processProjectMembersLoop`, …) |
+| 1977 | `evaluate_Full_PJX` |
+| 2022 | `evaluate_Full_PJ2` |
+| 2074 | `convert` (Protected) |
 | 2439–2525 | Wrappers CFG (`newConfig`, `applyConfig`, `getCfgValue`, …) |
 | 2532 | `exportProjectTree` |
 | 2554 | `importProjectTree` |
@@ -302,7 +372,7 @@ Após factory, logger e refatoração do `execute`, o orquestrador continua leg�
 |---|---|---|
 | Pipeline `execute` (helpers protegidos) | ~640 | Bem decomposto (`dispatchExecuteMode`, handlers), mas ainda no host |
 | `convert` | ~350 | Maior método restante |
-| `evaluate_Full_PJX` + `evaluate_Full_PJ2` | ~340 | Loop de membros muito similar entre os dois |
+| `evaluate_Full_PJX` + `evaluate_Full_PJ2` | ~90 + helpers ~240 | **Unificado** — loop em `processProjectMembersLoop` |
 | Per-file VCX/SCX/DBC | ~280 | Usado por factory, conversores e resolução PJ2 |
 | UTF-8 / text I/O | ~90 | Usado por mirror e conversores |
 | Process tracker | ~120 | Array `a_ProcessedFiles` |
@@ -320,7 +390,7 @@ Após factory, logger e refatoração do `execute`, o orquestrador continua leg�
 | **Duplicação `convert` ↔ `loadModule`** | Factory repetida | **Resolvido** — `cl_fb2prg_conversion_factory` + `convert(tcMode)` |
 | **`doBackup` / logging no host** | God Object | **Mitigado** — `cl_fb2prg_logger`; `doBackup` em `cl_file_utils` (wrapper no host) |
 | **I/O Win32 no orquestrador** | Responsabilidade OS misturada | **Parcial** — `cl_file_utils` e `cl_fb2prg_mirror` extraídos |
-| **Duplicação PJX ↔ PJ2** | Risco de divergência em batch | **Pendente** — loops de membros ~70% iguais |
+| **Duplicação PJX ↔ PJ2** | Risco de divergência em batch | **Resolvido** — `processProjectMembersLoop` e helpers compartilhados |
 | **`convert` ainda grande** | Difícil manter otimizações per-file | **Pendente** — blocos VCX/SCX/DBC repetidos internamente |
 | **`get_SeparatedLineAndComment` duplicado** | ~85 linhas × 2 arquivos | **Pendente** — `c_foxbin2prg` e `cl_cus_base` |
 | **Bug em `updateProcessedFile`** | Coluna 2 usa `tcProcessed` em vez de `tcInOutType` | **Pendente** — mascarado pelos call sites atuais |
@@ -346,15 +416,15 @@ Após factory, logger e refatoração do `execute`, o orquestrador continua leg�
 
 #### 1. Unificar `evaluate_Full_PJX` e `evaluate_Full_PJ2` (~340 → ~180 linhas)
 
-Extrair loop comum de membros de projeto. Ambos repetem: setup mirror/log/recompile, exclusão por subdir/PJX/raiz, `convert`, cópia de não-convertíveis, `addProcessedFile` / `updateProcessedFile`.
+**Concluído (2026-06-29).** Helpers protegidos compartilhados:
 
-Esboço:
+- `setupProjectBatchEnvironment`, `collectPjxMemberList`, `collectPj2MemberList`
+- `convertProjectHeaderIfNeeded`, `processProjectMembersLoop`
+- `isProjectMemberPjxExcluded`, `registerSkippedProjectMember`, `shouldProcessProjectMemberOutsideRoot`
+- `isProjectMemberConvertible`, `copyNonConvertibleProjectMember`, `convertProjectMember`
+- `finalizeProjectBatch`
 
-```foxpro
-processProjectMember(lcTextFile, lcBinFile, tlBinToText, ...)
-```
-
-**Ganho:** menos risco de corrigir um lado e esquecer o outro (checks de `isUnderInputRoot`, exclude PJX, etc.).
+`evaluate_Full_PJX` e `evaluate_Full_PJ2` reduzidos a setup de direção (`l_MirrorExport`, `tlBinToText`) + coleta de membros específica + loop unificado.
 
 #### 2. Refatorar `convert` internamente (~350 linhas)
 
@@ -420,7 +490,7 @@ Call sites atuais (`updateProcessedFile()` sem args ou `updateProcessedFile(lnID
 
 ### Ordem de implementação recomendada
 
-1. Unificar loop PJX/PJ2
+1. ~~Unificar loop PJX/PJ2~~ **Concluído (2026-06-29)**
 2. Refatorar `convert` por dentro (sem mudar assinatura)
 3. Extrair `cl_fb2prg_per_file`
 4. Corrigir `updateProcessedFile`

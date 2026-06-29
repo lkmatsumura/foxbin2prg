@@ -272,6 +272,10 @@ DEFINE CLASS cl_fb2prg_mirror AS Custom
       *---------------------------------------------------------------------------------------------------
       * True when tcFile matches a path collected from the PJ2 <ExcludedFiles> block.
       * Compares full path and stem (path + name without extension) so text/binary extensions match.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFile                    (v! IN    ) Member file path to test (text path on import)
+      * taExcludedPaths           (@! IN    ) Exclude path list from collectPj2ExcludedPaths (pass with @)
+      * RETURN                    (v?    OUT) .T. if excluded
       *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcFile, taExcludedPaths
       EXTERNAL ARRAY taExcludedPaths
