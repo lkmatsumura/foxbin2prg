@@ -291,7 +291,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          This.writeLog( REPLICATE( '*', 100 ) )
          This.writeLog( )
          This.writeLog_Flush()
-         This.unloadProgressbarForm()
+         This.unloadProgressbarForm( .T. )
 
       CATCH
 
@@ -1628,11 +1628,11 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       IF VARTYPE(This.c_Foxbin2prg_ConfigFile) = 'O'
          This.c_Foxbin2prg_ConfigFile = FORCEEXT(This.c_Foxbin2prg_FullPath, 'CFG')
       ENDIF
-      
+
       lcOldNotify = loSession.lc_OldSetNotify
 
       SET NOTIFY &lcOldNotify
-      
+
       RETURN lnCodError
    ENDFUNC
 
@@ -1696,7 +1696,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          * sync back mutable context fields used by error reporting
          tc_InputFile = loCtx.tc_InputFile
 
-      
+
       CATCH TO toEx
          This.restoreEscapeKey( loSession.llEscKeyRestored, loSession.lcOldSetEscape, loSession.lcOldOnEscape )
          loSession.llEscKeyRestored = .T.
