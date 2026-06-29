@@ -298,6 +298,9 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
          ERASE ( lcFileCDX )
 
+         DIMENSION This.a_ProcessedFiles(1, 6)
+         This.a_ProcessedFiles = .NULL.
+
          This.writeLog( 'FoxBin2Prg UNLOAD  -', 2 )
          This.writeLog( REPLICATE( '*', 100 ) )
          This.writeLog( )
@@ -4059,7 +4062,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
             ENDIF
             tnID    = EVL(tnID, .n_ProcessedFiles)
             IF NOT EMPTY(tcInOutType)
-               .a_ProcessedFiles(tnID, 2)  = EVL(tcProcessed, '')
+               .a_ProcessedFiles(tnID, 2)  = EVL(tcInOutType, '')
             ENDIF
             IF NOT EMPTY(tcProcessed)
                .a_ProcessedFiles(tnID, 3)  = EVL(tcProcessed, '')
@@ -4071,11 +4074,11 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                .a_ProcessedFiles(tnID, 5)  = EVL(tcSupported, '')
             ENDIF
             .stdOut( .a_ProcessedFiles(tnID,2) ;
-               + ',' + .a_ProcessedFiles(tnID,3) ;
-               + ',' + .a_ProcessedFiles(tnID,4) ;
-               + ',' + .a_ProcessedFiles(tnID,5) ;
-               + ',' + .a_ProcessedFiles(tnID,6) ;
-               + ',' + LOWER(.a_ProcessedFiles(tnID,1)) )
+             + ',' + .a_ProcessedFiles(tnID,3) ;
+             + ',' + .a_ProcessedFiles(tnID,4) ;
+             + ',' + .a_ProcessedFiles(tnID,5) ;
+             + ',' + .a_ProcessedFiles(tnID,6) ;
+             + ',' + LOWER(.a_ProcessedFiles(tnID,1)) )
          ENDWITH
 
       CATCH TO loEx
