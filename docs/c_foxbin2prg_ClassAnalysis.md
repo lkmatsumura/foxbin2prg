@@ -1,8 +1,8 @@
 # Documentação: classe `c_foxbin2prg`
 
 > Análise estrutural da classe orquestradora do FoxBin2Prg (Visual FoxPro 9).  
-> Arquivo fonte modular: `c_foxbin2prg.prg` (~3.980 linhas, ~100 métodos).  
-> Data da análise: 2026-06-29 (atualização pós-modularização e extração de helpers)
+> Arquivo fonte modular: `c_foxbin2prg.prg` (~3.400 linhas, ~100 métodos).  
+> Data da análise: 2026-06-29 (pós-modularização, factory, logger e plano de melhorias restantes)
 
 ---
 
@@ -28,6 +28,8 @@ flowchart TB
     subgraph helpers [Helpers extraídos]
         FU[cl_file_utils o_FileUtils]
         MIR[cl_fb2prg_mirror o_Mirror]
+        LOG[cl_fb2prg_logger o_Logger]
+        FAC[cl_fb2prg_conversion_factory o_ConversionFactory]
     end
 
     subgraph delegacao [Delegação]
@@ -46,7 +48,9 @@ flowchart TB
     PROJ --> CONV
     MIRR --> MIR
     EXEC --> FU
-    CONV --> CVX & SCX & PJX & OUT
+    CONV --> FAC
+    FAC --> CVX & SCX & PJX & OUT
+    EXEC --> LOG
 ```
 
 **Resumo numérico:** ~100 métodos públicos/protegidos, ~45 propriedades de sessão no host (opções de conversão residem no objeto CFG via `getCfgValue()`), 4 membros `Protected` na área `execute`, 2 `Hidden`.
@@ -135,21 +139,21 @@ Propriedades `n_UseClassPerFile`, `l_UseClassPerDir`, `n_UseFormPerFile`, `n_Use
 
 | Método | Linhas ~ | Finalidade |
 |---|---|---|
-| **`Init`** | 175–280 | Ambiente VFP, DLLs, logs, idioma, `o_FSO`, `ensureCfg()` / `ensureSpecialProps()` |
-| **`Destroy`** | 281–328 | Flush de logs, libera forms/objetos, `o_FileUtils.clearDll()` |
+| **`Init`** | 177–280 | Ambiente VFP, DLLs, logs, idioma, `o_FSO`, `ensureCfg()` / `ensureSpecialProps()` |
+| **`Destroy`** | 283–328 | Flush de logs, libera forms/objetos, `o_FileUtils.clearDll()` |
 
 ### 2. Ponto de entrada principal (`execute` refatorado)
 
 | Método | Linhas ~ | Finalidade |
 |---|---|---|
-| **`execute`** | 1726–1814 (~90) | API pública: valida ambiente, monta contexto, despacha modo |
-| **`dispatchExecuteMode`** | 1600–1639 | `DO CASE` central: arquivo único, diretório, PJX/PJ2, wildcard, UI vazia |
-| **`resolveExecuteMode`** | 1311–1356 | Determina modo a partir de extensão e `tcType` |
-| **`buildExecuteContext`** | 1294–1309 | Objeto `loCtx` com flags bin/text e CFG efetiva |
-| **`mergeExecuteConfig`** | 1115–1129 | Mescla `toCfg` na sessão antes da conversão |
-| **`beginExecuteSession`** / **`finalizeExecuteSession`** | 1131–1723 | Setup/teardown de ESC, notify, log, progress bar |
-| **`executeSingleFile`** / **`executeDirectoryBatch`** / **`executeSingleProject`** | 1547–1584 | Handlers por modo |
-| **`executeBin3Prg`** / **`executePrg3Bin`** | 1434–1468 | Aliases internos → `exportProjectTree` / `importProjectTree` |
+| **`execute`** | 1640–1728 (~90) | API pública: valida ambiente, monta contexto, despacha modo |
+| **`dispatchExecuteMode`** | 1514–1553 | `DO CASE` central: arquivo único, diretório, PJX/PJ2, wildcard, UI vazia |
+| **`resolveExecuteMode`** | 1225–1270 | Determina modo a partir de extensão e `tcType` |
+| **`buildExecuteContext`** | 1208–1223 | Objeto `loCtx` com flags bin/text e CFG efetiva |
+| **`mergeExecuteConfig`** | 1029–1043 | Mescla `toCfg` na sessão antes da conversão |
+| **`beginExecuteSession`** / **`finalizeExecuteSession`** | 1045–1637 | Setup/teardown de ESC, notify, log, progress bar |
+| **`executeSingleFile`** / **`executeDirectoryBatch`** / **`executeSingleProject`** | 1461–1498 | Handlers por modo |
+| **`executeBin3Prg`** / **`executePrg3Bin`** | 1348–1382 | Aliases internos → `exportProjectTree` / `importProjectTree` |
 
 ### 3. Espelhamento de projeto
 
@@ -172,8 +176,8 @@ Propriedades `n_UseClassPerFile`, `l_UseClassPerDir`, `n_UseFormPerFile`, `n_Use
 
 | Método | Visibilidade | Finalidade |
 |---|---|---|
-| **`convert`** | Protected | Conversão completa (linhas ~2193–2758): factory `c_conversor_*`, backup, otimização, recompilação |
-| **`loadModule`** | Public | Unit tests (~3438–3639): sem backup/recompilação |
+| **`convert`** | Protected | Conversão completa (linhas ~2082–2436): factory, otimização por timestamp, per-file, recompilação |
+| **`loadModule`** | Public | Unit tests (~3101): delega a `convert(..., 'LOAD_ONLY')` |
 | **`compileFoxProBinary`** | Public | `COMPILE CLASSLIB/FORM/REPORT/...` após regeneração |
 | **`get_PROGRAM_HEADER`** | Public | Cabeçalho meta dos arquivos texto |
 
@@ -181,8 +185,8 @@ Propriedades `n_UseClassPerFile`, `l_UseClassPerDir`, `n_UseFormPerFile`, `n_Use
 
 | Método | Finalidade |
 |---|---|
-| **`evaluate_Full_PJX`** | Bin→Txt de todos os membros do PJX (~1817–1982) |
-| **`evaluate_Full_PJ2`** | Txt→Bin a partir do bloco `BUILD PROJECT` no PJ2 (~1984–2159) |
+| **`evaluate_Full_PJX`** | Bin→Txt de todos os membros do PJX (~1731–1895) |
+| **`evaluate_Full_PJ2`** | Txt→Bin a partir do bloco `BUILD PROJECT` no PJ2 (~1898–2072) |
 
 ### 7. Configuração (`cl_fb2prg_cfg` via `o_Cfg`)
 
@@ -215,7 +219,7 @@ Delegação: lógica em `cl_fb2prg_cfg.prg`; `c_foxbin2prg` expõe wrappers (`en
 | Método | Finalidade |
 |---|---|
 | **`changeFileAttribute`** / **`changeFileTime`** | Delegam a `o_FileUtils` |
-| **`doBackup`** | Backup em cascata (.BAK, .01.BAK, …) — permanece no host |
+| **`doBackup`** | Wrapper → `o_FileUtils.doBackup` (backup em cascata .BAK, .01.BAK, …) |
 | **`comparedFilesAreEqual`** | Delega a `o_FileUtils` |
 | **`renameFile`** | Capitalização via `filename_caps` |
 | **`renameTmpFile2Tx2File`** | Delega a `o_FileUtils` |
@@ -236,7 +240,7 @@ Delegação: lógica em `cl_fb2prg_cfg.prg`; `c_foxbin2prg` expõe wrappers (`en
 
 | Método | Finalidade |
 |---|---|
-| **`writeLog`** / **`writeErrorLog`** (+ `_Flush`) | Log de debug/erros no host |
+| **`writeLog`** / **`writeErrorLog`** (+ `_Flush`) | Wrappers → `o_Logger` |
 | **`stdOut`** / **`errOut`** | Delegam a `o_FileUtils` |
 | **`doWriteErrorLog`** (Hidden) | Formata exceção e grava `.ERR` |
 | **`exception2Str`** (Hidden) | Serializa objeto `Exception` |
@@ -256,6 +260,8 @@ Delegação: lógica em `cl_fb2prg_cfg.prg`; `c_foxbin2prg` expõe wrappers (`en
 |---|---|
 | **`declareDLL`** | Delega a `o_FileUtils` |
 | **`readInputVFPParams`** | Parse da linha de comando Windows (permanece no host) |
+| **`get_SeparatedLineAndComment`** | Separa linha de código e comentário `&&` (cópia em `cl_cus_base.prg`) |
+| **`normalizeFileCapitalization`** | Capitalização de nomes via `filename_caps` |
 | **`wscriptshell_run`** | Wrapper → `o_FileUtils` |
 | **`FERROR_Message`** / **`getLocaleInfo`** | Wrapper → `o_FileUtils` |
 
@@ -265,23 +271,43 @@ Delegação: lógica em `cl_fb2prg_cfg.prg`; `c_foxbin2prg` expõe wrappers (`en
 
 | Linha ~ | Método |
 |---|---|
-| 175 | `Init` |
-| 281 | `Destroy` |
-| 330 | `addProcessedFile` |
-| 441–459 | `ensureFileUtils` / `ensureMirror` / `ensureCfg` / `ensureSpecialProps` |
-| 1087–1661 | Métodos protegidos do pipeline `execute` |
-| 1726 | `execute` |
-| 1817 | `evaluate_Full_PJX` |
-| 1984 | `evaluate_Full_PJ2` |
-| 2193 | `convert` (Protected) |
-| 2760–2846 | Wrappers CFG (`newConfig`, `applyConfig`, `getCfgValue`, …) |
-| 2853 | `exportProjectTree` |
-| 2875 | `importProjectTree` |
-| 3092–3113 | Wrappers mirror (`get_MirroredPath`, `copyUnconvertedFile`, …) |
-| 3438 | `loadModule` |
-| 3711–3779 | UTF-8 (`isExportUTF8`, `readTextFile`, `writeTextFile`, …) |
+| 177 | `Init` |
+| 283 | `Destroy` |
+| 332 | `addProcessedFile` |
+| 443–473 | `ensureFileUtils` / `ensureMirror` / `ensureCfg` / `ensureSpecialProps` / `ensureConversionFactory` / `ensureLogger` |
+| 997–1637 | Métodos protegidos do pipeline `execute` |
+| 1640 | `execute` |
+| 1731 | `evaluate_Full_PJX` |
+| 1898 | `evaluate_Full_PJ2` |
+| 2082 | `convert` (Protected) |
+| 2439–2525 | Wrappers CFG (`newConfig`, `applyConfig`, `getCfgValue`, …) |
+| 2532 | `exportProjectTree` |
+| 2554 | `importProjectTree` |
+| 2583–2768 | Per-file (`getPerFileDir`, `getPerFileOutputPath`, …) |
+| 2771–2796 | Wrappers mirror (`get_MirroredPath`, `copyUnconvertedFile`, …) |
+| 3101 | `loadModule` |
+| 3188–3258 | UTF-8 (`isExportUTF8`, `readTextFile`, `writeTextFile`, …) |
+| 2864 | `get_SeparatedLineAndComment` |
+| 2951 | `normalizeFileCapitalization` |
 
-> **Nota:** números de linha referem-se a `c_foxbin2prg.prg` modular (~3.980 linhas). Podem variar após edições.
+> **Nota:** números de linha referem-se a `c_foxbin2prg.prg` modular (~3.400 linhas). Podem variar após edições.
+
+---
+
+## Carga restante no host (pós-2026)
+
+Após factory, logger e refatoração do `execute`, o orquestrador continua legítimo como **SESSION VFP** e fachada pública (Thor, SCM, testes). O que ainda pesa no arquivo:
+
+| Bloco | Linhas ~ | Observação |
+|---|---|---|
+| Pipeline `execute` (helpers protegidos) | ~640 | Bem decomposto (`dispatchExecuteMode`, handlers), mas ainda no host |
+| `convert` | ~350 | Maior método restante |
+| `evaluate_Full_PJX` + `evaluate_Full_PJ2` | ~340 | Loop de membros muito similar entre os dois |
+| Per-file VCX/SCX/DBC | ~280 | Usado por factory, conversores e resolução PJ2 |
+| UTF-8 / text I/O | ~90 | Usado por mirror e conversores |
+| Process tracker | ~120 | Array `a_ProcessedFiles` |
+| `get_SeparatedLineAndComment` | ~85 | **Cópia idêntica** em `cl_cus_base.prg` |
+| Wrappers finos (CFG, mirror, logger, file utils) | ~200 | Fachada intencional — não remover |
 
 ---
 
@@ -289,58 +315,132 @@ Delegação: lógica em `cl_fb2prg_cfg.prg`; `c_foxbin2prg` expõe wrappers (`en
 
 | Problema | Impacto | Estado |
 |---|---|---|
-| **`execute` monolítico (~1.170 linhas)** | Dificultava manutenção | **Mitigado** — refatorado em ~90 linhas + `dispatchExecuteMode` e handlers |
+| **`execute` monolítico (~1.170 linhas)** | Dificultava manutenção | **Resolvido** — ~90 linhas + `dispatchExecuteMode` e handlers |
 | **~38 métodos `_ACCESS` repetitivos** | Boilerplate de CFG | **Resolvido** — removidos; uso de `getCfgValue()` |
-| **`wscriptshell_run` dentro da classe** | Responsabilidade OS misturada | **Parcial** — movido para `cl_file_utils` |
-| **Duplicação `convert` ↔ `loadModule`** | Factory repetida | **Resolvido** — `cl_fb2prg_conversion_factory` + `convert(tcMode)` unificado |
-| **I/O Win32 no orquestrador** | God Object | **Parcial** — `cl_file_utils` e `cl_fb2prg_mirror` extraídos |
-| **`doBackup` / logging no host** | Classe ainda grande | **Mitigado** — `cl_fb2prg_logger` + `doBackup` em `cl_file_utils` |
+| **Duplicação `convert` ↔ `loadModule`** | Factory repetida | **Resolvido** — `cl_fb2prg_conversion_factory` + `convert(tcMode)` |
+| **`doBackup` / logging no host** | God Object | **Mitigado** — `cl_fb2prg_logger`; `doBackup` em `cl_file_utils` (wrapper no host) |
+| **I/O Win32 no orquestrador** | Responsabilidade OS misturada | **Parcial** — `cl_file_utils` e `cl_fb2prg_mirror` extraídos |
+| **Duplicação PJX ↔ PJ2** | Risco de divergência em batch | **Pendente** — loops de membros ~70% iguais |
+| **`convert` ainda grande** | Difícil manter otimizações per-file | **Pendente** — blocos VCX/SCX/DBC repetidos internamente |
+| **`get_SeparatedLineAndComment` duplicado** | ~85 linhas × 2 arquivos | **Pendente** — `c_foxbin2prg` e `cl_cus_base` |
+| **Bug em `updateProcessedFile`** | Coluna 2 usa `tcProcessed` em vez de `tcInOutType` | **Pendente** — mascarado pelos call sites atuais |
 
 ---
 
-## Sugestões de extração e reestruturação
+## Plano de melhorias restantes
 
-### Concluído ou em progresso
+### Concluído (2025–2026)
 
-| Item | Estado |
+| Item | Módulo / resultado |
 |---|---|
-| **`cl_fb2prg_cfg`** — CFG object-only, sem `evaluateConfiguration` | Concluído |
-| **`cl_file_utils`** — Win32, paths, stdout, `wscriptshell_run` | Concluído |
-| **`cl_fb2prg_mirror`** — path mapping, subdirs excluídos, cópia | Concluído |
-| **Refatorar `execute`** em métodos menores | Concluído (2026) |
-| **Modularização** — fontes em `c_*.prg` / `cl_*.prg` + `unify.txt` | Concluído |
+| CFG object-only, sem `_ACCESS` nem `.cfg` em disco | `cl_fb2prg_cfg.prg` |
+| Win32, paths, stdout, `wscriptshell_run`, `doBackup` | `cl_file_utils.prg` |
+| Árvore espelhada, subdirs excluídos, cópia | `cl_fb2prg_mirror.prg` |
+| Factory de conversores + `prepareConversion` | `cl_fb2prg_conversion_factory.prg` |
+| Logger + `exception2Str` / `doWriteErrorLog` | `cl_fb2prg_logger.prg` |
+| Unificar `convert` / `loadModule` (`tcMode`: `FULL` \| `LOAD_ONLY`) | `c_foxbin2prg.prg` |
+| Refatorar `execute` em despacho por modo | `c_foxbin2prg.prg` |
+| Modularização (`c_*.prg` / `cl_*.prg` + `unify.txt`) | Repositório |
 
-### Extrações recomendadas (prioridade restante)
+### Prioridade alta (maior impacto, risco controlado)
 
-#### 1. `cl_fb2prg_conversion_factory` (~150 linhas)
+#### 1. Unificar `evaluate_Full_PJX` e `evaluate_Full_PJ2` (~340 → ~180 linhas)
 
-```foxpro
-createConversor(tcExtension, tcInputFile)
-prepareConversion(tcExtension, tcInputFile, tcBaseFile, tcForceAttribs)  && modo FULL
-```
+Extrair loop comum de membros de projeto. Ambos repetem: setup mirror/log/recompile, exclusão por subdir/PJX/raiz, `convert`, cópia de não-convertíveis, `addProcessedFile` / `updateProcessedFile`.
 
-Substitui os dois `DO CASE` em `convert` e `loadModule`. **Concluído (2026).**
-
-#### 2. `cl_fb2prg_logger` (~150 linhas)
-
-Extrai `writeLog*`, `writeErrorLog*`, `exception2Str`, `doWriteErrorLog`. Saída stderr permanece em `cl_file_utils.errOut`. **`doBackup`** / **`getNext_BAK`** movidos para **`cl_file_utils`**. **Concluído (2026).**
-
-#### 3. Unificar `convert` e `loadModule`
-
-Parâmetro de modo:
+Esboço:
 
 ```foxpro
-convert(tcInput, toModulo, toEx, tlRelaunch, tcOriginal, tcMode)
-* tcMode: 'FULL' | 'LOAD_ONLY'
+processProjectMember(lcTextFile, lcBinFile, tlBinToText, ...)
 ```
 
-`loadModule` delega a `convert(..., 'LOAD_ONLY')`. **Concluído (2026).**
+**Ganho:** menos risco de corrigir um lado e esquecer o outro (checks de `isUnderInputRoot`, exclude PJX, etc.).
 
-#### 4. `doBackup` e rastreamento de processados
+#### 2. Refatorar `convert` internamente (~350 linhas)
 
-Candidatos a `c_FB2P_FileOps` / `c_FB2P_ProcessTracker` se a classe principal ainda crescer.
+Sem mudar assinatura pública. Extrações sugeridas:
 
-### Arquitetura atual (pós-modularização)
+```foxpro
+resolveInputBaseFile(lcExtension, lcInputFile)   && VCX/SCX/DBC — blocos quase idênticos hoje
+bindConversorFromHost(loConversor)               && props duplicadas FULL vs LOAD_ONLY
+shouldSkipByFilestamp(...)                       && otimização por timestamp
+```
+
+**Ganho:** método mais legível; hoje é o ponto mais difícil de manter.
+
+#### 3. Extrair `cl_fb2prg_per_file` (~280 linhas)
+
+Candidatos:
+
+- `getPerFileDir`, `getPerFileOutputPath`, `getPerFileSearchDir`, `getPerFileBinaryOutputPath`, `ensurePerFileDir`
+- `resolvePj2TextMemberPath`, `isPj2TextMemberAvailable`
+- `rewritePerObjectInputPath` (parte do pipeline `execute`)
+
+Incluir helper interno `normalizePerFileParams(tlUsePerDir, lnUsePerFile)` para eliminar boilerplate repetido em cada método.
+
+Manter wrappers em `c_foxbin2prg` para API estável. Usado por `cl_fb2prg_conversion_factory`, conversores `prg_a_*` e batch de projetos.
+
+### Prioridade média
+
+#### 4. Extrair pipeline `execute` → `cl_fb2prg_execute` (~640 linhas)
+
+Bloco protegido (linhas ~997–1637): `dispatchExecuteMode`, `executeDirectoryBatch`, `executeWildcardBatch`, etc. Classe helper com referência `o_Host`; `execute()` permanece fachada.
+
+**Ganho:** host ~2.700 linhas; legibilidade. **Risco:** baixo se API pública não mudar.
+
+#### 5. `cl_fb2prg_text_io` — UTF-8 e I/O texto (~90 linhas)
+
+`isExportUTF8`, `encodeTextForExport`, `decodeTextFromImport`, `readTextFile`, `writeTextFile`, `finalizeTextExportFile`, `comparedTextExportFilesEqual`, `isTextFileForEncoding`.
+
+Pode integrar `cl_file_utils` ou classe dedicada. Usado por `cl_fb2prg_mirror` e conversores.
+
+#### 6. `cl_fb2prg_process_tracker` (~120 linhas)
+
+`addProcessedFile`, `wasProcessed`, `updateProcessedFile`, `clearProcessedFiles`, `get_Processed`. Wrappers no host preservam chamadas `toFoxBin2Prg.updateProcessedFile()` nos conversores.
+
+#### 7. Deduplicar `get_SeparatedLineAndComment`
+
+Mover para módulo compartilhado (ex.: `cl_fb2prg_code_parser.prg`); `c_foxbin2prg` e `cl_cus_base` delegam.
+
+#### 8. `normalizeFileCapitalization` + `renameFile` (~150 linhas)
+
+Lógica de `filename_caps` acoplada ao host; candidata a `cl_file_utils` ou `cl_fb2prg_filename_caps`.
+
+### Correção pontual (diff pequeno, qualidade real)
+
+Em `updateProcessedFile`, coluna 2 do array parece usar parâmetro errado:
+
+```foxpro
+IF NOT EMPTY(tcInOutType)
+   .a_ProcessedFiles(tnID, 2) = EVL(tcProcessed, '')   && deveria ser tcInOutType
+ENDIF
+```
+
+Call sites atuais (`updateProcessedFile()` sem args ou `updateProcessedFile(lnID, '', '', 'E1')`) provavelmente mascaram o bug; corrigir antes de extrair o process tracker.
+
+### Ordem de implementação recomendada
+
+1. Unificar loop PJX/PJ2
+2. Refatorar `convert` por dentro (sem mudar assinatura)
+3. Extrair `cl_fb2prg_per_file`
+4. Corrigir `updateProcessedFile`
+5. Opcional: `cl_fb2prg_execute`, text I/O, process tracker, code parser
+
+Após extrações que alterem módulos listados em `unify.txt`, executar `unify.prg` para regenerar `foxbin2prg.prg`.
+
+### O que **não** extrair desta classe
+
+| Item | Motivo |
+|---|---|
+| Conversores `c_conversor_*` e modelos `CL_*` | Já modularizados em `unify.txt` |
+| Wrappers finos (`getCfgValue`, `writeLog`, `doBackup`, mirror) | Fachada deliberada para Thor, SCM e código legado |
+| Herança `Session` e estado de sessão VFP | O host deve continuar coeso como ponto de entrada |
+| Eliminar `WITH THIS AS c_foxbin2prg` | Cosmético; sem ganho funcional |
+| Quebrar em múltiplas classes de domínio | Orquestrador ≠ conversor ≠ modelo |
+
+---
+
+## Arquitetura atual (pós-modularização)
 
 ```mermaid
 classDiagram
@@ -350,6 +450,7 @@ classDiagram
         +importProjectTree()
         +applyConfig()
         +newConfig()
+        +loadModule()
     }
     class cl_fb2prg_cfg {
         +newConfig()
@@ -375,6 +476,7 @@ classDiagram
         +prepareConversion()
     }
     class c_conversor_base {
+        +convert()
         +loadModule()
     }
 
@@ -386,28 +488,56 @@ classDiagram
     c_foxbin2prg --> c_conversor_base : delega conversão
 ```
 
-### Plano de migração incremental (baixo risco)
+### Arquitetura alvo (opcional, pós-plano)
 
-1. ~~**Próximo:** Factory de conversores + unificar `convert`/`loadModule`.~~ **Concluído (2026)** — `cl_fb2prg_conversion_factory.prg`
-2. ~~**Depois:** Extrair `cl_fb2prg_logger`; mover `doBackup` para file ops.~~ **Concluído (2026)** — `cl_fb2prg_logger.prg`, `cl_file_utils.doBackup`
-3. **Opcional:** `c_FB2P_ProcessTracker` se testes exigirem isolamento.
+```mermaid
+classDiagram
+    class c_foxbin2prg {
+        +execute()
+        +convert()
+        fachada API pública
+    }
+    class cl_fb2prg_execute {
+        +dispatchExecuteMode()
+        +executeDirectoryBatch()
+    }
+    class cl_fb2prg_per_file {
+        +getPerFileOutputPath()
+        +resolvePj2TextMemberPath()
+    }
+    class cl_fb2prg_project_batch {
+        +evaluateFullPjx()
+        +evaluateFullPj2()
+    }
+    class cl_fb2prg_process_tracker {
+        +addProcessedFile()
+        +updateProcessedFile()
+    }
 
-### O que **não** extrair desta classe
-
-As classes `c_conversor_*` e modelos `CL_*` já estão em módulos separados (`unify.txt`). A sobrecarga restante está no **orquestrador** (`convert`, logging, backup), não nos conversores.
+    c_foxbin2prg --> cl_fb2prg_execute
+    c_foxbin2prg --> cl_fb2prg_per_file
+    c_foxbin2prg --> cl_fb2prg_project_batch
+    c_foxbin2prg --> cl_fb2prg_process_tracker
+    c_foxbin2prg --> cl_fb2prg_conversion_factory
+    c_foxbin2prg --> cl_fb2prg_cfg
+    c_foxbin2prg --> cl_fb2prg_logger
+    c_foxbin2prg --> cl_file_utils
+    c_foxbin2prg --> cl_fb2prg_mirror
+```
 
 ---
 
 ## Conclusão
 
-`c_foxbin2prg` concentra **orquestração**, **delegação de conversão**, **batch de projetos** e **API de espelhamento**. Desde 2025–2026 a classe encolheu (~6.000 → ~4.000 linhas) com:
+`c_foxbin2prg` concentra **orquestração**, **delegação de conversão**, **batch de projetos** e **API de espelhamento**. Desde 2025–2026 a classe encolheu (~6.000 → ~3.400 linhas) com:
 
-1. CFG object-only em `cl_fb2prg_cfg` (sem `_ACCESS` nem `.cfg` em disco)
-2. Helpers `cl_file_utils` e `cl_fb2prg_mirror`
+1. CFG object-only em `cl_fb2prg_cfg`
+2. Helpers `cl_file_utils`, `cl_fb2prg_mirror`, `cl_fb2prg_logger`, `cl_fb2prg_conversion_factory`
 3. `execute` refatorado com despacho por modo
-4. Suporte UTF-8 (`l_ExportUTF8`) integrado ao pipeline texto
+4. `convert` / `loadModule` unificados via `tcMode`
+5. Suporte UTF-8 (`l_ExportUTF8`) integrado ao pipeline texto
 
-Próximo ganho opcional: `c_FB2P_ProcessTracker` (rastreamento de processados), mantendo a API pública estável para SCM, Thor e testes.
+O retorno marginal das próximas extrações é menor que o já realizado, mas ainda há ganhos significativos em **unificação PJX/PJ2**, **refatoração interna de `convert`** e **módulo per-file**. A API pública deve permanecer estável para SCM, Thor e testes unitários.
 
 ---
 
