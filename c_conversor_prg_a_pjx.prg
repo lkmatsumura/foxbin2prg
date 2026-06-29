@@ -334,7 +334,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
          , toProject._SccData ;
          , .T. ;
          , Strconv(toProject._User,14) ;
-         , Upper( Juststem( This.c_OutputFile) ) )
+         , Upper( Juststem( lcOutputFile) ) )
 
    Endproc
 

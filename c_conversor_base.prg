@@ -1557,7 +1557,7 @@ Define Class c_conversor_base As Custom
       Lparameters tcDir
       Local lcDir, lnLevels, I, lcPartial, laParts(1)
 
-      lcDir   = Rtrim( Evl(tcDir,''), 0, ' ', '\', '/' )
+      lcDir   = Rtrim( Evl(tcDir,''), ' ', '\', '/' )
 
       If Empty(lcDir)
          Return .F.
@@ -1602,7 +1602,7 @@ Define Class c_conversor_base As Custom
       Endfor
 
       Release lcDir, lnLevels, I, lcPartial, laParts
-      Return Directory( Rtrim(tcDir,0,' ','\','/') )
+      Return Directory( Rtrim(tcDir,' ','\','/') )
    Endproc
 
 
@@ -1640,6 +1640,11 @@ Define Class c_conversor_base As Custom
          lcResult    = Forcepath( tcOutputFile, This.cOutputFolder )
 
       Endcase
+      * Remove double backslashes
+      Do While '\\' $ lcResult OR '//' $ lcResult
+         lcResult = Strtran(lcResult, '\\', '\')
+         lcResult = Strtran(lcResult, '//', '/')
+      Enddo
 
       *-- Ensure the destination folder exists (and is not blocked by a previous plain file)
       lcOutDir    = Justpath(lcResult)
