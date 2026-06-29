@@ -14597,12 +14597,6 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'foxbin2prg.prg'
       #Endif
       LOCAL lcOutputFile
 
-      * Fullpath adjusts the path to the correct format.
-      * Don't know why, but sometimes This.cOutputFile is like "c:\path\to\\file.pjx"  (double backslash)
-      if '\\' $ This.c_OutputFile
-         Strtofile(This.c_OutputFile, 'c_output_file.txt')
-         Error 'Double backslash in output file'
-      Endif
       lcOutputFile = Fullpath(This.c_OutputFile)
 
       Insert Into TABLABIN ;
@@ -20419,11 +20413,6 @@ Define Class CL_DBC_INDEX_DB As CL_DBC_BASE Of 'foxbin2prg.prg'
    Endproc
 
 
-Enddefine
-
-
-
-Define Class CL_DBC_INDEX_VW As CL_DBC_INDEX_DB Of 'foxbin2prg.prg'
 Enddefine
 
 
