@@ -599,4 +599,149 @@ DEFINE CLASS cl_file_utils AS Custom
       RETURN lcReturn
    ENDFUNC
 
+
+   FUNCTION getNext_BAK
+      *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcOutputFileName          (v! IN    ) Output file name for which to create a backup suffix
+      *---------------------------------------------------------------------------------------------------
+      * RETURN: Next available backup extension (.BAK, .01.BAK, ...) per n_ExtraBackupLevels on host CFG.
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcOutputFileName
+      LOCAL lcNext_Bak, I, laDirInfo(1,5), loHost
+
+      loHost = This.o_Host
+      IF VARTYPE(loHost) <> 'O'
+         RETURN '.BAK'
+      ENDIF
+
+      lcNext_Bak = '.BAK'
+
+      FOR I = 1 TO loHost.getCfgValue('n_ExtraBackupLevels')
+         IF m.I = 1
+            IF NOT ADIR( laDirInfo, tcOutputFileName + '.BAK' ) > 0 THEN
+               lcNext_Bak = '.BAK'
+               EXIT
+            ENDIF
+         ELSE
+            IF NOT ADIR( laDirInfo, tcOutputFileName + '.' + PADL(m.I-1,1,'0') + '.BAK' ) > 0 THEN
+               lcNext_Bak = '.' + PADL(m.I-1,1,'0') + '.BAK'
+               EXIT
+            ENDIF
+         ENDIF
+      ENDFOR
+
+      RETURN lcNext_Bak
+   ENDFUNC
+
+
+   PROCEDURE doBackup
+      *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * toEx                      (@? IN    ) Exception object with error information
+      * tlRelanzarError           (v? IN    ) Whether the error should be re-thrown
+      * tcBakFile_1               (@?    OUT) Backup file 1 name (vcx,scx,pjx,frx,lbx,dbf,dbc,mnx,vc2,sc2,pj2,etc)
+      * tcBakFile_2               (@?    OUT) Backup file 2 name (vct,sct,pjt,frt,lbt,fpt,dct,mnt,etc)
+      * tcBakFile_3               (@?    OUT) Backup file 3 name (cdx,dcx,etc)
+      * tcOutputFile              (v? IN    ) Output file name. If omitted, o_Host.c_OutputFile is assumed
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS toEx, tlRelanzarError, tcBakFile_1, tcBakFile_2, tcBakFile_3, tcOutputFile
+
+      TRY
+         LOCAL lcNext_Bak, lcExt_1, lcExt_2, lcExt_3, tcOutputFile_Ext1, tcOutputFile_Ext2, tcOutputFile_Ext3, laDir(1,5) ;
+            , loLang AS CL_LANG OF 'cl_lang.prg', loHost
+         STORE '' TO tcBakFile_1, tcBakFile_2, tcBakFile_3, lcExt_1, lcExt_2, lcExt_3 ;
+            , tcOutputFile_Ext1, tcOutputFile_Ext2, tcOutputFile_Ext3
+
+         loHost = This.o_Host
+         IF VARTYPE(loHost) <> 'O'
+            RETURN
+         ENDIF
+
+         IF loHost.getCfgValue('n_ExtraBackupLevels') > 0 THEN
+            loLang       = _SCREEN.o_FoxBin2Prg_Lang
+            tcOutputFile = EVL( tcOutputFile, loHost.c_OutputFile )
+            lcNext_Bak   = This.getNext_BAK( tcOutputFile )
+            lcExt_1      = JUSTEXT( tcOutputFile )
+            tcBakFile_1  = FORCEEXT(tcOutputFile, lcExt_1 + lcNext_Bak)
+
+            DO CASE
+            CASE INLIST( lcExt_1, loHost.getCfgValue('c_PJ2'), loHost.getCfgValue('c_VC2'), loHost.getCfgValue('c_SC2'), loHost.getCfgValue('c_FR2') ;
+                                , loHost.getCfgValue('c_FR2D'), loHost.getCfgValue('c_LB2'), loHost.getCfgValue('c_LB2D'), loHost.getCfgValue('c_DB2');
+                                , loHost.getCfgValue('c_DC2'), loHost.getCfgValue('c_MN2'), loHost.getCfgValue('c_FK2'), loHost.getCfgValue('c_ME2'), 'PJM' )
+               *-- TEXT extensions
+
+            CASE lcExt_1 == 'DBF'
+               lcExt_2     = 'FPT'
+               lcExt_3     = 'CDX'
+               tcBakFile_2 = FORCEEXT(tcOutputFile, lcExt_2 + lcNext_Bak)
+               tcBakFile_3 = FORCEEXT(tcOutputFile, lcExt_3 + lcNext_Bak)
+
+            CASE lcExt_1 == 'DBC'
+               lcExt_2     = 'DCT'
+               lcExt_3     = 'DCX'
+               tcBakFile_2 = FORCEEXT(tcOutputFile, lcExt_2 + lcNext_Bak)
+               tcBakFile_3 = FORCEEXT(tcOutputFile, lcExt_3 + lcNext_Bak)
+
+            CASE INLIST( lcExt_1, 'PJX', 'VCX', 'SCX', 'FRX', 'LBX', 'MNX' )
+               lcExt_2     = LEFT(lcExt_1,2) + 'T'
+               tcBakFile_2 = FORCEEXT(tcOutputFile, lcExt_2 + lcNext_Bak)
+
+            OTHERWISE
+               *-- PKY, MEM
+
+            ENDCASE
+
+            IF NOT EMPTY(lcExt_1)
+               tcOutputFile_Ext1 = FORCEEXT(tcOutputFile, lcExt_1)
+
+               IF ADIR( laDir, tcOutputFile_Ext1 ) > 0 THEN
+                  DO CASE
+                  CASE EMPTY(lcExt_2)
+                     This.hostWriteLog( C_TAB + loLang.C_BACKUP_OF_LOC + tcOutputFile_Ext1 )
+                  CASE EMPTY(lcExt_3)
+                     This.hostWriteLog( C_TAB + loLang.C_BACKUP_OF_LOC + tcOutputFile_Ext1 + '/' + lcExt_2 )
+                  OTHERWISE
+                     This.hostWriteLog( C_TAB + loLang.C_BACKUP_OF_LOC + tcOutputFile_Ext1 + '/' + lcExt_2 + '/' + lcExt_3 )
+                  ENDCASE
+
+                  COPY FILE ( tcOutputFile_Ext1 ) TO ( tcBakFile_1 )
+
+                  IF NOT EMPTY(lcExt_2)
+                     tcOutputFile_Ext2 = FORCEEXT(tcOutputFile, lcExt_2)
+
+                     IF ADIR( laDir, tcOutputFile_Ext2 ) > 0 THEN
+                        COPY FILE ( tcOutputFile_Ext2 ) TO ( tcBakFile_2 )
+                     ENDIF
+                  ENDIF
+
+                  IF NOT EMPTY(lcExt_3)
+                     tcOutputFile_Ext3 = FORCEEXT(tcOutputFile, lcExt_3)
+
+                     IF ADIR( laDir, tcOutputFile_Ext3 ) > 0 THEN
+                        COPY FILE ( tcOutputFile_Ext3 ) TO ( tcBakFile_3 )
+                     ENDIF
+                  ENDIF
+               ENDIF
+            ENDIF
+         ENDIF
+
+      CATCH TO toEx
+         IF VARTYPE(This.o_Host) = 'O' AND This.o_Host.getCfgValue('n_Debug') > 0 AND _VFP.STARTMODE = 0
+            SET STEP ON
+         ENDIF
+
+         IF tlRelanzarError
+            THROW
+         ENDIF
+
+      FINALLY
+         RELEASE toEx, tlRelanzarError, tcBakFile_1, tcBakFile_2, tcBakFile_3 ;
+            , lcNext_Bak, lcExt_1, lcExt_2, lcExt_3, tcOutputFile_Ext1, tcOutputFile_Ext2, tcOutputFile_Ext3 ;
+            , tcOutputFile
+      ENDTRY
+
+      RETURN
+   ENDPROC
+
 ENDDEFINE

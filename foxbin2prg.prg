@@ -477,6 +477,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    o_FileUtils                     = .NULL.        && cl_file_utils (Win32 / path helpers)
    o_Mirror                        = .NULL.        && cl_fb2prg_mirror (mirrored project tree)
    o_Cfg                           = .NULL.        && cl_fb2prg_cfg (configuration manager)
+   o_ConversionFactory             = .NULL.        && cl_fb2prg_conversion_factory (converter routing)
+   o_Logger                        = .NULL.        && cl_fb2prg_logger (session debug/error log)
    o_SpecialProps                  = .NULL.        && cl_fb2prg_special_props (property sort order)
    o_TextStream                    = .NULL.        && Scripting.TextStream
    o_FNC                           = .NULL.        && Filename_caps object
@@ -783,6 +785,18 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       ENDIF
    ENDPROC
 
+   PROCEDURE ensureConversionFactory
+      IF VARTYPE(This.o_ConversionFactory) <> 'O' OR ISNULL(This.o_ConversionFactory)
+         This.o_ConversionFactory = CreateObject('cl_fb2prg_conversion_factory' ,  This)
+      ENDIF
+   ENDPROC
+
+   PROCEDURE ensureLogger
+      IF VARTYPE(This.o_Logger) <> 'O' OR ISNULL(This.o_Logger)
+         This.o_Logger = CreateObject('cl_fb2prg_logger' ,  This)
+      ENDIF
+   ENDPROC
+
    PROCEDURE declareDLL
       This.ensureFileUtils()
       This.o_FileUtils.declareDLL()
@@ -891,108 +905,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       * tcOutputFile              (v? IN    ) Output file name. If omitted, .c_OutputFile is assumed
       *---------------------------------------------------------------------------------------------------
       LPARAMETERS toEx, tlRelanzarError, tcBakFile_1, tcBakFile_2, tcBakFile_3, tcOutputFile
-
-      #IF .F.
-         LOCAL toFoxBin2Prg AS c_foxbin2prg Of 'foxbin2prg.prg'
-      #ENDIF
-
-      TRY
-         LOCAL lcNext_Bak, lcExt_1, lcExt_2, lcExt_3, tcOutputFile_Ext1, tcOutputFile_Ext2, tcOutputFile_Ext3, laDir(1,5) ;
-            , loLang AS CL_LANG Of 'foxbin2prg.prg'
-         STORE '' TO tcBakFile_1, tcBakFile_2, tcBakFile_3, lcExt_1, lcExt_2, lcExt_3 ;
-            , tcOutputFile_Ext1, tcOutputFile_Ext2, tcOutputFile_Ext3
-
-         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
-            IF .getCfgValue('n_ExtraBackupLevels') > 0 THEN
-               loLang          = _SCREEN.o_FoxBin2Prg_Lang
-               tcOutputFile    = EVL( tcOutputFile, .c_OutputFile )
-               lcNext_Bak      = .getNext_BAK( tcOutputFile )
-               lcExt_1         = JUSTEXT( tcOutputFile )
-               tcBakFile_1     = FORCEEXT(tcOutputFile, lcExt_1 + lcNext_Bak)
-
-               DO CASE
-               CASE INLIST( lcExt_1, .getCfgValue('c_PJ2'), .getCfgValue('c_VC2'), .getCfgValue('c_SC2'), .getCfgValue('c_FR2') ;
-                                   , .getCfgValue('c_FR2D'), .getCfgValue('c_LB2'), .getCfgValue('c_LB2D'), .getCfgValue('c_DB2');
-                                   , .getCfgValue('c_DC2'), .getCfgValue('c_MN2'), .getCfgValue('c_FK2'), .getCfgValue('c_ME2'), 'PJM' )
-                  *-- TEXT extensions
-
-               CASE lcExt_1 = 'DBF'
-                  *-- DBF
-                  lcExt_2     = 'FPT'
-                  lcExt_3     = 'CDX'
-                  tcBakFile_2 = FORCEEXT(tcOutputFile, lcExt_2 + lcNext_Bak)
-                  tcBakFile_3 = FORCEEXT(tcOutputFile, lcExt_3 + lcNext_Bak)
-
-               CASE lcExt_1 = 'DBC'
-                  *-- DBC
-                  lcExt_2     = 'DCT'
-                  lcExt_3     = 'DCX'
-                  tcBakFile_2 = FORCEEXT(tcOutputFile, lcExt_2 + lcNext_Bak)
-                  tcBakFile_3 = FORCEEXT(tcOutputFile, lcExt_3 + lcNext_Bak)
-
-               CASE INLIST( lcExt_1, 'PJX', 'VCX', 'SCX', 'FRX', 'LBX', 'MNX' )
-                  *-- PJX, VCX, SCX, FRX, LBX, MNX
-                  lcExt_2     = LEFT(lcExt_1,2) + 'T'
-                  tcBakFile_2 = FORCEEXT(tcOutputFile, lcExt_2 + lcNext_Bak)
-
-               OTHERWISE
-                  *-- PKY, MEM
-
-               ENDCASE
-
-               IF NOT EMPTY(lcExt_1)
-                  tcOutputFile_Ext1   = FORCEEXT(tcOutputFile, lcExt_1)
-
-                  IF ADIR( laDir, tcOutputFile_Ext1 ) > 0 THEN
-                     *-- LOG
-                     DO CASE
-                     CASE EMPTY(lcExt_2)
-                        .writeLog( C_TAB + loLang.C_BACKUP_OF_LOC + tcOutputFile_Ext1 )
-                     CASE EMPTY(lcExt_3)
-                        .writeLog( C_TAB + loLang.C_BACKUP_OF_LOC + tcOutputFile_Ext1 + '/' + lcExt_2 )
-                     OTHERWISE
-                        .writeLog( C_TAB + loLang.C_BACKUP_OF_LOC + tcOutputFile_Ext1 + '/' + lcExt_2 + '/' + lcExt_3 )
-                     ENDCASE
-
-                     *-- BACKUP COPY
-                     COPY FILE ( tcOutputFile_Ext1 ) TO ( tcBakFile_1 )
-
-                     IF NOT EMPTY(lcExt_2)
-                        tcOutputFile_Ext2   = FORCEEXT(tcOutputFile, lcExt_2)
-
-                        IF ADIR( laDir, tcOutputFile_Ext2 ) > 0 THEN
-                           COPY FILE ( tcOutputFile_Ext2 ) TO ( tcBakFile_2 )
-                        ENDIF
-                     ENDIF
-
-                     IF NOT EMPTY(lcExt_3)
-                        tcOutputFile_Ext3   = FORCEEXT(tcOutputFile, lcExt_3)
-
-                        IF ADIR( laDir, tcOutputFile_Ext3 ) > 0 THEN
-                           COPY FILE ( tcOutputFile_Ext3 ) TO ( tcBakFile_3 )
-                        ENDIF
-                     ENDIF
-                  ENDIF
-               ENDIF
-            ENDIF
-         ENDWITH && THIS
-
-      CATCH TO toEx
-         IF This.getCfgValue('n_Debug') > 0 AND _VFP.STARTMODE = 0
-            SET STEP ON
-         ENDIF
-
-         IF tlRelanzarError
-            THROW
-         ENDIF
-
-      FINALLY
-         RELEASE toEx, tlRelanzarError, tcBakFile_1, tcBakFile_2, tcBakFile_3 ;
-            , lcNext_Bak, lcExt_1, lcExt_2, lcExt_3, tcOutputFile_Ext1, tcOutputFile_Ext2, tcOutputFile_Ext3 ;
-            , tcOutputFile
-      ENDTRY
-
-      RETURN
+      This.ensureFileUtils()
+      This.o_FileUtils.doBackup( @toEx, tlRelanzarError, @tcBakFile_1, @tcBakFile_2, @tcBakFile_3, tcOutputFile )
    ENDPROC
 
 
@@ -2481,33 +2395,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    HIDDEN PROCEDURE doWriteErrorLog
       LPARAMETERS toEx AS EXCEPTION, tcErrorInfo
-
-      LOCAL loLang AS CL_LANG Of 'foxbin2prg.prg'
-      loLang          = _SCREEN.o_FoxBin2Prg_Lang
-
-      WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
-         IF toEx.ERRORNO = 1799 THEN     && Conversion Cancelled
-            tcErrorInfo     = loLang.C_CONVERSION_CANCELLED_BY_USER_LOC
-         ELSE
-            tcErrorInfo     = .exception2Str(@toEx) + CR_LF + loLang.C_SOURCEFILE_LOC + TRANSFORM(.c_InputFile) + CR_LF
-         ENDIF
-
-         ADDPROPERTY(_SCREEN, 'ExitCode', toEx.ERRORNO)
-
-         *-- Write error information to the error log variable
-         .writeErrorLog( REPLICATE('-', 100), 1 )
-         .writeLog( tcErrorInfo )
-         .writeErrorLog( tcErrorInfo )
-         .writeErrorLog( )
-
-         *-- Write error information to the error log file
-         TRY
-            STRTOFILE( tcErrorInfo, EVL( .c_InputFile, 'foxbin2prg_errorlog' ) + '.ERR' )
-         CATCH
-         ENDTRY
-      ENDWITH
-
-      RETURN
+      This.ensureLogger()
+      This.o_Logger.doWriteErrorLog( @toEx, @tcErrorInfo )
    ENDPROC
 
 
@@ -2520,18 +2409,27 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       * tlRelanzarError           (v? IN    ) Whether the error should be re-thrown
       * tcOriginalFileName        (v? IN    ) For cases where inputFile is a temporary name and the correct name should be generated
       *                                       the correct name within the text version (e.g. in PJ2 and headers)
+      * tcMode                    (v? IN    ) 'FULL' (default) | 'LOAD_ONLY'
       *--------------------------------------------------------------------------------------------------------------
-      LPARAMETERS tc_InputFile, toModulo, toEx AS EXCEPTION, tlRelanzarError, tcOriginalFileName
+      LPARAMETERS tc_InputFile, toModulo, toEx AS EXCEPTION, tlRelanzarError, tcOriginalFileName, tcMode
 
       TRY
          LOCAL lnCodError, lcErrorInfo, laDirFile(1,5), lcExtension, lnFileCount, laFiles(1,1), I ;
-            , ltFilestamp, lcExtA, lcExtB, laEvents(1,1), lcForceAttribs, lnIDInputFile, llFox2x ;
+            , ltFilestamp, lcExtA, lcExtB, laEvents(1,1), lcForceAttribs, lnIDInputFile, llLoadOnly, lc_OldSetNotify, lc_BaseFile ;
             , loLang AS CL_LANG Of 'foxbin2prg.prg' ;
             , loConversor AS c_conversor_base Of 'foxbin2prg.prg' ;
             , loFSO AS Scripting.FileSystemObject
          lnCodError          = 0
+         tcMode              = Upper( Evl(tcMode, 'FULL') )
+         llLoadOnly          = (tcMode = 'LOAD_ONLY')
 
          WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
+            IF llLoadOnly
+               STORE .NULL. TO toModulo
+               lc_OldSetNotify = SET("Notify")
+               SET NOTIFY OFF
+            ENDIF
+
             loFSO           = .o_FSO
             loLang          = _SCREEN.o_FoxBin2Prg_Lang
             lcForceAttribs  = '+N'
@@ -2540,127 +2438,116 @@ DEFINE CLASS c_foxbin2prg AS SESSION
             lcExtension     = UPPER( JUSTEXT(.c_InputFile) )
 
             .writeLog( REPLICATE( '*', 100 ) )
-            .writeLog( 'CONVERSION PROCESS', 2 )
+            .writeLog( IIF(llLoadOnly, 'LOAD MODULE', 'CONVERSION PROCESS'), 2 )
             .writeLog( REPLICATE( '*', 100 ) )
 
             IF ADIR( laDirFile, .c_InputFile, '', 1 ) = 0
-               *ERROR 'File not found [' + .c_InputFile + ']'
                ERROR loLang.C_FILE_NOT_FOUND_LOC + ' [' + .c_InputFile + ']'
             ENDIF
 
             .c_InputFile    = loFSO.GetAbsolutePathName( FORCEPATH( laDirFile(1,1), JUSTPATH(.c_InputFile) ) )
 
-            IF .n_ForceWriteIfReadOnly = 1 THEN
-               lcForceAttribs  = lcForceAttribs + '-R'
-            ENDIF
+            IF NOT llLoadOnly
+               IF .n_ForceWriteIfReadOnly = 1 THEN
+                  lcForceAttribs  = lcForceAttribs + '-R'
+               ENDIF
 
-            *!* Changed by: LScheffler 03.03.2021
-            *!* change date="{^2021-03-03,11:38:00}"
-            * Added option for DBC split
+               *-- VC2/SC2 OPTIMIZATION: CHECK WHETHER BASE FILE WAS PROCESSED TO SKIP REPROCESSING
+               IF INLIST(lcExtension,"VCX",.getCfgValue('c_VC2'));
+                     AND (.getCfgValue('n_UseClassPerFile') > 0 AND .getCfgValue('l_RedirectClassPerFileToMain') ;
+                     OR NOT EMPTY(.c_ClassToConvert))
 
-            *-- VC2/SC2 OPTIMIZATION: CHECK WHETHER BASE FILE WAS PROCESSED TO SKIP REPROCESSING
-            IF INLIST(lcExtension,"VCX",.getCfgValue('c_VC2'));
-                  AND (.getCfgValue('n_UseClassPerFile') > 0 AND .getCfgValue('l_RedirectClassPerFileToMain') ;
-                  OR NOT EMPTY(.c_ClassToConvert))
+                  DO CASE
 
-               DO CASE
+                  CASE .getCfgValue('n_RedirectClassType') = 1 OR NOT EMPTY(.c_ClassToConvert) && Redirect only this class
+                     IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
+                        lc_BaseFile = .c_InputFile
+                     ELSE
+                        lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM(.c_InputFile) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
+                     ENDIF
 
-               CASE .getCfgValue('n_RedirectClassType') = 1 OR NOT EMPTY(.c_ClassToConvert) && Redirect only this class
-                  IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
-                     lc_BaseFile = .c_InputFile
-                  ELSE
-                     lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM(.c_InputFile) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
-                  ENDIF
+                  CASE .getCfgValue('n_UseClassPerFile') = 1 AND INLIST(lcExtension,.getCfgValue('c_VC2'))
+                     IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
+                        lc_BaseFile = .c_InputFile
+                     ELSE
+                        lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM(.c_InputFile) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
+                     ENDIF
 
-               CASE .getCfgValue('n_UseClassPerFile') = 1 AND INLIST(lcExtension,.getCfgValue('c_VC2'))
-                  IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
-                     lc_BaseFile = .c_InputFile
-                  ELSE
-                     lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM(.c_InputFile) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
-                  ENDIF
+                     IF '.' $ JUSTSTEM(.c_InputFile)
+                        .c_InputFile    = lc_BaseFile
+                     ENDIF
 
-                  *-- Check whether redirection to the main file should be forced
-                  IF '.' $ JUSTSTEM(.c_InputFile)
-                     .c_InputFile    = lc_BaseFile
-                  ENDIF
-                  ** LScheffler, Problem, Fehler: DC2 hier nicht, das muss anders mit UseFilesPerDBC
-               CASE .getCfgValue('n_UseClassPerFile') = 2 AND INLIST(lcExtension,.getCfgValue('c_VC2'))
+                  CASE .getCfgValue('n_UseClassPerFile') = 2 AND INLIST(lcExtension,.getCfgValue('c_VC2'))
+                     IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
+                        lc_BaseFile = .c_InputFile
+                     ELSE
+                        lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM( JUSTSTEM(.c_InputFile) ) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
+                     ENDIF
+
+                     IF '.' $ JUSTSTEM(.c_InputFile)
+                        .c_InputFile    = lc_BaseFile
+                     ENDIF
+
+                  ENDCASE
+               ENDIF
+
+               IF INLIST(lcExtension,"SCX",.getCfgValue('c_SC2'));
+                     AND (.getCfgValue('n_UseFormPerFile') > 0 AND .getCfgValue('l_RedirectFormPerFileToMain') ;
+                     OR NOT EMPTY(.c_ClassToConvert))
+
+                  DO CASE
+
+                  CASE .getCfgValue('n_RedirectFormType') = 1 OR NOT EMPTY(.c_ClassToConvert) && Redirect only this class
+                     IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
+                        lc_BaseFile = .c_InputFile
+                     ELSE
+                        lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM(.c_InputFile) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
+                     ENDIF
+
+                  CASE .getCfgValue('n_UseFormPerFile') = 1 AND INLIST(lcExtension,.getCfgValue('c_SC2'))
+                     IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
+                        lc_BaseFile = .c_InputFile
+                     ELSE
+                        lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM(.c_InputFile) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
+                     ENDIF
+
+                     IF '.' $ JUSTSTEM(.c_InputFile)
+                        .c_InputFile    = lc_BaseFile
+                     ENDIF
+
+                  CASE .getCfgValue('n_UseFormPerFile') = 2 AND INLIST(lcExtension,.getCfgValue('c_SC2'))
+                     IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
+                        lc_BaseFile = .c_InputFile
+                     ELSE
+                        lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM( JUSTSTEM(.c_InputFile) ) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
+                     ENDIF
+
+                     IF '.' $ JUSTSTEM(.c_InputFile)
+                        .c_InputFile    = lc_BaseFile
+                     ENDIF
+
+                  ENDCASE
+               ENDIF
+
+               *-- DC2 OPTIMIZATION: CHECK WHETHER BASE FILE WAS PROCESSED TO SKIP REPROCESSING
+               IF INLIST(lcExtension,"DBC",.getCfgValue('c_DC2'));
+                     AND .getCfgValue('n_UseFilesPerDBC') > 0 AND .getCfgValue('l_RedirectFilePerDBCToMain');
+                     AND .getCfgValue('n_UseFilesPerDBC') = 1
+
                   IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
                      lc_BaseFile = .c_InputFile
                   ELSE
                      lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM( JUSTSTEM(.c_InputFile) ) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
                   ENDIF
 
-                  *-- Check whether redirection to the main file should be forced
                   IF '.' $ JUSTSTEM(.c_InputFile)
                      .c_InputFile    = lc_BaseFile
                   ENDIF
 
-               ENDCASE
-            ENDIF
-
-            IF INLIST(lcExtension,"SCX",.getCfgValue('c_SC2'));
-                  AND (.getCfgValue('n_UseFormPerFile') > 0 AND .getCfgValue('l_RedirectFormPerFileToMain') ;
-                  OR NOT EMPTY(.c_ClassToConvert))
-
-               DO CASE
-
-               CASE .getCfgValue('n_RedirectFormType') = 1 OR NOT EMPTY(.c_ClassToConvert) && Redirect only this class
-                  IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
-                     lc_BaseFile = .c_InputFile
-                  ELSE
-                     lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM(.c_InputFile) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
-                  ENDIF
-
-               CASE .getCfgValue('n_UseFormPerFile') = 1 AND INLIST(lcExtension,.getCfgValue('c_SC2'))
-                  IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
-                     lc_BaseFile = .c_InputFile
-                  ELSE
-                     lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM(.c_InputFile) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
-                  ENDIF
-
-                  *-- Check whether redirection to the main file should be forced
-                  IF '.' $ JUSTSTEM(.c_InputFile)
-                     .c_InputFile    = lc_BaseFile
-                  ENDIF
-                  ** LScheffler, Problem, Fehler: DC2 hier nicht, das muss anders mit UseFilesPerDBC
-               CASE .getCfgValue('n_UseFormPerFile') = 2 AND INLIST(lcExtension,.getCfgValue('c_SC2'))
-                  IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
-                     lc_BaseFile = .c_InputFile
-                  ELSE
-                     lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM( JUSTSTEM(.c_InputFile) ) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
-                  ENDIF
-
-                  *-- Check whether redirection to the main file should be forced
-                  IF '.' $ JUSTSTEM(.c_InputFile)
-                     .c_InputFile    = lc_BaseFile
-                  ENDIF
-
-               ENDCASE
-            ENDIF
-            *****************************
-
-            *-- DC2 OPTIMIZATION: CHECK WHETHER BASE FILE WAS PROCESSED TO SKIP REPROCESSING
-            IF INLIST(lcExtension,"DBC",.getCfgValue('c_DC2'));
-                  AND .getCfgValue('n_UseFilesPerDBC') > 0 AND .getCfgValue('l_RedirectFilePerDBCToMain');
-                  AND .getCfgValue('n_UseFilesPerDBC') = 1
-
-               IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
-                  lc_BaseFile = .c_InputFile
-               ELSE
-                  lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM( JUSTSTEM(.c_InputFile) ) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
                ENDIF
 
-               *-- Check whether redirection to the main file should be forced
-               IF '.' $ JUSTSTEM(.c_InputFile)
-                  .c_InputFile    = lc_BaseFile
-               ENDIF
-
+               ERASE ( .c_InputFile + '.ERR' )
             ENDIF
-
-            *!* /Changed by: LScheffler 03.03.2021
-
-            ERASE ( .c_InputFile + '.ERR' )
 
             IF NOT EMPTY(tcOriginalFileName)
                tcOriginalFileName  = loFSO.GetAbsolutePathName( tcOriginalFileName )
@@ -2668,15 +2555,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
             .c_OriginalFileName = EVL( tcOriginalFileName, .c_InputFile )
 
-            *-- addProcessedFile( tcFile, tcInOutType, tcProcessed, tcHasErrors, tcSupported, tcExpanded )
-            IF NOT .addProcessedFile( .c_InputFile, 'I', 'P1', 'E0', 'S1', 'X0' ) THEN
-               *.writeLog( 'OPTIMIZATION: Base file [' + JUSTFNAME(lc_BaseFile) + '] was already processed, so [' + JUSTFNAME(.c_InputFile) + '] will not be processed' )
-               .writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE( loLang.C_CLASSPERFILE_OPTIMIZATION_BASE_ALREADY_PROCESSED_LOC ) )
-               EXIT
+            IF NOT llLoadOnly
+               IF NOT .addProcessedFile( .c_InputFile, 'I', 'P1', 'E0', 'S1', 'X0' ) THEN
+                  .writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE( loLang.C_CLASSPERFILE_OPTIMIZATION_BASE_ALREADY_PROCESSED_LOC ) )
+                  EXIT
+               ENDIF
+               lnIDInputFile   = .n_ProcessedFiles
+            ELSE
+               lnIDInputFile   = .n_ProcessedFiles
             ENDIF
-
-            *.updateProcessedFile()
-            lnIDInputFile   = .n_ProcessedFiles
 
             .writeLog( C_TAB + 'c_OriginalFileName:           ' + .c_OriginalFileName )
             .writeLog( )
@@ -2685,320 +2572,118 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                ERROR loLang.C_FILE_DOESNT_EXIST_LOC + ' [' + .c_InputFile + ']'
             ENDIF
 
-            .normalizeFileCapitalization( .T. )
-
-            DO CASE
-            CASE lcExtension = 'VCX'
-               IF NOT INLIST(.getCfgValue('n_VCX_Conversion_Support'), 1, 2)
-                  ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-               ENDIF
-               .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_VC2') )
-               loConversor     = CreateObject( 'c_conversor_vcx_a_prg'   )
-               IF .getCfgInt('n_UseClassPerFile') > 0 AND .getCfgFlag('l_UseClassPerDir')
-                  .changeFileAttribute( .getPerFileOutputPath( .c_InputFile, '', .getCfgValue('c_VC2'), .T., .getCfgInt('n_UseClassPerFile') ), lcForceAttribs )
-               ELSE
-                  .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_VC2') ), lcForceAttribs )
-               ENDIF
-
-            CASE lcExtension = 'SCX'
-               IF NOT INLIST(.getCfgValue('n_SCX_Conversion_Support'), 1, 2)
-                  ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-               ENDIF
-               .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_SC2') )
-               loConversor     = CreateObject( 'c_conversor_scx_a_prg'   )
-               IF .getCfgInt('n_UseFormPerFile') > 0 AND .getCfgFlag('l_UseFormPerDir')
-                  .changeFileAttribute( .getPerFileOutputPath( .c_InputFile, '', .getCfgValue('c_SC2'), .T., .getCfgInt('n_UseFormPerFile') ), lcForceAttribs )
-               ELSE
-                  .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_SC2') ), lcForceAttribs )
-               ENDIF
-
-            CASE lcExtension = 'PJX'
-               IF NOT INLIST(.getCfgValue('n_PJX_Conversion_Support'), 1, 2)
-                  ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-               ENDIF
-               .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_PJ2') )
-               loConversor     = CreateObject( 'c_conversor_pjx_a_prg'   )
-
-               .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_PJ2') ), lcForceAttribs )
-
-            CASE lcExtension = 'FRX'
-               IF NOT INLIST(.getCfgValue('n_FRX_Conversion_Support'), 1, 2)
-                  ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-               ENDIF
-               llFox2x = .detectFox2xRptLbl(.c_InputFile)
-               IF llFox2x
-                  .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_FR2D') )
-                  .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_FR2D') ), lcForceAttribs )
-               ELSE
-                  .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_FR2') )
-                  .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_FR2') ), lcForceAttribs )
-               ENDIF
-               loConversor     = CreateObject( 'c_conversor_frx_a_prg'   )
-               loConversor.l_Fox2x = llFox2x
-
-            CASE lcExtension = 'LBX'
-               IF NOT INLIST(.getCfgValue('n_LBX_Conversion_Support'), 1, 2)
-                  ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-               ENDIF
-               llFox2x = .detectFox2xRptLbl(.c_InputFile)
-               IF llFox2x
-                  .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_LB2D') )
-                  .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_LB2D') ), lcForceAttribs )
-               ELSE
-                  .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_LB2') )
-                  .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_LB2') ), lcForceAttribs )
-               ENDIF
-               loConversor     = CreateObject( 'c_conversor_frx_a_prg'   )
-               loConversor.l_Fox2x = llFox2x
-
-            CASE lcExtension = 'DBF'
-               IF !INLIST(.getCfgValue('n_DBF_Conversion_Support'), 1, 2, 4, 8)
-                  ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-               ENDIF
-               .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_DB2') )
-               loConversor     = CreateObject( 'c_conversor_dbf_a_prg'  )
-               .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_DB2') ), lcForceAttribs )
-
-            CASE lcExtension = 'DBC'
-               IF NOT INLIST(.getCfgValue('n_DBC_Conversion_Support'), 1, 2)
-                  ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-               ENDIF
-               .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_DC2') )
-               loConversor     = CreateObject( 'c_conversor_dbc_a_prg'  )
-               .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_DC2') ), lcForceAttribs )
-
-            CASE lcExtension = 'MNX'
-               IF NOT INLIST(.getCfgValue('n_MNX_Conversion_Support'), 1, 2)
-                  ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-               ENDIF
-               .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_MN2') )
-               loConversor     = CreateObject( 'c_conversor_mnx_a_prg'   )
-               .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_MN2') ), lcForceAttribs )
-
-            CASE lcExtension = 'FKY'
-               IF NOT INLIST(.getCfgValue('n_FKY_Conversion_Support'), 1, 2)
-                  ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-               ENDIF
-               .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_FK2') )
-               loConversor     = CreateObject( 'c_conversor_fky_a_prg'  )
-               .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_FK2') ), lcForceAttribs )
-
-            CASE lcExtension = 'MEM'
-               IF NOT INLIST(.getCfgValue('n_MEM_Conversion_Support'), 1, 2)
-                  ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-               ENDIF
-               .c_OutputFile   = FORCEEXT( .c_InputFile, .getCfgValue('c_ME2') )
-               loConversor     = CreateObject( 'c_conversor_mem_a_prg'  )
-               .changeFileAttribute( FORCEEXT( .c_InputFile, .getCfgValue('c_ME2') ), lcForceAttribs )
-
-            CASE lcExtension = .getCfgValue('c_VC2')
-               IF .getCfgValue('n_VCX_Conversion_Support') <> 2
-                  ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-               ENDIF
-               IF EMPTY(.c_ClassToConvert)
-                  .c_OutputFile   = .getPerFileBinaryOutputPath( .c_InputFile, 'VCX', .getCfgValue('c_VC2'), ;
-                     .getCfgFlag('l_UseClassPerDir'), .getCfgInt('n_UseClassPerFile') )
-               ELSE
-                  * If syntax "classlib.vcx::class::import" was used, OutputFile is defined
-                  * with base "classlib.vcx" and not the whole file.
-                  .c_OutputFile   = .getPerFileBinaryOutputPath( FORCEEXT( lc_BaseFile, 'VCX' ), 'VCX', .getCfgValue('c_VC2'), ;
-                     .getCfgFlag('l_UseClassPerDir'), .getCfgInt('n_UseClassPerFile') )
-               ENDIF
-               loConversor     = CreateObject( 'c_conversor_prg_a_vcx'  )
-               .changeFileAttribute( .c_OutputFile, lcForceAttribs )
-               .changeFileAttribute( FORCEEXT( .c_OutputFile, 'VCT' ), lcForceAttribs )
-
-            CASE lcExtension = .getCfgValue('c_SC2')
-               IF .getCfgValue('n_SCX_Conversion_Support') <> 2
-                  ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-               ENDIF
-               .c_OutputFile   = .getPerFileBinaryOutputPath( .c_InputFile, 'SCX', .getCfgValue('c_SC2'), ;
-                  .getCfgFlag('l_UseFormPerDir'), .getCfgInt('n_UseFormPerFile') )
-               loConversor     = CreateObject( 'c_conversor_prg_a_scx'  )
-               .changeFileAttribute( .c_OutputFile, lcForceAttribs )
-               .changeFileAttribute( FORCEEXT( .c_OutputFile, 'SCT' ), lcForceAttribs )
-
-            CASE lcExtension = .getCfgValue('c_PJ2')
-               IF .getCfgValue('n_PJX_Conversion_Support') <> 2
-                  ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-               ENDIF
-               .c_OutputFile   = FORCEEXT( .c_InputFile, 'PJX' )
-               loConversor     = CreateObject( 'c_conversor_prg_a_pjx'   )
-               .changeFileAttribute( FORCEEXT( .c_InputFile, 'PJX' ), lcForceAttribs )
-               .changeFileAttribute( FORCEEXT( .c_InputFile, 'PJT' ), lcForceAttribs )
-
-            CASE lcExtension = .getCfgValue('c_FR2')
-               IF .getCfgValue('n_FRX_Conversion_Support') <> 2
-                  ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-               ENDIF
-               .c_OutputFile   = FORCEEXT( .c_InputFile, 'FRX' )
-               loConversor     = CreateObject( 'c_conversor_prg_a_frx'  )
-               .changeFileAttribute( FORCEEXT( .c_InputFile, 'FRX' ), lcForceAttribs )
-               .changeFileAttribute( FORCEEXT( .c_InputFile, 'FRT' ), lcForceAttribs )
-
-            CASE lcExtension = .getCfgValue('c_FR2D')
-               IF .getCfgValue('n_FRX_Conversion_Support') <> 2
-                  ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-               ENDIF
-               .c_OutputFile   = FORCEEXT( .c_InputFile, 'FRX' )
-               loConversor     = CreateObject( 'c_conversor_prg_a_frx'  )
-               loConversor.l_Fox2x = .T.
-               .changeFileAttribute( FORCEEXT( .c_InputFile, 'FRX' ), lcForceAttribs )
-               .changeFileAttribute( FORCEEXT( .c_InputFile, 'FRT' ), lcForceAttribs )
-
-            CASE lcExtension = .getCfgValue('c_LB2')
-               IF .getCfgValue('n_LBX_Conversion_Support') <> 2
-                  ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-               ENDIF
-               .c_OutputFile   = FORCEEXT( .c_InputFile, 'LBX' )
-               loConversor     = CreateObject( 'c_conversor_prg_a_frx'  )
-               .changeFileAttribute( FORCEEXT( .c_InputFile, 'LBX' ), lcForceAttribs )
-               .changeFileAttribute( FORCEEXT( .c_InputFile, 'LBT' ), lcForceAttribs )
-
-            CASE lcExtension = .getCfgValue('c_LB2D')
-               IF .getCfgValue('n_LBX_Conversion_Support') <> 2
-                  ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-               ENDIF
-               .c_OutputFile   = FORCEEXT( .c_InputFile, 'LBX' )
-               loConversor     = CreateObject( 'c_conversor_prg_a_frx'  )
-               loConversor.l_Fox2x = .T.
-               .changeFileAttribute( FORCEEXT( .c_InputFile, 'LBX' ), lcForceAttribs )
-               .changeFileAttribute( FORCEEXT( .c_InputFile, 'LBT' ), lcForceAttribs )
-
-            CASE lcExtension = .getCfgValue('c_DB2')
-               IF !INLIST(.getCfgValue('n_DBF_Conversion_Support'), 2, 8)
-                  *-- txt-2-bin support enabled
-                  ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-               ENDIF
-               .c_OutputFile   = FORCEEXT( .c_InputFile, 'DBF' )
-               loConversor     = CreateObject( 'c_conversor_prg_a_dbf'  )
-               .changeFileAttribute( FORCEEXT( .c_InputFile, 'DBF' ), lcForceAttribs )
-               .changeFileAttribute( FORCEEXT( .c_InputFile, 'FPT' ), lcForceAttribs )
-               .changeFileAttribute( FORCEEXT( .c_InputFile, 'CDX' ), lcForceAttribs )
-
-            CASE lcExtension = .getCfgValue('c_DC2')
-               IF .getCfgValue('n_DBC_Conversion_Support') <> 2
-                  ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-               ENDIF
-               .c_OutputFile   = FORCEEXT( .c_InputFile, 'DBC' )
-               loConversor     = CreateObject( 'c_conversor_prg_a_dbc'  )
-               .changeFileAttribute( FORCEEXT( .c_InputFile, 'DBC' ), lcForceAttribs )
-               .changeFileAttribute( FORCEEXT( .c_InputFile, 'DCX' ), lcForceAttribs )
-               .changeFileAttribute( FORCEEXT( .c_InputFile, 'DCT' ), lcForceAttribs )
-
-            CASE lcExtension = .getCfgValue('c_MN2')
-               IF .getCfgValue('n_MNX_Conversion_Support') <> 2
-                  ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-               ENDIF
-               .c_OutputFile   = FORCEEXT( .c_InputFile, 'MNX' )
-               loConversor     = CreateObject( 'c_conversor_prg_a_mnx'  )
-               .changeFileAttribute( FORCEEXT( .c_InputFile, 'MNX' ), lcForceAttribs )
-               .changeFileAttribute( FORCEEXT( .c_InputFile, 'MNT' ), lcForceAttribs )
-
-            CASE lcExtension = .getCfgValue('c_FK2')
-               IF .getCfgValue('n_FKY_Conversion_Support') <> 2
-                  ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-               ENDIF
-               * Not implemented
-*!*                  .c_OutputFile   = FORCEEXT( .c_InputFile, 'FKY' )
-*!*                  loConversor     = CreateObject( 'c_conversor_prg_a_fky'  )
-*!*                  .changeFileAttribute( FORCEEXT( .c_InputFile, 'FKY' ), lcForceAttribs )
-
-            CASE lcExtension = .getCfgValue('c_ME2')
-               IF .getCfgValue('n_MEM_Conversion_Support') <> 2
-                  ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-               ENDIF
-               * Not implemented
-*!*                  .c_OutputFile   = FORCEEXT( .c_InputFile, 'MEM' )
-*!*                  loConversor     = CreateObject( 'c_conversor_prg_a_mem'  )
-*!*                  .changeFileAttribute( FORCEEXT( .c_InputFile, 'MEM' ), lcForceAttribs )
-
-            OTHERWISE
-               *ERROR 'File [' + .c_InputFile + '] is not supported'
-               ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-
-            ENDCASE
-
-            loConversor.o_SpecialProps = This.o_SpecialProps
-
-            *** DH 2021-03-04: handle cOutputFolder
-            loConversor.cOutputFolder = This.cOutputFolder
-            *** + mirrored tree: pass the project/source root so the converter can replicate the folder structure
-            loConversor.cInputRoot    = This.cInputRoot
-
-            *** + mirrored tree (reverse direction, text->binary):
-            *** prg_a_* converters write directly to c_OutputFile (binary),
-            *** so here I remap the destination path and create the folder tree.
-            *** The forward direction (binary->text) is remapped per file inside write_OutputFile.
-            IF NOT EMPTY(.cOutputFolder) ;
-                  AND INLIST( UPPER(JUSTEXT(.c_OutputFile)), 'VCX','SCX','PJX','PJM','FRX','LBX','MNX','DBC','DBF' )
-               .c_OutputFile = loConversor.get_MirroredOutputFile( .c_OutputFile )
+            IF NOT llLoadOnly
+               .normalizeFileCapitalization( .T. )
             ENDIF
 
-            *-- Optimization: Compare InputFile and OutputFile timestamps to determine
-            *-- whether OutputFile should be regenerated.
-            lnFileCount = ADIR( laFiles, FORCEEXT( .c_InputFile, '*' ), '', 1 )
-            STORE {//::} TO .t_InputFile_TimeStamp, .t_OutputFile_TimeStamp, ltFilestamp
+            .ensureConversionFactory()
+            loConversor = .o_ConversionFactory.createConversor( lcExtension, .c_InputFile )
 
-            IF lnFileCount > 0 THEN
-               *-- Find the original input file
-               I   = ASCAN( laFiles, JUSTFNAME(.c_InputFile), 1, 0, 1, 1+2+4+8 )
-               IF m.I > 0 THEN
-                  .t_InputFile_TimeStamp  =   DATETIME( YEAR(laFiles(m.I,3)), MONTH(laFiles(m.I,3)), DAY(laFiles(m.I,3)) ;
-                     , VAL(LEFT(laFiles(m.I,4),2)), VAL(SUBSTR(laFiles(m.I,4),4,2)), VAL(RIGHT(laFiles(m.I,4),2)) )
+            IF NOT llLoadOnly
+               .o_ConversionFactory.prepareConversion( lcExtension, .c_InputFile, lc_BaseFile, lcForceAttribs )
+            ENDIF
+
+            loConversor.o_SpecialProps = This.o_SpecialProps
+            loConversor.cOutputFolder = This.cOutputFolder
+            loConversor.cInputRoot    = This.cInputRoot
+
+            IF NOT llLoadOnly
+               IF NOT EMPTY(.cOutputFolder) ;
+                     AND INLIST( UPPER(JUSTEXT(.c_OutputFile)), 'VCX','SCX','PJX','PJM','FRX','LBX','MNX','DBC','DBF' )
+                  .c_OutputFile = loConversor.get_MirroredOutputFile( .c_OutputFile )
                ENDIF
 
-               IF ADIR( laDirFile, .c_OutputFile ) > 0 THEN
-                  I   = ASCAN( laFiles, JUSTFNAME(.c_OutputFile), 1, 0, 1, 1+2+4+8 )
+               lnFileCount = ADIR( laFiles, FORCEEXT( .c_InputFile, '*' ), '', 1 )
+               STORE {//::} TO .t_InputFile_TimeStamp, .t_OutputFile_TimeStamp, ltFilestamp
+
+               IF lnFileCount > 0 THEN
+                  I   = ASCAN( laFiles, JUSTFNAME(.c_InputFile), 1, 0, 1, 1+2+4+8 )
                   IF m.I > 0 THEN
-                     .t_OutputFile_TimeStamp =   DATETIME( YEAR(laFiles(m.I,3)), MONTH(laFiles(m.I,3)), DAY(laFiles(m.I,3)) ;
+                     .t_InputFile_TimeStamp  =   DATETIME( YEAR(laFiles(m.I,3)), MONTH(laFiles(m.I,3)), DAY(laFiles(m.I,3)) ;
                         , VAL(LEFT(laFiles(m.I,4),2)), VAL(SUBSTR(laFiles(m.I,4),4,2)), VAL(RIGHT(laFiles(m.I,4),2)) )
                   ENDIF
 
-                  lcExtA  = UPPER(JUSTEXT(.c_OutputFile))
-
-                  DO CASE
-                  CASE INLIST(lcExtA, 'SCX', 'VCX', 'MNX', 'FRX', 'LBX')
-                     lcExtB  = ICASE(lcExtA = 'SCX', 'SCT' ;
-                        , lcExtA = 'VCX', 'VCT' ;
-                        , lcExtA = 'MNX', 'MNT' ;
-                        , lcExtA = 'FRX', 'FRT' ;
-                        , lcExtA = 'LBX', 'LBT')
-                     I   = ASCAN( laFiles, JUSTFNAME( FORCEEXT(.c_OutputFile, lcExtB) ), 1, 0, 1, 1+2+4+8 )
+                  IF ADIR( laDirFile, .c_OutputFile ) > 0 THEN
+                     I   = ASCAN( laFiles, JUSTFNAME(.c_OutputFile), 1, 0, 1, 1+2+4+8 )
                      IF m.I > 0 THEN
-                        ltFilestamp = DATETIME( YEAR(laFiles(m.I,3)), MONTH(laFiles(m.I,3)), DAY(laFiles(m.I,3)) ;
+                        .t_OutputFile_TimeStamp =   DATETIME( YEAR(laFiles(m.I,3)), MONTH(laFiles(m.I,3)), DAY(laFiles(m.I,3)) ;
                            , VAL(LEFT(laFiles(m.I,4),2)), VAL(SUBSTR(laFiles(m.I,4),4,2)), VAL(RIGHT(laFiles(m.I,4),2)) )
                      ENDIF
 
-                  ENDCASE
+                     lcExtA  = UPPER(JUSTEXT(.c_OutputFile))
 
-                  *-- Take the maximum timestamp of output files (??X/??T)
-                  .t_OutputFile_TimeStamp =   MAX( .t_OutputFile_TimeStamp, ltFilestamp )
+                     DO CASE
+                     CASE INLIST(lcExtA, 'SCX', 'VCX', 'MNX', 'FRX', 'LBX')
+                        lcExtB  = ICASE(lcExtA = 'SCX', 'SCT' ;
+                           , lcExtA = 'VCX', 'VCT' ;
+                           , lcExtA = 'MNX', 'MNT' ;
+                           , lcExtA = 'FRX', 'FRT' ;
+                           , lcExtA = 'LBX', 'LBT')
+                        I   = ASCAN( laFiles, JUSTFNAME( FORCEEXT(.c_OutputFile, lcExtB) ), 1, 0, 1, 1+2+4+8 )
+                        IF m.I > 0 THEN
+                           ltFilestamp = DATETIME( YEAR(laFiles(m.I,3)), MONTH(laFiles(m.I,3)), DAY(laFiles(m.I,3)) ;
+                              , VAL(LEFT(laFiles(m.I,4),2)), VAL(SUBSTR(laFiles(m.I,4),4,2)), VAL(RIGHT(laFiles(m.I,4),2)) )
+                        ENDIF
+
+                     ENDCASE
+
+                     .t_OutputFile_TimeStamp =   MAX( .t_OutputFile_TimeStamp, ltFilestamp )
+                  ENDIF
                ENDIF
-            ENDIF
 
-            DO CASE
-            CASE INLIST(lcExtension,"VCX",.getCfgValue('c_VC2')) AND .getCfgValue('n_UseClassPerFile') = 0 AND .getCfgValue('n_OptimizeByFilestamp') = 1 AND .t_InputFile_TimeStamp < .t_OutputFile_TimeStamp
-               *-- Optimized: source is older than destination - no need to regenerate
-               *.writeLog( '> Output file [<<This.c_OutputFile>>] is not regenerated because its timestamp is newer than the input.' )
-               .writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC) )
+               DO CASE
+               CASE INLIST(lcExtension,"VCX",.getCfgValue('c_VC2')) AND .getCfgValue('n_UseClassPerFile') = 0 AND .getCfgValue('n_OptimizeByFilestamp') = 1 AND .t_InputFile_TimeStamp < .t_OutputFile_TimeStamp
+                  .writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC) )
 
-            CASE INLIST(lcExtension,"VCX",.getCfgValue('c_VC2')) AND .getCfgValue('n_UseClassPerFile') = 0 AND .getCfgValue('n_OptimizeByFilestamp') = 2 AND .t_InputFile_TimeStamp = .t_OutputFile_TimeStamp
-               *-- Optimized: source equals destination - no need to regenerate
-               *.writeLog( '> Output file [<<This.c_OutputFile>>] is not regenerated because its timestamp is equal to the input.' )
-               .writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC) )
+               CASE INLIST(lcExtension,"VCX",.getCfgValue('c_VC2')) AND .getCfgValue('n_UseClassPerFile') = 0 AND .getCfgValue('n_OptimizeByFilestamp') = 2 AND .t_InputFile_TimeStamp = .t_OutputFile_TimeStamp
+                  .writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC) )
 
-            CASE INLIST(lcExtension,"SCX",.getCfgValue('c_SC2')) AND .getCfgValue('n_UseFormPerFile') = 0 AND .getCfgValue('n_OptimizeByFilestamp') = 1 AND .t_InputFile_TimeStamp < .t_OutputFile_TimeStamp
-               *-- Optimized: source is older than destination - no need to regenerate
-               *.writeLog( '> Output file [<<This.c_OutputFile>>] is not regenerated because its timestamp is newer than the input.' )
-               .writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC) )
+               CASE INLIST(lcExtension,"SCX",.getCfgValue('c_SC2')) AND .getCfgValue('n_UseFormPerFile') = 0 AND .getCfgValue('n_OptimizeByFilestamp') = 1 AND .t_InputFile_TimeStamp < .t_OutputFile_TimeStamp
+                  .writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC) )
 
-            CASE INLIST(lcExtension,"SCX",.getCfgValue('c_SC2')) AND .getCfgValue('n_UseFormPerFile') = 0 AND .getCfgValue('n_OptimizeByFilestamp') = 2 AND .t_InputFile_TimeStamp = .t_OutputFile_TimeStamp
-               *-- Optimized: source equals destination - no need to regenerate
-               *.writeLog( '> Output file [<<This.c_OutputFile>>] is not regenerated because its timestamp is equal to the input.' )
-               .writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC) )
+               CASE INLIST(lcExtension,"SCX",.getCfgValue('c_SC2')) AND .getCfgValue('n_UseFormPerFile') = 0 AND .getCfgValue('n_OptimizeByFilestamp') = 2 AND .t_InputFile_TimeStamp = .t_OutputFile_TimeStamp
+                  .writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC) )
 
-            OTHERWISE
+               OTHERWISE
+                  .c_Type                             = UPPER(JUSTEXT(.c_OutputFile))
+                  loConversor.c_InputFile             = .c_InputFile
+                  loConversor.c_OutputFile            = .c_OutputFile
+                  loConversor.c_LogFile               = .c_LogFile
+                  loConversor.n_Debug                 = .getCfgValue('n_Debug')
+                  loConversor.l_Test                  = .l_Test
+                  loConversor.n_FB2PRG_Version        = .n_FB2PRG_Version
+                  loConversor.l_MethodSort_Enabled    = .l_MethodSort_Enabled
+                  loConversor.l_PropSort_Enabled      = .l_PropSort_Enabled
+                  loConversor.l_ReportSort_Enabled    = .l_ReportSort_Enabled
+                  loConversor.c_OriginalFileName      = .c_OriginalFileName
+                  loConversor.c_Foxbin2prg_FullPath   = .c_Foxbin2prg_FullPath
+
+                  .updateProgressbar( loLang.C_PROCESSING_LOC + ' ' + .c_InputFile + '...', 0, 0, 0 )
+
+                  IF AEVENTS( laEvents, loConversor ) = 0 THEN
+                     BINDEVENT( loConversor, 'updateProgressbar', THIS, 'updateProgressbar' )
+                  ENDIF
+
+                  loConversor.convert( @toModulo, .F., THIS )
+
+                  IF loConversor.l_Error THEN
+                     .l_Error = .T.
+                  ENDIF
+
+                  .n_ProcessedFilesCount  = .n_ProcessedFilesCount + 1
+                  .writeLog()
+                  .writeLog(loConversor.c_TextLog)
+
+                  IF NOT EMPTY(loConversor.c_TextErr) THEN
+                     .writeErrorLog( REPLICATE( '-', 100 ), 1 )
+                     .writeErrorLog( loLang.C_ERRORS_FOUND_IN_FILE_LOC + ' [' + .c_InputFile + '] ' )
+                     .writeErrorLog( loConversor.c_TextErr )
+                     .writeErrorLog( )
+                  ENDIF
+               ENDCASE
+
+               .normalizeFileCapitalization()
+            ELSE
                .c_Type                             = UPPER(JUSTEXT(.c_OutputFile))
                loConversor.c_InputFile             = .c_InputFile
                loConversor.c_OutputFile            = .c_OutputFile
@@ -3011,62 +2696,56 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                loConversor.l_ReportSort_Enabled    = .l_ReportSort_Enabled
                loConversor.c_OriginalFileName      = .c_OriginalFileName
                loConversor.c_Foxbin2prg_FullPath   = .c_Foxbin2prg_FullPath
-               *--
-               .updateProgressbar( loLang.C_PROCESSING_LOC + ' ' + .c_InputFile + '...', 0, 0, 0 )
 
-               IF AEVENTS( laEvents, loConversor ) = 0 THEN
-                  BINDEVENT( loConversor, 'updateProgressbar', THIS, 'updateProgressbar' )
-               ENDIF
-
-               loConversor.convert( @toModulo, .F., THIS )
+               loConversor.loadModule( @toModulo, .F., THIS )
 
                IF loConversor.l_Error THEN
                   .l_Error = .T.
                ENDIF
 
-               .n_ProcessedFilesCount  = .n_ProcessedFilesCount + 1
                .writeLog()
-               .writeLog(loConversor.c_TextLog)    && Recojo el LOG que haya generado el conversor
+               .writeLog(loConversor.c_TextLog)
 
-               *-- Log the errors
                IF NOT EMPTY(loConversor.c_TextErr) THEN
                   .writeErrorLog( REPLICATE( '-', 100 ), 1 )
                   .writeErrorLog( loLang.C_ERRORS_FOUND_IN_FILE_LOC + ' [' + .c_InputFile + '] ' )
                   .writeErrorLog( loConversor.c_TextErr )
                   .writeErrorLog( )
                ENDIF
-            ENDCASE
-
-            .normalizeFileCapitalization()
+            ENDIF
          ENDWITH
 
       CATCH TO toEx
          lnCodError  = toEx.ERRORNO
-         *lcErrorInfo    = This.exception2Str(toEx) + CR_LF + CR_LF + loLang.C_SOURCEFILE_LOC + This.c_InputFile
 
-         *-- updateProcessedFile( tcProcessed, tcHasErrors, tcSupported, tcReserved )
-         This.updateProcessedFile( lnIDInputFile, '', '', 'E1' )
+         IF NOT llLoadOnly
+            This.updateProcessedFile( lnIDInputFile, '', '', 'E1' )
+         ENDIF
 
          IF This.getCfgValue('n_Debug') > 0 THEN
             IF _VFP.STARTMODE = 0
                SET STEP ON
             ENDIF
          ENDIF
-         IF tlRelanzarError  && Used in unit testing
+         IF tlRelanzarError
             THROW
          ENDIF
 
       FINALLY
-         IF AEVENTS( laEvents, loConversor ) > 0 THEN
+         IF llLoadOnly
+            SET NOTIFY &lc_OldSetNotify.
+         ENDIF
+
+         IF NOT llLoadOnly AND AEVENTS( laEvents, loConversor ) > 0 THEN
             UNBINDEVENTS( loConversor )
          ENDIF
 
          STORE .NULL. TO loConversor, loFSO
 
-         IF lnCodError = 0 AND This.l_Error THEN
-            This.updateProcessedFile( lnIDInputFile, '', '', 'E1' )
-         ELSE
-            *This.updateProcessedFile( lnIDInputFile )
+         IF NOT llLoadOnly THEN
+            IF lnCodError = 0 AND This.l_Error THEN
+               This.updateProcessedFile( lnIDInputFile, '', '', 'E1' )
+            ENDIF
          ENDIF
 
          RELEASE lcErrorInfo, laDirFile, lcExtension, lnFileCount, laFiles, I ;
@@ -3498,24 +3177,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       * tc_OutputFilename         (v! IN    ) Output file name for which to create a backup
       *--------------------------------------------------------------------------------------------------------------
       LPARAMETERS tcOutputFileName
-      LOCAL lcNext_Bak, I, laDirInfo(1,5)
-      lcNext_Bak  = '.BAK'
-
-      FOR I = 1 TO This.getCfgValue('n_ExtraBackupLevels')
-         IF m.I = 1
-            IF NOT ADIR( laDirInfo, tcOutputFileName + '.BAK' ) > 0 THEN
-               lcNext_Bak  = '.BAK'
-               EXIT
-            ENDIF
-         ELSE
-            IF NOT ADIR( laDirInfo, tcOutputFileName + '.' + PADL(m.I-1,1,'0') + '.BAK' ) > 0 THEN
-               lcNext_Bak  = '.' + PADL(m.I-1,1,'0') + '.BAK'
-               EXIT
-            ENDIF
-         ENDIF
-      ENDFOR
-
-      RETURN lcNext_Bak
+      This.ensureFileUtils()
+      RETURN This.o_FileUtils.getNext_BAK( tcOutputFileName )
    ENDPROC
 
 
@@ -3770,193 +3433,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       *--------------------------------------------------------------------------------------------------------------
       LPARAMETERS tc_InputFile, toModulo, toEx AS EXCEPTION, tlRelanzarError, tcOriginalFileName
 
-      TRY
-         LOCAL lnCodError, lcErrorInfo, laDirFile(1,5), lcExtension, lnFileCount, laFiles(1,1), I ;
-            , ltFilestamp, lcExtA, lcExtB, laEvents(1,1), lnIDInputFile ;
-            , loLang AS CL_LANG Of 'foxbin2prg.prg' ;
-            , loConversor AS c_conversor_base Of 'foxbin2prg.prg' ;
-            , loFSO AS Scripting.FileSystemObject
-         lnCodError          = 0
-
-         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
-            STORE .NULL. TO toModulo
-            lc_OldSetNotify = SET("Notify")
-            SET NOTIFY OFF
-            loFSO           = .o_FSO
-            loLang          = _SCREEN.o_FoxBin2Prg_Lang
-            .c_InputFile    = FULLPATH( tc_InputFile )
-            .l_Error        = .F.
-            lcExtension     = UPPER( JUSTEXT(.c_InputFile) )
-
-            .writeLog( REPLICATE( '*', 100 ) )
-            .writeLog( 'LOAD MODULE', 2 )
-            .writeLog( REPLICATE( '*', 100 ) )
-
-            IF ADIR( laDirFile, .c_InputFile, '', 1 ) = 0
-               *ERROR 'File not found [' + .c_InputFile + ']'
-               ERROR loLang.C_FILE_NOT_FOUND_LOC + ' [' + .c_InputFile + ']'
-            ENDIF
-
-            .c_InputFile    = loFSO.GetAbsolutePathName( FORCEPATH( laDirFile(1,1), JUSTPATH(.c_InputFile) ) )
-
-            IF NOT EMPTY(tcOriginalFileName)
-               tcOriginalFileName  = loFSO.GetAbsolutePathName( tcOriginalFileName )
-            ENDIF
-
-            .c_OriginalFileName = EVL( tcOriginalFileName, .c_InputFile )
-
-            lnIDInputFile   = .n_ProcessedFiles
-
-            .writeLog( C_TAB + 'c_OriginalFileName:           ' + .c_OriginalFileName )
-            .writeLog( )
-
-            IF NOT ADIR(laDirFile, .c_InputFile) > 0 THEN
-               ERROR loLang.C_FILE_DOESNT_EXIST_LOC + ' [' + .c_InputFile + ']'
-            ENDIF
-
-            DO CASE
-            CASE lcExtension = 'VCX'
-               loConversor     = CreateObject( 'c_conversor_vcx_a_prg'   )
-
-            CASE lcExtension = 'SCX'
-               loConversor     = CreateObject( 'c_conversor_scx_a_prg'   )
-
-            CASE lcExtension = 'PJX'
-               loConversor     = CreateObject( 'c_conversor_pjx_a_prg'   )
-
-            CASE lcExtension = 'FRX'
-               loConversor     = CreateObject( 'c_conversor_frx_a_prg'   )
-               loConversor.l_Fox2x = .detectFox2xRptLbl(.c_InputFile)
-
-            CASE lcExtension = 'LBX'
-               loConversor     = CreateObject( 'c_conversor_frx_a_prg'   )
-               loConversor.l_Fox2x = .detectFox2xRptLbl(.c_InputFile)
-
-            CASE lcExtension = 'DBF'
-               loConversor     = CreateObject( 'c_conversor_dbf_a_prg'  )
-
-            CASE lcExtension = 'DBC'
-               loConversor     = CreateObject( 'c_conversor_dbc_a_prg'  )
-
-            CASE lcExtension = 'MNX'
-               loConversor     = CreateObject( 'c_conversor_mnx_a_prg'   )
-
-            CASE lcExtension = .getCfgValue('c_VC2')
-               loConversor     = CreateObject( 'c_conversor_prg_a_vcx'  )
-
-            CASE lcExtension = .getCfgValue('c_SC2')
-               loConversor     = CreateObject( 'c_conversor_prg_a_scx'  )
-
-            CASE lcExtension = .getCfgValue('c_PJ2')
-               loConversor     = CreateObject( 'c_conversor_prg_a_pjx'   )
-
-            CASE lcExtension = .getCfgValue('c_FR2')
-               loConversor     = CreateObject( 'c_conversor_prg_a_frx'  )
-
-            CASE lcExtension = .getCfgValue('c_FR2D')
-               loConversor     = CreateObject( 'c_conversor_prg_a_frx'  )
-               loConversor.l_Fox2x = .T.
-
-            CASE lcExtension = .getCfgValue('c_LB2')
-               loConversor     = CreateObject( 'c_conversor_prg_a_frx'  )
-
-            CASE lcExtension = .getCfgValue('c_LB2D')
-               loConversor     = CreateObject( 'c_conversor_prg_a_frx'  )
-               loConversor.l_Fox2x = .T.
-
-            CASE lcExtension = .getCfgValue('c_DB2')
-               loConversor     = CreateObject( 'c_conversor_prg_a_dbf'  )
-
-            CASE lcExtension = .getCfgValue('c_DC2')
-               loConversor     = CreateObject( 'c_conversor_prg_a_dbc'  )
-
-            CASE lcExtension = .getCfgValue('c_MN2')
-               loConversor     = CreateObject( 'c_conversor_prg_a_mnx'  )
-
-            OTHERWISE
-               *ERROR 'File [' + .c_InputFile + '] is not supported'
-               ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
-
-            ENDCASE
-
-            loConversor.o_SpecialProps = This.o_SpecialProps
-
-            .c_Type                             = UPPER(JUSTEXT(.c_OutputFile))
-            loConversor.c_InputFile             = .c_InputFile
-            loConversor.c_OutputFile            = .c_OutputFile
-            loConversor.c_LogFile               = .c_LogFile
-            loConversor.n_Debug                 = .getCfgValue('n_Debug')
-            loConversor.l_Test                  = .l_Test
-            loConversor.n_FB2PRG_Version        = .n_FB2PRG_Version
-            loConversor.l_MethodSort_Enabled    = .l_MethodSort_Enabled
-            loConversor.l_PropSort_Enabled      = .l_PropSort_Enabled
-            loConversor.l_ReportSort_Enabled    = .l_ReportSort_Enabled
-            loConversor.c_OriginalFileName      = .c_OriginalFileName
-            loConversor.c_Foxbin2prg_FullPath   = .c_Foxbin2prg_FullPath
-            *--
-            *.updateProgressbar( loLang.C_PROCESSING_LOC + ' ' + .c_InputFile + '...', 0, 0, 0 )
-
-            *IF AEVENTS( laEvents, loConversor ) = 0 THEN
-            *   BINDEVENT( loConversor, 'updateProgressbar', THIS, 'updateProgressbar' )
-            *ENDIF
-
-            loConversor.loadModule( @toModulo, .F., THIS )
-
-            IF loConversor.l_Error THEN
-               .l_Error = .T.
-            ENDIF
-
-            *.n_ProcessedFilesCount = .n_ProcessedFilesCount + 1
-            .writeLog()
-            .writeLog(loConversor.c_TextLog)    && Recojo el LOG que haya generado el conversor
-
-            *-- Log the errors
-            IF NOT EMPTY(loConversor.c_TextErr) THEN
-               .writeErrorLog( REPLICATE( '-', 100 ), 1 )
-               .writeErrorLog( loLang.C_ERRORS_FOUND_IN_FILE_LOC + ' [' + .c_InputFile + '] ' )
-               .writeErrorLog( loConversor.c_TextErr )
-               .writeErrorLog( )
-            ENDIF
-
-         ENDWITH &&  THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
-
-      CATCH TO toEx
-         lnCodError  = toEx.ERRORNO
-         *lcErrorInfo    = This.exception2Str(toEx) + CR_LF + CR_LF + loLang.C_SOURCEFILE_LOC + This.c_InputFile
-
-         *-- updateProcessedFile( tcProcessed, tcHasErrors, tcSupported, tcReserved )
-         *This.updateProcessedFile( lnIDInputFile, '', '', 'E1' )
-
-         IF This.getCfgValue('n_Debug') > 0 THEN
-            IF _VFP.STARTMODE = 0
-               SET STEP ON
-            ENDIF
-         ENDIF
-         IF tlRelanzarError  && Used in unit testing
-            THROW
-         ENDIF
-
-      FINALLY
-         SET NOTIFY &lc_OldSetNotify.
-
-         *IF AEVENTS( laEvents, loConversor ) > 0 THEN
-         *   UNBINDEVENTS( loConversor )
-         *ENDIF
-
-         STORE .NULL. TO loConversor, loFSO
-
-         *IF lnCodError = 0 AND This.l_Error THEN
-         *   This.updateProcessedFile( lnIDInputFile, '', '', 'E1' )
-         *ELSE
-         *   *This.updateProcessedFile( lnIDInputFile )
-         *ENDIF
-
-         RELEASE lcErrorInfo, laDirFile, lcExtension, lnFileCount, laFiles, I ;
-            , ltFilestamp, lcExtA, lcExtB ;
-            , loConversor, loFSO
-      ENDTRY
-
-      RETURN lnCodError
+      RETURN This.convert( tc_InputFile, @toModulo, @toEx, tlRelanzarError, tcOriginalFileName, 'LOAD_ONLY' )
    ENDPROC
 
 
@@ -4179,85 +3656,34 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE writeErrorLog
       LPARAMETERS tcText, tnTimeStamp
-
-      TRY
-         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
-            *-- According to nTimestamp value:
-            *-- 0 = No timestamp
-            *-- 1 = Timestamp prefix
-            *-- 2 = Timestamp suffix
-            .c_TextErr  = .c_TextErr ;
-               + IIF( EVL(tnTimeStamp,0) = 1, TTOC(DATETIME(),3) + '  ', '' ) ;
-               + EVL(tcText,'') ;
-               + IIF( EVL(tnTimeStamp,0) = 2, '  ' + TTOC(DATETIME(),3), '' ) ;
-               + CR_LF
-
-            .errOut(tcText)
-            .l_Error    = .T.
-            .l_Errors   = .T.
-         ENDWITH
-      CATCH
-      ENDTRY
+      This.ensureLogger()
+      This.o_Logger.writeErrorLog( tcText, tnTimeStamp )
    ENDPROC
 
 
    PROCEDURE writeErrorLog_Flush
-      WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
-         IF NOT EMPTY(.c_TextErr)
-            STRTOFILE( .c_TextErr + CR_LF, .c_ErrorLogFile, 1 )
-         ENDIF
-         .c_TextErr  = ''
-      ENDWITH
+      This.ensureLogger()
+      This.o_Logger.writeErrorLog_Flush()
    ENDPROC
-
 
 
    PROCEDURE writeLog
       LPARAMETERS tcText, tnTimeStamp
-
-      TRY
-         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
-            *-- According to nTimestamp value:
-            *-- 0 = No timestamp
-            *-- 1 = Timestamp prefix
-            *-- 2 = Timestamp suffix
-            .c_TextLog  = .c_TextLog ;
-               + IIF( EVL(tnTimeStamp,0) = 1, TTOC(DATETIME(),3) + '  ', '' ) ;
-               + EVL(tcText,'') ;
-               + IIF( EVL(tnTimeStamp,0) = 2, '  ' + TTOC(DATETIME(),3), '' ) ;
-               + CR_LF
-         ENDWITH
-      CATCH
-      ENDTRY
+      This.ensureLogger()
+      This.o_Logger.writeLog( tcText, tnTimeStamp )
    ENDPROC
 
 
    PROCEDURE writeLog_Flush
-      WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
-         IF .getCfgValue('n_Debug') > 0 AND NOT EMPTY(.c_TextLog)
-            STRTOFILE( .c_TextLog + CR_LF, .c_LogFile, 1 )
-         ENDIF
-         .c_TextLog  = ''
-      ENDWITH
+      This.ensureLogger()
+      This.o_Logger.writeLog_Flush()
    ENDPROC
-
 
 
    HIDDEN PROCEDURE exception2Str
       LPARAMETERS toEx AS EXCEPTION
-      LOCAL lcError
-      lcError     = 'Error ' + TRANSFORM(toEx.ERRORNO) + ', ' + toEx.MESSAGE + CR_LF ;
-         + toEx.PROCEDURE + ', ' + TRANSFORM(toEx.LINENO) + CR_LF
-
-      IF NOT EMPTY(toEx.LINECONTENTS) AND toEx.ERRORNO <> 1098
-         lcError = lcError + toEx.LINECONTENTS + CR_LF
-      ENDIF
-
-      IF NOT EMPTY(toEx.USERVALUE)
-         lcError = lcError + EVL(toEx.USERVALUE,'')
-      ENDIF
-
-      RETURN lcError
+      This.ensureLogger()
+      RETURN This.o_Logger.exception2Str( @toEx )
    ENDPROC
 
 
@@ -25753,6 +25179,551 @@ ENDDEFINE
 
 
 
+*---------------------------------------------------------------------------------------------------
+* Converter factory for FoxBin2Prg (used via c_foxbin2prg.o_ConversionFactory).
+*
+* Centralizes extension-to-converter routing (c_conversor_*) previously duplicated in
+* convert and loadModule. Host session state (CFG, paths, class-per-file) stays on o_Host.
+*---------------------------------------------------------------------------------------------------
+
+DEFINE CLASS cl_fb2prg_conversion_factory AS Custom
+   * o_Host  Back-reference to c_foxbin2prg (c_InputFile, getCfgValue, changeFileAttribute, etc.)
+   o_Host = .NULL.
+
+   PROCEDURE Init
+      *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * toHost                    (v! IN    ) c_foxbin2prg session that owns this factory
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS toHost
+      This.o_Host = toHost
+   ENDPROC
+
+
+   PROCEDURE Destroy
+      This.o_Host = .NULL.
+   ENDPROC
+
+
+   FUNCTION createConversor
+      *---------------------------------------------------------------------------------------------------
+      * Maps file extension to a c_conversor_* instance. Sets l_Fox2x on FRX/LBX (bin->text)
+      * and FR2D/LB2D (text->binary) when applicable.
+      *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcExtension               (v? IN    ) Uppercase file extension (e.g. 'VCX', 'VC2') or text
+      *                                       extension from CFG (getCfgValue('c_VC2'), etc.).
+      *                                       Defaults to UPPER(JUSTEXT(o_Host.c_InputFile)).
+      * tcInputFile               (v? IN    ) Full path of the file being converted; used for
+      *                                       detectFox2xRptLbl on FRX/LBX. Defaults to o_Host.c_InputFile.
+      *---------------------------------------------------------------------------------------------------
+      * RETURN: c_conversor_base instance, .NULL. for not-yet-implemented prg->bin (FK2/ME2),
+      *         or ERROR on unsupported extension.
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcExtension, tcInputFile
+      LOCAL loConversor AS c_conversor_base Of 'foxbin2prg.prg'
+      LOCAL loHost, loLang AS CL_LANG Of 'foxbin2prg.prg', llFox2x
+
+      loHost = This.o_Host
+      IF VARTYPE(loHost) <> 'O'
+         RETURN .NULL.
+      ENDIF
+
+      loLang = _SCREEN.o_FoxBin2Prg_Lang
+      tcExtension = UPPER( EVL(tcExtension, '') )
+      tcInputFile = EVL(tcInputFile, loHost.c_InputFile)
+
+      DO CASE
+      CASE tcExtension == 'VCX'
+         loConversor = CreateObject( 'c_conversor_vcx_a_prg'   )
+
+      CASE tcExtension == 'SCX'
+         loConversor = CreateObject( 'c_conversor_scx_a_prg'   )
+
+      CASE tcExtension == 'PJX'
+         loConversor = CreateObject( 'c_conversor_pjx_a_prg'   )
+
+      CASE tcExtension == 'FRX'
+         loConversor = CreateObject( 'c_conversor_frx_a_prg'   )
+         loConversor.l_Fox2x = loHost.detectFox2xRptLbl(tcInputFile)
+
+      CASE tcExtension == 'LBX'
+         loConversor = CreateObject( 'c_conversor_frx_a_prg'   )
+         loConversor.l_Fox2x = loHost.detectFox2xRptLbl(tcInputFile)
+
+      CASE tcExtension == 'DBF'
+         loConversor = CreateObject( 'c_conversor_dbf_a_prg'  )
+
+      CASE tcExtension == 'DBC'
+         loConversor = CreateObject( 'c_conversor_dbc_a_prg'  )
+
+      CASE tcExtension == 'MNX'
+         loConversor = CreateObject( 'c_conversor_mnx_a_prg'   )
+
+      CASE tcExtension == 'FKY'
+         loConversor = CreateObject( 'c_conversor_fky_a_prg'  )
+
+      CASE tcExtension == 'MEM'
+         loConversor = CreateObject( 'c_conversor_mem_a_prg'  )
+
+      CASE tcExtension == loHost.getCfgValue('c_VC2')
+         loConversor = CreateObject( 'c_conversor_prg_a_vcx'  )
+
+      CASE tcExtension == loHost.getCfgValue('c_SC2')
+         loConversor = CreateObject( 'c_conversor_prg_a_scx'  )
+
+      CASE tcExtension == loHost.getCfgValue('c_PJ2')
+         loConversor = CreateObject( 'c_conversor_prg_a_pjx'   )
+
+      CASE tcExtension == loHost.getCfgValue('c_FR2')
+         loConversor = CreateObject( 'c_conversor_prg_a_frx'  )
+
+      CASE tcExtension == loHost.getCfgValue('c_FR2D')
+         loConversor = CreateObject( 'c_conversor_prg_a_frx'  )
+         loConversor.l_Fox2x = .T.
+
+      CASE tcExtension == loHost.getCfgValue('c_LB2')
+         loConversor = CreateObject( 'c_conversor_prg_a_frx'  )
+
+      CASE tcExtension == loHost.getCfgValue('c_LB2D')
+         loConversor = CreateObject( 'c_conversor_prg_a_frx'  )
+         loConversor.l_Fox2x = .T.
+
+      CASE tcExtension == loHost.getCfgValue('c_DB2')
+         loConversor = CreateObject( 'c_conversor_prg_a_dbf'  )
+
+      CASE tcExtension == loHost.getCfgValue('c_DC2')
+         loConversor = CreateObject( 'c_conversor_prg_a_dbc'  )
+
+      CASE tcExtension == loHost.getCfgValue('c_MN2')
+         loConversor = CreateObject( 'c_conversor_prg_a_mnx'  )
+
+      CASE tcExtension == loHost.getCfgValue('c_FK2')
+         * Not implemented (prg->bin)
+         loConversor = .NULL.
+
+      CASE tcExtension == loHost.getCfgValue('c_ME2')
+         * Not implemented (prg->bin)
+         loConversor = .NULL.
+
+      OTHERWISE
+         ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+
+      ENDCASE
+
+      RETURN loConversor
+   ENDFUNC
+
+
+   PROCEDURE prepareConversion
+      *---------------------------------------------------------------------------------------------------
+      * FULL conversion mode only: validates n_*_Conversion_Support from session CFG, assigns
+      * o_Host.c_OutputFile, and applies changeFileAttribute on output paths (and companion ??T
+      * files for prg->bin). Call after createConversor; not used for LOAD_ONLY / loadModule.
+      *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcExtension               (v? IN    ) Same as createConversor (binary or text extension).
+      * tcInputFile               (v? IN    ) Full path of the input file. Defaults to o_Host.c_InputFile.
+      * tcBaseFile                (v? IN    ) Base library/form path after class-per-file redirect
+      *                                       in convert; used for VC2->VCX when c_ClassToConvert
+      *                                       is set (syntax classlib.vcx::class::import).
+      * tcForceAttribs            (v? IN    ) Attribute flags for changeFileAttribute (e.g. '+N',
+      *                                       '+N-R' when n_ForceWriteIfReadOnly = 1). Default '+N'.
+      *---------------------------------------------------------------------------------------------------
+      * SIDE EFFECTS: Sets o_Host.c_OutputFile; may ERROR with C_FILE_NAME_IS_NOT_SUPPORTED_LOC.
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcExtension, tcInputFile, tcBaseFile, tcForceAttribs
+      LOCAL loHost, loLang AS CL_LANG Of 'foxbin2prg.prg', llFox2x
+
+      loHost = This.o_Host
+      IF VARTYPE(loHost) <> 'O'
+         RETURN
+      ENDIF
+
+      loLang = _SCREEN.o_FoxBin2Prg_Lang
+      tcExtension = UPPER( EVL(tcExtension, '') )
+      tcInputFile = EVL(tcInputFile, loHost.c_InputFile)
+      tcForceAttribs = EVL(tcForceAttribs, '+N')
+
+      DO CASE
+      CASE tcExtension == 'VCX'
+         IF NOT INLIST(loHost.getCfgValue('n_VCX_Conversion_Support'), 1, 2)
+            ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+         ENDIF
+         loHost.c_OutputFile = FORCEEXT( tcInputFile, loHost.getCfgValue('c_VC2') )
+         IF loHost.getCfgInt('n_UseClassPerFile') > 0 AND loHost.getCfgFlag('l_UseClassPerDir')
+            loHost.changeFileAttribute( loHost.getPerFileOutputPath( tcInputFile, '', loHost.getCfgValue('c_VC2'), .T., loHost.getCfgInt('n_UseClassPerFile') ), tcForceAttribs )
+         ELSE
+            loHost.changeFileAttribute( FORCEEXT( tcInputFile, loHost.getCfgValue('c_VC2') ), tcForceAttribs )
+         ENDIF
+
+      CASE tcExtension == 'SCX'
+         IF NOT INLIST(loHost.getCfgValue('n_SCX_Conversion_Support'), 1, 2)
+            ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+         ENDIF
+         loHost.c_OutputFile = FORCEEXT( tcInputFile, loHost.getCfgValue('c_SC2') )
+         IF loHost.getCfgInt('n_UseFormPerFile') > 0 AND loHost.getCfgFlag('l_UseFormPerDir')
+            loHost.changeFileAttribute( loHost.getPerFileOutputPath( tcInputFile, '', loHost.getCfgValue('c_SC2'), .T., loHost.getCfgInt('n_UseFormPerFile') ), tcForceAttribs )
+         ELSE
+            loHost.changeFileAttribute( FORCEEXT( tcInputFile, loHost.getCfgValue('c_SC2') ), tcForceAttribs )
+         ENDIF
+
+      CASE tcExtension == 'PJX'
+         IF NOT INLIST(loHost.getCfgValue('n_PJX_Conversion_Support'), 1, 2)
+            ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+         ENDIF
+         loHost.c_OutputFile = FORCEEXT( tcInputFile, loHost.getCfgValue('c_PJ2') )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, loHost.getCfgValue('c_PJ2') ), tcForceAttribs )
+
+      CASE tcExtension == 'FRX'
+         IF NOT INLIST(loHost.getCfgValue('n_FRX_Conversion_Support'), 1, 2)
+            ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+         ENDIF
+         llFox2x = loHost.detectFox2xRptLbl(tcInputFile)
+         IF llFox2x
+            loHost.c_OutputFile = FORCEEXT( tcInputFile, loHost.getCfgValue('c_FR2D') )
+            loHost.changeFileAttribute( FORCEEXT( tcInputFile, loHost.getCfgValue('c_FR2D') ), tcForceAttribs )
+         ELSE
+            loHost.c_OutputFile = FORCEEXT( tcInputFile, loHost.getCfgValue('c_FR2') )
+            loHost.changeFileAttribute( FORCEEXT( tcInputFile, loHost.getCfgValue('c_FR2') ), tcForceAttribs )
+         ENDIF
+
+      CASE tcExtension == 'LBX'
+         IF NOT INLIST(loHost.getCfgValue('n_LBX_Conversion_Support'), 1, 2)
+            ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+         ENDIF
+         llFox2x = loHost.detectFox2xRptLbl(tcInputFile)
+         IF llFox2x
+            loHost.c_OutputFile = FORCEEXT( tcInputFile, loHost.getCfgValue('c_LB2D') )
+            loHost.changeFileAttribute( FORCEEXT( tcInputFile, loHost.getCfgValue('c_LB2D') ), tcForceAttribs )
+         ELSE
+            loHost.c_OutputFile = FORCEEXT( tcInputFile, loHost.getCfgValue('c_LB2') )
+            loHost.changeFileAttribute( FORCEEXT( tcInputFile, loHost.getCfgValue('c_LB2') ), tcForceAttribs )
+         ENDIF
+
+      CASE tcExtension == 'DBF'
+         IF !INLIST(loHost.getCfgValue('n_DBF_Conversion_Support'), 1, 2, 4, 8)
+            ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+         ENDIF
+         loHost.c_OutputFile = FORCEEXT( tcInputFile, loHost.getCfgValue('c_DB2') )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, loHost.getCfgValue('c_DB2') ), tcForceAttribs )
+
+      CASE tcExtension == 'DBC'
+         IF NOT INLIST(loHost.getCfgValue('n_DBC_Conversion_Support'), 1, 2)
+            ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+         ENDIF
+         loHost.c_OutputFile = FORCEEXT( tcInputFile, loHost.getCfgValue('c_DC2') )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, loHost.getCfgValue('c_DC2') ), tcForceAttribs )
+
+      CASE tcExtension == 'MNX'
+         IF NOT INLIST(loHost.getCfgValue('n_MNX_Conversion_Support'), 1, 2)
+            ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+         ENDIF
+         loHost.c_OutputFile = FORCEEXT( tcInputFile, loHost.getCfgValue('c_MN2') )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, loHost.getCfgValue('c_MN2') ), tcForceAttribs )
+
+      CASE tcExtension == 'FKY'
+         IF NOT INLIST(loHost.getCfgValue('n_FKY_Conversion_Support'), 1, 2)
+            ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+         ENDIF
+         loHost.c_OutputFile = FORCEEXT( tcInputFile, loHost.getCfgValue('c_FK2') )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, loHost.getCfgValue('c_FK2') ), tcForceAttribs )
+
+      CASE tcExtension == 'MEM'
+         IF NOT INLIST(loHost.getCfgValue('n_MEM_Conversion_Support'), 1, 2)
+            ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+         ENDIF
+         loHost.c_OutputFile = FORCEEXT( tcInputFile, loHost.getCfgValue('c_ME2') )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, loHost.getCfgValue('c_ME2') ), tcForceAttribs )
+
+      CASE tcExtension == loHost.getCfgValue('c_VC2')
+         IF loHost.getCfgValue('n_VCX_Conversion_Support') <> 2
+            ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+         ENDIF
+         IF EMPTY(loHost.c_ClassToConvert)
+            loHost.c_OutputFile = loHost.getPerFileBinaryOutputPath( tcInputFile, 'VCX', loHost.getCfgValue('c_VC2'), ;
+               loHost.getCfgFlag('l_UseClassPerDir'), loHost.getCfgInt('n_UseClassPerFile') )
+         ELSE
+            loHost.c_OutputFile = loHost.getPerFileBinaryOutputPath( FORCEEXT( tcBaseFile, 'VCX' ), 'VCX', loHost.getCfgValue('c_VC2'), ;
+               loHost.getCfgFlag('l_UseClassPerDir'), loHost.getCfgInt('n_UseClassPerFile') )
+         ENDIF
+         loHost.changeFileAttribute( loHost.c_OutputFile, tcForceAttribs )
+         loHost.changeFileAttribute( FORCEEXT( loHost.c_OutputFile, 'VCT' ), tcForceAttribs )
+
+      CASE tcExtension == loHost.getCfgValue('c_SC2')
+         IF loHost.getCfgValue('n_SCX_Conversion_Support') <> 2
+            ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+         ENDIF
+         loHost.c_OutputFile = loHost.getPerFileBinaryOutputPath( tcInputFile, 'SCX', loHost.getCfgValue('c_SC2'), ;
+            loHost.getCfgFlag('l_UseFormPerDir'), loHost.getCfgInt('n_UseFormPerFile') )
+         loHost.changeFileAttribute( loHost.c_OutputFile, tcForceAttribs )
+         loHost.changeFileAttribute( FORCEEXT( loHost.c_OutputFile, 'SCT' ), tcForceAttribs )
+
+      CASE tcExtension == loHost.getCfgValue('c_PJ2')
+         IF loHost.getCfgValue('n_PJX_Conversion_Support') <> 2
+            ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+         ENDIF
+         loHost.c_OutputFile = FORCEEXT( tcInputFile, 'PJX' )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, 'PJX' ), tcForceAttribs )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, 'PJT' ), tcForceAttribs )
+
+      CASE tcExtension == loHost.getCfgValue('c_FR2')
+         IF loHost.getCfgValue('n_FRX_Conversion_Support') <> 2
+            ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+         ENDIF
+         loHost.c_OutputFile = FORCEEXT( tcInputFile, 'FRX' )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, 'FRX' ), tcForceAttribs )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, 'FRT' ), tcForceAttribs )
+
+      CASE tcExtension == loHost.getCfgValue('c_FR2D')
+         IF loHost.getCfgValue('n_FRX_Conversion_Support') <> 2
+            ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+         ENDIF
+         loHost.c_OutputFile = FORCEEXT( tcInputFile, 'FRX' )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, 'FRX' ), tcForceAttribs )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, 'FRT' ), tcForceAttribs )
+
+      CASE tcExtension == loHost.getCfgValue('c_LB2')
+         IF loHost.getCfgValue('n_LBX_Conversion_Support') <> 2
+            ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+         ENDIF
+         loHost.c_OutputFile = FORCEEXT( tcInputFile, 'LBX' )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, 'LBX' ), tcForceAttribs )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, 'LBT' ), tcForceAttribs )
+
+      CASE tcExtension == loHost.getCfgValue('c_LB2D')
+         IF loHost.getCfgValue('n_LBX_Conversion_Support') <> 2
+            ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+         ENDIF
+         loHost.c_OutputFile = FORCEEXT( tcInputFile, 'LBX' )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, 'LBX' ), tcForceAttribs )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, 'LBT' ), tcForceAttribs )
+
+      CASE tcExtension == loHost.getCfgValue('c_DB2')
+         IF !INLIST(loHost.getCfgValue('n_DBF_Conversion_Support'), 2, 8)
+            ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+         ENDIF
+         loHost.c_OutputFile = FORCEEXT( tcInputFile, 'DBF' )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, 'DBF' ), tcForceAttribs )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, 'FPT' ), tcForceAttribs )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, 'CDX' ), tcForceAttribs )
+
+      CASE tcExtension == loHost.getCfgValue('c_DC2')
+         IF loHost.getCfgValue('n_DBC_Conversion_Support') <> 2
+            ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+         ENDIF
+         loHost.c_OutputFile = FORCEEXT( tcInputFile, 'DBC' )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, 'DBC' ), tcForceAttribs )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, 'DCX' ), tcForceAttribs )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, 'DCT' ), tcForceAttribs )
+
+      CASE tcExtension == loHost.getCfgValue('c_MN2')
+         IF loHost.getCfgValue('n_MNX_Conversion_Support') <> 2
+            ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+         ENDIF
+         loHost.c_OutputFile = FORCEEXT( tcInputFile, 'MNX' )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, 'MNX' ), tcForceAttribs )
+         loHost.changeFileAttribute( FORCEEXT( tcInputFile, 'MNT' ), tcForceAttribs )
+
+      CASE tcExtension == loHost.getCfgValue('c_FK2')
+         IF loHost.getCfgValue('n_FKY_Conversion_Support') <> 2
+            ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+         ENDIF
+         * Not implemented
+
+      CASE tcExtension == loHost.getCfgValue('c_ME2')
+         IF loHost.getCfgValue('n_MEM_Conversion_Support') <> 2
+            ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+         ENDIF
+         * Not implemented
+
+      OTHERWISE
+         ERROR (TEXTMERGE(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
+
+      ENDCASE
+   ENDPROC
+
+ENDDEFINE
+
+
+
+*---------------------------------------------------------------------------------------------------
+* Session logging for FoxBin2Prg (used via c_foxbin2prg.o_Logger).
+*
+* Buffers debug text in o_Host.c_TextLog / c_TextErr; flush writes to c_LogFile / c_ErrorLogFile.
+* Error output to console uses o_Host.o_FileUtils.errOut (stdout already in cl_file_utils).
+*---------------------------------------------------------------------------------------------------
+
+DEFINE CLASS cl_fb2prg_logger AS Custom
+   * o_Host  Back-reference to c_foxbin2prg (c_TextLog, c_LogFile, c_InputFile, l_Error, etc.)
+   o_Host = .NULL.
+
+   PROCEDURE Init
+      *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * toHost                    (v! IN    ) c_foxbin2prg session that owns this logger
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS toHost
+      This.o_Host = toHost
+   ENDPROC
+
+
+   PROCEDURE Destroy
+      This.o_Host = .NULL.
+   ENDPROC
+
+
+   PROCEDURE writeLog
+      *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcText                    (v? IN    ) Line to append to the in-memory debug log (c_TextLog)
+      * tnTimeStamp               (v? IN    ) 0 = none, 1 = prefix, 2 = suffix (TTOC datetime)
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcText, tnTimeStamp
+      LOCAL loHost
+
+      TRY
+         loHost = This.o_Host
+         IF VARTYPE(loHost) <> 'O'
+            RETURN
+         ENDIF
+
+         loHost.c_TextLog = loHost.c_TextLog ;
+            + IIF( EVL(tnTimeStamp,0) = 1, TTOC(DATETIME(),3) + '  ', '' ) ;
+            + EVL(tcText,'') ;
+            + IIF( EVL(tnTimeStamp,0) = 2, '  ' + TTOC(DATETIME(),3), '' ) ;
+            + CR_LF
+      CATCH
+      ENDTRY
+   ENDPROC
+
+
+   PROCEDURE writeLog_Flush
+      LOCAL loHost
+
+      loHost = This.o_Host
+      IF VARTYPE(loHost) <> 'O'
+         RETURN
+      ENDIF
+
+      IF loHost.getCfgValue('n_Debug') > 0 AND NOT EMPTY(loHost.c_TextLog)
+         STRTOFILE( loHost.c_TextLog + CR_LF, loHost.c_LogFile, 1 )
+      ENDIF
+      loHost.c_TextLog = ''
+   ENDPROC
+
+
+   PROCEDURE writeErrorLog
+      *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcText                    (v? IN    ) Line to append to c_TextErr and emit via errOut
+      * tnTimeStamp               (v? IN    ) 0 = none, 1 = prefix, 2 = suffix (TTOC datetime)
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcText, tnTimeStamp
+      LOCAL loHost
+
+      TRY
+         loHost = This.o_Host
+         IF VARTYPE(loHost) <> 'O'
+            RETURN
+         ENDIF
+
+         loHost.c_TextErr = loHost.c_TextErr ;
+            + IIF( EVL(tnTimeStamp,0) = 1, TTOC(DATETIME(),3) + '  ', '' ) ;
+            + EVL(tcText,'') ;
+            + IIF( EVL(tnTimeStamp,0) = 2, '  ' + TTOC(DATETIME(),3), '' ) ;
+            + CR_LF
+
+         loHost.ensureFileUtils()
+         loHost.o_FileUtils.errOut(tcText)
+         loHost.l_Error  = .T.
+         loHost.l_Errors = .T.
+      CATCH
+      ENDTRY
+   ENDPROC
+
+
+   PROCEDURE writeErrorLog_Flush
+      LOCAL loHost
+
+      loHost = This.o_Host
+      IF VARTYPE(loHost) <> 'O'
+         RETURN
+      ENDIF
+
+      IF NOT EMPTY(loHost.c_TextErr)
+         STRTOFILE( loHost.c_TextErr + CR_LF, loHost.c_ErrorLogFile, 1 )
+      ENDIF
+      loHost.c_TextErr = ''
+   ENDPROC
+
+
+   FUNCTION exception2Str
+      *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * toEx                      (@! IN    ) Exception object to serialize
+      *---------------------------------------------------------------------------------------------------
+      * RETURN: Multi-line error description (number, message, procedure/line, line contents, uservalue).
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS toEx AS EXCEPTION
+      LOCAL lcError
+
+      lcError = 'Error ' + TRANSFORM(toEx.ERRORNO) + ', ' + toEx.MESSAGE + CR_LF ;
+         + toEx.PROCEDURE + ', ' + TRANSFORM(toEx.LINENO) + CR_LF
+
+      IF NOT EMPTY(toEx.LINECONTENTS) AND toEx.ERRORNO <> 1098
+         lcError = lcError + toEx.LINECONTENTS + CR_LF
+      ENDIF
+
+      IF NOT EMPTY(toEx.USERVALUE)
+         lcError = lcError + EVL(toEx.USERVALUE,'')
+      ENDIF
+
+      RETURN lcError
+   ENDFUNC
+
+
+   PROCEDURE doWriteErrorLog
+      *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * toEx                      (@! IN    ) Exception from the failed conversion/execute path
+      * tcErrorInfo               (@? IN/OUT) Optional preformatted text; filled when empty or on cancel (1799)
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS toEx AS EXCEPTION, tcErrorInfo
+      LOCAL loHost, loLang AS CL_LANG Of 'foxbin2prg.prg'
+
+      loHost = This.o_Host
+      IF VARTYPE(loHost) <> 'O'
+         RETURN
+      ENDIF
+
+      loLang = _SCREEN.o_FoxBin2Prg_Lang
+
+      IF toEx.ERRORNO = 1799
+         tcErrorInfo = loLang.C_CONVERSION_CANCELLED_BY_USER_LOC
+      ELSE
+         tcErrorInfo = This.exception2Str(@toEx) + CR_LF + loLang.C_SOURCEFILE_LOC + TRANSFORM(loHost.c_InputFile) + CR_LF
+      ENDIF
+
+      ADDPROPERTY(_SCREEN, 'ExitCode', toEx.ERRORNO)
+
+      This.writeErrorLog( REPLICATE('-', 100), 1 )
+      This.writeLog( tcErrorInfo )
+      This.writeErrorLog( tcErrorInfo )
+      This.writeErrorLog( )
+
+      TRY
+         STRTOFILE( tcErrorInfo, EVL( loHost.c_InputFile, 'foxbin2prg_errorlog' ) + '.ERR' )
+      CATCH
+      ENDTRY
+
+      RETURN
+   ENDPROC
+
+ENDDEFINE
+
+
+
 DEFINE CLASS cl_fb2prg_special_props AS Custom
 
    DIMENSION a_SpecialProps(1)     , a_SpecialProps_Chk(1) , a_SpecialProps_Coll(1) ;
@@ -28371,6 +28342,151 @@ DEFINE CLASS cl_file_utils AS Custom
       lcReturn = STRCONV(LEFT(lcBuffer, 2 * (lnReturn - 1)), 6)
       RETURN lcReturn
    ENDFUNC
+
+
+   FUNCTION getNext_BAK
+      *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcOutputFileName          (v! IN    ) Output file name for which to create a backup suffix
+      *---------------------------------------------------------------------------------------------------
+      * RETURN: Next available backup extension (.BAK, .01.BAK, ...) per n_ExtraBackupLevels on host CFG.
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcOutputFileName
+      LOCAL lcNext_Bak, I, laDirInfo(1,5), loHost
+
+      loHost = This.o_Host
+      IF VARTYPE(loHost) <> 'O'
+         RETURN '.BAK'
+      ENDIF
+
+      lcNext_Bak = '.BAK'
+
+      FOR I = 1 TO loHost.getCfgValue('n_ExtraBackupLevels')
+         IF m.I = 1
+            IF NOT ADIR( laDirInfo, tcOutputFileName + '.BAK' ) > 0 THEN
+               lcNext_Bak = '.BAK'
+               EXIT
+            ENDIF
+         ELSE
+            IF NOT ADIR( laDirInfo, tcOutputFileName + '.' + PADL(m.I-1,1,'0') + '.BAK' ) > 0 THEN
+               lcNext_Bak = '.' + PADL(m.I-1,1,'0') + '.BAK'
+               EXIT
+            ENDIF
+         ENDIF
+      ENDFOR
+
+      RETURN lcNext_Bak
+   ENDFUNC
+
+
+   PROCEDURE doBackup
+      *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * toEx                      (@? IN    ) Exception object with error information
+      * tlRelanzarError           (v? IN    ) Whether the error should be re-thrown
+      * tcBakFile_1               (@?    OUT) Backup file 1 name (vcx,scx,pjx,frx,lbx,dbf,dbc,mnx,vc2,sc2,pj2,etc)
+      * tcBakFile_2               (@?    OUT) Backup file 2 name (vct,sct,pjt,frt,lbt,fpt,dct,mnt,etc)
+      * tcBakFile_3               (@?    OUT) Backup file 3 name (cdx,dcx,etc)
+      * tcOutputFile              (v? IN    ) Output file name. If omitted, o_Host.c_OutputFile is assumed
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS toEx, tlRelanzarError, tcBakFile_1, tcBakFile_2, tcBakFile_3, tcOutputFile
+
+      TRY
+         LOCAL lcNext_Bak, lcExt_1, lcExt_2, lcExt_3, tcOutputFile_Ext1, tcOutputFile_Ext2, tcOutputFile_Ext3, laDir(1,5) ;
+            , loLang AS CL_LANG Of 'foxbin2prg.prg', loHost
+         STORE '' TO tcBakFile_1, tcBakFile_2, tcBakFile_3, lcExt_1, lcExt_2, lcExt_3 ;
+            , tcOutputFile_Ext1, tcOutputFile_Ext2, tcOutputFile_Ext3
+
+         loHost = This.o_Host
+         IF VARTYPE(loHost) <> 'O'
+            RETURN
+         ENDIF
+
+         IF loHost.getCfgValue('n_ExtraBackupLevels') > 0 THEN
+            loLang       = _SCREEN.o_FoxBin2Prg_Lang
+            tcOutputFile = EVL( tcOutputFile, loHost.c_OutputFile )
+            lcNext_Bak   = This.getNext_BAK( tcOutputFile )
+            lcExt_1      = JUSTEXT( tcOutputFile )
+            tcBakFile_1  = FORCEEXT(tcOutputFile, lcExt_1 + lcNext_Bak)
+
+            DO CASE
+            CASE INLIST( lcExt_1, loHost.getCfgValue('c_PJ2'), loHost.getCfgValue('c_VC2'), loHost.getCfgValue('c_SC2'), loHost.getCfgValue('c_FR2') ;
+                                , loHost.getCfgValue('c_FR2D'), loHost.getCfgValue('c_LB2'), loHost.getCfgValue('c_LB2D'), loHost.getCfgValue('c_DB2');
+                                , loHost.getCfgValue('c_DC2'), loHost.getCfgValue('c_MN2'), loHost.getCfgValue('c_FK2'), loHost.getCfgValue('c_ME2'), 'PJM' )
+               *-- TEXT extensions
+
+            CASE lcExt_1 == 'DBF'
+               lcExt_2     = 'FPT'
+               lcExt_3     = 'CDX'
+               tcBakFile_2 = FORCEEXT(tcOutputFile, lcExt_2 + lcNext_Bak)
+               tcBakFile_3 = FORCEEXT(tcOutputFile, lcExt_3 + lcNext_Bak)
+
+            CASE lcExt_1 == 'DBC'
+               lcExt_2     = 'DCT'
+               lcExt_3     = 'DCX'
+               tcBakFile_2 = FORCEEXT(tcOutputFile, lcExt_2 + lcNext_Bak)
+               tcBakFile_3 = FORCEEXT(tcOutputFile, lcExt_3 + lcNext_Bak)
+
+            CASE INLIST( lcExt_1, 'PJX', 'VCX', 'SCX', 'FRX', 'LBX', 'MNX' )
+               lcExt_2     = LEFT(lcExt_1,2) + 'T'
+               tcBakFile_2 = FORCEEXT(tcOutputFile, lcExt_2 + lcNext_Bak)
+
+            OTHERWISE
+               *-- PKY, MEM
+
+            ENDCASE
+
+            IF NOT EMPTY(lcExt_1)
+               tcOutputFile_Ext1 = FORCEEXT(tcOutputFile, lcExt_1)
+
+               IF ADIR( laDir, tcOutputFile_Ext1 ) > 0 THEN
+                  DO CASE
+                  CASE EMPTY(lcExt_2)
+                     This.hostWriteLog( C_TAB + loLang.C_BACKUP_OF_LOC + tcOutputFile_Ext1 )
+                  CASE EMPTY(lcExt_3)
+                     This.hostWriteLog( C_TAB + loLang.C_BACKUP_OF_LOC + tcOutputFile_Ext1 + '/' + lcExt_2 )
+                  OTHERWISE
+                     This.hostWriteLog( C_TAB + loLang.C_BACKUP_OF_LOC + tcOutputFile_Ext1 + '/' + lcExt_2 + '/' + lcExt_3 )
+                  ENDCASE
+
+                  COPY FILE ( tcOutputFile_Ext1 ) TO ( tcBakFile_1 )
+
+                  IF NOT EMPTY(lcExt_2)
+                     tcOutputFile_Ext2 = FORCEEXT(tcOutputFile, lcExt_2)
+
+                     IF ADIR( laDir, tcOutputFile_Ext2 ) > 0 THEN
+                        COPY FILE ( tcOutputFile_Ext2 ) TO ( tcBakFile_2 )
+                     ENDIF
+                  ENDIF
+
+                  IF NOT EMPTY(lcExt_3)
+                     tcOutputFile_Ext3 = FORCEEXT(tcOutputFile, lcExt_3)
+
+                     IF ADIR( laDir, tcOutputFile_Ext3 ) > 0 THEN
+                        COPY FILE ( tcOutputFile_Ext3 ) TO ( tcBakFile_3 )
+                     ENDIF
+                  ENDIF
+               ENDIF
+            ENDIF
+         ENDIF
+
+      CATCH TO toEx
+         IF VARTYPE(This.o_Host) = 'O' AND This.o_Host.getCfgValue('n_Debug') > 0 AND _VFP.STARTMODE = 0
+            SET STEP ON
+         ENDIF
+
+         IF tlRelanzarError
+            THROW
+         ENDIF
+
+      FINALLY
+         RELEASE toEx, tlRelanzarError, tcBakFile_1, tcBakFile_2, tcBakFile_3 ;
+            , lcNext_Bak, lcExt_1, lcExt_2, lcExt_3, tcOutputFile_Ext1, tcOutputFile_Ext2, tcOutputFile_Ext3 ;
+            , tcOutputFile
+      ENDTRY
+
+      RETURN
+   ENDPROC
 
 ENDDEFINE
 

@@ -157,6 +157,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    o_Mirror                        = .NULL.        && cl_fb2prg_mirror (mirrored project tree)
    o_Cfg                           = .NULL.        && cl_fb2prg_cfg (configuration manager)
    o_ConversionFactory             = .NULL.        && cl_fb2prg_conversion_factory (converter routing)
+   o_Logger                        = .NULL.        && cl_fb2prg_logger (session debug/error log)
    o_SpecialProps                  = .NULL.        && cl_fb2prg_special_props (property sort order)
    o_TextStream                    = .NULL.        && Scripting.TextStream
    o_FNC                           = .NULL.        && Filename_caps object
@@ -469,6 +470,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       ENDIF
    ENDPROC
 
+   PROCEDURE ensureLogger
+      IF VARTYPE(This.o_Logger) <> 'O' OR ISNULL(This.o_Logger)
+         This.o_Logger = NewObject('cl_fb2prg_logger', 'cl_fb2prg_logger.prg', NULL, This)
+      ENDIF
+   ENDPROC
+
    PROCEDURE declareDLL
       This.ensureFileUtils()
       This.o_FileUtils.declareDLL()
@@ -577,108 +584,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       * tcOutputFile              (v? IN    ) Output file name. If omitted, .c_OutputFile is assumed
       *---------------------------------------------------------------------------------------------------
       LPARAMETERS toEx, tlRelanzarError, tcBakFile_1, tcBakFile_2, tcBakFile_3, tcOutputFile
-
-      #IF .F.
-         LOCAL toFoxBin2Prg AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
-      #ENDIF
-
-      TRY
-         LOCAL lcNext_Bak, lcExt_1, lcExt_2, lcExt_3, tcOutputFile_Ext1, tcOutputFile_Ext2, tcOutputFile_Ext3, laDir(1,5) ;
-            , loLang AS CL_LANG OF 'cl_lang.prg'
-         STORE '' TO tcBakFile_1, tcBakFile_2, tcBakFile_3, lcExt_1, lcExt_2, lcExt_3 ;
-            , tcOutputFile_Ext1, tcOutputFile_Ext2, tcOutputFile_Ext3
-
-         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
-            IF .getCfgValue('n_ExtraBackupLevels') > 0 THEN
-               loLang          = _SCREEN.o_FoxBin2Prg_Lang
-               tcOutputFile    = EVL( tcOutputFile, .c_OutputFile )
-               lcNext_Bak      = .getNext_BAK( tcOutputFile )
-               lcExt_1         = JUSTEXT( tcOutputFile )
-               tcBakFile_1     = FORCEEXT(tcOutputFile, lcExt_1 + lcNext_Bak)
-
-               DO CASE
-               CASE INLIST( lcExt_1, .getCfgValue('c_PJ2'), .getCfgValue('c_VC2'), .getCfgValue('c_SC2'), .getCfgValue('c_FR2') ;
-                                   , .getCfgValue('c_FR2D'), .getCfgValue('c_LB2'), .getCfgValue('c_LB2D'), .getCfgValue('c_DB2');
-                                   , .getCfgValue('c_DC2'), .getCfgValue('c_MN2'), .getCfgValue('c_FK2'), .getCfgValue('c_ME2'), 'PJM' )
-                  *-- TEXT extensions
-
-               CASE lcExt_1 = 'DBF'
-                  *-- DBF
-                  lcExt_2     = 'FPT'
-                  lcExt_3     = 'CDX'
-                  tcBakFile_2 = FORCEEXT(tcOutputFile, lcExt_2 + lcNext_Bak)
-                  tcBakFile_3 = FORCEEXT(tcOutputFile, lcExt_3 + lcNext_Bak)
-
-               CASE lcExt_1 = 'DBC'
-                  *-- DBC
-                  lcExt_2     = 'DCT'
-                  lcExt_3     = 'DCX'
-                  tcBakFile_2 = FORCEEXT(tcOutputFile, lcExt_2 + lcNext_Bak)
-                  tcBakFile_3 = FORCEEXT(tcOutputFile, lcExt_3 + lcNext_Bak)
-
-               CASE INLIST( lcExt_1, 'PJX', 'VCX', 'SCX', 'FRX', 'LBX', 'MNX' )
-                  *-- PJX, VCX, SCX, FRX, LBX, MNX
-                  lcExt_2     = LEFT(lcExt_1,2) + 'T'
-                  tcBakFile_2 = FORCEEXT(tcOutputFile, lcExt_2 + lcNext_Bak)
-
-               OTHERWISE
-                  *-- PKY, MEM
-
-               ENDCASE
-
-               IF NOT EMPTY(lcExt_1)
-                  tcOutputFile_Ext1   = FORCEEXT(tcOutputFile, lcExt_1)
-
-                  IF ADIR( laDir, tcOutputFile_Ext1 ) > 0 THEN
-                     *-- LOG
-                     DO CASE
-                     CASE EMPTY(lcExt_2)
-                        .writeLog( C_TAB + loLang.C_BACKUP_OF_LOC + tcOutputFile_Ext1 )
-                     CASE EMPTY(lcExt_3)
-                        .writeLog( C_TAB + loLang.C_BACKUP_OF_LOC + tcOutputFile_Ext1 + '/' + lcExt_2 )
-                     OTHERWISE
-                        .writeLog( C_TAB + loLang.C_BACKUP_OF_LOC + tcOutputFile_Ext1 + '/' + lcExt_2 + '/' + lcExt_3 )
-                     ENDCASE
-
-                     *-- BACKUP COPY
-                     COPY FILE ( tcOutputFile_Ext1 ) TO ( tcBakFile_1 )
-
-                     IF NOT EMPTY(lcExt_2)
-                        tcOutputFile_Ext2   = FORCEEXT(tcOutputFile, lcExt_2)
-
-                        IF ADIR( laDir, tcOutputFile_Ext2 ) > 0 THEN
-                           COPY FILE ( tcOutputFile_Ext2 ) TO ( tcBakFile_2 )
-                        ENDIF
-                     ENDIF
-
-                     IF NOT EMPTY(lcExt_3)
-                        tcOutputFile_Ext3   = FORCEEXT(tcOutputFile, lcExt_3)
-
-                        IF ADIR( laDir, tcOutputFile_Ext3 ) > 0 THEN
-                           COPY FILE ( tcOutputFile_Ext3 ) TO ( tcBakFile_3 )
-                        ENDIF
-                     ENDIF
-                  ENDIF
-               ENDIF
-            ENDIF
-         ENDWITH && THIS
-
-      CATCH TO toEx
-         IF This.getCfgValue('n_Debug') > 0 AND _VFP.STARTMODE = 0
-            SET STEP ON
-         ENDIF
-
-         IF tlRelanzarError
-            THROW
-         ENDIF
-
-      FINALLY
-         RELEASE toEx, tlRelanzarError, tcBakFile_1, tcBakFile_2, tcBakFile_3 ;
-            , lcNext_Bak, lcExt_1, lcExt_2, lcExt_3, tcOutputFile_Ext1, tcOutputFile_Ext2, tcOutputFile_Ext3 ;
-            , tcOutputFile
-      ENDTRY
-
-      RETURN
+      This.ensureFileUtils()
+      This.o_FileUtils.doBackup( @toEx, tlRelanzarError, @tcBakFile_1, @tcBakFile_2, @tcBakFile_3, tcOutputFile )
    ENDPROC
 
 
@@ -2167,33 +2074,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    HIDDEN PROCEDURE doWriteErrorLog
       LPARAMETERS toEx AS EXCEPTION, tcErrorInfo
-
-      LOCAL loLang AS CL_LANG OF 'cl_lang.prg'
-      loLang          = _SCREEN.o_FoxBin2Prg_Lang
-
-      WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
-         IF toEx.ERRORNO = 1799 THEN     && Conversion Cancelled
-            tcErrorInfo     = loLang.C_CONVERSION_CANCELLED_BY_USER_LOC
-         ELSE
-            tcErrorInfo     = .exception2Str(@toEx) + CR_LF + loLang.C_SOURCEFILE_LOC + TRANSFORM(.c_InputFile) + CR_LF
-         ENDIF
-
-         ADDPROPERTY(_SCREEN, 'ExitCode', toEx.ERRORNO)
-
-         *-- Write error information to the error log variable
-         .writeErrorLog( REPLICATE('-', 100), 1 )
-         .writeLog( tcErrorInfo )
-         .writeErrorLog( tcErrorInfo )
-         .writeErrorLog( )
-
-         *-- Write error information to the error log file
-         TRY
-            STRTOFILE( tcErrorInfo, EVL( .c_InputFile, 'foxbin2prg_errorlog' ) + '.ERR' )
-         CATCH
-         ENDTRY
-      ENDWITH
-
-      RETURN
+      This.ensureLogger()
+      This.o_Logger.doWriteErrorLog( @toEx, @tcErrorInfo )
    ENDPROC
 
 
@@ -2974,24 +2856,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       * tc_OutputFilename         (v! IN    ) Output file name for which to create a backup
       *--------------------------------------------------------------------------------------------------------------
       LPARAMETERS tcOutputFileName
-      LOCAL lcNext_Bak, I, laDirInfo(1,5)
-      lcNext_Bak  = '.BAK'
-
-      FOR I = 1 TO This.getCfgValue('n_ExtraBackupLevels')
-         IF m.I = 1
-            IF NOT ADIR( laDirInfo, tcOutputFileName + '.BAK' ) > 0 THEN
-               lcNext_Bak  = '.BAK'
-               EXIT
-            ENDIF
-         ELSE
-            IF NOT ADIR( laDirInfo, tcOutputFileName + '.' + PADL(m.I-1,1,'0') + '.BAK' ) > 0 THEN
-               lcNext_Bak  = '.' + PADL(m.I-1,1,'0') + '.BAK'
-               EXIT
-            ENDIF
-         ENDIF
-      ENDFOR
-
-      RETURN lcNext_Bak
+      This.ensureFileUtils()
+      RETURN This.o_FileUtils.getNext_BAK( tcOutputFileName )
    ENDPROC
 
 
@@ -3469,85 +3335,34 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE writeErrorLog
       LPARAMETERS tcText, tnTimeStamp
-
-      TRY
-         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
-            *-- According to nTimestamp value:
-            *-- 0 = No timestamp
-            *-- 1 = Timestamp prefix
-            *-- 2 = Timestamp suffix
-            .c_TextErr  = .c_TextErr ;
-               + IIF( EVL(tnTimeStamp,0) = 1, TTOC(DATETIME(),3) + '  ', '' ) ;
-               + EVL(tcText,'') ;
-               + IIF( EVL(tnTimeStamp,0) = 2, '  ' + TTOC(DATETIME(),3), '' ) ;
-               + CR_LF
-
-            .errOut(tcText)
-            .l_Error    = .T.
-            .l_Errors   = .T.
-         ENDWITH
-      CATCH
-      ENDTRY
+      This.ensureLogger()
+      This.o_Logger.writeErrorLog( tcText, tnTimeStamp )
    ENDPROC
 
 
    PROCEDURE writeErrorLog_Flush
-      WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
-         IF NOT EMPTY(.c_TextErr)
-            STRTOFILE( .c_TextErr + CR_LF, .c_ErrorLogFile, 1 )
-         ENDIF
-         .c_TextErr  = ''
-      ENDWITH
+      This.ensureLogger()
+      This.o_Logger.writeErrorLog_Flush()
    ENDPROC
-
 
 
    PROCEDURE writeLog
       LPARAMETERS tcText, tnTimeStamp
-
-      TRY
-         WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
-            *-- According to nTimestamp value:
-            *-- 0 = No timestamp
-            *-- 1 = Timestamp prefix
-            *-- 2 = Timestamp suffix
-            .c_TextLog  = .c_TextLog ;
-               + IIF( EVL(tnTimeStamp,0) = 1, TTOC(DATETIME(),3) + '  ', '' ) ;
-               + EVL(tcText,'') ;
-               + IIF( EVL(tnTimeStamp,0) = 2, '  ' + TTOC(DATETIME(),3), '' ) ;
-               + CR_LF
-         ENDWITH
-      CATCH
-      ENDTRY
+      This.ensureLogger()
+      This.o_Logger.writeLog( tcText, tnTimeStamp )
    ENDPROC
 
 
    PROCEDURE writeLog_Flush
-      WITH THIS AS c_foxbin2prg OF 'C_FOXBIN2PRG.PRG'
-         IF .getCfgValue('n_Debug') > 0 AND NOT EMPTY(.c_TextLog)
-            STRTOFILE( .c_TextLog + CR_LF, .c_LogFile, 1 )
-         ENDIF
-         .c_TextLog  = ''
-      ENDWITH
+      This.ensureLogger()
+      This.o_Logger.writeLog_Flush()
    ENDPROC
-
 
 
    HIDDEN PROCEDURE exception2Str
       LPARAMETERS toEx AS EXCEPTION
-      LOCAL lcError
-      lcError     = 'Error ' + TRANSFORM(toEx.ERRORNO) + ', ' + toEx.MESSAGE + CR_LF ;
-         + toEx.PROCEDURE + ', ' + TRANSFORM(toEx.LINENO) + CR_LF
-
-      IF NOT EMPTY(toEx.LINECONTENTS) AND toEx.ERRORNO <> 1098
-         lcError = lcError + toEx.LINECONTENTS + CR_LF
-      ENDIF
-
-      IF NOT EMPTY(toEx.USERVALUE)
-         lcError = lcError + EVL(toEx.USERVALUE,'')
-      ENDIF
-
-      RETURN lcError
+      This.ensureLogger()
+      RETURN This.o_Logger.exception2Str( @toEx )
    ENDPROC
 
 
