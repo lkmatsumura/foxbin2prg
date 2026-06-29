@@ -123,7 +123,7 @@ Propriedades `n_UseClassPerFile`, `l_UseClassPerDir`, `n_UseFormPerFile`, `n_Use
 | `o_Mirror` | `cl_fb2prg_mirror` — árvore espelhada |
 | `o_Cfg` | `cl_fb2prg_cfg` — configuração |
 | `o_SpecialProps` | `cl_fb2prg_special_props` — ordem de propriedades |
-| `o_Frm_Avance`, `o_FNC`, `o_Conversor` | Progress bar, capitalização, conversor ativo |
+| `o_ConversionFactory` | `cl_fb2prg_conversion_factory` — roteamento extensão → `c_conversor_*` |
 | `run_AfterCreateTable`, `run_AfterCreate_DB2` | Hooks pós-criação DBF/DB2 |
 
 ---
@@ -291,7 +291,7 @@ Delegação: lógica em `cl_fb2prg_cfg.prg`; `c_foxbin2prg` expõe wrappers (`en
 | **`execute` monolítico (~1.170 linhas)** | Dificultava manutenção | **Mitigado** — refatorado em ~90 linhas + `dispatchExecuteMode` e handlers |
 | **~38 métodos `_ACCESS` repetitivos** | Boilerplate de CFG | **Resolvido** — removidos; uso de `getCfgValue()` |
 | **`wscriptshell_run` dentro da classe** | Responsabilidade OS misturada | **Parcial** — movido para `cl_file_utils` |
-| **Duplicação `convert` ↔ `loadModule`** | Factory repetida | **Pendente** — ainda duplicada (~200 linhas) |
+| **Duplicação `convert` ↔ `loadModule`** | Factory repetida | **Resolvido** — `cl_fb2prg_conversion_factory` + `convert(tcMode)` unificado |
 | **I/O Win32 no orquestrador** | God Object | **Parcial** — `cl_file_utils` e `cl_fb2prg_mirror` extraídos |
 | **`doBackup` / logging no host** | Classe ainda grande | **Pendente** — candidatos a extração |
 
@@ -311,13 +311,14 @@ Delegação: lógica em `cl_fb2prg_cfg.prg`; `c_foxbin2prg` expõe wrappers (`en
 
 ### Extrações recomendadas (prioridade restante)
 
-#### 1. `c_FB2P_ConversionFactory` (~150 linhas)
+#### 1. `cl_fb2prg_conversion_factory` (~150 linhas)
 
 ```foxpro
-CreateConversor(tcExtension, tcDirection)  && 'BIN2PRG' ou 'PRG2BIN'
+createConversor(tcExtension, tcInputFile)
+prepareConversion(tcExtension, tcInputFile, tcBaseFile, tcForceAttribs)  && modo FULL
 ```
 
-Substitui os dois `DO CASE` em `convert` e `loadModule`.
+Substitui os dois `DO CASE` em `convert` e `loadModule`. **Concluído (2026).**
 
 #### 2. `c_FB2P_Logger` (~200 linhas)
 
@@ -332,7 +333,7 @@ convert(tcInput, toModulo, toEx, tlRelaunch, tcOriginal, tcMode)
 * tcMode: 'FULL' | 'LOAD_ONLY'
 ```
 
-Remove ~200 linhas duplicadas.
+`loadModule` delega a `convert(..., 'LOAD_ONLY')`. **Concluído (2026).**
 
 #### 4. `doBackup` e rastreamento de processados
 
@@ -362,6 +363,10 @@ classDiagram
         +get_MirroredPath()
         +copyUnconvertedFile()
     }
+    class cl_fb2prg_conversion_factory {
+        +createConversor()
+        +prepareConversion()
+    }
     class c_conversor_base {
         +loadModule()
     }
@@ -369,12 +374,13 @@ classDiagram
     c_foxbin2prg --> cl_fb2prg_cfg
     c_foxbin2prg --> cl_file_utils
     c_foxbin2prg --> cl_fb2prg_mirror
+    c_foxbin2prg --> cl_fb2prg_conversion_factory
     c_foxbin2prg --> c_conversor_base : delega conversão
 ```
 
 ### Plano de migração incremental (baixo risco)
 
-1. **Próximo:** Factory de conversores + unificar `convert`/`loadModule`.
+1. ~~**Próximo:** Factory de conversores + unificar `convert`/`loadModule`.~~ **Concluído (2026)** — `cl_fb2prg_conversion_factory.prg`
 2. **Depois:** Extrair `c_FB2P_Logger`; mover `doBackup` para file ops.
 3. **Opcional:** `c_FB2P_ProcessTracker` se testes exigirem isolamento.
 
@@ -393,7 +399,7 @@ As classes `c_conversor_*` e modelos `CL_*` já estão em módulos separados (`u
 3. `execute` refatorado com despacho por modo
 4. Suporte UTF-8 (`l_ExportUTF8`) integrado ao pipeline texto
 
-Próximo ganho: factory de conversores e unificação `convert`/`loadModule`, mantendo a API pública (`execute`, `exportProjectTree`, `importProjectTree`, `applyConfig`, `newConfig`) estável para SCM, Thor e testes.
+Próximo ganho: extrair `c_FB2P_Logger` e `doBackup`, mantendo a API pública (`execute`, `exportProjectTree`, `importProjectTree`, `applyConfig`, `newConfig`, `loadModule`) estável para SCM, Thor e testes.
 
 ---
 
