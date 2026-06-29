@@ -64,9 +64,9 @@ These changes keep the codebase focused on mirrored-tree use:
 | `foxbin2prg.cfg.txt`, `foxbin2prg.dbf.cfg.txt` | Sample disk configuration files |
 | `frm_interactive.prg` | Interactive batch driver not needed for mirror workflow |
 | Full `main.prg` CLI surface | Replaced by a minimal entry point; project work goes through the mirror API |
-| Large parts of `cl_fb2prg_cfg.prg` and `c_foxbin2prg.prg` | Factory/session CFG only; orchestration trimmed to mirror + essential conversion paths |
+| Large parts of `cl_fb2prg_cfg.prg` and `c_foxbin2prg.prg` | Factory/session CFG only; orchestration trimmed and delegated to `cl_fb2prg_*` helpers (see [docs/arquitetura.md](docs/arquitetura.md)) |
 
-**Still included:** all `c_conversor_*` modules (conversion is required), `cl_fb2prg_mirror`, [mirror.prg](mirror.prg), [create_mirrored.prg](create_mirrored.prg), optional [unify.prg](unify.prg) to rebuild `foxbin2prg.prg`, and [ReCreate_FoxBin2Prg.prg](ReCreate_FoxBin2Prg.prg) to build the EXE from this tree.
+**Still included:** all `c_conversor_*` modules (conversion is required), orchestrator helpers (`cl_fb2prg_execute`, `cl_fb2prg_split_paths`, `cl_fb2prg_conversion_factory`, `cl_fb2prg_logger`, `cl_fb2prg_cfg`, `cl_fb2prg_mirror`), [mirror.prg](mirror.prg), [create_mirrored.prg](create_mirrored.prg), optional [unify.prg](unify.prg) to rebuild `foxbin2prg.prg`, and [ReCreate_FoxBin2Prg.prg](ReCreate_FoxBin2Prg.prg) to build the EXE from this tree.
 
 ---
 
@@ -85,15 +85,19 @@ flowchart LR
 
 | Module | File | Purpose |
 |--------|------|---------|
-| Orchestrator (slimmed) | [c_foxbin2prg.prg](c_foxbin2prg.prg) (~3,300 lines) | Coordinates conversion; `exportProjectTree` / `importProjectTree` |
+| Orchestrator (slimmed) | [c_foxbin2prg.prg](c_foxbin2prg.prg) (~3,000 lines) | Coordinates conversion; `exportProjectTree` / `importProjectTree`; delegates to helper objects |
+| Execute pipeline | [cl_fb2prg_execute.prg](cl_fb2prg_execute.prg) | `execute()` / `run()` dispatch and batch handlers |
 | Config manager | [cl_fb2prg_cfg.prg](cl_fb2prg_cfg.prg) | `createCfgShell`, `newConfig()`, programmatic `loCfg` only |
+| Conversion factory | [cl_fb2prg_conversion_factory.prg](cl_fb2prg_conversion_factory.prg) | Instantiates bin↔text converters |
+| Split paths | [cl_fb2prg_split_paths.prg](cl_fb2prg_split_paths.prg) | Class/form per-file path mapping |
+| Logger | [cl_fb2prg_logger.prg](cl_fb2prg_logger.prg) | Progress and diagnostic output |
 | Special props (singleton) | [cl_fb2prg_special_props.prg](cl_fb2prg_special_props.prg) | Loads `a_SpecialProps*` once for all converters |
 | File helpers | [cl_file_utils.prg](cl_file_utils.prg) | File I/O separation |
 | Mirror tree API | [cl_fb2prg_mirror.prg](cl_fb2prg_mirror.prg) | Path mapping for mirrored export/import |
 | Converters | [c_conversor_*.prg](c_conversor_base.prg) | All derive from `c_conversor_base` |
 | Mirror driver | [mirror.prg](mirror.prg) | Interactive import/export for this repository's layout |
 
-Further reading: [docs/arquitetura.md](docs/arquitetura.md), [docs/export_import_mirror.md](docs/export_import_mirror.md).
+Further reading: [docs/arquitetura.md](docs/arquitetura.md) (full diagram and helper-class detail), [docs/export_import_mirror.md](docs/export_import_mirror.md).
 
 ---
 
@@ -118,6 +122,7 @@ loFb2p.importProjectTree('d:\export\app\app.pj2', 'd:\src\app', loCfg)
 ```foxpro
 DO main.prg WITH "<path>\file.vcx"
 DO main.prg WITH "<path>\file.vc2"
+DO main.prg WITH "-VERNO"                && version string
 DO main.prg                              && configuration reference form
 ```
 
@@ -212,13 +217,18 @@ After a `git pull` that changes text sources, re-run `mirror.prg` (import) and t
 
 | Document | Relevance on `mirrortree` |
 |----------|---------------------------|
+| [docs/readme.md](docs/readme.md) | Documentation index |
 | [docs/export_import_mirror.md](docs/export_import_mirror.md) | **Primary** — mirrored export/import guide |
-| [docs/arquitetura.md](docs/arquitetura.md) | Architecture; mirror and CFG sections apply |
+| [docs/arquitetura.md](docs/arquitetura.md) | Architecture; helper classes, mirror, and CFG sections apply |
+| [docs/c_foxbin2prg_ClassAnalysis.md](docs/c_foxbin2prg_ClassAnalysis.md) | Orchestrator deep-dive (Portuguese) |
+| [docs/FoxBin2Prg_Object.md](docs/FoxBin2Prg_Object.md) | Object-style API (`execute`, `newConfig`, mirror methods) |
+| [docs/FoxBin2Prg_Internals.md](docs/FoxBin2Prg_Internals.md) | CFG properties and internals; disk CFG topics mostly N/A here |
 | [docs/FoxBin2Prg.md](docs/FoxBin2Prg.md) | Upstream-oriented; many CLI/CFG topics do not apply here |
 | [docs/FoxBin2Prg_Run.md](docs/FoxBin2Prg_Run.md) | Upstream run modes; only single-file `main.prg` usage applies |
+| [docs/FoxBin2Prg_SCM.md](docs/FoxBin2Prg_SCM.md) | Upstream SCM notes; mirrored-tree workflow is in export_import_mirror |
 | [docs/ChangeLog.md](docs/ChangeLog.md) | Change history |
 | [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) | Contribution guidelines |
 
 ---
 
-Last updated: _2026/06/25_ ![Picture](./docs/pictures/vfpxpoweredby_alternative.gif)
+Last updated: _2026/06/29_ ![Picture](./docs/pictures/vfpxpoweredby_alternative.gif)
