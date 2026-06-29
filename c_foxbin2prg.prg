@@ -274,6 +274,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
       OTHERWISE && Default: EN
          lcLang = 'EN'
+
       ENDCASE
 
       This.changeLanguage(lcLang)
