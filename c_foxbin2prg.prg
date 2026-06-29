@@ -597,7 +597,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE changeFileAttribute
       *---------------------------------------------------------------------------------------------------
-      * Wrapper → o_FileUtils.changeFileAttribute.
+      * Wrapper -> o_FileUtils.changeFileAttribute.
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
       * tcFileName                 (v! IN    ) Target file
       * tcAttrib                   (v! IN    ) VFP SET ATTRIBUTES string (e.g. '+R', '-H')
@@ -611,7 +611,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE changeFileTime
       *---------------------------------------------------------------------------------------------------
-      * Wrapper → o_FileUtils.changeFileTime.
+      * Wrapper -> o_FileUtils.changeFileTime.
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
       * tcFileName                 (v! IN    ) Target file
       * tcTimeType                 (v? IN    ) 'C' creation | 'A' access | 'M' modification
@@ -705,7 +705,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    FUNCTION comparedFilesAreEqual
       *---------------------------------------------------------------------------------------------------
-      * Wrapper → o_FileUtils.comparedFilesAreEqual (binary or string content comparison).
+      * Wrapper ? o_FileUtils.comparedFilesAreEqual (binary or string content comparison).
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
       * tcFilename1                (v? IN    ) First file path (or empty when tcStrFileName2 is used)
       * tcFilename2                (v? IN    ) Second file path
@@ -1113,7 +1113,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       * True when tcType requests binary-to-text conversion (-BIN2PRG / -BIN2TEXT).
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
       * tcType                     (v? IN    ) execute() type string
-      * RETURN                    (v?    OUT) .T. for Bin→Txt mode
+      * RETURN                    (v?    OUT) .T. for Bin?Txt mode
       *---------------------------------------------------------------------------------------------------
 
       LPARAMETERS tcType
@@ -1126,7 +1126,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       * True when tcType requests text-to-binary conversion (-PRG2BIN / -TEXT2BIN).
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
       * tcType                     (v? IN    ) execute() type string
-      * RETURN                    (v?    OUT) .T. for Txt→Bin mode
+      * RETURN                    (v?    OUT) .T. for Txt?Bin mode
       *---------------------------------------------------------------------------------------------------
 
       LPARAMETERS tcType
@@ -1574,7 +1574,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       *---------------------------------------------------------------------------------------------------
       * Logs BIN2PRG/PRG2BIN option and loads progress form with direction caption.
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
-      * tlBinToText                (v! IN    ) .T. = Bin→Txt batch
+      * tlBinToText                (v! IN    ) .T. = Bin?Txt batch
       *---------------------------------------------------------------------------------------------------
 
       LPARAMETERS tlBinToText
@@ -1815,7 +1815,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       *---------------------------------------------------------------------------------------------------
       * Logs unsupported input type for explicit Bin2Prg/Prg2Bin directory-less requests.
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
-      * tlBinToText                (v! IN    ) .T. = unsupported Bin→Txt
+      * tlBinToText                (v! IN    ) .T. = unsupported Bin?Txt
       * RETURN                    (v?    OUT) 0
       *---------------------------------------------------------------------------------------------------
 
@@ -2976,7 +2976,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE get_DirSettings
       *---------------------------------------------------------------------------------------------------
-      * Wrapper → o_Cfg.get_DirSettings (factory CFG clone; legacy API).
+      * Wrapper ? o_Cfg.get_DirSettings (factory CFG clone; legacy API).
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
       * tcDir                      (v? IN    ) Directory key
       * tcDebug                    (v? IN    ) Debug flag string
@@ -2992,7 +2992,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE formatConfigReferenceText
       *---------------------------------------------------------------------------------------------------
-      * Wrapper → o_Cfg.formatConfigReferenceText for frm_main display.
+      * Wrapper ? o_Cfg.formatConfigReferenceText for frm_main display.
       * RETURN                    (v?    OUT) Multi-line reference text
       *---------------------------------------------------------------------------------------------------
 
@@ -3003,7 +3003,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE createCfgShell
       *---------------------------------------------------------------------------------------------------
-      * Wrapper → o_Cfg.createCfgShell (empty marked CFG object).
+      * Wrapper ? o_Cfg.createCfgShell (empty marked CFG object).
       * RETURN                    (v?    OUT) Empty CFG shell object
       *---------------------------------------------------------------------------------------------------
 
@@ -3014,7 +3014,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE getActiveCfg
       *---------------------------------------------------------------------------------------------------
-      * Wrapper → o_Cfg.getActiveCfg (current session master CFG).
+      * Wrapper ? o_Cfg.getActiveCfg (current session master CFG).
       * RETURN                    (v?    OUT) Active CFG object
       *---------------------------------------------------------------------------------------------------
 
@@ -3122,7 +3122,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE newConfig
       *---------------------------------------------------------------------------------------------------
-      * Wrapper → o_Cfg.newConfig (empty marked CFG object for programmatic overrides).
+      * Wrapper ? o_Cfg.newConfig (empty marked CFG object for programmatic overrides).
       * RETURN                    (v?    OUT) New CFG shell object
       *---------------------------------------------------------------------------------------------------
 
@@ -3133,7 +3133,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE configFromObject
       *---------------------------------------------------------------------------------------------------
-      * Wrapper → o_Cfg.configFromObject (copies properties from any duck-typed object into a CFG).
+      * Wrapper ? o_Cfg.configFromObject (copies properties from any duck-typed object into a CFG).
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
       * toSource                   (v? IN    ) Source object (CFG or duck-typed with FB2P properties)
       * toDestCfg                  (v? IN    ) Destination CFG; new shell created when omitted or invalid
@@ -3147,7 +3147,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE applyConfig
       *---------------------------------------------------------------------------------------------------
-      * Wrapper → o_Cfg.applyConfig (replaces session master CFG from object or duck-typed source).
+      * Wrapper ? o_Cfg.applyConfig (replaces session master CFG from object or duck-typed source).
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
       * toCfg                      (v! IN    ) CFG object or duck-typed configuration source
       * RETURN                    (v?    OUT) .T. when session CFG was updated
@@ -3204,7 +3204,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE makeDirTree
       *---------------------------------------------------------------------------------------------------
-      * Wrapper → o_Mirror.makeDirTree (recursively creates directory tree if missing).
+      * Wrapper ? o_Mirror.makeDirTree (recursively creates directory tree if missing).
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
       * tcDir                      (v! IN    ) Root directory path to create
       * RETURN                    (v?    OUT) .T. when tree exists or was created
@@ -3447,7 +3447,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE copyUnconvertedFile
       *---------------------------------------------------------------------------------------------------
-      * Copies a non-convertible member into the mirrored tree; wrapper → o_Mirror.
+      * Copies a non-convertible member into the mirrored tree; wrapper ? o_Mirror.
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
       * tcFile                     (v! IN    ) Source file path
       * RETURN                    (v?    OUT) .T. when copy succeeded
@@ -3881,7 +3881,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE renameTmpFile2Tx2File
       *---------------------------------------------------------------------------------------------------
-      * Renames temporary export file to final text extension; wrapper → o_FileUtils.
+      * Renames temporary export file to final text extension; wrapper ? o_FileUtils.
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
       * tcFileName                 (v! IN    ) Temp file path
       * RETURN                    (v?    OUT) .T. on success
@@ -4014,7 +4014,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE errOut
       *---------------------------------------------------------------------------------------------------
-      * Wrapper → o_FileUtils.errOut (writes text to stderr when l_StdOutHabilitado).
+      * Wrapper ? o_FileUtils.errOut (writes text to stderr when l_StdOutHabilitado).
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
       * tcTexto                    (v? IN    ) Text line to emit (CR/LF appended)
       *---------------------------------------------------------------------------------------------------
@@ -4026,7 +4026,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE stdOut
       *---------------------------------------------------------------------------------------------------
-      * Wrapper → o_FileUtils.stdOut (writes text to stdout when l_StdOutHabilitado).
+      * Wrapper ? o_FileUtils.stdOut (writes text to stdout when l_StdOutHabilitado).
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
       * tcTexto                    (v? IN    ) Text line to emit (CR/LF appended)
       *---------------------------------------------------------------------------------------------------
@@ -4092,7 +4092,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE writeErrorLog
       *---------------------------------------------------------------------------------------------------
-      * Appends a line to the session error log buffer; wrapper → o_Logger.
+      * Appends a line to the session error log buffer; wrapper ? o_Logger.
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
       * tcText                     (v? IN    ) Text line
       * tnTimeStamp                (v? IN    ) Optional timestamp flag
@@ -4106,7 +4106,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE writeErrorLog_Flush
       *---------------------------------------------------------------------------------------------------
-      * Flushes error log buffer to c_ErrorLogFile; wrapper → o_Logger.
+      * Flushes error log buffer to c_ErrorLogFile; wrapper ? o_Logger.
       *---------------------------------------------------------------------------------------------------
 
       This.ensureLogger()
@@ -4116,7 +4116,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE writeLog
       *---------------------------------------------------------------------------------------------------
-      * Appends a line to the session debug log buffer; wrapper → o_Logger.
+      * Appends a line to the session debug log buffer; wrapper ? o_Logger.
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
       * tcText                     (v? IN    ) Text line
       * tnTimeStamp                (v? IN    ) Optional timestamp / header level
@@ -4130,7 +4130,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE writeLog_Flush
       *---------------------------------------------------------------------------------------------------
-      * Flushes debug log buffer to c_LogFile; wrapper → o_Logger.
+      * Flushes debug log buffer to c_LogFile; wrapper ? o_Logger.
       *---------------------------------------------------------------------------------------------------
 
       This.ensureLogger()
@@ -4140,7 +4140,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    HIDDEN PROCEDURE exception2Str
       *---------------------------------------------------------------------------------------------------
-      * Serializes an Exception object to text; wrapper → o_Logger.
+      * Serializes an Exception object to text; wrapper ? o_Logger.
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
       * toEx                       (@? IN    ) Exception object (pass @)
       * RETURN                    (v?    OUT) Formatted exception string
@@ -4175,7 +4175,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    FUNCTION wscriptshell_run
       *---------------------------------------------------------------------------------------------------
-      * Runs a shell command; wrapper → o_FileUtils.wscriptshell_run.
+      * Runs a shell command; wrapper ? o_FileUtils.wscriptshell_run.
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
       * tcCmdLine                  (v! IN    ) Command line
       * tnWindowStyle              (v? IN    ) WScript window style
@@ -4192,7 +4192,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    FUNCTION FERROR_Message(tcFileName AS STRING)
       *---------------------------------------------------------------------------------------------------
-      * Returns FERROR() diagnostic text for a file; wrapper → o_FileUtils.
+      * Returns FERROR() diagnostic text for a file; wrapper ? o_FileUtils.
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
       * tcFileName                 (v? IN    ) File context for message
       * RETURN                    (v?    OUT) Error description string
@@ -4206,7 +4206,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    FUNCTION getLocaleInfo
       *---------------------------------------------------------------------------------------------------
-      * Reads Windows locale information; wrapper → o_FileUtils.
+      * Reads Windows locale information; wrapper ? o_FileUtils.
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
       * tnSetting                  (v! IN    ) LOCALE_* constant
       * tcLocale                   (v? IN    ) Optional locale name

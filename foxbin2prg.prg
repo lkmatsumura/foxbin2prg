@@ -496,6 +496,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    *!* more sophisticated control of inheritance for para file
 
    PROCEDURE INIT
+      *---------------------------------------------------------------------------------------------------
+      * Session startup: VFP environment, log paths, language, o_FSO, o_Cfg, helper objects.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcCFG_File                 (v? IN    ) Optional legacy CFG path; default: same stem as FoxBin2Prg
+      * tcCancelWithEscKey         (v? IN    ) '1' enables ESC cancel (This.l_CancelWithEscKey)
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcCFG_File, tcCancelWithEscKey
 
       #IF .F.
@@ -602,6 +609,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE DESTROY
+      *---------------------------------------------------------------------------------------------------
+      * Session teardown: flush logs, release forms and helper objects, clear DLL declarations.
+      *---------------------------------------------------------------------------------------------------
+
       TRY
          LOCAL lcFileCDX
          lcFileCDX   = FORCEPATH( "TABLABIN.CDX", JUSTPATH(This.c_InputFile) )
@@ -612,7 +623,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          This.writeLog( REPLICATE( '*', 100 ) )
          This.writeLog( )
          This.writeLog_Flush()
-         This.unloadProgressbarForm()
+         This.unloadProgressbarForm( .T. )
 
       CATCH
 
@@ -705,6 +716,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE updateProgressbar
+      *---------------------------------------------------------------------------------------------------
+      * Proxy to frm_avance; raises ERROR 1799 when user cancels (unless called from form init).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcTexto                    (v? IN    ) Progress caption text
+      * tnValor                    (v? IN    ) Current item index
+      * tnTotal                    (v? IN    ) Total items
+      * tnTipo                     (v? IN    ) Progress bar mode (frm_avance)
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcTexto, tnValor, tnTotal, tnTipo
 
       TRY
@@ -726,6 +746,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE changeLanguage
+      *---------------------------------------------------------------------------------------------------
+      * Instantiates CL_LANG on _SCREEN and copies localized caption strings to This.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcLanguageId               (v! IN    ) Language id: EN, ES, FR, DE
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcLanguageId
       _SCREEN.ADDPROPERTY( "o_FoxBin2Prg_Lang", CreateObject("CL_LANG" ,  tcLanguageId) )
       *-- Localized properties
@@ -736,6 +762,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE clearProcessedFiles
+      *---------------------------------------------------------------------------------------------------
+      * Resets a_ProcessedFiles and session error flags between execute() runs.
+      *---------------------------------------------------------------------------------------------------
+
       *-- Clears processed-file statistics used to optimize
       *-- processing and avoid reprocessing the same files, for example,
       *-- a single VCX shared by 2 or more projects.
@@ -753,8 +783,9 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE clearConfigurationCache
       *---------------------------------------------------------------------------------------------------
-      * Drops per-directory CFG cache on o_Cfg (factory/master CFG are kept).
+      * Delegates to o_Cfg.clearConfigurationCache(); drops per-directory CFG cache only.
       *---------------------------------------------------------------------------------------------------
+
       IF VARTYPE(This.o_Cfg) = 'O' AND !ISNULL(This.o_Cfg)
          This.o_Cfg.clearConfigurationCache()
       ENDIF
@@ -762,47 +793,82 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE ensureFileUtils
+      *---------------------------------------------------------------------------------------------------
+      * Lazy-init This.o_FileUtils (cl_file_utils) if missing.
+      *---------------------------------------------------------------------------------------------------
+
       IF VARTYPE(This.o_FileUtils) <> 'O' OR ISNULL(This.o_FileUtils)
          This.o_FileUtils = CreateObject('cl_file_utils' ,  This)
       ENDIF
    ENDPROC
 
    PROCEDURE ensureMirror
+      *---------------------------------------------------------------------------------------------------
+      * Lazy-init This.o_Mirror (cl_fb2prg_mirror) if missing.
+      *---------------------------------------------------------------------------------------------------
+
       IF VARTYPE(This.o_Mirror) <> 'O' OR ISNULL(This.o_Mirror)
          This.o_Mirror = CreateObject('cl_fb2prg_mirror' ,  This)
       ENDIF
    ENDPROC
 
    PROCEDURE ensureCfg
+      *---------------------------------------------------------------------------------------------------
+      * Lazy-init This.o_Cfg (cl_fb2prg_cfg) if missing.
+      *---------------------------------------------------------------------------------------------------
+
       IF VARTYPE(This.o_Cfg) <> 'O' OR ISNULL(This.o_Cfg)
          This.o_Cfg = CreateObject('cl_fb2prg_cfg' ,  This)
       ENDIF
    ENDPROC
 
    PROCEDURE ensureSpecialProps
+      *---------------------------------------------------------------------------------------------------
+      * Lazy-init This.o_SpecialProps (cl_fb2prg_special_props) if missing.
+      *---------------------------------------------------------------------------------------------------
+
       IF VARTYPE(This.o_SpecialProps) <> 'O' OR ISNULL(This.o_SpecialProps)
          This.o_SpecialProps = CreateObject('cl_fb2prg_special_props'  ,   This.c_Foxbin2prg_FullPath )
       ENDIF
    ENDPROC
 
    PROCEDURE ensureConversionFactory
+      *---------------------------------------------------------------------------------------------------
+      * Lazy-init This.o_ConversionFactory (cl_fb2prg_conversion_factory) if missing.
+      *---------------------------------------------------------------------------------------------------
+
       IF VARTYPE(This.o_ConversionFactory) <> 'O' OR ISNULL(This.o_ConversionFactory)
          This.o_ConversionFactory = CreateObject('cl_fb2prg_conversion_factory' ,  This)
       ENDIF
    ENDPROC
 
    PROCEDURE ensureLogger
+      *---------------------------------------------------------------------------------------------------
+      * Lazy-init This.o_Logger (cl_fb2prg_logger) if missing.
+      *---------------------------------------------------------------------------------------------------
+
       IF VARTYPE(This.o_Logger) <> 'O' OR ISNULL(This.o_Logger)
          This.o_Logger = CreateObject('cl_fb2prg_logger' ,  This)
       ENDIF
    ENDPROC
 
    PROCEDURE declareDLL
+      *---------------------------------------------------------------------------------------------------
+      * Declares Win32 DLLs used by file operations; delegates to o_FileUtils.
+      *---------------------------------------------------------------------------------------------------
+
       This.ensureFileUtils()
       This.o_FileUtils.declareDLL()
    ENDPROC
 
    PROCEDURE get_AbsolutePath
+      *---------------------------------------------------------------------------------------------------
+      * Resolves a relative path against an optional base directory.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tc_InputFile               (v? IN    ) Path to resolve
+      * tc_FullPath                (v? IN    ) Base directory; default from o_FileUtils / c_Foxbin2prg_FullPath
+      * RETURN                    (v?    OUT) Absolute path string
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS tc_InputFile, tc_FullPath
       This.ensureFileUtils()
       RETURN This.o_FileUtils.get_AbsolutePath(tc_InputFile, tc_FullPath)
@@ -851,6 +917,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROCEDURE changeFileAttribute
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper -> o_FileUtils.changeFileAttribute.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFileName                 (v! IN    ) Target file
+      * tcAttrib                   (v! IN    ) VFP SET ATTRIBUTES string (e.g. '+R', '-H')
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcFileName, tcAttrib
       This.ensureFileUtils()
       RETURN This.o_FileUtils.changeFileAttribute(tcFileName, tcAttrib)
@@ -858,6 +931,14 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE changeFileTime
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper -> o_FileUtils.changeFileTime.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFileName                 (v! IN    ) Target file
+      * tcTimeType                 (v? IN    ) 'C' creation | 'A' access | 'M' modification
+      * tnYear … tnThou             (v? IN    ) Timestamp components
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcFileName, tcTimeType, tnYear, tnMonth, tnDay, tnHour, tnMinute, tnSec, tnThou
       This.ensureFileUtils()
       RETURN This.o_FileUtils.changeFileTime(tcFileName, tcTimeType, tnYear, tnMonth, tnDay, tnHour, tnMinute, tnSec, tnThou)
@@ -865,6 +946,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE compileFoxProBinary
+      *---------------------------------------------------------------------------------------------------
+      * COMPILE CLASSLIB/FORM/REPORT/LABEL/DATABASE for regenerated binary output.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFileName                 (v? IN    ) Binary path; default This.c_OutputFile
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcFileName
       LOCAL lcType
 
@@ -911,6 +998,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE loadProgressbarForm
+      *---------------------------------------------------------------------------------------------------
+      * Creates and shows frm_avance when not already loaded.
+      *---------------------------------------------------------------------------------------------------
+
       IF VARTYPE(This.o_Frm_Avance) <> "O" THEN
          This.o_Frm_Avance   = CreateObject( "frm_avance"   ,   This )
          This.o_Frm_Avance.SHOW()
@@ -919,6 +1010,11 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE unloadProgressbarForm
+      *---------------------------------------------------------------------------------------------------
+      * Hides and releases frm_avance when progress bar is enabled or tlForceUnload is .T.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tlForceUnload              (v? IN    ) When .T., unloads even if n_ShowProgressbar = 0
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS tlForceUnload
       IF (tlForceUnload OR This.getCfgValue('n_ShowProgressbar') <> 0) AND VARTYPE(This.o_Frm_Avance) = "O" THEN
          This.o_Frm_Avance.HIDE()
@@ -929,6 +1025,14 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    FUNCTION comparedFilesAreEqual
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper ? o_FileUtils.comparedFilesAreEqual (binary or string content comparison).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFilename1                (v? IN    ) First file path (or empty when tcStrFileName2 is used)
+      * tcFilename2                (v? IN    ) Second file path
+      * tcStrFileName2             (v? IN    ) In-memory string to compare against tcFilename1
+      * RETURN                    (v?    OUT) .T. when contents are equal
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcFilename1, tcFilename2, tcStrFileName2
       This.ensureFileUtils()
       RETURN This.o_FileUtils.comparedFilesAreEqual(tcFilename1, tcFilename2, tcStrFileName2)
@@ -959,6 +1063,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE writeLogDbfCfgSettings
+      *---------------------------------------------------------------------------------------------------
+      * Writes DBF-related CFG properties to the session log when tlGenerateLog is .T.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tlGenerateLog              (v? IN    ) Whether to emit the DBF CFG block
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tlGenerateLog AS Boolean
 
       LOCAL lcOrder, lcCond, lcIdxList
@@ -1320,18 +1430,40 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    *==============================================================================================================
 
    PROTECTED FUNCTION isBinToTextMode
+      *---------------------------------------------------------------------------------------------------
+      * True when tcType requests binary-to-text conversion (-BIN2PRG / -BIN2TEXT).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcType                     (v? IN    ) execute() type string
+      * RETURN                    (v?    OUT) .T. for Bin?Txt mode
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcType
       RETURN ATC('-BIN2PRG', ('-' + tcType)) > 0 ;
          OR ATC('-BIN2TEXT', ('-' + tcType)) > 0
    ENDFUNC
 
    PROTECTED FUNCTION isTextToBinMode
+      *---------------------------------------------------------------------------------------------------
+      * True when tcType requests text-to-binary conversion (-PRG2BIN / -TEXT2BIN).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcType                     (v? IN    ) execute() type string
+      * RETURN                    (v?    OUT) .T. for Txt?Bin mode
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcType
       RETURN ATC('-PRG2BIN', ('-' + tcType)) > 0 ;
          OR ATC('-TEXT2BIN', ('-' + tcType)) > 0
    ENDFUNC
 
    PROTECTED PROCEDURE restoreEscapeKey
+      *---------------------------------------------------------------------------------------------------
+      * Restores ON ESCAPE / SET ESCAPE after execute() when ESC cancel was enabled.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * llEscKeyRestored           (v! IN    ) .T. if ESC was never overridden
+      * lcOldSetEscape             (v? IN    ) Previous SET('Escape') value
+      * lcOldOnEscape              (v? IN    ) Previous ON ESCAPE expression
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS llEscKeyRestored, lcOldSetEscape, lcOldOnEscape
       IF NOT llEscKeyRestored AND This.l_CancelWithEscKey THEN
          IF EMPTY(lcOldOnEscape)
@@ -1348,6 +1480,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDPROC
 
    PROTECTED FUNCTION mergeExecuteConfig
+      *---------------------------------------------------------------------------------------------------
+      * Applies optional toCfg to session CFG via o_Cfg.lockMasterFromObject.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * toCfg                      (v? IN    ) CFG object (newConfig) or duck-typed source
+      * RETURN                    (v?    OUT) Effective CFG object passed to execute(), or .NULL.
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS toCfg
       LOCAL loCFG
       loCFG = .NULL.
@@ -1364,6 +1503,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED PROCEDURE beginExecuteSession
+      *---------------------------------------------------------------------------------------------------
+      * execute() setup: NOTIFY OFF, DLL declare, ESC handler, clear processed files.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * loSession                  (@! IN/OUT) Empty object; fields filled for finalizeExecuteSession
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS loSession
       WITH This
          loSession.lc_OldSetNotify  = SET("Notify")
@@ -1387,6 +1532,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDPROC
 
    PROTECTED PROCEDURE validateExecuteEnvironment
+      *---------------------------------------------------------------------------------------------------
+      * Raises ERROR if VFP version or tcType is invalid for execute().
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * lnVFPVersion               (v! IN    ) Val(Version(5))
+      * tcType                     (v? IN    ) execute() type parameter
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS lnVFPVersion, tcType
       LOCAL loLang AS CL_LANG Of 'foxbin2prg.prg'
       loLang = _SCREEN.o_FoxBin2Prg_Lang
@@ -1405,6 +1557,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDPROC
 
    PROTECTED FUNCTION parseClassOperationSyntax
+      *---------------------------------------------------------------------------------------------------
+      * Parses file.vcx::class|I/E syntax; sets c_ClassToConvert and c_ClassOperationType.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tc_InputFile               (@! IN/OUT) Input path; normalized on return
+      * RETURN                    (v?    OUT) Normalized tc_InputFile
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tc_InputFile
       IF '::' $ tc_InputFile THEN
          tc_InputFile = STRTRAN(tc_InputFile, '::', '|')
@@ -1418,6 +1577,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION detectInputFileType
+      *---------------------------------------------------------------------------------------------------
+      * Returns C_FILETYPE_DIRECTORY or C_FILETYPE_FILE for execute() routing.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tc_InputFile               (v? IN    ) Input path
+      * RETURN                    (v?    OUT) C_FILETYPE_* constant or empty
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tc_InputFile
       LOCAL laDirInfo(1,5), lcInputFile_Type
       lcInputFile_Type = ''
@@ -1432,6 +1598,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION resolveRecompileTarget
+      *---------------------------------------------------------------------------------------------------
+      * Derives tcRecompile and This.c_Recompile from input type and CFG l_Recompile.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tc_InputFile               (v? IN    ) Input path
+      * lcInputFile_Type           (v? IN    ) C_FILETYPE_* from detectInputFileType
+      * tcRecompile                (v? IN/OUT) Recompile flag or directory
+      * RETURN                    (v?    OUT) Effective tcRecompile string
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tc_InputFile, lcInputFile_Type, tcRecompile
       IF EMPTY(tcRecompile) AND NOT EMPTY(lcInputFile_Type)
          IF lcInputFile_Type == C_FILETYPE_DIRECTORY
@@ -1450,6 +1625,14 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED PROCEDURE logExecuteParameters
+      *---------------------------------------------------------------------------------------------------
+      * Writes execute() external parameters block to session debug log.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tc_InputFile               (v? IN    ) Input file/directory
+      * lcType                     (v? IN    ) Normalized tcType
+      * toCfg                      (v? IN    ) Optional CFG object
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tc_InputFile, lcType, toCfg
       LOCAL loLang AS CL_LANG Of 'foxbin2prg.prg'
       loLang = _SCREEN.o_FoxBin2Prg_Lang
@@ -1466,6 +1649,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDPROC
 
    PROTECTED FUNCTION rewritePerObjectInputPath
+      *---------------------------------------------------------------------------------------------------
+      * Rewrites single-class/form per-file paths for Import (I) and RedirectClassType = 2.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tc_InputFile               (v! IN    ) Original input path
+      * tcType                     (v? IN    ) execute() type
+      * lcExt                      (v! IN    ) Upper extension (VCX, SCX, c_VC2, …)
+      * RETURN                    (v?    OUT) Resolved input path for convert()
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tc_InputFile, tcType, lcExt
       LOCAL laFiles(1,5), lnRedirect, lnUsePerFile, lcTextExt, lcUsePerDir, llIsClass, llIsForm
       IF INLIST(LOWER(EVL(tcType,'')), '-c', 'c', '-t', 't')
@@ -1527,6 +1719,20 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION buildExecuteContext
+      *---------------------------------------------------------------------------------------------------
+      * Builds loCtx empty object with normalized execute() state for dispatch handlers.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tc_InputFile               (v? IN    ) Input path
+      * tcType                     (v? IN    ) Type string
+      * lcType                     (v? IN    ) Upper/normalized type
+      * loCFG                      (v? IN    ) Effective CFG object
+      * tcRecompile                (v? IN    ) Recompile target
+      * lcInputFile_Type           (v? IN    ) C_FILETYPE_*
+      * tcOriginalFileName         (v? IN    ) Original name for headers
+      * tcTextName                 (v? IN    ) Mirror/text output folder alias
+      * RETURN                    (v?    OUT) loCtx object
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tc_InputFile, tcType, lcType, loCFG, tcRecompile, lcInputFile_Type, tcOriginalFileName, tcTextName
       LOCAL loCtx
       loCtx = CREATEOBJECT('Empty')
@@ -1544,6 +1750,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION resolveExecuteMode
+      *---------------------------------------------------------------------------------------------------
+      * Maps input path, type and support flags to C_EXEC_* dispatch constant.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcType                     (v? IN    ) execute() type
+      * tc_InputFile               (v? IN    ) Input path
+      * lcInputFile_Type           (v? IN    ) C_FILETYPE_*
+      * RETURN                    (v?    OUT) C_EXEC_* mode constant
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcType, tc_InputFile, lcInputFile_Type
       LOCAL laDirInfo(1,5)
       IF VERSION(5) < 900
@@ -1591,6 +1806,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED PROCEDURE prepareBatchLog
+      *---------------------------------------------------------------------------------------------------
+      * Sets This.c_LogFile for directory/wildcard batch and optionally erases prior log.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcLogPath                  (v! IN    ) Full path of batch .LOG file
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcLogPath
       This.c_LogFile = tcLogPath
       IF This.getCfgValue('n_Debug') > 0 THEN
@@ -1599,6 +1820,14 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDPROC
 
    PROTECTED PROCEDURE setRecompileDirectory
+      *---------------------------------------------------------------------------------------------------
+      * CD to recompile base directory according to tcRecompile and CFG l_Recompile.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcRecompile                (v? IN    ) '1', directory path, or '0'
+      * tcDefaultPath              (v! IN    ) Default directory when tcRecompile = '1'
+      * tlUseRecompileCfg          (v? IN    ) .T. for directory batch (honor CFG path rules)
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcRecompile, tcDefaultPath, tlUseRecompileCfg
       DO CASE
       CASE This.getCfgValue('l_Recompile') AND LEN(tcRecompile) > 3 AND DIRECTORY(tcRecompile)
@@ -1611,6 +1840,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDPROC
 
    PROTECTED FUNCTION handleConvertResult
+      *---------------------------------------------------------------------------------------------------
+      * Central convert() error handling for batch modes; may accumulate errors without abort.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * lnCodError                 (v! IN    ) convert() return code
+      * toEx                       (@? IN    ) Exception object
+      * tlAccumulateError          (v? IN    ) .T. = set batch error flag instead of aborting
+      * RETURN                    (v?    OUT) .T. when batch should mark l_Error
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS lnCodError, toEx, tlAccumulateError
       LOCAL llBatchError
       llBatchError = .F.
@@ -1628,6 +1866,20 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION runConvertWithProgress
+      *---------------------------------------------------------------------------------------------------
+      * Updates progress bar, calls convert(), optionally flushes log.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * lcFile                     (v! IN    ) File being converted
+      * tnIndex                    (v! IN    ) Current index in batch
+      * tnTotal                    (v! IN    ) Total files in batch
+      * tlRelanzarError            (v? IN    ) Passed to convert()
+      * tcOriginalFileName         (v? IN    ) Original name for headers
+      * toModulo                   (@? IN/OUT) Converter module (tests)
+      * toEx                       (@? IN/OUT) Exception object (pass @)
+      * tlFlushLog                 (v? IN    ) .T. = writeLog_Flush after convert
+      * RETURN                    (v?    OUT) convert() error code
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS lcFile, tnIndex, tnTotal, tlRelanzarError, tcOriginalFileName, toModulo, toEx, tlFlushLog
       LOCAL lnCodError, loLang AS CL_LANG Of 'foxbin2prg.prg'
       loLang = _SCREEN.o_FoxBin2Prg_Lang
@@ -1640,6 +1892,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED PROCEDURE setupDirectionProgressUI
+      *---------------------------------------------------------------------------------------------------
+      * Logs BIN2PRG/PRG2BIN option and loads progress form with direction caption.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tlBinToText                (v! IN    ) .T. = Bin?Txt batch
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tlBinToText
       LOCAL loLang AS CL_LANG Of 'foxbin2prg.prg'
       loLang = _SCREEN.o_FoxBin2Prg_Lang
@@ -1659,6 +1917,11 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDPROC
 
    PROTECTED FUNCTION executeEmptyUI
+      *---------------------------------------------------------------------------------------------------
+      * Shows frm_main configuration reference when execute() receives empty input.
+      * RETURN                    (v?    OUT) 0
+      *---------------------------------------------------------------------------------------------------
+
       LOCAL loFrm_Main AS frm_main Of 'foxbin2prg.prg'
       loFrm_Main = CreateObject( 'frm_main'  ,  This)
       loFrm_Main.SHOW()
@@ -1667,6 +1930,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION executeBin3Prg
+      *---------------------------------------------------------------------------------------------------
+      * Bin3Prg handler: validates PJX + mirror root, delegates to exportProjectTree.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * loCtx                      (v! IN    ) Context from buildExecuteContext
+      * RETURN                    (v?    OUT) execute() return code
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS loCtx
       LOCAL lcMirrorRoot, loLang AS CL_LANG Of 'foxbin2prg.prg', loCfgPass
       loLang = _SCREEN.o_FoxBin2Prg_Lang
@@ -1685,6 +1955,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION executePrg3Bin
+      *---------------------------------------------------------------------------------------------------
+      * Prg3Bin handler: validates PJ2 + mirror root, delegates to importProjectTree.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * loCtx                      (v! IN    ) Context from buildExecuteContext
+      * RETURN                    (v?    OUT) execute() return code
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS loCtx
       LOCAL lcMirrorRoot, loLang AS CL_LANG Of 'foxbin2prg.prg', loCfgPass
       loLang = _SCREEN.o_FoxBin2Prg_Lang
@@ -1703,6 +1980,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION executeWildcardBatch
+      *---------------------------------------------------------------------------------------------------
+      * Processes a wildcard file specification (ADIR loop) including optional full PJX/PJ2.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * loCtx                      (v! IN    ) Execute context
+      * toEx                       (@? IN/OUT) Exception object (pass @)
+      * toModulo                   (@? IN/OUT) Converter module (tests)
+      * RETURN                    (v?    OUT) Last convert() error code
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS loCtx, toEx, toModulo
       LOCAL I, lcFileSpec, lcFile, lnFileCount, lnCodError, llError, laFiles(1,5), loLang AS CL_LANG Of 'foxbin2prg.prg'
       loLang = _SCREEN.o_FoxBin2Prg_Lang
@@ -1749,6 +2035,16 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION executeDirectoryBatch
+      *---------------------------------------------------------------------------------------------------
+      * Recursively converts all supported files under a directory.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * loCtx                      (v! IN    ) Execute context
+      * tlBinToText                (v! IN    ) Batch direction
+      * toEx                       (@? IN/OUT) Exception object (pass @)
+      * toModulo                   (@? IN/OUT) Converter module (tests)
+      * RETURN                    (v?    OUT) Last convert() error code
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS loCtx, tlBinToText, toEx, toModulo
       LOCAL I, lcFile, lnFileCount, lnCodError, laFiles(1,5), laDirInfo(1,5), loLang AS CL_LANG Of 'foxbin2prg.prg'
       loLang = _SCREEN.o_FoxBin2Prg_Lang
@@ -1780,6 +2076,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION executeSingleProject
+      *---------------------------------------------------------------------------------------------------
+      * Converts full PJX or PJ2 project via evaluate_Full_PJX / evaluate_Full_PJ2.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * loCtx                      (v! IN    ) Execute context
+      * toEx                       (@? IN/OUT) Exception object (pass @)
+      * toModulo                   (@? IN/OUT) Converter module (tests)
+      * RETURN                    (v?    OUT) 0
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS loCtx, toEx, toModulo
       LOCAL tcOriginalFileName
       tcOriginalFileName = loCtx.tcOriginalFileName
@@ -1797,6 +2102,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION executeSingleFile
+      *---------------------------------------------------------------------------------------------------
+      * Converts one supported file through convert().
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * loCtx                      (v! IN    ) Execute context
+      * toEx                       (@? IN/OUT) Exception object (pass @)
+      * toModulo                   (@? IN/OUT) Converter module (tests)
+      * RETURN                    (v?    OUT) convert() error code
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS loCtx, toEx, toModulo
       LOCAL laDirInfo(1,5), lnCodError, loLang AS CL_LANG Of 'foxbin2prg.prg'
       loLang = _SCREEN.o_FoxBin2Prg_Lang
@@ -1819,6 +2133,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION executeUnsupportedInput
+      *---------------------------------------------------------------------------------------------------
+      * Logs unsupported input type for explicit Bin2Prg/Prg2Bin directory-less requests.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tlBinToText                (v! IN    ) .T. = unsupported Bin?Txt
+      * RETURN                    (v?    OUT) 0
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tlBinToText
       LOCAL loLang AS CL_LANG Of 'foxbin2prg.prg'
       loLang = _SCREEN.o_FoxBin2Prg_Lang
@@ -1833,6 +2154,16 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION dispatchExecuteMode
+      *---------------------------------------------------------------------------------------------------
+      * Central DO CASE router for execute(); delegates to mode-specific handlers.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * lnMode                     (v! IN    ) C_EXEC_* constant from resolveExecuteMode
+      * loCtx                      (v! IN    ) Execute context
+      * toEx                       (@? IN/OUT) Exception object (pass @)
+      * toModulo                   (@? IN/OUT) Converter module (tests)
+      * RETURN                    (v?    OUT) Handler return / error code
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS lnMode, loCtx, toEx, toModulo
       LOCAL loLang AS CL_LANG Of 'foxbin2prg.prg'
       loLang = _SCREEN.o_FoxBin2Prg_Lang
@@ -1874,6 +2205,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED PROCEDURE enrichExecuteException
+      *---------------------------------------------------------------------------------------------------
+      * Appends FoxBin2Prg context lines to Exception.USERVALUE before error display.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * toEx                       (@! IN/OUT) Exception object
+      * tcType                     (v? IN    ) execute() type
+      * tc_InputFile               (v? IN    ) Input path
+      * lcInputFile_Type           (v? IN    ) C_FILETYPE_*
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS toEx, tcType, tc_InputFile, lcInputFile_Type
 
       IF toEx.ERRORNO <> 1799
@@ -1894,7 +2234,22 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROTECTED FUNCTION finalizeExecuteSession
+      *---------------------------------------------------------------------------------------------------
+      * execute() teardown: restore ESC/NOTIFY, flush logs, message boxes, clear CFG cache.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * lnCodError                 (v? IN/OUT) Error code; may be adjusted
+      * tcType                     (v? IN    ) execute() type
+      * toEx                       (@? IN/OUT) Exception object (pass @)
+      * loSession                  (v! IN    ) Session state from beginExecuteSession
+      * loLang                     (v? IN    ) CL_LANG instance
+      * laDirInfo                  (@? IN/OUT) ADIR scratch for error log file check (pass @)
+      * RETURN                    (v?    OUT) Final lnCodError
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS lnCodError, tcType, toEx, loSession, loLang, laDirInfo
+
+      EXTERNAL ARRAY laDirInfo
+
       LOCAL loLangLocal AS CL_LANG Of 'foxbin2prg.prg'
       LOCAL lcOldNotify
 
@@ -1949,21 +2304,24 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       IF VARTYPE(This.c_Foxbin2prg_ConfigFile) = 'O'
          This.c_Foxbin2prg_ConfigFile = FORCEEXT(This.c_Foxbin2prg_FullPath, 'CFG')
       ENDIF
-      
+
       lcOldNotify = loSession.lc_OldSetNotify
 
       SET NOTIFY &lcOldNotify
-      
+
       RETURN lnCodError
    ENDFUNC
 
 
    PROCEDURE execute
       *--------------------------------------------------------------------------------------------------------------
-      * tc_InputFile  Full path of file/directory to convert (empty = show configuration reference form)
-      * tcType        Optional: *, *-, Bin3Prg, Prg3Bin, -BIN2PRG, -PRG2BIN (internal/API use)
-      * toCfg         Optional configuration object from newConfig()
-      * toEx          Error object (by reference)
+      * Main entry: convert one file/directory, a project batch, or show the configuration reference form.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tc_InputFile              (v? IN    ) Full path to convert; empty shows configuration reference form
+      * tcType                    (v? IN    ) *, *-, Bin3Prg, Prg3Bin, -BIN2PRG, -PRG2BIN (internal/API use)
+      * toCfg                     (v? IN    ) Optional configuration object from newConfig()
+      * toEx                      (@?    OUT) Exception object when conversion fails
+      * RETURN                    (v?    OUT) 0 on success; VFP error code otherwise (1098 when l_Errors)
       *--------------------------------------------------------------------------------------------------------------
       LPARAMETERS tc_InputFile, tcType, toCfg, toEx AS EXCEPTION
 
@@ -2017,7 +2375,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          * sync back mutable context fields used by error reporting
          tc_InputFile = loCtx.tc_InputFile
 
-      
+
       CATCH TO toEx
          This.restoreEscapeKey( loSession.llEscKeyRestored, loSession.lcOldSetEscape, loSession.lcOldOnEscape )
          loSession.llEscKeyRestored = .T.
@@ -2049,6 +2407,382 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDPROC
 
 
+   *==============================================================================================================
+   * Project batch (evaluate_Full_PJX / evaluate_Full_PJ2) — shared setup, member loop
+   *==============================================================================================================
+
+   PROTECTED PROCEDURE setupProjectBatchEnvironment
+      *---------------------------------------------------------------------------------------------------
+      * Shared PJX/PJ2 batch setup: mirror root, progress bar, log file, recompile CD, direction log line.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcInputFile               (v! IN    ) Project file path (.PJX or .PJ2)
+      * tcLogFile                 (v? IN    ) Log file path; empty = default next to the project
+      * tcRecompile               (v? IN    ) Recompile flag or directory (same as evaluate_Full_*)
+      * tlBinToText               (v! IN    ) .T. = Bin?Txt (PJX export), .F. = Txt?Bin (PJ2 import)
+      * tcFileSpec                (@?    OUT) Full path of tcInputFile (pass with @ at call site)
+      * loLang                    (@?    OUT) CL_LANG instance from _SCREEN (pass with @ at call site)
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcInputFile, tcLogFile, tcRecompile, tlBinToText, tcFileSpec, loLang
+      loLang      = _SCREEN.o_FoxBin2Prg_Lang
+      tcFileSpec  = FULLPATH( tcInputFile )
+
+      This.ensureMirror()
+      This.o_Mirror.ensureInputRoot( tcFileSpec )
+
+      IF This.getCfgValue('n_ShowProgressbar') <> 0 AND This.l_ProcessFiles THEN
+         This.loadProgressbarForm()
+         IF tlBinToText
+            This.o_Frm_Avance.CAPTION = STRTRAN( This.o_Frm_Avance.CAPTION, '> -', '(Bin>Txt) -' )
+         ELSE
+            This.o_Frm_Avance.CAPTION = STRTRAN( This.o_Frm_Avance.CAPTION, '> -', '(Txt>Bin) -' )
+         ENDIF
+      ENDIF
+
+      IF EMPTY(tcLogFile)
+         This.c_LogFile = ADDBS( JUSTPATH( tcFileSpec ) ) + STRTRAN( JUSTFNAME( tcFileSpec ), '*', '_ALL' ) + '.LOG'
+         IF This.getCfgValue('n_Debug') > 0 THEN
+            ERASE ( This.c_LogFile )
+         ENDIF
+      ENDIF
+
+      This.writeLog( '> ' + loLang.C_CONVERT_ALL_FILES_IN_A_PROJECT_LOC + ': ' ;
+         + IIF(tlBinToText, loLang.C_BINARY_TO_TEXT_LOC, loLang.C_TEXT_TO_BINARY_LOC) )
+
+      DO CASE
+      CASE This.getCfgValue('l_Recompile') AND LEN(tcRecompile) > 3 AND DIRECTORY(tcRecompile)
+         CD (tcRecompile)
+      CASE tcRecompile == '1'
+         CD (JUSTPATH(tcFileSpec))
+      ENDCASE
+   ENDPROC
+
+
+   PROTECTED PROCEDURE collectPjxMemberList
+      *---------------------------------------------------------------------------------------------------
+      * Builds the member list from a PJX table (TABLABIN): col 1 = absolute path, col 2 = EXCLUDE flag.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcInputFile               (v! IN    ) PJX file path
+      * tcFileSpec                (v! IN    ) Full path of the project (parent for relative NAME fields)
+      * taMembers                 (@?    OUT) 2-column array: path, EXCLUDE (pass with @ at call site)
+      * tnFileCount               (@?    OUT) Number of rows in taMembers (pass with @ at call site)
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcInputFile, tcFileSpec, taMembers, tnFileCount
+
+      EXTERNAL ARRAY taMembers
+
+      tnFileCount = 0
+      SELECT 0
+      USE (tcInputFile) SHARED AGAIN NOUPDATE ALIAS TABLABIN
+
+      SCAN FOR NOT DELETED() AND TYPE <> 'H'
+         tnFileCount = tnFileCount + 1
+         DIMENSION taMembers(tnFileCount, 2)
+         taMembers(tnFileCount, 1) = This.get_AbsolutePath( ALLTRIM( NAME, 0, ' ', CHR(0) ), ADDBS( JUSTPATH( tcFileSpec ) ) )
+         taMembers(tnFileCount, 2) = EXCLUDE
+      ENDSCAN
+
+      USE IN (SELECT("TABLABIN"))
+   ENDPROC
+
+
+   PROTECTED PROCEDURE collectPj2MemberList
+      *---------------------------------------------------------------------------------------------------
+      * Parses BUILD PROJECT from a PJ2, resolves per-file text paths, fills member and exclude lists.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcInputFile               (v! IN    ) PJ2 file path
+      * tcFileSpec                (v! IN    ) Full path of the mirrored/text project
+      * taMembers                 (@?    OUT) 2-column array: text path, binary path (pass with @)
+      * tnFileCount               (@?    OUT) Number of .ADD() members (pass with @)
+      * taPjxExcluded             (@?    OUT) Array of PJX-excluded paths from FileExclusions (pass with @)
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcInputFile, tcFileSpec, taMembers, tnFileCount, taPjxExcluded
+      LOCAL lcBinFile, lcTextFile, lcFlatText, lnRow, laExcludedLocal(1), lnExcl
+
+      EXTERNAL ARRAY taMembers
+      EXTERNAL ARRAY taPjxExcluded
+
+      tnFileCount = ALINES( taMembers, STREXTRACT( FILETOSTR(tcInputFile), C_BUILDPROJ_I, C_BUILDPROJ_F ), 1+4 )
+      laExcludedLocal = This.o_Mirror.collectPj2ExcludedPaths( tcInputFile, JUSTPATH( tcFileSpec ) )
+      lnExcl          = ALEN(laExcludedLocal, 1)
+      IF lnExcl < 1
+         DIMENSION taPjxExcluded(1)
+         taPjxExcluded(1) = ''
+      ELSE
+         DIMENSION taPjxExcluded(lnExcl)
+         = ACOPY(laExcludedLocal, taPjxExcluded)
+      ENDIF
+
+      FOR lnRow = tnFileCount TO 1 STEP -1
+         IF '.ADD(' $ taMembers(m.lnRow)
+            lcBinFile   = This.get_AbsolutePath( STREXTRACT( taMembers(m.lnRow), ".ADD('", "')" ), ADDBS( JUSTPATH( tcFileSpec ) ) )
+            lcTextFile  = This.resolvePj2TextMemberPath( lcBinFile )
+            lcFlatText  = FORCEEXT( lcBinFile, This.get_TextExtForBinFile( lcBinFile ) )
+            IF lcTextFile <> lcFlatText
+               This.writeLog( C_TAB + C_TAB + '* Resolved per-dir text: ' + lcTextFile )
+            ENDIF
+            taMembers(m.lnRow, 1) = lcTextFile
+            taMembers(m.lnRow, 2) = lcBinFile
+         ELSE
+            tnFileCount = tnFileCount - 1
+            ADEL( taMembers, m.lnRow )
+            DIMENSION taMembers(tnFileCount, 2)
+         ENDIF
+      ENDFOR
+   ENDPROC
+
+
+   PROTECTED PROCEDURE convertProjectHeaderIfNeeded
+      *---------------------------------------------------------------------------------------------------
+      * Converts the project file itself (PJX?PJ2 or PJ2?PJX) when tcType is not '*-'.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcInputFile               (v! IN    ) Project file path
+      * tcType                    (v? IN    ) Batch type ('*', '*-', …); '*-' skips project conversion
+      * tcOriginalFileName        (v? IN    ) Original name for headers / PJ2 metadata
+      * toModulo                  (@?    OUT) Converter module object (unit tests)
+      * toEx                      (@?    OUT) Exception object (pass with @ at call site)
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcInputFile, tcType, tcOriginalFileName, toModulo, toEx AS EXCEPTION
+      LOCAL lcFile, lnCodError
+
+      IF tcType <> '*-' THEN
+         lcFile     = tcInputFile
+         lnCodError = This.convert( lcFile, toModulo, @toEx, .T., tcOriginalFileName )
+         This.writeLog_Flush()
+      ENDIF
+   ENDPROC
+
+
+   PROTECTED FUNCTION isProjectMemberPjxExcluded
+      *---------------------------------------------------------------------------------------------------
+      * True when the member is marked excluded in the PJX (export) or in PJ2 FileExclusions (import).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tlBinToText               (v! IN    ) .T. = check EXCLUDE column; .F. = check taPjxExcluded list
+      * taMembers                 (@! IN    ) Member array from collectPjxMemberList / collectPj2MemberList (pass with @)
+      * tnIndex                   (v! IN    ) Row index in taMembers (1 … tnFileCount)
+      * taPjxExcluded             (@! IN    ) Exclude paths from collectPj2MemberList (import only; pass with @)
+      * RETURN                    (v?    OUT) .T. if the member should be skipped as PJX-excluded
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tlBinToText AS Boolean, taMembers, tnIndex, taPjxExcluded
+
+      EXTERNAL ARRAY taMembers
+      EXTERNAL ARRAY taPjxExcluded
+
+      IF tlBinToText
+         RETURN taMembers[tnIndex, 2]
+      ENDIF
+      RETURN This.o_Mirror.isPjxExcludedFile( taMembers[tnIndex, 1], @taPjxExcluded )
+   ENDFUNC
+
+
+   PROTECTED PROCEDURE registerSkippedProjectMember
+      *---------------------------------------------------------------------------------------------------
+      * Writes a skip line to the log and registers the file in a_ProcessedFiles (P0/E0/S0/X0).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFile                    (v! IN    ) Member file path (text path on import)
+      * tcReason                  (v! IN    ) Skip reason: 'subdir' | 'pjx' | 'outside'
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcFile AS STRING, tcReason AS STRING
+      LOCAL lcMsg
+
+      DO CASE
+      CASE tcReason = 'subdir'
+         lcMsg = '* Excluded (subdir): '
+      CASE tcReason = 'pjx'
+         lcMsg = '* Excluded (PJX): '
+      CASE tcReason = 'outside'
+         lcMsg = '* Skipped (outside project root): '
+      ENDCASE
+
+      This.writeLog( C_TAB + C_TAB + lcMsg + tcFile )
+      IF This.addProcessedFile( tcFile, 'I', 'P0', 'E0', 'S0', 'X0' )
+         This.updateProcessedFile()
+      ENDIF
+   ENDPROC
+
+
+   PROTECTED FUNCTION shouldProcessProjectMemberOutsideRoot
+      *---------------------------------------------------------------------------------------------------
+      * Validates mirror mode path against cInputRoot. Returns .F. when the member must be skipped.
+      * Raises ERROR when n_CheckFileInPath = 1 and the file is outside the project root.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * lcFile                    (v! IN    ) Member file path to validate
+      * loLang                    (v! IN    ) CL_LANG for error/skip messages
+      * RETURN                    (v?    OUT) .T. = continue processing; .F. = skip (already logged)
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS lcFile AS STRING, loLang AS CL_LANG Of 'foxbin2prg.prg'
+      LOCAL lcStr
+
+      IF EMPTY(This.cOutputFolder) OR EMPTY(This.cInputRoot) OR This.isUnderInputRoot( lcFile )
+         RETURN .T.
+      ENDIF
+
+      IF This.getCfgValue('n_CheckFileInPath') = 1
+         lcStr = loLang.C_PJXPATH_ERR_LOC3 + lcFile + loLang.C_PJXPATH_ERR_LOC4 ;
+            + ADDBS(This.cInputRoot) + loLang.C_PJXPATH_ERR_LOC5
+         ERROR (lcStr)
+      ENDIF
+
+      This.registerSkippedProjectMember( lcFile, 'outside' )
+      RETURN .F.
+   ENDFUNC
+
+
+   PROTECTED FUNCTION isProjectMemberConvertible
+      *---------------------------------------------------------------------------------------------------
+      * Whether the member should run through convert() for the current batch direction.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * lcFile                    (v! IN    ) Member path (binary on export, text on import)
+      * lcBinFile                 (v! IN    ) Binary path (same as lcFile on export; col 2 on import)
+      * tlBinToText               (v! IN    ) Batch direction (.T. = Bin?Txt)
+      * laDirInfo                 (@! IN/OUT) ADIR() scratch array (pass with @ at call site)
+      * RETURN                    (v?    OUT) .T. if convert() should be invoked
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS lcFile AS STRING, lcBinFile AS STRING, tlBinToText AS Boolean, laDirInfo
+
+      EXTERNAL ARRAY laDirInfo
+
+      IF tlBinToText
+         RETURN This.hasSupport_Bin2Prg( UPPER(JUSTEXT(lcFile)) ) AND ADIR( laDirInfo, lcFile ) > 0
+      ENDIF
+      RETURN This.hasSupport_Prg2Bin( lcFile ) AND This.isPj2TextMemberAvailable( lcBinFile )
+   ENDFUNC
+
+
+   PROTECTED PROCEDURE copyNonConvertibleProjectMember
+      *---------------------------------------------------------------------------------------------------
+      * Optionally copies a non-convertible member into the mirrored tree and registers it as processed.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * lcFile                    (v! IN    ) Source path passed to copyUnconvertedFile (text on import)
+      * lcBinFile                 (v! IN    ) Binary path (used on import to test file existence)
+      * tlBinToText               (v! IN    ) Batch direction (.T. = Bin?Txt)
+      * laDirInfo                 (@! IN/OUT) ADIR() scratch array (pass with @ at call site)
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS lcFile AS STRING, lcBinFile AS STRING, tlBinToText AS Boolean, laDirInfo
+      LOCAL llExists
+
+      EXTERNAL ARRAY laDirInfo
+
+      IF NOT This.getCfgValue('l_CopyNonConvertible') OR EMPTY(This.cOutputFolder)
+         RETURN
+      ENDIF
+
+      llExists = ( ADIR( laDirInfo, lcFile ) > 0 )
+      IF NOT tlBinToText
+         llExists = llExists OR ( ADIR( laDirInfo, lcBinFile ) > 0 )
+      ENDIF
+
+      IF llExists AND This.copyUnconvertedFile( lcFile )
+         This.writeLog( C_TAB + C_TAB + '- Copied (not convertible): ' + This.get_MirroredPath(lcFile) ;
+            + IIF( This.isExportUTF8() AND This.isTextFileForEncoding(lcFile), ' (UTF-8)', '' ) )
+      ENDIF
+
+      IF This.addProcessedFile( lcFile, 'I', 'P0', 'E0', 'S0', 'X0' )
+         This.updateProcessedFile()
+      ENDIF
+   ENDPROC
+
+
+   PROTECTED FUNCTION convertProjectMember
+      *---------------------------------------------------------------------------------------------------
+      * Runs convert() for one project member and handles cancel (1799) and batch error accumulation.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * lcFile                    (v! IN    ) File to convert (binary path on export, text on import)
+      * tcOriginalFileName        (v? IN    ) Original name for headers / PJ2 metadata
+      * toModulo                  (@?    OUT) Converter module object (unit tests)
+      * toEx                      (@?    OUT) Exception object (pass with @ at call site)
+      * llBatchError              (@?    OUT) Set to .T. on conversion error (pass with @ at call site)
+      * RETURN                    (v?    OUT) convert() error code (1799 = user cancel)
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS lcFile AS STRING, tcOriginalFileName, toModulo, toEx AS EXCEPTION, llBatchError AS Boolean
+      LOCAL lnCodError
+
+      lnCodError = This.convert( lcFile, toModulo, @toEx, .F., tcOriginalFileName )
+      This.writeLog_Flush()
+
+      DO CASE
+      CASE lnCodError = 1799
+         ERROR 1799
+      CASE lnCodError > 0
+         This.doWriteErrorLog( @toEx )
+         llBatchError = .T.
+         This.l_Error = .F.
+      ENDCASE
+
+      RETURN lnCodError
+   ENDFUNC
+
+
+   PROTECTED PROCEDURE processProjectMembersLoop
+      *---------------------------------------------------------------------------------------------------
+      * Unified loop over project members: exclusions, convert or copy, progress and error flags.
+      * taMembers col 1 = file to convert (binary on export, text on import); col 2 = EXCLUDE or binary path.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * taMembers                 (@! IN    ) Member array from collectPjxMemberList / collectPj2MemberList (pass with @)
+      * tnFileCount               (v! IN    ) Number of rows in taMembers
+      * tcOriginalFileName        (v? IN    ) Original name forwarded to convert()
+      * toModulo                  (@?    OUT) Converter module object (unit tests)
+      * toEx                      (@?    OUT) Exception object (pass with @ at call site)
+      * loLang                    (v! IN    ) CL_LANG for progress messages
+      * tlBinToText               (v! IN    ) Batch direction (.T. = Bin?Txt / evaluate_Full_PJX)
+      * taPjxExcluded             (@! IN    ) PJ2 exclude list (import only; pass with @; empty array on export)
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS taMembers, tnFileCount, tcOriginalFileName, toModulo, toEx AS EXCEPTION, loLang AS CL_LANG Of 'foxbin2prg.prg', tlBinToText AS Boolean, taPjxExcluded
+      LOCAL I, lcFile, lcBinFile, llBatchError, laDirInfo(1,5)
+
+      EXTERNAL ARRAY taMembers
+      EXTERNAL ARRAY taPjxExcluded
+
+      llBatchError = .F.
+
+      FOR I = 1 TO tnFileCount
+         lcFile    = taMembers(m.I, 1)
+         lcBinFile = IIF(tlBinToText, lcFile, taMembers(m.I, 2))
+         This.updateProgressbar( loLang.C_PROCESSING_LOC + ' ' + lcFile + '...', m.I, tnFileCount, 0 )
+
+         IF This.isExcludedSubdir( lcFile )
+            This.registerSkippedProjectMember( lcFile, 'subdir' )
+            LOOP
+         ENDIF
+
+         IF NOT This.getCfgValue('l_CopyExcludedPjxFiles') AND NOT EMPTY(This.cOutputFolder) ;
+               AND This.isProjectMemberPjxExcluded( tlBinToText, @taMembers, m.I, @taPjxExcluded )
+            This.registerSkippedProjectMember( lcFile, 'pjx' )
+            LOOP
+         ENDIF
+
+         IF NOT This.shouldProcessProjectMemberOutsideRoot( lcFile, loLang )
+            LOOP
+         ENDIF
+
+         IF This.isProjectMemberConvertible( lcFile, lcBinFile, tlBinToText, @laDirInfo )
+            This.convertProjectMember( lcFile, tcOriginalFileName, toModulo, @toEx, @llBatchError )
+         ELSE
+            This.copyNonConvertibleProjectMember( lcFile, lcBinFile, tlBinToText, @laDirInfo )
+         ENDIF
+
+         This.writeLog_Flush()
+
+         IF llBatchError
+            This.l_Error = .T.
+         ENDIF
+      ENDFOR
+   ENDPROC
+
+
+   PROTECTED PROCEDURE finalizeProjectBatch
+      *---------------------------------------------------------------------------------------------------
+      * Restores l_MirrorExport and releases the batch CL_LANG reference.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * llMirrorExportSave        (v! IN    ) Value to restore into This.l_MirrorExport
+      * loLang                    (@? IN/OUT) CL_LANG to release (pass with @ at call site)
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS llMirrorExportSave AS Boolean, loLang AS CL_LANG Of 'foxbin2prg.prg'
+      This.l_MirrorExport = llMirrorExportSave
+      STORE .NULL. TO loLang
+      RELEASE loLang
+   ENDPROC
+
+
    PROCEDURE evaluate_Full_PJX
       *--------------------------------------------------------------------------------------------------------------
       * CONVERT ALL FILES OF A PJX PROJECT TO TEXT
@@ -2071,147 +2805,25 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       *--------------------------------------------------------------------------------------------------------------
       LPARAMETERS tc_InputFile, tcRecompile, toModulo, toEx, tcOriginalFileName, tcLogFile, tcType
 
-      LOCAL lcFileSpec, lnFileCount, laFiles(1,2), lcFile, lnCodError, I, lnFileCount, llError, laDirInfo(1,5), lcStr ;
+      LOCAL lcFileSpec, lnFileCount, laFiles(1,2), laExcluded(1) ;
          , loLang AS CL_LANG Of 'foxbin2prg.prg' ;
          , loEx AS EXCEPTION ;
          , llMirrorExportSave AS Boolean
 
       TRY
-         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
-            llMirrorExportSave = .l_MirrorExport
-            .l_MirrorExport     = .T.
-            loLang      = _SCREEN.o_FoxBin2Prg_Lang
-            lcFileSpec  = FULLPATH( tc_InputFile )
+         llMirrorExportSave = This.l_MirrorExport
+         This.l_MirrorExport = .T.
 
-            *-- Mirrored tree: if there is an output folder and no root was set, use the project folder
-            .ensureMirror()
-            .o_Mirror.ensureInputRoot( lcFileSpec )
-
-            IF .getCfgValue('n_ShowProgressbar') <> 0 AND .l_ProcessFiles THEN
-               .loadProgressbarForm()
-               .o_Frm_Avance.CAPTION = STRTRAN( .o_Frm_Avance.CAPTION, '> -', '(Bin>Txt) -' )
-            ENDIF
-
-            IF EMPTY(tcLogFile)
-               .c_LogFile  = ADDBS( JUSTPATH( lcFileSpec ) ) + STRTRAN( JUSTFNAME( lcFileSpec ), '*', '_ALL' ) + '.LOG'
-
-               IF .getCfgValue('n_Debug') > 0 THEN
-                  ERASE ( .c_LogFile )
-               ENDIF
-            ENDIF
-
-            .writeLog( '> ' + loLang.C_CONVERT_ALL_FILES_IN_A_PROJECT_LOC + ': ' + loLang.C_BINARY_TO_TEXT_LOC )
-
-            DO CASE
-            CASE .getCfgValue('l_Recompile') AND LEN(tcRecompile) > 3 AND DIRECTORY(tcRecompile)
-               CD (tcRecompile)
-            CASE tcRecompile == '1'
-               CD (JUSTPATH(lcFileSpec))
-            ENDCASE
-
-            SELECT 0
-            USE (tc_InputFile) SHARED AGAIN NOUPDATE ALIAS TABLABIN
-            lnFileCount = 0
-
-            SCAN FOR NOT DELETED() AND TYPE <> 'H'
-               lnFileCount = lnFileCount + 1
-               DIMENSION laFiles(lnFileCount, 2)
-               laFiles(lnFileCount, 1)  = .get_AbsolutePath( ALLTRIM( NAME, 0, ' ', CHR(0) ), ADDBS( JUSTPATH( lcFileSpec ) ) )
-               laFiles(lnFileCount, 2)  = EXCLUDE
-            ENDSCAN
-
-            USE IN (SELECT("TABLABIN"))
-
-            *-- Convert the project first
-            IF tcType <> '*-' THEN
-               lcFile      = tc_InputFile
-               lnCodError  = .convert( lcFile, toModulo, @toEx, .T., tcOriginalFileName )
-               .writeLog_Flush()
-            ENDIF
-
-            *-- Then convert the included files
-            FOR I = 1 TO lnFileCount
-               lcFile      = laFiles(m.I, 1)
-               .updateProgressbar( loLang.C_PROCESSING_LOC + ' ' + lcFile + '...', m.I, lnFileCount, 0 )
-
-               *-- Excluded subdirectory: not converted or copied to the mirrored tree
-               IF .isExcludedSubdir( lcFile )
-                  .writeLog( C_TAB + C_TAB + '* Excluded (subdir): ' + lcFile )
-                  IF .addProcessedFile( lcFile, 'I', 'P0', 'E0', 'S0', 'X0' )
-                     .updateProcessedFile()
-                  ENDIF
-                  LOOP
-               ENDIF
-
-               *-- PJX Exclude flag: not converted or copied to the mirrored tree (unless opted in)
-               IF NOT .getCfgValue('l_CopyExcludedPjxFiles') AND NOT EMPTY(.cOutputFolder) AND laFiles(m.I, 2)
-                  .writeLog( C_TAB + C_TAB + '* Excluded (PJX): ' + lcFile )
-                  IF .addProcessedFile( lcFile, 'I', 'P0', 'E0', 'S0', 'X0' )
-                     .updateProcessedFile()
-                  ENDIF
-                  LOOP
-               ENDIF
-
-               *-- Outside project root: not converted or copied to the mirrored tree
-               IF NOT EMPTY(.cOutputFolder) AND NOT EMPTY(.cInputRoot) AND NOT .isUnderInputRoot( lcFile )
-                  IF .getCfgValue('n_CheckFileInPath') = 1
-                     lcStr = loLang.C_PJXPATH_ERR_LOC3 + lcFile + loLang.C_PJXPATH_ERR_LOC4 ;
-                        + ADDBS(.cInputRoot) + loLang.C_PJXPATH_ERR_LOC5
-                     ERROR (lcStr)
-                  ELSE
-                     .writeLog( C_TAB + C_TAB + '* Skipped (outside project root): ' + lcFile )
-                     IF .addProcessedFile( lcFile, 'I', 'P0', 'E0', 'S0', 'X0' )
-                        .updateProcessedFile()
-                     ENDIF
-                     LOOP
-                  ENDIF
-               ENDIF
-
-               IF .hasSupport_Bin2Prg( UPPER(JUSTEXT(lcFile)) ) AND ADIR( laDirInfo, lcFile ) > 0 THEN
-                  lnCodError  = .convert( lcFile, toModulo, @toEx, .F., tcOriginalFileName )
-                  .writeLog_Flush()
-
-                  DO CASE
-                  CASE lnCodError = 1799  && Conversion Cancelled
-                     ERROR 1799
-
-                  CASE lnCodError > 0
-                     .doWriteErrorLog( @toEx )
-                     llError     = .T.
-                     .l_Error    = .F.
-                  ENDCASE
-               ELSE
-                  *-- Non-convertible: optionally copied to the mirrored tree
-                  IF .getCfgValue('l_CopyNonConvertible') AND NOT EMPTY(.cOutputFolder) AND ADIR( laDirInfo, lcFile ) > 0
-                     IF .copyUnconvertedFile( lcFile )
-                        .writeLog( C_TAB + C_TAB + '- Copied (not convertible): ' + .get_MirroredPath(lcFile) ;
-                           + IIF( .isExportUTF8() AND .isTextFileForEncoding(lcFile), ' (UTF-8)', '' ) )
-                     ENDIF
-                  ENDIF
-
-                  *-- addProcessedFile( tcFile, tcInOutType, tcProcessed, tcHasErrors, tcSupported, tcExpanded )
-                  IF .addProcessedFile( lcFile, 'I', 'P0', 'E0', 'S0', 'X0' )
-                     .updateProcessedFile()
-                  ENDIF
-               ENDIF
-
-               .writeLog_Flush()
-
-               IF llError
-                  .l_Error = .T.
-               ENDIF
-            ENDFOR
-         ENDWITH
+         This.setupProjectBatchEnvironment( tc_InputFile, tcLogFile, tcRecompile, .T., @lcFileSpec, @loLang )
+         This.collectPjxMemberList( tc_InputFile, lcFileSpec, @laFiles, @lnFileCount )
+         This.convertProjectHeaderIfNeeded( tc_InputFile, tcType, tcOriginalFileName, toModulo, @toEx )
+         This.processProjectMembersLoop( @laFiles, lnFileCount, tcOriginalFileName, toModulo, @toEx, loLang, .T., @laExcluded )
 
       CATCH TO loEx
          THROW
 
       FINALLY
-         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
-            .l_MirrorExport = llMirrorExportSave
-         ENDWITH
-         STORE .NULL. TO loLang
-         RELEASE loLang
+         This.finalizeProjectBatch( llMirrorExportSave, @loLang )
       ENDTRY
    ENDPROC
 
@@ -2238,165 +2850,296 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       *--------------------------------------------------------------------------------------------------------------
       LPARAMETERS tc_InputFile, tcRecompile, toModulo, toEx, tcOriginalFileName, tcLogFile, tcType
 
-      LOCAL lcFileSpec, lnFileCount, laFiles(1,2), laExcluded(1), lcFile, lcBinFile, lcTextFile, lcFlatText, lnCodError, I, lnFileCount, llError, laDirInfo(1,5), lcStr ;
+      LOCAL lcFileSpec, lnFileCount, laFiles(1,2), laExcluded(1) ;
          , loLang AS CL_LANG Of 'foxbin2prg.prg' ;
          , loEx AS EXCEPTION ;
          , llMirrorExportSave AS Boolean
 
       TRY
-         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
-            llMirrorExportSave = .l_MirrorExport
-            .l_MirrorExport     = .F.
-            loLang      = _SCREEN.o_FoxBin2Prg_Lang
-            lcFileSpec  = FULLPATH( tc_InputFile )
+         llMirrorExportSave = This.l_MirrorExport
+         This.l_MirrorExport = .F.
 
-            *-- Mirrored tree: if there is an output folder and no root was set, use the project folder
-            .ensureMirror()
-            .o_Mirror.ensureInputRoot( lcFileSpec )
-
-            IF .getCfgValue('n_ShowProgressbar') <> 0 AND .l_ProcessFiles THEN
-               .loadProgressbarForm()
-               .o_Frm_Avance.CAPTION = STRTRAN( .o_Frm_Avance.CAPTION, '> -', '(Txt>Bin) -' )
-            ENDIF
-
-            IF EMPTY(tcLogFile)
-               .c_LogFile  = ADDBS( JUSTPATH( lcFileSpec ) ) + STRTRAN( JUSTFNAME( lcFileSpec ), '*', '_ALL' ) + '.LOG'
-
-               IF .getCfgValue('n_Debug') > 0 THEN
-                  ERASE ( .c_LogFile )
-               ENDIF
-            ENDIF
-
-            .writeLog( '> ' + loLang.C_CONVERT_ALL_FILES_IN_A_PROJECT_LOC + ': ' + loLang.C_TEXT_TO_BINARY_LOC )
-
-            DO CASE
-            CASE .getCfgValue('l_Recompile') AND LEN(tcRecompile) > 3 AND DIRECTORY(tcRecompile)
-               CD (tcRecompile)
-            CASE tcRecompile == '1'
-               CD (JUSTPATH(lcFileSpec))
-            ENDCASE
-
-            lnFileCount = ALINES( laFiles, STREXTRACT( FILETOSTR(tc_InputFile), C_BUILDPROJ_I, C_BUILDPROJ_F ), 1+4 )
-            laExcluded  = .o_Mirror.collectPj2ExcludedPaths( tc_InputFile, JUSTPATH( lcFileSpec ) )
-
-            FOR I = lnFileCount TO 1 STEP -1
-               IF '.ADD(' $ laFiles(m.I)
-                  lcBinFile   = .get_AbsolutePath( STREXTRACT( laFiles(m.I), ".ADD('", "')" ), ADDBS( JUSTPATH( lcFileSpec ) ) )
-                  lcTextFile  = .resolvePj2TextMemberPath( lcBinFile )
-                  lcFlatText  = FORCEEXT( lcBinFile, .get_TextExtForBinFile( lcBinFile ) )
-                  IF lcTextFile <> lcFlatText
-                     .writeLog( C_TAB + C_TAB + '* Resolved per-dir text: ' + lcTextFile )
-                  ENDIF
-                  laFiles(m.I, 1) = lcTextFile
-                  laFiles(m.I, 2) = lcBinFile
-               ELSE
-                  lnFileCount = lnFileCount - 1
-                  ADEL( laFiles, m.I )
-                  DIMENSION laFiles(lnFileCount, 2)
-               ENDIF
-            ENDFOR
-
-            *-- Convert the project first
-            IF tcType <> '*-' THEN
-               lcFile  = tc_InputFile
-               lnCodError = .convert( lcFile, toModulo, @toEx, .T., tcOriginalFileName )
-               .writeLog_Flush()
-            ENDIF
-
-            *-- Then convert the included files
-            FOR I = 1 TO lnFileCount
-               lcFile      = laFiles(m.I, 1)
-               lcBinFile   = laFiles(m.I, 2)
-               .updateProgressbar( loLang.C_PROCESSING_LOC + ' ' + lcFile + '...', m.I, lnFileCount, 0 )
-
-               *-- Excluded subdirectory: not converted or copied to the mirrored tree
-               IF .isExcludedSubdir( lcFile )
-                  .writeLog( C_TAB + C_TAB + '* Excluded (subdir): ' + lcFile )
-                  IF .addProcessedFile( lcFile, 'I', 'P0', 'E0', 'S0', 'X0' )
-                     .updateProcessedFile()
-                  ENDIF
-                  LOOP
-               ENDIF
-
-               *-- PJX Exclude flag: not converted or copied to the mirrored tree (unless opted in)
-               IF NOT .getCfgValue('l_CopyExcludedPjxFiles') AND NOT EMPTY(.cOutputFolder) ;
-                     AND .o_Mirror.isPjxExcludedFile( lcFile, laExcluded )
-                  .writeLog( C_TAB + C_TAB + '* Excluded (PJX): ' + lcFile )
-                  IF .addProcessedFile( lcFile, 'I', 'P0', 'E0', 'S0', 'X0' )
-                     .updateProcessedFile()
-                  ENDIF
-                  LOOP
-               ENDIF
-
-               *-- Outside project root: not converted or copied to the mirrored tree
-               IF NOT EMPTY(.cOutputFolder) AND NOT EMPTY(.cInputRoot) AND NOT .isUnderInputRoot( lcFile )
-                  IF .getCfgValue('n_CheckFileInPath') = 1
-                     lcStr = loLang.C_PJXPATH_ERR_LOC3 + lcFile + loLang.C_PJXPATH_ERR_LOC4 ;
-                        + ADDBS(.cInputRoot) + loLang.C_PJXPATH_ERR_LOC5
-                     ERROR (lcStr)
-                  ELSE
-                     .writeLog( C_TAB + C_TAB + '* Skipped (outside project root): ' + lcFile )
-                     IF .addProcessedFile( lcFile, 'I', 'P0', 'E0', 'S0', 'X0' )
-                        .updateProcessedFile()
-                     ENDIF
-                     LOOP
-                  ENDIF
-               ENDIF
-
-               IF .hasSupport_Prg2Bin( lcFile ) AND .isPj2TextMemberAvailable( lcBinFile ) THEN
-                  lnCodError = .convert( lcFile, toModulo, @toEx, .F., tcOriginalFileName )
-                  .writeLog_Flush()
-
-                  DO CASE
-                  CASE lnCodError = 1799  && Conversion Cancelled
-                     ERROR 1799
-
-                  CASE lnCodError > 0
-                     .doWriteErrorLog( @toEx )
-                     llError     = .T.
-                     .l_Error    = .F.
-                  ENDCASE
-               ELSE
-                  *-- Non-convertible: optionally copied to the mirrored tree
-                  IF .getCfgValue('l_CopyNonConvertible') AND NOT EMPTY(.cOutputFolder) ;
-                        AND ( ADIR( laDirInfo, lcFile ) > 0 OR ADIR( laDirInfo, lcBinFile ) > 0 )
-                     IF .copyUnconvertedFile( lcFile )
-                        .writeLog( C_TAB + C_TAB + '- Copied (not convertible): ' + .get_MirroredPath(lcFile) ;
-                           + IIF( .isExportUTF8() AND .isTextFileForEncoding(lcFile), ' (UTF-8)', '' ) )
-                     ENDIF
-                  ENDIF
-
-                  *-- addProcessedFile( tcFile, tcInOutType, tcProcessed, tcHasErrors, tcSupported, tcExpanded )
-                  IF .addProcessedFile( lcFile, 'I', 'P0', 'E0', 'S0', 'X0' )
-                     .updateProcessedFile()
-                  ENDIF
-               ENDIF
-
-               .writeLog_Flush()
-
-               IF llError
-                  .l_Error = .T.
-               ENDIF
-            ENDFOR
-         ENDWITH
+         This.setupProjectBatchEnvironment( tc_InputFile, tcLogFile, tcRecompile, .F., @lcFileSpec, @loLang )
+         This.collectPj2MemberList( tc_InputFile, lcFileSpec, @laFiles, @lnFileCount, @laExcluded )
+         This.convertProjectHeaderIfNeeded( tc_InputFile, tcType, tcOriginalFileName, toModulo, @toEx )
+         This.processProjectMembersLoop( @laFiles, lnFileCount, tcOriginalFileName, toModulo, @toEx, loLang, .F., @laExcluded )
 
       CATCH TO loEx
          THROW
 
       FINALLY
-         WITH THIS AS c_foxbin2prg Of 'foxbin2prg.prg'
-            .l_MirrorExport = llMirrorExportSave
-         ENDWITH
-         STORE .NULL. TO loLang
-         RELEASE loLang
+         This.finalizeProjectBatch( llMirrorExportSave, @loLang )
       ENDTRY
    ENDPROC
 
 
    HIDDEN PROCEDURE doWriteErrorLog
+      *---------------------------------------------------------------------------------------------------
+      * Delegates error logging to o_Logger.doWriteErrorLog (session log file and stderr).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * toEx                      (@! IN    ) Exception from the failed conversion/execute path
+      * tcErrorInfo               (@? IN/OUT) Optional preformatted text; filled when empty or on cancel (1799)
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS toEx AS EXCEPTION, tcErrorInfo
       This.ensureLogger()
       This.o_Logger.doWriteErrorLog( @toEx, @tcErrorInfo )
+   ENDPROC
+
+
+   PROTECTED FUNCTION computePerFileBasePath
+      *---------------------------------------------------------------------------------------------------
+      * Strips dotted stem suffixes from a per-file text path to obtain the container base file path.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcInputFile               (v! IN    ) Current input path (VCX/SCX/DBC or per-object text)
+      * tnStemLevels              (v! IN    ) 2 = one dotted segment; 3 = two dotted segments
+      * RETURN                    (v?    OUT) Base file path for per-file optimization / prepareConversion
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcInputFile, tnStemLevels
+
+      IF OCCURS('.', JUSTSTEM(tcInputFile)) = 0 OR tnStemLevels < 2
+         RETURN tcInputFile
+      ENDIF
+      IF tnStemLevels = 2
+         RETURN FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM(tcInputFile) ), JUSTEXT(tcInputFile) ), JUSTPATH(tcInputFile) )
+      ENDIF
+      RETURN FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM( JUSTSTEM(tcInputFile) ) ), JUSTEXT(tcInputFile) ), JUSTPATH(tcInputFile) )
+   ENDFUNC
+
+
+   PROTECTED FUNCTION resolveInputBaseFile
+      *---------------------------------------------------------------------------------------------------
+      * Resolves the container base file for VCX/SCX/DBC per-file optimization; may rewrite c_InputFile.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * lcExtension               (v! IN    ) Upper-case extension of c_InputFile
+      * RETURN                    (v?    OUT) Base file path passed to prepareConversion
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS lcExtension
+      LOCAL lcBaseFile, lcStem, lcTextExt
+
+      lcBaseFile = This.c_InputFile
+      lcStem     = JUSTSTEM(This.c_InputFile)
+
+      IF INLIST(lcExtension, 'VCX', This.getCfgValue('c_VC2')) ;
+            AND (This.getCfgValue('n_UseClassPerFile') > 0 AND This.getCfgValue('l_RedirectClassPerFileToMain') ;
+            OR NOT EMPTY(This.c_ClassToConvert))
+
+         lcTextExt = This.getCfgValue('c_VC2')
+         DO CASE
+         CASE This.getCfgValue('n_RedirectClassType') = 1 OR NOT EMPTY(This.c_ClassToConvert)
+            lcBaseFile = This.computePerFileBasePath( This.c_InputFile, 2 )
+         CASE This.getCfgValue('n_UseClassPerFile') = 1 AND INLIST(lcExtension, lcTextExt)
+            lcBaseFile = This.computePerFileBasePath( This.c_InputFile, 2 )
+            IF '.' $ lcStem
+               This.c_InputFile = lcBaseFile
+            ENDIF
+         CASE This.getCfgValue('n_UseClassPerFile') = 2 AND INLIST(lcExtension, lcTextExt)
+            lcBaseFile = This.computePerFileBasePath( This.c_InputFile, 3 )
+            IF '.' $ lcStem
+               This.c_InputFile = lcBaseFile
+            ENDIF
+         ENDCASE
+      ENDIF
+
+      IF INLIST(lcExtension, 'SCX', This.getCfgValue('c_SC2')) ;
+            AND (This.getCfgValue('n_UseFormPerFile') > 0 AND This.getCfgValue('l_RedirectFormPerFileToMain') ;
+            OR NOT EMPTY(This.c_ClassToConvert))
+
+         lcTextExt = This.getCfgValue('c_SC2')
+         DO CASE
+         CASE This.getCfgValue('n_RedirectFormType') = 1 OR NOT EMPTY(This.c_ClassToConvert)
+            lcBaseFile = This.computePerFileBasePath( This.c_InputFile, 2 )
+         CASE This.getCfgValue('n_UseFormPerFile') = 1 AND INLIST(lcExtension, lcTextExt)
+            lcBaseFile = This.computePerFileBasePath( This.c_InputFile, 2 )
+            IF '.' $ lcStem
+               This.c_InputFile = lcBaseFile
+            ENDIF
+         CASE This.getCfgValue('n_UseFormPerFile') = 2 AND INLIST(lcExtension, lcTextExt)
+            lcBaseFile = This.computePerFileBasePath( This.c_InputFile, 3 )
+            IF '.' $ lcStem
+               This.c_InputFile = lcBaseFile
+            ENDIF
+         ENDCASE
+      ENDIF
+
+      IF INLIST(lcExtension, 'DBC', This.getCfgValue('c_DC2')) ;
+            AND This.getCfgValue('n_UseFilesPerDBC') > 0 AND This.getCfgValue('l_RedirectFilePerDBCToMain') ;
+            AND This.getCfgValue('n_UseFilesPerDBC') = 1
+         lcBaseFile = This.computePerFileBasePath( This.c_InputFile, 3 )
+         IF '.' $ lcStem
+            This.c_InputFile = lcBaseFile
+         ENDIF
+      ENDIF
+
+      RETURN lcBaseFile
+   ENDFUNC
+
+
+   PROTECTED PROCEDURE captureConversionFilestamps
+      *---------------------------------------------------------------------------------------------------
+      * Populates t_InputFile_TimeStamp and t_OutputFile_TimeStamp from sibling files in the input folder.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * laFiles                   (@! IN/OUT) ADIR array for FORCEEXT(c_InputFile,'*') — pass with @
+      * tnFileCount               (@! IN/OUT) Row count returned by ADIR — pass with @
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS laFiles, tnFileCount
+      EXTERNAL ARRAY laFiles
+
+      LOCAL I, lcExtA, lcExtB, ltFilestamp, laDirFile(1,5)
+
+      tnFileCount = ADIR( laFiles, FORCEEXT( This.c_InputFile, '*' ), '', 1 )
+      STORE {//::} TO This.t_InputFile_TimeStamp, This.t_OutputFile_TimeStamp, ltFilestamp
+
+      IF tnFileCount > 0 THEN
+         I = ASCAN( laFiles, JUSTFNAME(This.c_InputFile), 1, 0, 1, 1+2+4+8 )
+         IF m.I > 0 THEN
+            This.t_InputFile_TimeStamp = DATETIME( YEAR(laFiles(m.I,3)), MONTH(laFiles(m.I,3)), DAY(laFiles(m.I,3)) ;
+               , VAL(LEFT(laFiles(m.I,4),2)), VAL(SUBSTR(laFiles(m.I,4),4,2)), VAL(RIGHT(laFiles(m.I,4),2)) )
+         ENDIF
+
+         IF ADIR( laDirFile, This.c_OutputFile ) > 0 THEN
+            I = ASCAN( laFiles, JUSTFNAME(This.c_OutputFile), 1, 0, 1, 1+2+4+8 )
+            IF m.I > 0 THEN
+               This.t_OutputFile_TimeStamp = DATETIME( YEAR(laFiles(m.I,3)), MONTH(laFiles(m.I,3)), DAY(laFiles(m.I,3)) ;
+                  , VAL(LEFT(laFiles(m.I,4),2)), VAL(SUBSTR(laFiles(m.I,4),4,2)), VAL(RIGHT(laFiles(m.I,4),2)) )
+            ENDIF
+
+            lcExtA = UPPER(JUSTEXT(This.c_OutputFile))
+
+            DO CASE
+            CASE INLIST(lcExtA, 'SCX', 'VCX', 'MNX', 'FRX', 'LBX')
+               lcExtB = ICASE(lcExtA = 'SCX', 'SCT' ;
+                  , lcExtA = 'VCX', 'VCT' ;
+                  , lcExtA = 'MNX', 'MNT' ;
+                  , lcExtA = 'FRX', 'FRT' ;
+                  , lcExtA = 'LBX', 'LBT')
+               I = ASCAN( laFiles, JUSTFNAME( FORCEEXT(This.c_OutputFile, lcExtB) ), 1, 0, 1, 1+2+4+8 )
+               IF m.I > 0 THEN
+                  ltFilestamp = DATETIME( YEAR(laFiles(m.I,3)), MONTH(laFiles(m.I,3)), DAY(laFiles(m.I,3)) ;
+                     , VAL(LEFT(laFiles(m.I,4),2)), VAL(SUBSTR(laFiles(m.I,4),4,2)), VAL(RIGHT(laFiles(m.I,4),2)) )
+               ENDIF
+            ENDCASE
+
+            This.t_OutputFile_TimeStamp = MAX( This.t_OutputFile_TimeStamp, ltFilestamp )
+         ENDIF
+      ENDIF
+   ENDPROC
+
+
+   PROTECTED FUNCTION shouldSkipByFilestamp
+      *---------------------------------------------------------------------------------------------------
+      * True when n_OptimizeByFilestamp says the output is already up to date (VCX/SCX, per-file off).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * lcExtension               (v! IN    ) Upper-case extension of c_InputFile
+      * loLang                    (v! IN    ) CL_LANG instance for log messages
+      * RETURN                    (v?    OUT) .T. to skip loConversor.convert
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS lcExtension, loLang AS CL_LANG Of 'foxbin2prg.prg'
+
+      DO CASE
+      CASE INLIST(lcExtension, 'VCX', This.getCfgValue('c_VC2')) AND This.getCfgValue('n_UseClassPerFile') = 0 ;
+            AND This.getCfgValue('n_OptimizeByFilestamp') = 1 AND This.t_InputFile_TimeStamp < This.t_OutputFile_TimeStamp
+         This.writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC) )
+         RETURN .T.
+
+      CASE INLIST(lcExtension, 'VCX', This.getCfgValue('c_VC2')) AND This.getCfgValue('n_UseClassPerFile') = 0 ;
+            AND This.getCfgValue('n_OptimizeByFilestamp') = 2 AND This.t_InputFile_TimeStamp = This.t_OutputFile_TimeStamp
+         This.writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC) )
+         RETURN .T.
+
+      CASE INLIST(lcExtension, 'SCX', This.getCfgValue('c_SC2')) AND This.getCfgValue('n_UseFormPerFile') = 0 ;
+            AND This.getCfgValue('n_OptimizeByFilestamp') = 1 AND This.t_InputFile_TimeStamp < This.t_OutputFile_TimeStamp
+         This.writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC) )
+         RETURN .T.
+
+      CASE INLIST(lcExtension, 'SCX', This.getCfgValue('c_SC2')) AND This.getCfgValue('n_UseFormPerFile') = 0 ;
+            AND This.getCfgValue('n_OptimizeByFilestamp') = 2 AND This.t_InputFile_TimeStamp = This.t_OutputFile_TimeStamp
+         This.writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC) )
+         RETURN .T.
+
+      OTHERWISE
+         RETURN .F.
+      ENDCASE
+   ENDFUNC
+
+
+   PROTECTED PROCEDURE bindConversorFromHost
+      *---------------------------------------------------------------------------------------------------
+      * Copies session state onto the conversor before convert() or loadModule().
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * loConversor               (v! IN    ) c_conversor_base instance from the factory
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS loConversor AS c_conversor_base Of 'foxbin2prg.prg'
+
+      This.c_Type                           = UPPER(JUSTEXT(This.c_OutputFile))
+      loConversor.c_InputFile               = This.c_InputFile
+      loConversor.c_OutputFile              = This.c_OutputFile
+      loConversor.c_LogFile                 = This.c_LogFile
+      loConversor.n_Debug                   = This.getCfgValue('n_Debug')
+      loConversor.l_Test                    = This.l_Test
+      loConversor.n_FB2PRG_Version          = This.n_FB2PRG_Version
+      loConversor.l_MethodSort_Enabled      = This.l_MethodSort_Enabled
+      loConversor.l_PropSort_Enabled        = This.l_PropSort_Enabled
+      loConversor.l_ReportSort_Enabled      = This.l_ReportSort_Enabled
+      loConversor.c_OriginalFileName        = This.c_OriginalFileName
+      loConversor.c_Foxbin2prg_FullPath     = This.c_Foxbin2prg_FullPath
+   ENDPROC
+
+
+   PROTECTED PROCEDURE logConversorOutput
+      *---------------------------------------------------------------------------------------------------
+      * Writes conversor text log and error block; sets l_Error when the conversor reported failure.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * loConversor               (v! IN    ) c_conversor_base after convert / loadModule
+      * loLang                    (v! IN    ) CL_LANG instance for error captions
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS loConversor AS c_conversor_base Of 'foxbin2prg.prg', loLang AS CL_LANG Of 'foxbin2prg.prg'
+
+      IF loConversor.l_Error
+         This.l_Error = .T.
+      ENDIF
+
+      This.writeLog()
+      This.writeLog(loConversor.c_TextLog)
+
+      IF NOT EMPTY(loConversor.c_TextErr)
+         This.writeErrorLog( REPLICATE( '-', 100 ), 1 )
+         This.writeErrorLog( loLang.C_ERRORS_FOUND_IN_FILE_LOC + ' [' + This.c_InputFile + '] ' )
+         This.writeErrorLog( loConversor.c_TextErr )
+         This.writeErrorLog()
+      ENDIF
+   ENDPROC
+
+
+   PROTECTED PROCEDURE executeConversorOperation
+      *---------------------------------------------------------------------------------------------------
+      * Binds host props, runs convert or loadModule, and logs the conversor output.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * loConversor               (v! IN    ) c_conversor_base from the factory
+      * toModulo                  (@?    OUT) Module object for unit tests — pass with @
+      * llLoadOnly                (v! IN    ) .T. = loadModule (LOAD_ONLY mode)
+      * laEvents                  (@! IN/OUT) BINDEVENT tracker array — pass with @
+      * loLang                    (v! IN    ) CL_LANG for progress and error messages
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS loConversor AS c_conversor_base Of 'foxbin2prg.prg', toModulo, llLoadOnly AS Boolean, laEvents, loLang AS CL_LANG Of 'foxbin2prg.prg'
+
+      EXTERNAL ARRAY laEvents
+
+      This.bindConversorFromHost( loConversor )
+
+      IF llLoadOnly
+         loConversor.loadModule( @toModulo, .F., THIS )
+      ELSE
+         This.updateProgressbar( loLang.C_PROCESSING_LOC + ' ' + This.c_InputFile + '...', 0, 0, 0 )
+
+         IF AEVENTS( laEvents, loConversor ) = 0
+            BINDEVENT( loConversor, 'updateProgressbar', THIS, 'updateProgressbar' )
+         ENDIF
+
+         loConversor.convert( @toModulo, .F., THIS )
+         This.n_ProcessedFilesCount = This.n_ProcessedFilesCount + 1
+      ENDIF
+
+      This.logConversorOutput( loConversor, loLang )
    ENDPROC
 
 
@@ -2414,8 +3157,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       LPARAMETERS tc_InputFile, toModulo, toEx AS EXCEPTION, tlRelanzarError, tcOriginalFileName, tcMode
 
       TRY
-         LOCAL lnCodError, lcErrorInfo, laDirFile(1,5), lcExtension, lnFileCount, laFiles(1,1), I ;
-            , ltFilestamp, lcExtA, lcExtB, laEvents(1,1), lcForceAttribs, lnIDInputFile, llLoadOnly, lc_OldSetNotify, lc_BaseFile ;
+         LOCAL lnCodError, lcErrorInfo, laDirFile(1,5), lcExtension, lnFileCount, laFiles(1,1), laEvents(1,1), lcForceAttribs, lnIDInputFile, llLoadOnly, lc_OldSetNotify, lc_BaseFile ;
             , loLang AS CL_LANG Of 'foxbin2prg.prg' ;
             , loConversor AS c_conversor_base Of 'foxbin2prg.prg' ;
             , loFSO AS Scripting.FileSystemObject
@@ -2452,100 +3194,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   lcForceAttribs  = lcForceAttribs + '-R'
                ENDIF
 
-               *-- VC2/SC2 OPTIMIZATION: CHECK WHETHER BASE FILE WAS PROCESSED TO SKIP REPROCESSING
-               IF INLIST(lcExtension,"VCX",.getCfgValue('c_VC2'));
-                     AND (.getCfgValue('n_UseClassPerFile') > 0 AND .getCfgValue('l_RedirectClassPerFileToMain') ;
-                     OR NOT EMPTY(.c_ClassToConvert))
-
-                  DO CASE
-
-                  CASE .getCfgValue('n_RedirectClassType') = 1 OR NOT EMPTY(.c_ClassToConvert) && Redirect only this class
-                     IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
-                        lc_BaseFile = .c_InputFile
-                     ELSE
-                        lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM(.c_InputFile) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
-                     ENDIF
-
-                  CASE .getCfgValue('n_UseClassPerFile') = 1 AND INLIST(lcExtension,.getCfgValue('c_VC2'))
-                     IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
-                        lc_BaseFile = .c_InputFile
-                     ELSE
-                        lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM(.c_InputFile) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
-                     ENDIF
-
-                     IF '.' $ JUSTSTEM(.c_InputFile)
-                        .c_InputFile    = lc_BaseFile
-                     ENDIF
-
-                  CASE .getCfgValue('n_UseClassPerFile') = 2 AND INLIST(lcExtension,.getCfgValue('c_VC2'))
-                     IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
-                        lc_BaseFile = .c_InputFile
-                     ELSE
-                        lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM( JUSTSTEM(.c_InputFile) ) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
-                     ENDIF
-
-                     IF '.' $ JUSTSTEM(.c_InputFile)
-                        .c_InputFile    = lc_BaseFile
-                     ENDIF
-
-                  ENDCASE
-               ENDIF
-
-               IF INLIST(lcExtension,"SCX",.getCfgValue('c_SC2'));
-                     AND (.getCfgValue('n_UseFormPerFile') > 0 AND .getCfgValue('l_RedirectFormPerFileToMain') ;
-                     OR NOT EMPTY(.c_ClassToConvert))
-
-                  DO CASE
-
-                  CASE .getCfgValue('n_RedirectFormType') = 1 OR NOT EMPTY(.c_ClassToConvert) && Redirect only this class
-                     IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
-                        lc_BaseFile = .c_InputFile
-                     ELSE
-                        lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM(.c_InputFile) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
-                     ENDIF
-
-                  CASE .getCfgValue('n_UseFormPerFile') = 1 AND INLIST(lcExtension,.getCfgValue('c_SC2'))
-                     IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
-                        lc_BaseFile = .c_InputFile
-                     ELSE
-                        lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM(.c_InputFile) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
-                     ENDIF
-
-                     IF '.' $ JUSTSTEM(.c_InputFile)
-                        .c_InputFile    = lc_BaseFile
-                     ENDIF
-
-                  CASE .getCfgValue('n_UseFormPerFile') = 2 AND INLIST(lcExtension,.getCfgValue('c_SC2'))
-                     IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
-                        lc_BaseFile = .c_InputFile
-                     ELSE
-                        lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM( JUSTSTEM(.c_InputFile) ) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
-                     ENDIF
-
-                     IF '.' $ JUSTSTEM(.c_InputFile)
-                        .c_InputFile    = lc_BaseFile
-                     ENDIF
-
-                  ENDCASE
-               ENDIF
-
-               *-- DC2 OPTIMIZATION: CHECK WHETHER BASE FILE WAS PROCESSED TO SKIP REPROCESSING
-               IF INLIST(lcExtension,"DBC",.getCfgValue('c_DC2'));
-                     AND .getCfgValue('n_UseFilesPerDBC') > 0 AND .getCfgValue('l_RedirectFilePerDBCToMain');
-                     AND .getCfgValue('n_UseFilesPerDBC') = 1
-
-                  IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
-                     lc_BaseFile = .c_InputFile
-                  ELSE
-                     lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM( JUSTSTEM(.c_InputFile) ) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
-                  ENDIF
-
-                  IF '.' $ JUSTSTEM(.c_InputFile)
-                     .c_InputFile    = lc_BaseFile
-                  ENDIF
-
-               ENDIF
-
+               lc_BaseFile = .resolveInputBaseFile( lcExtension )
                ERASE ( .c_InputFile + '.ERR' )
             ENDIF
 
@@ -2593,125 +3242,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   .c_OutputFile = loConversor.get_MirroredOutputFile( .c_OutputFile )
                ENDIF
 
-               lnFileCount = ADIR( laFiles, FORCEEXT( .c_InputFile, '*' ), '', 1 )
-               STORE {//::} TO .t_InputFile_TimeStamp, .t_OutputFile_TimeStamp, ltFilestamp
+               .captureConversionFilestamps( @laFiles, @lnFileCount )
 
-               IF lnFileCount > 0 THEN
-                  I   = ASCAN( laFiles, JUSTFNAME(.c_InputFile), 1, 0, 1, 1+2+4+8 )
-                  IF m.I > 0 THEN
-                     .t_InputFile_TimeStamp  =   DATETIME( YEAR(laFiles(m.I,3)), MONTH(laFiles(m.I,3)), DAY(laFiles(m.I,3)) ;
-                        , VAL(LEFT(laFiles(m.I,4),2)), VAL(SUBSTR(laFiles(m.I,4),4,2)), VAL(RIGHT(laFiles(m.I,4),2)) )
-                  ENDIF
-
-                  IF ADIR( laDirFile, .c_OutputFile ) > 0 THEN
-                     I   = ASCAN( laFiles, JUSTFNAME(.c_OutputFile), 1, 0, 1, 1+2+4+8 )
-                     IF m.I > 0 THEN
-                        .t_OutputFile_TimeStamp =   DATETIME( YEAR(laFiles(m.I,3)), MONTH(laFiles(m.I,3)), DAY(laFiles(m.I,3)) ;
-                           , VAL(LEFT(laFiles(m.I,4),2)), VAL(SUBSTR(laFiles(m.I,4),4,2)), VAL(RIGHT(laFiles(m.I,4),2)) )
-                     ENDIF
-
-                     lcExtA  = UPPER(JUSTEXT(.c_OutputFile))
-
-                     DO CASE
-                     CASE INLIST(lcExtA, 'SCX', 'VCX', 'MNX', 'FRX', 'LBX')
-                        lcExtB  = ICASE(lcExtA = 'SCX', 'SCT' ;
-                           , lcExtA = 'VCX', 'VCT' ;
-                           , lcExtA = 'MNX', 'MNT' ;
-                           , lcExtA = 'FRX', 'FRT' ;
-                           , lcExtA = 'LBX', 'LBT')
-                        I   = ASCAN( laFiles, JUSTFNAME( FORCEEXT(.c_OutputFile, lcExtB) ), 1, 0, 1, 1+2+4+8 )
-                        IF m.I > 0 THEN
-                           ltFilestamp = DATETIME( YEAR(laFiles(m.I,3)), MONTH(laFiles(m.I,3)), DAY(laFiles(m.I,3)) ;
-                              , VAL(LEFT(laFiles(m.I,4),2)), VAL(SUBSTR(laFiles(m.I,4),4,2)), VAL(RIGHT(laFiles(m.I,4),2)) )
-                        ENDIF
-
-                     ENDCASE
-
-                     .t_OutputFile_TimeStamp =   MAX( .t_OutputFile_TimeStamp, ltFilestamp )
-                  ENDIF
+               IF !.shouldSkipByFilestamp( lcExtension, loLang )
+                  .executeConversorOperation( loConversor, @toModulo, llLoadOnly, @laEvents, loLang )
                ENDIF
-
-               DO CASE
-               CASE INLIST(lcExtension,"VCX",.getCfgValue('c_VC2')) AND .getCfgValue('n_UseClassPerFile') = 0 AND .getCfgValue('n_OptimizeByFilestamp') = 1 AND .t_InputFile_TimeStamp < .t_OutputFile_TimeStamp
-                  .writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC) )
-
-               CASE INLIST(lcExtension,"VCX",.getCfgValue('c_VC2')) AND .getCfgValue('n_UseClassPerFile') = 0 AND .getCfgValue('n_OptimizeByFilestamp') = 2 AND .t_InputFile_TimeStamp = .t_OutputFile_TimeStamp
-                  .writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC) )
-
-               CASE INLIST(lcExtension,"SCX",.getCfgValue('c_SC2')) AND .getCfgValue('n_UseFormPerFile') = 0 AND .getCfgValue('n_OptimizeByFilestamp') = 1 AND .t_InputFile_TimeStamp < .t_OutputFile_TimeStamp
-                  .writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC) )
-
-               CASE INLIST(lcExtension,"SCX",.getCfgValue('c_SC2')) AND .getCfgValue('n_UseFormPerFile') = 0 AND .getCfgValue('n_OptimizeByFilestamp') = 2 AND .t_InputFile_TimeStamp = .t_OutputFile_TimeStamp
-                  .writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC) )
-
-               OTHERWISE
-                  .c_Type                             = UPPER(JUSTEXT(.c_OutputFile))
-                  loConversor.c_InputFile             = .c_InputFile
-                  loConversor.c_OutputFile            = .c_OutputFile
-                  loConversor.c_LogFile               = .c_LogFile
-                  loConversor.n_Debug                 = .getCfgValue('n_Debug')
-                  loConversor.l_Test                  = .l_Test
-                  loConversor.n_FB2PRG_Version        = .n_FB2PRG_Version
-                  loConversor.l_MethodSort_Enabled    = .l_MethodSort_Enabled
-                  loConversor.l_PropSort_Enabled      = .l_PropSort_Enabled
-                  loConversor.l_ReportSort_Enabled    = .l_ReportSort_Enabled
-                  loConversor.c_OriginalFileName      = .c_OriginalFileName
-                  loConversor.c_Foxbin2prg_FullPath   = .c_Foxbin2prg_FullPath
-
-                  .updateProgressbar( loLang.C_PROCESSING_LOC + ' ' + .c_InputFile + '...', 0, 0, 0 )
-
-                  IF AEVENTS( laEvents, loConversor ) = 0 THEN
-                     BINDEVENT( loConversor, 'updateProgressbar', THIS, 'updateProgressbar' )
-                  ENDIF
-
-                  loConversor.convert( @toModulo, .F., THIS )
-
-                  IF loConversor.l_Error THEN
-                     .l_Error = .T.
-                  ENDIF
-
-                  .n_ProcessedFilesCount  = .n_ProcessedFilesCount + 1
-                  .writeLog()
-                  .writeLog(loConversor.c_TextLog)
-
-                  IF NOT EMPTY(loConversor.c_TextErr) THEN
-                     .writeErrorLog( REPLICATE( '-', 100 ), 1 )
-                     .writeErrorLog( loLang.C_ERRORS_FOUND_IN_FILE_LOC + ' [' + .c_InputFile + '] ' )
-                     .writeErrorLog( loConversor.c_TextErr )
-                     .writeErrorLog( )
-                  ENDIF
-               ENDCASE
 
                .normalizeFileCapitalization()
             ELSE
-               .c_Type                             = UPPER(JUSTEXT(.c_OutputFile))
-               loConversor.c_InputFile             = .c_InputFile
-               loConversor.c_OutputFile            = .c_OutputFile
-               loConversor.c_LogFile               = .c_LogFile
-               loConversor.n_Debug                 = .getCfgValue('n_Debug')
-               loConversor.l_Test                  = .l_Test
-               loConversor.n_FB2PRG_Version        = .n_FB2PRG_Version
-               loConversor.l_MethodSort_Enabled    = .l_MethodSort_Enabled
-               loConversor.l_PropSort_Enabled      = .l_PropSort_Enabled
-               loConversor.l_ReportSort_Enabled    = .l_ReportSort_Enabled
-               loConversor.c_OriginalFileName      = .c_OriginalFileName
-               loConversor.c_Foxbin2prg_FullPath   = .c_Foxbin2prg_FullPath
-
-               loConversor.loadModule( @toModulo, .F., THIS )
-
-               IF loConversor.l_Error THEN
-                  .l_Error = .T.
-               ENDIF
-
-               .writeLog()
-               .writeLog(loConversor.c_TextLog)
-
-               IF NOT EMPTY(loConversor.c_TextErr) THEN
-                  .writeErrorLog( REPLICATE( '-', 100 ), 1 )
-                  .writeErrorLog( loLang.C_ERRORS_FOUND_IN_FILE_LOC + ' [' + .c_InputFile + '] ' )
-                  .writeErrorLog( loConversor.c_TextErr )
-                  .writeErrorLog( )
-               ENDIF
+               .executeConversorOperation( loConversor, @toModulo, llLoadOnly, @laEvents, loLang )
             ENDIF
          ENDWITH
 
@@ -2748,8 +3287,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
             ENDIF
          ENDIF
 
-         RELEASE lcErrorInfo, laDirFile, lcExtension, lnFileCount, laFiles, I ;
-            , ltFilestamp, lcExtA, lcExtB ;
+         RELEASE lcErrorInfo, laDirFile, lcExtension, lnFileCount, laFiles ;
             , loConversor, loFSO
       ENDTRY
 
@@ -2758,6 +3296,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE get_DirSettings
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper ? o_Cfg.get_DirSettings (factory CFG clone; legacy API).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcDir                      (v? IN    ) Directory key
+      * tcDebug                    (v? IN    ) Debug flag string
+      * tcCFG_File                 (v? IN    ) Legacy CFG file path
+      * RETURN                    (v?    OUT) CFG object
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcDir, tcDebug, tcCFG_File
       This.ensureCfg()
       RETURN This.o_Cfg.get_DirSettings(tcDir, tcDebug, tcCFG_File)
@@ -2765,24 +3312,46 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE formatConfigReferenceText
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper ? o_Cfg.formatConfigReferenceText for frm_main display.
+      * RETURN                    (v?    OUT) Multi-line reference text
+      *---------------------------------------------------------------------------------------------------
+
       This.ensureCfg()
       RETURN This.o_Cfg.formatConfigReferenceText()
    ENDPROC
 
 
    PROCEDURE createCfgShell
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper ? o_Cfg.createCfgShell (empty marked CFG object).
+      * RETURN                    (v?    OUT) Empty CFG shell object
+      *---------------------------------------------------------------------------------------------------
+
       This.ensureCfg()
       RETURN This.o_Cfg.createCfgShell()
    ENDPROC
 
 
    PROCEDURE getActiveCfg
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper ? o_Cfg.getActiveCfg (current session master CFG).
+      * RETURN                    (v?    OUT) Active CFG object
+      *---------------------------------------------------------------------------------------------------
+
       This.ensureCfg()
       RETURN This.o_Cfg.getActiveCfg()
    ENDPROC
 
 
    PROCEDURE getCfgValue
+      *---------------------------------------------------------------------------------------------------
+      * Reads a property from the session CFG object.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcProp                     (v! IN    ) Property name (e.g. 'n_Debug', 'c_VC2')
+      * RETURN                    (v?    OUT) Property value
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcProp
       This.ensureCfg()
       RETURN This.o_Cfg.getCfgValue(tcProp)
@@ -2790,6 +3359,14 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE getCfgFlag
+      *---------------------------------------------------------------------------------------------------
+      * Reads a logical CFG property as .T./.F.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcProp                     (v! IN    ) Property name
+      * tlDefault                  (v? IN    ) Default when property missing
+      * RETURN                    (v?    OUT) Logical flag
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcProp, tlDefault
       This.ensureCfg()
       RETURN This.o_Cfg.getCfgFlag(tcProp, tlDefault)
@@ -2797,6 +3374,14 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE getCfgInt
+      *---------------------------------------------------------------------------------------------------
+      * Reads a numeric CFG property as integer.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcProp                     (v! IN    ) Property name
+      * lnDefault                  (v? IN    ) Default when property missing
+      * RETURN                    (v?    OUT) Integer value
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcProp, lnDefault
       This.ensureCfg()
       RETURN This.o_Cfg.getCfgInt(tcProp, lnDefault)
@@ -2804,12 +3389,24 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE getCfgObjectForWrite
+      *---------------------------------------------------------------------------------------------------
+      * Returns mutable session CFG reference for programmatic updates.
+      * RETURN                    (v?    OUT) CFG object for write
+      *---------------------------------------------------------------------------------------------------
+
       This.ensureCfg()
       RETURN This.o_Cfg.getCfgObjectForWrite()
    ENDPROC
 
 
    PROCEDURE setCfgValue
+      *---------------------------------------------------------------------------------------------------
+      * Writes a property on the session CFG object.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcProp                     (v! IN    ) Property name
+      * txVal                      (v! IN    ) New value
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcProp, txVal
       This.ensureCfg()
       This.o_Cfg.setCfgValue(tcProp, txVal)
@@ -2817,6 +3414,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE isCfg
+      *---------------------------------------------------------------------------------------------------
+      * True when toObj is a FoxBin2Prg CFG marker object.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * toObj                      (v? IN    ) Object to test
+      * RETURN                    (v?    OUT) .T. for valid CFG object
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS toObj
       This.ensureCfg()
       RETURN This.o_Cfg.isCfg(toObj)
@@ -2824,6 +3428,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE cfgCopyFrom
+      *---------------------------------------------------------------------------------------------------
+      * Copies properties from source CFG into parent CFG.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * toParentCFG                (v! IN    ) Destination CFG
+      * toSourceCFG                (v! IN    ) Source CFG
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS toParentCFG, toSourceCFG
       This.ensureCfg()
       This.o_Cfg.cfgCopyFrom(toParentCFG, toSourceCFG)
@@ -2831,12 +3442,24 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE newConfig
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper ? o_Cfg.newConfig (empty marked CFG object for programmatic overrides).
+      * RETURN                    (v?    OUT) New CFG shell object
+      *---------------------------------------------------------------------------------------------------
+
       This.ensureCfg()
       RETURN This.o_Cfg.newConfig()
    ENDPROC
 
 
    PROCEDURE configFromObject
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper ? o_Cfg.configFromObject (copies properties from any duck-typed object into a CFG).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * toSource                   (v? IN    ) Source object (CFG or duck-typed with FB2P properties)
+      * toDestCfg                  (v? IN    ) Destination CFG; new shell created when omitted or invalid
+      * RETURN                    (v?    OUT) Populated CFG object
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS toSource, toDestCfg
       This.ensureCfg()
       RETURN This.o_Cfg.configFromObject(toSource, toDestCfg)
@@ -2844,6 +3467,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE applyConfig
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper ? o_Cfg.applyConfig (replaces session master CFG from object or duck-typed source).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * toCfg                      (v! IN    ) CFG object or duck-typed configuration source
+      * RETURN                    (v?    OUT) .T. when session CFG was updated
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS toCfg
       This.ensureCfg()
       RETURN This.o_Cfg.applyConfig(toCfg)
@@ -2895,6 +3524,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE makeDirTree
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper ? o_Mirror.makeDirTree (recursively creates directory tree if missing).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcDir                      (v! IN    ) Root directory path to create
+      * RETURN                    (v?    OUT) .T. when tree exists or was created
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcDir
       This.ensureMirror()
       RETURN This.o_Mirror.makeDirTree(tcDir)
@@ -3090,6 +3725,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE get_MirroredPath
+      *---------------------------------------------------------------------------------------------------
+      * Maps a source file path to its mirrored destination path.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFile                     (v! IN    ) Source file path
+      * RETURN                    (v?    OUT) Mirrored output path
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcFile
       This.ensureMirror()
       RETURN This.o_Mirror.get_MirroredPath(tcFile)
@@ -3097,6 +3739,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE isExcludedSubdir
+      *---------------------------------------------------------------------------------------------------
+      * True when tcFile is under a c_ExcludedSubdirs path segment.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFile                     (v! IN    ) File path to test
+      * RETURN                    (v?    OUT) .T. if excluded by subdir rules
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcFile
       This.ensureMirror()
       RETURN This.o_Mirror.isExcludedSubdir(tcFile)
@@ -3104,6 +3753,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE isUnderInputRoot
+      *---------------------------------------------------------------------------------------------------
+      * True when tcFile is under This.cInputRoot (mirror export/import).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFile                     (v! IN    ) File path to test
+      * RETURN                    (v?    OUT) .T. if inside project root
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcFile
       This.ensureMirror()
       RETURN This.o_Mirror.isUnderInputRoot(tcFile)
@@ -3111,6 +3767,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE copyUnconvertedFile
+      *---------------------------------------------------------------------------------------------------
+      * Copies a non-convertible member into the mirrored tree; wrapper ? o_Mirror.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFile                     (v! IN    ) Source file path
+      * RETURN                    (v?    OUT) .T. when copy succeeded
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcFile
       This.ensureMirror()
       RETURN This.o_Mirror.copyUnconvertedFile(tcFile)
@@ -3118,6 +3781,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    FUNCTION isTextFileForEncoding
+      *---------------------------------------------------------------------------------------------------
+      * True for plain-text extensions suitable for UTF-8 mirror copy (no binary NUL bytes).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFile                     (v! IN    ) File path to sample
+      * RETURN                    (v?    OUT) .T. for encodable text files
+      *---------------------------------------------------------------------------------------------------
+
       *---------------------------------------------------------------------------------------------------
       * True for plain-text project files that may be UTF-8 encoded when copied in mirrored tree mode.
       *---------------------------------------------------------------------------------------------------
@@ -3270,6 +3940,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE normalizeFileCapitalization
+      *---------------------------------------------------------------------------------------------------
+      * Renames input/output files via filename_caps when available (VCX sidecars, DBF, …).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tl_NormalizeInputFile      (v? IN    ) .T. = normalize input (This.c_InputFile)
+      * tcFileName                 (v? IN    ) Override path; default from c_InputFile/c_OutputFile
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tl_NormalizeInputFile, tcFileName
 
       TRY
@@ -3377,6 +4054,14 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE get_FilesFromDirectory
+      *---------------------------------------------------------------------------------------------------
+      * Recursively collects file paths under tcDir into taFiles (skips '.' directories).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcDir                      (v! IN    ) Root directory to scan
+      * taFiles                    (@! IN/OUT) Output array of full paths (pass @)
+      * tnFileCount                (@! IN/OUT) Element count (pass @)
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcDir, taFiles, tnFileCount
       EXTERNAL ARRAY taFiles
 
@@ -3438,6 +4123,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE readInputVFPParams
+      *---------------------------------------------------------------------------------------------------
+      * Parses Windows command line into taParams (EXE mode); adapted from kernel32 GetCommandLine.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * taParams                   (@!    OUT) Token array (pass @)
+      * tnPCount                   (@?    OUT) Parameter count after stripping EXE name (pass @)
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS taParams, tnPCount
       EXTERNAL ARRAY taParams
       *-----------------------------------------------------------------------------
@@ -3477,6 +4169,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE renameFile
+      *---------------------------------------------------------------------------------------------------
+      * Invokes cl_FileName_Caps to normalize file name capitalization on disk.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFileName                 (v! IN    ) File to rename
+      * tcEXE_CAPS                 (v! IN    ) Path to filename_caps.exe
+      * toFSO                      (v? IN    ) Scripting.FileSystemObject (unused legacy)
+      * tlRelanzarError            (v? IN    ) .T. = re-raise capitalization errors
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcFileName, tcEXE_CAPS, toFSO AS Scripting.FileSystemObject, tlRelanzarError
 
       LOCAL lcLog, laFile(1,5) ;
@@ -3500,6 +4201,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE renameTmpFile2Tx2File
+      *---------------------------------------------------------------------------------------------------
+      * Renames temporary export file to final text extension; wrapper ? o_FileUtils.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFileName                 (v! IN    ) Temp file path
+      * RETURN                    (v?    OUT) .T. on success
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcFileName
       This.ensureFileUtils()
       RETURN This.o_FileUtils.renameTmpFile2Tx2File(tcFileName)
@@ -3507,6 +4215,11 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    FUNCTION isExportUTF8
+      *---------------------------------------------------------------------------------------------------
+      * True when session CFG l_ExportUTF8 is enabled.
+      * RETURN                    (v?    OUT) .T. for UTF-8 text export/import
+      *---------------------------------------------------------------------------------------------------
+
       RETURN This.getCfgFlag('l_ExportUTF8')
    ENDFUNC
 
@@ -3514,6 +4227,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    FUNCTION encodeTextForExport
       *---------------------------------------------------------------------------------------------------
       * Converts ANSI text (current code page) to UTF-8 bytes when ExportUTF8 is enabled.
+      *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcText                     (v! IN    ) ANSI text in current code page
+      * RETURN                    (v?    OUT)                     UTF-8 or ANSI string per CFG
       *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcText
       IF This.isExportUTF8()
@@ -3527,6 +4244,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       *---------------------------------------------------------------------------------------------------
       * Converts UTF-8 file bytes to ANSI (current code page) when ExportUTF8 is enabled.
       *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcText                     (v! IN    ) File contents read from disk
+      * RETURN                    (v?    OUT)                     ANSI string for VFP processing
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcText
       IF This.isExportUTF8()
          RETURN StrConv(tcText, 11)
@@ -3539,6 +4260,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       *---------------------------------------------------------------------------------------------------
       * Reads a text representation file (VC2, SC2, PJ2, DB2, etc.) honoring ExportUTF8.
       *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFile                     (v! IN    ) Text file path
+      * RETURN                    (v?    OUT)                     File contents as ANSI string
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcFile
       RETURN This.decodeTextFromImport(FileToStr(tcFile))
    ENDFUNC
@@ -3548,6 +4273,11 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       *---------------------------------------------------------------------------------------------------
       * Writes a text representation file honoring ExportUTF8.
       *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcText                     (v! IN    ) Text to write
+      * tcFile                     (v! IN    ) Destination path
+      * RETURN                    (v?    OUT)                     Bytes written (StrToFile)
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcText, tcFile
       RETURN StrToFile(This.encodeTextForExport(tcText), tcFile)
    ENDFUNC
@@ -3556,6 +4286,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    FUNCTION finalizeTextExportFile
       *---------------------------------------------------------------------------------------------------
       * Converts an ANSI text file (e.g. written via Scripting.TextStream) to UTF-8 in place.
+      *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFile                     (v! IN    ) ANSI file to convert in place
+      * RETURN                    (v?    OUT)                     .T. when UTF-8 write succeeded or UTF-8 disabled
       *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcFile
       LOCAL lcText, lnBytes
@@ -3572,6 +4306,11 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       *---------------------------------------------------------------------------------------------------
       * Compares a new ANSI temp file with an existing export file (ANSI or UTF-8).
       *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcNewAnsiFile              (v! IN    ) New export temp file (ANSI)
+      * tcExistingFile             (v! IN    ) Existing file on disk (ANSI or UTF-8)
+      * RETURN                    (v?    OUT)                     .T. when normalized contents match
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcNewAnsiFile, tcExistingFile
       RETURN (FileToStr(tcNewAnsiFile) == This.readTextFile(tcExistingFile))
    ENDFUNC
@@ -3579,6 +4318,14 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE set_Line
+      *---------------------------------------------------------------------------------------------------
+      * Trims leading whitespace/TAB from taCodeLines(I) into tcLine (converter helper).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcLine                     (@! IN/OUT) Output line (pass @)
+      * taCodeLines                (@! IN    ) Source line array (pass @)
+      * I                          (v! IN    ) Line index
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcLine, taCodeLines, I
       EXTERNAL ARRAY taCodeLines
 
@@ -3587,6 +4334,11 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE errOut
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper ? o_FileUtils.errOut (writes text to stderr when l_StdOutHabilitado).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcTexto                    (v? IN    ) Text line to emit (CR/LF appended)
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcTexto
       This.ensureFileUtils()
       RETURN This.o_FileUtils.errOut(tcTexto)
@@ -3594,6 +4346,11 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE stdOut
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper ? o_FileUtils.stdOut (writes text to stdout when l_StdOutHabilitado).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcTexto                    (v? IN    ) Text line to emit (CR/LF appended)
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcTexto
       This.ensureFileUtils()
       RETURN This.o_FileUtils.stdOut(tcTexto)
@@ -3655,6 +4412,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE writeErrorLog
+      *---------------------------------------------------------------------------------------------------
+      * Appends a line to the session error log buffer; wrapper ? o_Logger.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcText                     (v? IN    ) Text line
+      * tnTimeStamp                (v? IN    ) Optional timestamp flag
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcText, tnTimeStamp
       This.ensureLogger()
       This.o_Logger.writeErrorLog( tcText, tnTimeStamp )
@@ -3662,12 +4426,23 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE writeErrorLog_Flush
+      *---------------------------------------------------------------------------------------------------
+      * Flushes error log buffer to c_ErrorLogFile; wrapper ? o_Logger.
+      *---------------------------------------------------------------------------------------------------
+
       This.ensureLogger()
       This.o_Logger.writeErrorLog_Flush()
    ENDPROC
 
 
    PROCEDURE writeLog
+      *---------------------------------------------------------------------------------------------------
+      * Appends a line to the session debug log buffer; wrapper ? o_Logger.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcText                     (v? IN    ) Text line
+      * tnTimeStamp                (v? IN    ) Optional timestamp / header level
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcText, tnTimeStamp
       This.ensureLogger()
       This.o_Logger.writeLog( tcText, tnTimeStamp )
@@ -3675,12 +4450,23 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE writeLog_Flush
+      *---------------------------------------------------------------------------------------------------
+      * Flushes debug log buffer to c_LogFile; wrapper ? o_Logger.
+      *---------------------------------------------------------------------------------------------------
+
       This.ensureLogger()
       This.o_Logger.writeLog_Flush()
    ENDPROC
 
 
    HIDDEN PROCEDURE exception2Str
+      *---------------------------------------------------------------------------------------------------
+      * Serializes an Exception object to text; wrapper ? o_Logger.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * toEx                       (@? IN    ) Exception object (pass @)
+      * RETURN                    (v?    OUT) Formatted exception string
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS toEx AS EXCEPTION
       This.ensureLogger()
       RETURN This.o_Logger.exception2Str( @toEx )
@@ -3688,6 +4474,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE unique_ID
+      *---------------------------------------------------------------------------------------------------
+      * Generates a unique numeric or string id for internal object naming.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcValType                  (v? IN    ) 'N' = numeric | otherwise '_#########' string
+      * RETURN                    (v?    OUT) Unique id
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcValType
 
       tcValType   = EVL(tcValType,'C')
@@ -3702,6 +4495,16 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    FUNCTION wscriptshell_run
+      *---------------------------------------------------------------------------------------------------
+      * Runs a shell command; wrapper ? o_FileUtils.wscriptshell_run.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcCmdLine                  (v! IN    ) Command line
+      * tnWindowStyle              (v? IN    ) WScript window style
+      * tbWaitOnReturn             (v? IN    ) Wait for process
+      * tlDebug                    (v? IN    ) Log command when debugging
+      * RETURN                    (v?    OUT) Process exit code / WScript result
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcCmdLine, tnWindowStyle, tbWaitOnReturn, tlDebug
       This.ensureFileUtils()
       RETURN This.o_FileUtils.wscriptshell_run(tcCmdLine, tnWindowStyle, tbWaitOnReturn, tlDebug)
@@ -3709,6 +4512,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    FUNCTION FERROR_Message(tcFileName AS STRING)
+      *---------------------------------------------------------------------------------------------------
+      * Returns FERROR() diagnostic text for a file; wrapper ? o_FileUtils.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFileName                 (v? IN    ) File context for message
+      * RETURN                    (v?    OUT) Error description string
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcFileName
       This.ensureFileUtils()
       RETURN This.o_FileUtils.FERROR_Message(tcFileName)
@@ -3716,6 +4526,14 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    FUNCTION getLocaleInfo
+      *---------------------------------------------------------------------------------------------------
+      * Reads Windows locale information; wrapper ? o_FileUtils.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tnSetting                  (v! IN    ) LOCALE_* constant
+      * tcLocale                   (v? IN    ) Optional locale name
+      * RETURN                    (v?    OUT) Locale string
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tnSetting, tcLocale
       This.ensureFileUtils()
       RETURN This.o_FileUtils.getLocaleInfo(tnSetting, tcLocale)
@@ -25089,6 +25907,10 @@ DEFINE CLASS cl_fb2prg_mirror AS Custom
       *---------------------------------------------------------------------------------------------------
       * True when tcFile matches a path collected from the PJ2 <ExcludedFiles> block.
       * Compares full path and stem (path + name without extension) so text/binary extensions match.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFile                    (v! IN    ) Member file path to test (text path on import)
+      * taExcludedPaths           (@! IN    ) Exclude path list from collectPj2ExcludedPaths (pass with @)
+      * RETURN                    (v?    OUT) .T. if excluded
       *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcFile, taExcludedPaths
       EXTERNAL ARRAY taExcludedPaths
