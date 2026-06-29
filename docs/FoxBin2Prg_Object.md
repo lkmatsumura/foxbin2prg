@@ -5,7 +5,7 @@ Documentation of FoxBin2Prg - A Binary to Text converter for MS Visual Foxpro 9
 FoxBin2Prg might be used as an EXE either from Windows or VFP, or as as prg from inside VFP in a [command line](./FoxBin2Prg_Run.md) way.  
 This document deals with the integration as an VFP Object using VFP based objects.
 
-For settings, API and other realted stuff see [Internals](./FoxBin2Prg_Internals.md).
+For settings, API and architecture see [Internals](./FoxBin2Prg_Internals.md) and [arquitetura.md](./arquitetura.md).
 
 The original document was created by [Fernando D. Bozzo](https://github.com/fdbozzo) whom I like to thank for the great project.   
 Pictures are taken from the original project.  
@@ -80,4 +80,4 @@ Return value is 0=OK, 1=Error.
 This project is part of [VFPX](https://vfpx.github.io/).   
 
 ----
-Last changed: _2023/11/26_ ![Picture](./pictures/vfpxpoweredby_alternative.gif)
+Last changed: _2026/06/29_ ![Picture](./pictures/vfpxpoweredby_alternative.gif)

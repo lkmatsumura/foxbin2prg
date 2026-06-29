@@ -14,7 +14,7 @@ The optional `toCfg` parameter accepts:
 
 Full example: [`create_mirrored.prg`](../create_mirrored.prg) and [`mirror.prg`](../mirror.prg). Technical overview: [arquitetura.md — Mirrored tree](arquitetura.md#mirrored-tree).
 
-Path mapping (`get_MirroredPath`, `isExcludedSubdir`, `copyUnconvertedFile`, …) is implemented in `cl_fb2prg_mirror.prg` and invoked via `c_foxbin2prg.o_Mirror`.
+Path mapping (`get_MirroredPath`, `isExcludedSubdir`, `copyUnconvertedFile`, …) is implemented in `cl_fb2prg_mirror.prg` and invoked via `c_foxbin2prg.o_Mirror`. Project batch conversion runs through `execute()` → `cl_fb2prg_execute.run()` → `evaluate_Full_PJX` / `evaluate_Full_PJ2`.
 
 ### Command line (`main.prg`)
 

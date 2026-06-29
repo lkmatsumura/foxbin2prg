@@ -27,6 +27,7 @@ _**Note:** you can click on the version number for downloading this version from
 
 | Rel.Date | Developer | Version | Details |
 | - | - | - | - |
+| 2026/06/29 | SCM fork | *(dev)* | **Refactoring**: Modular orchestrator — helper classes `cl_fb2prg_execute`, `cl_fb2prg_split_paths`, `cl_fb2prg_conversion_factory`, `cl_fb2prg_logger`, `cl_fb2prg_cfg`, `cl_fb2prg_mirror`, `cl_file_utils`; CFG object-only (no disk `.cfg`); unified PJX/PJ2 batch loop; `execute()` facade unchanged. See [arquitetura.md](./arquitetura.md). |
 | 2024/08/26 | DHennig | v1.21.04 | **Enhancement**: Added support for BodyDevInfo = 2 in CFG file to prevent both DevInfo and ObjRev from being written to PJ2 file |
 | 2024/04/24 | LScheffler | [v1.21.03](https://github.com/fdbozzo/foxbin2prg/releases/tag/v1.21.03) | **Bug Fix**: Text To Bin with Fieldcaption = "NULL" (misnomer. it's the field name); #106; #106 (griessbach14943) |
 | 2024/01/03 | LScheffler | [v1.21.02](https://github.com/fdbozzo/foxbin2prg/releases/tag/v1.21.02) | **Bug Fix**: Problems regenerating single classes and forms from text files in class-per-file form; #105 (LScheffler) |

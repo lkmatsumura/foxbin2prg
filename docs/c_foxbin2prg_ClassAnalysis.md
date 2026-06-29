@@ -1,8 +1,8 @@
 # Documentação: classe `c_foxbin2prg`
 
-> Análise estrutural da classe orquestradora do FoxBin2Prg (Visual FoxPro 9).  
-> Arquivo fonte modular: `c_foxbin2prg.prg` (~3.006 linhas).  
-> Data da análise: 2026-06-29 (pós-modularização, factory, logger e plano de melhorias restantes)
+> Análise estrutural da classe orquestradora do FoxBin2Prg (Visual FoxPro 9).
+> Arquivo fonte modular: `c_foxbin2prg.prg` (~3.008 linhas).
+> Data da análise: 2026-06-29 (pós-modularização: execute, split_paths, factory, logger, batch PJX/PJ2 unificado)
 
 ---
 
@@ -191,7 +191,7 @@ Pipeline em [`cl_fb2prg_execute.prg`](cl_fb2prg_execute.prg) (~1.000 linhas), la
 
 | Método | Visibilidade | Finalidade |
 |---|---|---|
-| **`convert`** | Protected | Orquestra conversão completa (~2825–2974): factory, helpers per-file/timestamp, `executeConversorOperation` |
+| **`convert`** | Public | Orquestra conversão completa: factory, helpers per-file/timestamp, `executeConversorOperation` (público — chamado por `cl_fb2prg_execute` via `o_Host`) |
 | **`loadModule`** | Public | Unit tests: delega a `convert(..., 'LOAD_ONLY')` |
 | **`compileFoxProBinary`** | Public | `COMPILE CLASSLIB/FORM/REPORT/...` após regeneração |
 | **`get_PROGRAM_HEADER`** | Public | Cabeçalho meta dos arquivos texto |
@@ -314,7 +314,7 @@ Métodos com `EXTERNAL ARRAY` (parâmetro array): `collectPjxMemberList` (`taMem
 | **`writeLogDbfCfgSettings`** | Log das propriedades DBF da sessão (`c_DBF_*`, `n_DBF_Conversion_Support`) |
 | **`formatConfigReferenceText`** | Texto de referência para `frm_main` |
 
-Delegação: lógica em `cl_fb2prg_cfg.prg`; `c_foxbin2prg` expõe wrappers (`ensureCfg()` + `o_Cfg.*`). Helpers lazy: `ensureFileUtils()`, `ensureMirror()`, `ensureSpecialProps()`.
+Delegação: lógica em `cl_fb2prg_cfg.prg`; `c_foxbin2prg` expõe wrappers (`ensureCfg()` + `o_Cfg.*`). Helpers lazy: `ensureFileUtils()`, `ensureMirror()`, `ensureSplitPaths()`, `ensureExecute()`, `ensureConversionFactory()`, `ensureLogger()`, `ensureSpecialProps()`.
 
 > **Removido:** `evaluateConfiguration()`, métodos `_ACCESS` para propriedades CFG, `frm_interactive`.
 
@@ -389,24 +389,20 @@ Delegação: lógica em `cl_fb2prg_cfg.prg`; `c_foxbin2prg` expõe wrappers (`en
 | 177 | `Init` |
 | 283 | `Destroy` |
 | 332 | `addProcessedFile` |
-| 443–473 | `ensureFileUtils` / `ensureMirror` / `ensureCfg` / `ensureSpecialProps` / `ensureConversionFactory` / `ensureLogger` |
-| 997–1637 | Métodos protegidos do pipeline `execute` |
-| 1640 | `execute` |
-| 1735–1974 | Helpers project batch (`setupProjectBatchEnvironment`, `processProjectMembersLoop`, …) |
-| 1977 | `evaluate_Full_PJX` |
-| 2022 | `evaluate_Full_PJ2` |
-| 2074 | `convert` (Protected) |
-| 2439–2525 | Wrappers CFG (`newConfig`, `applyConfig`, `getCfgValue`, …) |
-| 2532 | `exportProjectTree` |
-| 2554 | `importProjectTree` |
-| 2583–2768 | Per-file (`getPerFileDir`, `getPerFileOutputPath`, …) |
-| 2771–2796 | Wrappers mirror (`get_MirroredPath`, `copyUnconvertedFile`, …) |
-| 3101 | `loadModule` |
-| 3188–3258 | UTF-8 (`isExportUTF8`, `readTextFile`, `writeTextFile`, …) |
-| 2864 | `get_SeparatedLineAndComment` |
-| 2951 | `normalizeFileCapitalization` |
+| 482–562 | `ensureFileUtils` … `ensureLogger` |
+| 1017–1056 | Fachada `execute` + wrappers `mergeExecuteConfig`, `rewritePerObjectInputPath` |
+| 1064+ | Helpers project batch (`setupProjectBatchEnvironment`, `processProjectMembersLoop`, …) |
+| 1436 | `evaluate_Full_PJX` |
+| 1481 | `evaluate_Full_PJ2` |
+| 1729 | `convert` (public) |
+| 1881–2052 | Wrappers CFG (`newConfig`, `applyConfig`, `getCfgValue`, …) |
+| 2065 | `exportProjectTree` |
+| 2087 | `importProjectTree` |
+| 2110+ | Per-file wrappers → `o_SplitPaths` |
+| 2571 | `loadModule` |
+| 2681+ | UTF-8 (`isExportUTF8`, `readTextFile`, `writeTextFile`, …) |
 
-> **Nota:** números de linha referem-se a `c_foxbin2prg.prg` modular (~3.400 linhas). Podem variar após edições.
+> **Nota:** pipeline `execute` completo em [`cl_fb2prg_execute.prg`](cl_fb2prg_execute.prg). Números de linha referem-se a `c_foxbin2prg.prg` modular (~3.008 linhas).
 
 ---
 
@@ -511,7 +507,7 @@ Implementação movida: session setup/teardown, parsing de contexto, `resolveExe
 
 No host: fachada `execute()` (~14 linhas), wrappers `mergeExecuteConfig` e `rewritePerObjectInputPath`. API pública inalterada.
 
-Host reduzido de ~3.876 → ~3.006 linhas.
+Host reduzido de ~3.876 → ~3.008 linhas. `convert` e `rewritePerObjectInputPath` são **públicos** no host (acessíveis de `cl_fb2prg_execute` via `o_Host`).
 
 #### 5. `cl_fb2prg_text_io` — UTF-8 e I/O texto (~90 linhas)
 
@@ -549,7 +545,7 @@ Call sites atuais (`updateProcessedFile()` sem args ou `updateProcessedFile(lnID
 2. ~~Refatorar `convert` por dentro (sem mudar assinatura)~~ **Concluído (2026-06-29)**
 3. ~~Extrair `cl_fb2prg_split_paths`~~ **Concluído (2026-06-29)**
 4. ~~Extrair pipeline `execute` → `cl_fb2prg_execute`~~ **Concluído (2026-06-29)**
-5. Corrigir `updateProcessedFile`
+5. ~~Corrigir `updateProcessedFile`~~ **Concluído (2026-06-29)**
 6. Opcional: text I/O, process tracker, code parser
 
 Após extrações que alterem módulos listados em `unify.txt`, executar `unify.prg` para regenerar `foxbin2prg.prg`.
@@ -667,7 +663,7 @@ classDiagram
 
 ## Conclusão
 
-`c_foxbin2prg` concentra **orquestração**, **delegação de conversão**, **batch de projetos** e **API de espelhamento**. Desde 2025–2026 a classe encolheu (~6.000 → ~3.006 linhas) com:
+`c_foxbin2prg` concentra **orquestração**, **delegação de conversão**, **batch de projetos** e **API de espelhamento**. Desde 2025–2026 a classe encolheu (~6.000 → ~3.008 linhas) com:
 
 1. CFG object-only em `cl_fb2prg_cfg`
 2. Helpers `cl_file_utils`, `cl_fb2prg_mirror`, `cl_fb2prg_logger`, `cl_fb2prg_conversion_factory`
@@ -682,7 +678,7 @@ O retorno marginal das próximas extrações (text I/O, process tracker, code pa
 
 ## Documentos relacionados
 
-- [arquitetura.md](arquitetura.md) — visão geral da arquitetura modular
+- [arquitetura.md](arquitetura.md) — visão geral da arquitetura modular (inglês)
 - [export_import_mirror.md](export_import_mirror.md) — espelhamento de projetos
 - [FoxBin2Prg_Internals.md](FoxBin2Prg_Internals.md) — opções de CFG e uso
 - `unify.txt` — lista de módulos-fonte; `c_foxbin2prg.prg` é o orquestrador modular

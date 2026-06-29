@@ -22,168 +22,173 @@ As far as possible these are the original documents. Changes are added where fun
 
 ----
 ## Run FoxBin2Prg
-FoxBin2Prg might be used as an EXE either from Windows or VFP, or as as prg from inside VFP.
-Additional it might be integrated as an VFP Object using the [Object version](./FoxBin2Prg_Object.md).   
-Since the EXE is basically the prg packed with some controling files, the way to call it ist mostly similar.
-The knowledge of differences in calling, DO .. WITH syntax separating parameters with ","  and the DOS way off calling will be assumed.
-Do the similarity of the call, the prg version takes all parameters as strings too.
 
-For settings and other related stuff see [Internals](./FoxBin2Prg_Internals.md).
+The CLI entry point is [`main.prg`](../main.prg) (prepended to `foxbin2prg.prg` by `unify.prg`). The EXE uses the same three parameters from the Windows command line.
+
+FoxBin2Prg may be used as an EXE from Windows or VFP, or as PRG via `DO main.prg WITH …`. For object-style integration see [Object version](./FoxBin2Prg_Object.md).
+
+For settings, architecture, and related topics see [Internals](./FoxBin2Prg_Internals.md) and [arquitetura.md](./arquitetura.md).
 
 ## Differences on excecution
 ### EXE
-The exe contains the most controling structures and the program itself.
-Alongside the _FoxBin2Prg.exe_ must be _\_FileName\_Caps.exe_ .
-It is recomended to have a general _FoxBin2Prg.cfg_ configuration file in the folder with the EXE, but it will run without.   
+The exe contains the unified program (`foxbin2prg.prg` built via `unify.prg`) and control structures.
+Alongside _FoxBin2Prg.exe_ must be _FileName_Caps.exe_ (or equivalent).
+Configuration is passed programmatically (`newConfig()` / `applyConfig()`); legacy disk `foxbin2prg.cfg` is **not** read (2026).
 
-Remember, the Exe needs to be created first.
+Remember, the Exe needs to be created first (see [FoxBin2Prg.md — Download for development](./FoxBin2Prg.md#download-for-development)).
 
 ### PRG
-The prg is just the program and needs to find the controling structures. In particular:
-- _FileName_Caps.exe_
-- _Props*.txt_
-- _FileName_Caps.exe_
-- _FoxBin2Prg.cfg_ is recomended
+Development uses **modular** `.prg` sources listed in `unify.txt`. Run `unify.prg` to regenerate the monolithic `foxbin2prg.prg`, or load `main.prg` / `c_foxbin2prg.prg` directly when working on the modular tree.
+
+Required alongside the program:
+- `props/*.txt` (property sort order)
+- `FileName_Caps` support
+- Helper modules: `cl_fb2prg_*.prg`, `cl_file_utils.prg`, `c_conversor_*.prg`, `cl_*.prg` (see [arquitetura.md](./arquitetura.md))
 
 #### Note
-All mentioned files need to be in the same folder. You can't use just the PRG without the rest of the mentioned files.
+All mentioned files need to be reachable from the FoxBin2Prg folder (same layout as the repository). You can't use just one PRG without the rest of the modular sources or the unified build.
 
 ## Parameters
-`FoxBin2Prg.EXE ...`   
-could be used from VFP command line as   
-`DO FoxBin2Prg.EXE WITH ...`   
-or   
-`DO FoxBin2Prg.prg WITH ...`  
-or via _RUN_ or more sophisticated ways.   
 
-Remember that using the prg style, parameters must be wrapped in string delimiters.  
+Entry point: [`main.prg`](../main.prg) (first module in `unify.txt`; same header in generated `foxbin2prg.prg` / EXE).
 
-#### Note
-Do to the compatibility with VSS the usage of _cInputFile_ and _cType_ is odd.
+```foxpro
+DO main.prg WITH tc_InputFile [, tcType [, toCfg]]
+```
 
-#### Important note:
-When you process a directory, it is used as the base for the compilation of _Binaries_,
-and because of this, never process more than one directory in the same process,
-because the compilation may not be ok. To process more than one directory (or project),
-just select and process each one independently, in parallel if you like, but in different processes.
+| Parameter | Type | Default | Description |
+| ----- | ----- | ----- | ----- |
+| `tc_InputFile` | Character | `''` | Path to convert (file, directory, or wildcard spec), `-VERNO`, or empty |
+| `tcType` | Character | `''` | Operation mode (see [Usage](#usage)); passed to `c_foxbin2prg.execute()` |
+| `toCfg` | Object | *(none)* | Optional CFG from `loCnv.newConfig()` (or duck-typed via `configFromObject`) |
+
+**Not passed on the CLI anymore (2026):** legacy parameters such as `cDebug`, `cDontShowProgress`, `cRecompile`, `cCFG_File`, `cOutputFolder`, SCCAPI `lGenText`, etc. Use a CFG object (`toCfg`) and/or session properties on the `c_foxbin2prg` instance before calling `execute` (see [FoxBin2Prg_Object.md](./FoxBin2Prg_Object.md)).
+
+#### Special value: `-VERNO`
+
+When `tc_InputFile` contains `-VERNO` (e.g. `DO main.prg WITH "-VERNO"`), `main.prg` returns the real version string (`DC_FB2PRG_VERSION_REAL`) and does not run a conversion.
+
+#### Empty input
+
+When `tc_InputFile` is empty **and** `tcType` is not `Bin3Prg` / `Prg3Bin`, `main.prg` opens the configuration reference form (`frm_main`) instead of calling `execute`.
+
+#### Important note
+
+When processing a directory, it is used as the base for binary recompilation. Do not process more than one directory in the same process if recompile is enabled; use separate processes per directory or project.
 
 ## Usage
-### Usage 1
-`FoxBin2Prg.EXE cInputFile [,cType [,cTextName [,lGenText [,cDontShowErrors [,cDebug [,cDontShowProgress [,cOriginalFileName [,cRecompile [,cNoTimestamps [,cCFG_File [,cOutputFolder ] ] ] ] ] ] ] ] ] ] ] ]`
 
-| Parameter | Value (_Default_) | Description |
+`main.prg` forwards to `loCnv.execute( tc_InputFile, tcType, toCfg, @loEx )`. Direction for a **single file** is inferred from the extension when `tcType` is empty (e.g. `.vcx` → text, `.vc2` → binary).
+
+### `tc_InputFile`
+
+| Value | Behaviour |
+| ----- | ----- |
+| *(empty)* | Configuration reference form (`frm_main`), unless `tcType` is `Bin3Prg` / `Prg3Bin` |
+| Full path to a **file** | Convert that file (direction from extension or `tcType`) |
+| Full path to a **directory** | Batch only when `tcType` contains `-BIN2PRG` or `-PRG2BIN` |
+| Wildcard in **stem** (e.g. `d:\proj\*.vcx`) | Batch matching files in that folder |
+| `path\file.vcx::ClassName` | Single class/form export or import (per-file CFG options) |
+| `path\file.vcx::ClassName::I` or `::E` | Same, with explicit Import / Export operation |
+| `-VERNO` | Return version string (no conversion) |
+
+### `tcType`
+
+Validated values (invalid strings containing `\` raise an error). Case-insensitive after normalization.
+
+| Value | When | Effect |
 | ----- | ----- | ----- |
-| cInputFile | ? / interactive | Call interactive list of parameters |
-| | fullpath | Full name of the file to convert or directory name to process <br/>without any other parameter given, the extension (and the config) defines the operation |
-| | _FileName::ClassName_ | If option UseClassPerFile is 1 or 2, a class-file will be extracted from the lib |
-| cType | _empty_ | Fileextension of _cInputFile_ defines operation |
-| | BIN2PRG | _cInputFile_ is processed for generating a _Text_ representation. |
-| | PRG2BIN | _cInputFile_ is processed for generating the _Binary_ file(s). |
-| | INTERACTIVE | A confirmation dialog will be shown when processing a directory asking what to convert. <br/> This option overrides the _BIN2PRG_ and _PRG2BIN_ parameters. <br/> Can be used with or without _PRG2BIN_ or _BIN2PRG_ |
-| | SHOWMSG | A status message will be shown on termination. |
-| | * | If _cInputFile_ is a project (pj[x2]) all files of the project, **including** the pjx, will be processed. The extension defines direction of operation. |
-| | \*\- | If _cInputFile_ is a project (pj[x2]) all files of the project, **excluding** the pjx, will be processed. The extension defines direction of operation. |
-| | d, D, K, B, M, R, V | SCCAPI (SCCTEXT.PRG) compatibility mode, query the conversion support for the file type specified <br /> Types: d=DBC, D=DBF, K=Form, B=Label, M=Menu, R=Report, V=Class |
-| cTextName | Text filename. | Only for SCCAPI (SCCTEXT.PRG) compatibility mode. File to use. |
-| lGenText | .T., .F. | Only for SCCAPI (SCCTEXT.PRG) compatibility mode.<br/>.T.=Generates _Text_, .F.=Generates _Binary_.<br/>**Note:** _cType_ have predominance over _lGenText_ |
-| cDontShowErrors | _0_, 1 | '1' for NOT showing errors in MESSAGEBOX |
-| cDebug | _0_, 1, 2 | '0 'no debug, '1' for generating process LOGs, stop on errors, '2' like '1' and special log.<br/>This has precedence over any value in the config files. |
-| cDontShowProgress | 0, _1_, 2 | '0' show progress, '1' for **not** showing the process window, '2' Show only for multi-file processing |
-| cOriginalFileName | text | used in those cases in which inputFile is a temporary filename and you want to generate the correct filename on the header of the _Text_ version |
-| cRecompile | 0, _1_ | Indicates recompile ('1') the _Binary_ once generated. <br/> True if called from SCCAPI (SCCTEXT.PRG) compatibility mode. |
-|  | path | The _Binary_ is compiled from this path |
-| cNoTimestamps | 0, _1_ | Indicates if timestamp must be cleared ('1' or empty) or not ('0') |
-| cCFG_File | filename | Indicates a special CFG filename for default values.<br/>Note, if the "regular" config files are used or not, is controlled by the setting *AllowInheritance* in *this** file. | 
-| cOutputFolder | folder | Optional. A folder to write the output to. If not used, output be the source path. |
+| *(empty)* | Single file | Direction from extension (bin→text or text→bin) |
+| `*` | `.PJX` project | Convert all project members **including** the project file |
+| `*-` | `.PJX` / `.PJ2` | Convert all members **excluding** the project header file |
+| `-BIN2PRG` or `-BIN2TEXT` | Directory | Recursively convert supported binaries under `tc_InputFile` to text |
+| `-PRG2BIN` or `-TEXT2BIN` | Directory | Recursively convert supported text files under `tc_InputFile` to binary |
+| `Bin3Prg` | `.PJX` | Mirror export (requires `loCnv.cOutputFolder` or mirror API — see [export_import_mirror.md](./export_import_mirror.md)) |
+| `Prg3Bin` | `.PJ2` | Mirror import (same session roots) |
+| `-SHOWMSG` | Any (suffix) | Append to another type, e.g. `-BIN2PRG-SHOWMSG` — show completion message box |
 
-#### Note #1
-The _BIN2PRG, PRG2BIN, INTERACTIVE, SHOWMSG_ cTypes might be mixed freely like:   
-`PRG2BIN-INTERACTIVE`   
-`BIN2PRG-INTERACTIVE-SHOWMSG`
+**Examples of combined `tcType`:** `-BIN2PRG-SHOWMSG`, `PRG2BIN-SHOWMSG` (direction flags are matched as substrings after a leading `-` is prepended internally).
 
-#### Note #2
-On any combination of (_BIN2PRG_, _PRG2BIN_, _INTERACTIVE_, _SHOWMSG_) separated by a "-", _cType_ and _cInputFile_ parameters can be swapped.   
-This is useful when used as EXE dealing with Windows shortcuts,
-on which fixed parameters must be in the shortcut.   
-The filename is an external variable parameter received when SendingTo FoxBin2Prg with right-click on File Manager.
+**Removed (legacy):** `INTERACTIVE`, SCCAPI probe letters (`d`, `D`, `K`, …), `BIN2PRG`/`PRG2BIN` as the only parameter without a file (parameter swap with `tc_InputFile`), and multi-argument `execute` overloads.
 
-### Usage 2 (legacy — removed)
+### `toCfg`
 
-> **2026:** Generating `foxbin2prg.cfg` templates via `-c` / `-C` / `-t` is **no longer supported**. Use `DO main.prg` with no input file to open the configuration reference form, or `loCnv.formatConfigReferenceText()` / `newConfig()` programmatically. See [FoxBin2Prg_Internals — Configuration file](./FoxBin2Prg_Internals.md#configuration-file).
+Optional configuration object. When passed, settings are merged into the session before conversion (`mergeExecuteConfig`).
 
-~~`FoxBin2Prg.EXE c|C|t [OutFileName [ cCFG_File[ cDebug]]]`~~
-~~`DO FoxBin2Prg.EXE WITH -c|-C|-t [, OutFileName [, cCFG_File[, cDebug]]]`~~
+```foxpro
+loCnv = NewObject('c_foxbin2prg', 'c_foxbin2prg.prg')
+loCfg = loCnv.newConfig()
+loCfg.n_Debug = 1
+loCfg.l_NoTimestamps = .T.
+DO main.prg WITH 'd:\proj\file.vcx', '', loCfg
+```
 
-| Parameter | Description |
-| ----- | ----- |
-| none | Call Info screen |
-| -c (c) | creates a template config-file _cOutputFile_ ( like FOXBIN2PRG.CFG ) |
-| -C (C) | creates a config-file _cOutputFile_ ( like FOXBIN2PRG.CFG ) with the recent options used on the path of cOutputFile |
-| | If cOutputFile is empty, a file FOXBIN2PRG.\_CFG will be created in default foder. | 
-| -t (t) | creates a template table-config-file _cOutputFile_ ( like \_TableName\_.dbf.cfg ) |
-| cCFG_File | Indicates a special CFG filename for default values<br/>Note, if the "regular" config files are used orn not, is controlled by the setting *AllowInheritance* in *this** file. | 
-| cDebug | '1' for generating process LOGs, stop on errors<br/>This has precedence over any value in the config files. | 
+Session-only properties (not CLI parameters): set on `loCnv` before `DO main.prg`, e.g. `loCnv.cOutputFolder`, `loCnv.cInputRoot`, `loCnv.n_DebugP`, `loCnv.l_ProcessFiles`.
 
-### Usage 3
-`FOXBIN2PRG.EXE VERNO`   
-`DO FOXBIN2PRG.EXE WITH "VERNO"|cPara`   
+### Mirror / project tree (not via `main.prg` alone)
 
-| Parameter | Description |
-| ----- | ----- |
-| -VERNO (VERNO) | Return version number of FoxBin2Prg |
-| cPara | A parameter with the Value "VERNO", the version number is returned to this parameter | 
+Full mirrored export/import uses methods on `c_foxbin2prg`:
 
+```foxpro
+loCnv.exportProjectTree( 'd:\src\app.pjx', 'd:\mirror\app', loCfg )
+loCnv.importProjectTree( 'd:\mirror\app\app.pj2', 'd:\src\app', loCfg )
+```
 
-#### Note
-From command line the call with paramters like -c, -C -t is not possible. Those parameters will be removed by VFP itself.
-Just call without the dash.
-Calling inside VFP with `DO FoxBin2Prg.EXE` works with this dashed parameters.
+See [export_import_mirror.md](./export_import_mirror.md).
+
+### Legacy CLI (removed)
+
+> **2026:** Generating `foxbin2prg.cfg` via `-c` / `-C` / `-t`, SCCAPI multi-parameter `execute`, and disk `.cfg` inheritance are **no longer supported**. Use `DO main.prg` with no file for the reference form, or `newConfig()` / `applyConfig()`. See [FoxBin2Prg_Internals — Configuration file](./FoxBin2Prg_Internals.md#configuration-file).
 
 ## Return values
-Return value via _ErrorLevel_ is 0=OK, 1=Error.
+
+`main.prg` returns a numeric code (`lnResp`). On success, `0`. On failure, the VFP error number (e.g. `1098` when errors were logged). The same value is stored in `_SCREEN.ExitCode` before exit.
+
+When called as an EXE from the command line, the process exit code reflects this return value.
 
 ## Examples
-### Using the "EXE" version: (useful for calling from 3rd party programs)
 
-| command | description |
-| - | - |
-| `FOXBIN2PRG.EXE "<path>\file.scx"` | Generates the _Text_ version |
-| `FOXBIN2PRG.EXE "<path>\file.sc2"` | Generates the _Binary_ version |
-| `FOXBIN2PRG.EXE "<path>\proj.pjx" "*"` | Generates the _Text_ files for all the files in the PJX, including the PJX |
-| `FOXBIN2PRG.EXE "<path>\proj.pj2" "*"` | Generates the _Binary_ files for all the files in the PJ2 |
-| `FOXBIN2PRG.EXE "<path>\proj.pjx" "*-"` | Generates the _Text_ files for all the files in the PJX, excluding the PJX |
-| `FOXBIN2PRG.EXE "<path>\file.vcx::cus_client"` | Generates only the _Text_ version of the individual class cus_client of file.vcx (with UseClassPerFile:1 or 2) |
-| `FOXBIN2PRG.EXE "<path>\proj.pj2" "*" \| find /V ""` | Generates the _Binary_ files for all the files in the PJ2 and outputs to stdOut |
+Call syntax is the same for EXE and PRG (`DO main.prg WITH …` or `DO foxbin2prg.prg WITH …` after unify).
 
-### Using the "PRG" version:
+| Command | Description |
+| ----- | ----- |
+| `DO main.prg` | Configuration reference form |
+| `DO main.prg WITH "-VERNO"` | Return version string (e.g. `4.00.00`) |
+| `DO main.prg WITH "d:\proj\file.scx"` | Binary → text (`.sc2`) |
+| `DO main.prg WITH "d:\proj\file.sc2"` | Text → binary (`.scx`) |
+| `DO main.prg WITH "d:\proj\proj.pjx", "*"` | Full project export (all members + PJX → PJ2) |
+| `DO main.prg WITH "d:\proj\proj.pj2", "*"` | Full project import (PJ2 → PJX + binaries) |
+| `DO main.prg WITH "d:\proj\proj.pjx", "*-"` | Project members only (exclude PJX/PJ2 header) |
+| `DO main.prg WITH "d:\proj\*.vcx"` | All matching VCX in folder (extension sets direction) |
+| `DO main.prg WITH "d:\proj\forms", "-BIN2PRG"` | Recursive bin→text for supported files under folder |
+| `DO main.prg WITH "d:\proj\text", "-PRG2BIN"` | Recursive text→bin under folder |
+| `DO main.prg WITH "d:\proj\file.vcx::cus_client"` | Single class to text (UseClassPerFile) |
+| `DO main.prg WITH "d:\proj\file.vcx", "", loCfg` | Single file with programmatic CFG object |
 
-| command | description |
-| - | - |
-| `DO FOXBIN2PRG.PRG WITH "<path>\file.scx"` | Generates the _Text_ version |
-| `DO FOXBIN2PRG.PRG WITH "<path>\file.sc2"` | Generates the _Binary_ version |
-| `DO FOXBIN2PRG.PRG WITH "<path>\proj.pjx", "*"` | Generates the _Text_ files for all the files in the PJX, including the PJX |
-| `DO FOXBIN2PRG.PRG WITH "<path>\proj.pj2", "*"` | Generates the _Binary_ files for all the files in the PJ2 |
-| `DO FOXBIN2PRG.PRG WITH "<path>\proj.pjx", "*-"` | Generates the _Text_ files for all the files in the PJX, excluding the PJX |
-| `DO FOXBIN2PRG.PRG WITH "<path>\file.vcx::cus_client"` | Generates only the _Text_ version of the individual class cus_client of file.vcx (with UseClassPerFile:1 or 2) |
-| `DO FOXBIN2PRG.PRG WITH "<path>\file.cus_client.vc2"` | Generates only the _Binary_ version of the individual class cus_client of file.vcx (with UseClassPerFile:1 and RedirectClassType:2) |
-| `DO FOXBIN2PRG.PRG WITH "<path>\file.vc2::cus_client::import"` | Generates only the _Binary_ version of the individual class cus_client of file.vcx (with UseClassPerFile:1) |
+EXE equivalents (Windows command line):
+
+| Command | Description |
+| ----- | ----- |
+| `FOXBIN2PRG.EXE "d:\proj\file.scx"` | Binary → text |
+| `FOXBIN2PRG.EXE "d:\proj\proj.pjx" "*"` | Full project export |
+| `FOXBIN2PRG.EXE "d:\proj\forms" "-BIN2PRG"` | Directory batch export |
 
 ## Explorer SendTo
-To use _FoxBin2Prg_ from the File Explorer, you can create 3 shortcuts of FoxBin2Prg.exe and move them to "SendTo" folder on your Windows profile.   
-Hint: **type _shell:sendto_ in File Explorer's address bar and it will open send to folder**,
-so you can "send" the selected file (pjx,pj2,etc) to the selected option,
-and make on-the-fly conversions,
-then rename and edit those shortcuts as this (make sure you can see system file extensions):
+
+To use FoxBin2Prg from File Explorer, create shortcuts to `foxbin2prg.exe` in the SendTo folder (`shell:sendto` in the address bar). Windows passes the selected file as the **first** argument (`%1`).
+
 ```
-Name------------------------  Right-click/Properties/destination-----------
-FoxBin2Prg - Binary2Text.lnk  <path>\foxbin2prg.exe "BIN2PRG-SHOWMSG"
-FoxBin2Prg - Text2Binary.lnk  <path>\foxbin2prg.exe "PRG2BIN-SHOWMSG"
-FoxBin2Prg.lnk                <path>\foxbin2prg.exe "INTERACTIVE-SHOWMSG"
+Name------------------------  Target (Properties)
+FoxBin2Prg.lnk                "<path>\foxbin2prg.exe" "%1"
+FoxBin2Prg - Bin2Text.lnk     "<path>\foxbin2prg.exe" "%1" "-BIN2PRG-SHOWMSG"
+FoxBin2Prg - Text2Bin.lnk     "<path>\foxbin2prg.exe" "%1" "-PRG2BIN-SHOWMSG"
 ```
+
+For a single file, direction is usually inferred from the extension; the `-BIN2PRG` / `-PRG2BIN` suffix forces batch direction when needed (e.g. ambiguous cases). `-SHOWMSG` displays a completion message box.
 
 ----
 ![VFPX logo](https://vfpx.github.io/images/vfpxbanner_small.gif)   
 This project is part of [VFPX](https://vfpx.github.io/).   
 
 ----
-Last changed: _2023/11/26_ ![Picture](./pictures/vfpxpoweredby_alternative.gif)
+Last changed: _2026/06/29_ ![Picture](./pictures/vfpxpoweredby_alternative.gif)

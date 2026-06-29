@@ -609,6 +609,9 @@ If you don't use the Redirect setting, an individual dbc file will be generated.
 There is no real use of this.
 
 ### FoxBin2Prg API
+
+> **Architecture (2026):** The public API remains on `c_foxbin2prg`. Internally, `execute()` delegates to `cl_fb2prg_execute` (`o_Execute.run()`); configuration, logging, mirror paths, converter factory, and per-file layout live in `cl_fb2prg_*` helper modules. See [arquitetura.md](./arquitetura.md).
+
 With v1.19.42 version started an enhanced API support, making public methods that where only for internal use up to now.   
 When using FoxBin2Prg as an object, you can access low level functionalities not available when using as external program,
 that allow you to implement your own tools, like the VFP tools I've implemented for working with PlasticSCM.   
@@ -639,7 +642,7 @@ loCnv.execute( "<Path>\project.pjx", "*" )
 Return a `laProc` array of processed forms _**after**_ processing a project:
 ````
 DIMENSION laProcs(1,6)
-lnErr = loCnv.execute("C:\DESA\foxbin2prg\TESTS\DATOS_TEST\fb2p_test.pjx", "*", "", "", "1", "0", "1")
+lnErr = loCnv.execute("C:\DESA\foxbin2prg\TESTS\DATOS_TEST\fb2p_test.pjx", "*")
 lnCnt = loCnv.get_Processed(@laProcs, "*.scx")
 ````
 Return a laProc array of processed classlibs _**before**_ processing a project
@@ -647,9 +650,10 @@ Return a laProc array of processed classlibs _**before**_ processing a project
 ````
 DIMENSION aProcs(1,6)
 loCnv.l_ProcessFiles = .F.
-lnErr = loCnv.execute("C:\DESA\foxbin2prg\TESTS\DATOS_TEST\fb2p_test.pjx", "*", "", "", "1", "0", "1")
+lnErr = loCnv.execute("C:\DESA\foxbin2prg\TESTS\DATOS_TEST\fb2p_test.pjx", "*")
 lnCnt = loCnv.get_Processed(@aProcs, "*.vcx")
 ````
+> **Note:** Legacy multi-parameter `execute(..., "1", "0", "1", …)` signatures were removed. Use `newConfig()` / `applyConfig()` and session properties (`l_ProcessFiles`, `n_DebugP`) instead.
 Check if a file has support for converting to text:
 ````
 ? loCnv.hasSupport_Bin2Prg("<Path>\file.vcx")

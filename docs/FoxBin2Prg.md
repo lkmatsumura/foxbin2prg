@@ -57,10 +57,10 @@ generating bidirectional PRG-Style versions that allow recreating the original b
 ## Advantages
 - It generates _Text_ style programs (not compilable), for visual comparison out of FoxPros table based code.
 - It enables the change of the _Text_ version as easy as modifying a PRG
-- All the program code is in just one PRG, to simplify its maintainability
+- All the program code is maintained as modular `.prg` sources listed in `unify.txt`; `foxbin2prg.prg` is **generated** by `unify.prg` (see [arquitetura.md](./arquitetura.md))
 - Out of the _Text_ versions you can **generate the original binaries**, so it is useful as backup
-- The extensions are configurable if you create a FOXBIN2PRG.CFG file
-  - Inheritance of CFG configuration files between directories
+- Configuration is **programmatic** via CFG objects (`newConfig()`); legacy on-disk `foxbin2prg.cfg` inheritance was removed (2026)
+- Extensions are configurable via CFG object properties (e.g. `loCfg.c_VC2`); see [Internals — Configuration](./FoxBin2Prg_Internals.md#configuration-file)
 - Special configuration per table, allowing additional non structural index files, sorting and ranges of records to include
 - Methods and properties of _Text_ version are alphabetically sorted for easy comparison
 - Can set _UseClassPerFile_ setting to create individual files by class
@@ -85,19 +85,22 @@ If dealing with project files, FoxBin2Prg will fail if files of the project are 
 See [issue #93](https://github.com/fdbozzo/foxbin2prg/issues/93).
 
 ## Usage
-FoxBin2Prg can be used in tree ways:
+FoxBin2Prg can be used in three ways:
 1. [EXE version](./FoxBin2Prg_Run.md): (Recommended and fastest)   
    - All-inclusive, you just need foxbin2prg.exe and filename_caps.exe/cfg.   
    - Runs from windows
    - If run from IDE, the EXE needs to be compiled for the version of FoxPro.
-1. [PRG version](./FoxBin2Prg_Run.md):   
-   - You need various files: foxbin2prg.prg, all the props*.txt files and filename_caps.exe/cfg.
+2. [PRG version](./FoxBin2Prg_Run.md):   
+   - Modular sources under the project root; run `unify.prg` to build `foxbin2prg.prg`, or use modular `.prg` files directly in development.
+   - You also need `props/*.txt` and `filename_caps` support files.
    - Runs out of VFP IDE, no problems mixing VFP 9 and VFPA
-1. [Object version](./FoxBin2Prg_Object.md):
+3. [Object version](./FoxBin2Prg_Object.md):
    - Usable out of own code
    - expandable
 
 ## Keep reading
+- [Architecture (modular sources, helpers, flows)](./arquitetura.md)
+- [Orchestrator analysis (Portuguese)](./c_foxbin2prg_ClassAnalysis.md)
 - [FoxBin2Prg Full Change History](./ChangeLog.md)
 - [FoxBin2Prg Internals and Configuration](./FoxBin2Prg_Internals.md)
 - [FoxBin2Prg and use with SCM tools](./FoxBin2Prg_SCM.md)
@@ -108,4 +111,4 @@ FoxBin2Prg can be used in tree ways:
 This project is part of [VFPX](https://vfpx.github.io/).
 
 ----
-Last changed: _2023/12/05_ ![Picture](./pictures/vfpxpoweredby_alternative.gif)
+Last changed: _2026/06/29_ ![Picture](./pictures/vfpxpoweredby_alternative.gif)

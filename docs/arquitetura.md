@@ -4,6 +4,8 @@
 
 The text format is **not executable code** — it is a structured PRG with `DEFINE CLASS` blocks, XML metadata tags, and base64 OLE blobs.
 
+> **Last updated:** 2026-06-29 — reflects modular sources (`unify.txt`), helper classes `cl_fb2prg_*`, and `execute()` delegation to `cl_fb2prg_execute`.
+
 ---
 
 ## Overall architecture diagram
@@ -15,8 +17,12 @@ flowchart TB
     end
 
     subgraph orquestracao["Orchestration"]
-        FB2P["c_foxbin2prg<br/>(SESSION)"]
+        FB2P["c_foxbin2prg<br/>(SESSION ~3.000 lines)"]
+        EXE["cl_fb2prg_execute<br/>(o_Execute)"]
         CFG["cl_fb2prg_cfg<br/>(o_Cfg)"]
+        FAC["cl_fb2prg_conversion_factory<br/>(o_ConversionFactory)"]
+        SPL["cl_fb2prg_split_paths<br/>(o_SplitPaths)"]
+        LOG["cl_fb2prg_logger<br/>(o_Logger)"]
         LANG["CL_LANG"]
         UI["frm_main / frm_avance"]
         FU["cl_file_utils<br/>(o_FileUtils)"]
@@ -78,17 +84,56 @@ flowchart TB
     end
 
     MAIN --> FB2P
+    FB2P --> EXE
     FB2P --> CFG
+    FB2P --> FAC
+    FB2P --> SPL
+    FB2P --> LOG
     FB2P --> LANG
     FB2P --> FU
     FB2P --> MIR
     FB2P --> UI
+    EXE -->|"run(): dispatch, batch handlers"| FB2P
     FB2P -->|"NewObject + convert()"| conversores
     conversores <-->|"build / parse"| dominio
     BASE --> H
     BASE --> PROPS
     BASE --> SP
     MIR -->|"path mapping"| FB2P
+```
+
+---
+
+## Orchestrator helper classes
+
+```mermaid
+classDiagram
+    class c_foxbin2prg {
+        +execute()
+        +convert()
+        +exportProjectTree()
+        +importProjectTree()
+        +newConfig()
+    }
+    class cl_fb2prg_execute {
+        +run()
+        +dispatchExecuteMode()
+        +mergeExecuteConfig()
+    }
+    class cl_fb2prg_cfg
+    class cl_fb2prg_conversion_factory
+    class cl_fb2prg_split_paths
+    class cl_fb2prg_logger
+    class cl_fb2prg_mirror
+    class cl_file_utils
+
+    c_foxbin2prg --> cl_fb2prg_execute
+    c_foxbin2prg --> cl_fb2prg_cfg
+    c_foxbin2prg --> cl_fb2prg_conversion_factory
+    c_foxbin2prg --> cl_fb2prg_split_paths
+    c_foxbin2prg --> cl_fb2prg_logger
+    c_foxbin2prg --> cl_fb2prg_mirror
+    c_foxbin2prg --> cl_file_utils
 ```
 
 ---
@@ -191,14 +236,35 @@ classDiagram
 | Class | File | Purpose |
 |--------|---------|------------|
 | **main.prg** | `main.prg` | CLI entry point; receives parameters and instantiates `c_foxbin2prg` |
-| **c_foxbin2prg** | `c_foxbin2prg.prg` | Central orchestrator (~4.000 lines): `execute()` dispatch, conversion routing, project batch, logging; delegates CFG, mirror paths, and Win32 I/O to helper classes |
+| **c_foxbin2prg** | `c_foxbin2prg.prg` | Session host and public API (~3.000 lines modular): `execute()` facade, `convert()`, project batch (`evaluate_Full_*`), mirror wrappers; lazy-init helper objects |
+| **cl_fb2prg_execute** | `cl_fb2prg_execute.prg` | Execute pipeline on `o_Execute`: `run()` (TRY/CATCH/FINALLY), session setup/teardown, `resolveExecuteMode`, `dispatchExecuteMode`, directory/wildcard/project handlers (~990 lines) |
 | **cl_fb2prg_cfg** | `cl_fb2prg_cfg.prg` | Configuration manager: `createCfgShell()` schema, `o_CFG` session object, `newConfig()` / `applyConfig()` / `getCfgValue()` |
-| **cl_file_utils** | `cl_file_utils.prg` | Win32/path helpers on `o_FileUtils`: `declareDLL`, `changeFileAttribute`, `changeFileTime`, `comparedFilesAreEqual`, `stdOut`/`errOut`, `wscriptshell_run` |
+| **cl_fb2prg_conversion_factory** | `cl_fb2prg_conversion_factory.prg` | Converter routing on `o_ConversionFactory`: `createConversor()`, `prepareConversion()` by extension |
+| **cl_fb2prg_split_paths** | `cl_fb2prg_split_paths.prg` | Per-file VCX/SCX/DBC path layout on `o_SplitPaths`: `getPerFileOutputPath`, `resolvePj2TextMemberPath`, `rewritePerObjectInputPath`, … |
+| **cl_fb2prg_logger** | `cl_fb2prg_logger.prg` | Session log/error buffer on `o_Logger`: `writeLog`, `writeErrorLog`, `exception2Str`, `doWriteErrorLog` |
+| **cl_file_utils** | `cl_file_utils.prg` | Win32/path helpers on `o_FileUtils`: `declareDLL`, `changeFileAttribute`, `changeFileTime`, `comparedFilesAreEqual`, `stdOut`/`errOut`, `wscriptshell_run`, `doBackup` |
 | **cl_fb2prg_mirror** | `cl_fb2prg_mirror.prg` | Mirrored project tree on `o_Mirror`: `setProjectRoots`, `get_MirroredPath`, `isExcludedSubdir`, `copyUnconvertedFile`, `makeDirTree` |
 | **CL_LANG** | `cl_lang.prg` | Localized strings (EN/ES/FR/DE) for UI and log |
 | **frm_main** | `frm_main.prg` | Configuration reference / help form (shown when `DO main.prg` with no file) |
 | **frm_avance** | `frm_avance.prg` | Progress bar |
 | **cl_fb2prg_special_props** | `cl_fb2prg_special_props.prg` | Property sort order by control type (`props/*.txt`); instantiated as `o_SpecialProps` and passed to converters |
+
+### Lazy-init helpers on `c_foxbin2prg`
+
+| Property | `ensure*()` | Module |
+|----------|-------------|--------|
+| `o_Execute` | `ensureExecute()` | `cl_fb2prg_execute.prg` |
+| `o_Cfg` | `ensureCfg()` | `cl_fb2prg_cfg.prg` |
+| `o_ConversionFactory` | `ensureConversionFactory()` | `cl_fb2prg_conversion_factory.prg` |
+| `o_SplitPaths` | `ensureSplitPaths()` | `cl_fb2prg_split_paths.prg` |
+| `o_Logger` | `ensureLogger()` | `cl_fb2prg_logger.prg` |
+| `o_Mirror` | `ensureMirror()` | `cl_fb2prg_mirror.prg` |
+| `o_FileUtils` | `ensureFileUtils()` | `cl_file_utils.prg` |
+| `o_SpecialProps` | `ensureSpecialProps()` | `cl_fb2prg_special_props.prg` |
+
+Public `execute()` delegates to `o_Execute.run()`. Methods used across helper boundaries (`convert`, `rewritePerObjectInputPath`, …) remain **public** on the host so `cl_fb2prg_*` classes can call them via `o_Host`.
+
+Detailed orchestrator analysis: **[c_foxbin2prg_ClassAnalysis.md](c_foxbin2prg_ClassAnalysis.md)** (Portuguese).
 
 ### Conversion layer (pipeline)
 
@@ -364,6 +430,7 @@ sequenceDiagram
     participant U as User / SCM
     participant M as main.prg
     participant F as c_foxbin2prg
+    participant E as cl_fb2prg_execute
     participant C as c_conversor_*_a_prg
     participant B as c_conversor_bin_a_prg
     participant D as CL_* (domain)
@@ -371,8 +438,8 @@ sequenceDiagram
 
     U->>M: DO main WITH "project.pjx", "*"
     M->>F: execute()
-    F->>F: o_Cfg.setup() already done in Init / CL_LANG
-    F->>F: evaluate_Full_PJX()
+    F->>E: o_Execute.run()
+    E->>F: evaluate_Full_PJX()
 
     Note over F: 1. Convert PJX -> PJ2
     F->>F: convert(pjx)
@@ -398,7 +465,7 @@ sequenceDiagram
 
 ### Step by step (single file, e.g. VCX -> VC2)
 
-1. **`main.prg`** creates `c_foxbin2prg` and calls `execute()`.
+1. **`main.prg`** creates `c_foxbin2prg` and calls `execute()` (facade → `o_Execute.run()`).
 2. **`c_foxbin2prg.convert()`** detects the `.VCX` extension and instantiates `c_conversor_vcx_a_prg`.
 3. **`c_conversor_vcx_a_prg.convert()`**:
    - Opens the VCX as a DBF table (`USE ... SHARED`)
@@ -450,7 +517,8 @@ sequenceDiagram
 
     U->>M: DO main WITH "project.pj2", "*"
     M->>F: execute()
-    F->>F: evaluate_Full_PJ2()
+    F->>E: o_Execute.run()
+    E->>F: evaluate_Full_PJ2()
 
     Note over F: 1. Convert PJ2 -> PJX
     F->>C: NewObject(c_conversor_prg_a_pjx)
@@ -531,7 +599,7 @@ lnResp = loFb2p.importProjectTree( tcMirrorProjectFile, tcOutputRoot [, toCfg] [
 | Configuration | `toCfg` — CFG object (`newConfig()` / `isCfg`) or duck-typed object (`configFromObject`) | same |
 | Source root | `tcInputRoot` — project folder (default: PJX folder) | `tcInputRoot` — mirrored tree root (default: PJ2 folder) |
 
-Internally, both methods call `o_Mirror.setProjectRoots(tcOutputRoot, tcInputRoot)` and `execute(..., '*')`, which routes to `evaluate_Full_PJX` (export) or `evaluate_Full_PJ2` (import).
+Internally, both methods call `o_Mirror.setProjectRoots(tcOutputRoot, tcInputRoot)` and `execute(..., '*')`, which routes through `o_Execute.run()` to `evaluate_Full_PJX` (export) or `evaluate_Full_PJ2` (import).
 
 ### Path mapping
 
@@ -636,8 +704,12 @@ There are no `src/` or `lib/` folders. Each class lives in its own modular `.prg
 ```
 scm/
 |-- main.prg                    # CLI entry (minimal; loads c_foxbin2prg)
-|-- c_foxbin2prg.prg            # Orchestrator (modular source)
+|-- c_foxbin2prg.prg            # Orchestrator host (modular source, ~3.000 lines)
+|-- cl_fb2prg_execute.prg       # execute() pipeline (o_Execute)
 |-- cl_fb2prg_cfg.prg           # Configuration manager
+|-- cl_fb2prg_conversion_factory.prg  # Converter factory
+|-- cl_fb2prg_split_paths.prg   # Per-file path layout
+|-- cl_fb2prg_logger.prg        # Session logging
 |-- cl_file_utils.prg           # Win32 / path helpers
 |-- cl_fb2prg_mirror.prg        # Mirrored tree path logic
 |-- cl_fb2prg_special_props.prg # Property sort order
