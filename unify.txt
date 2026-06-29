@@ -34,7 +34,6 @@ cl_dbc_field_vw.prg
 cl_dbc_fields_db.prg
 cl_dbc_fields_vw.prg
 cl_dbc_index_db.prg
-cl_dbc_index_vw.prg
 cl_dbc_indexes_db.prg
 cl_dbc_indexes_vw.prg
 cl_dbc_relation.prg
