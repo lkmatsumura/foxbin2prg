@@ -1,7 +1,7 @@
 # Documentação: classe `c_foxbin2prg`
 
 > Análise estrutural da classe orquestradora do FoxBin2Prg (Visual FoxPro 9).  
-> Arquivo fonte modular: `c_foxbin2prg.prg` (~3.400 linhas, ~100 métodos).  
+> Arquivo fonte modular: `c_foxbin2prg.prg` (~3.500 linhas, 136 métodos).  
 > Data da análise: 2026-06-29 (pós-modularização, factory, logger e plano de melhorias restantes)
 
 ---
@@ -53,7 +53,7 @@ flowchart TB
     EXEC --> LOG
 ```
 
-**Resumo numérico:** ~100 métodos públicos/protegidos, ~45 propriedades de sessão no host (opções de conversão residem no objeto CFG via `getCfgValue()`), 4 membros `Protected` na área `execute`, 2 `Hidden`.
+**Resumo numérico:** 136 métodos (públicos, protegidos e ocultos), todos com bloco de documentação antes do corpo; ~45 propriedades de sessão no host (opções de conversão residem no objeto CFG via `getCfgValue()`), 4 membros `Protected` na área `execute`, 2 `Hidden`.
 
 ---
 
@@ -189,6 +189,8 @@ Propriedades `n_UseClassPerFile`, `l_UseClassPerDir`, `n_UseFormPerFile`, `n_Use
 | **`evaluate_Full_PJ2`** | Txt→Bin a partir do bloco `BUILD PROJECT` no PJ2 (~2022–2064); delega ao pipeline compartilhado |
 
 Helpers protegidos compartilhados (linhas ~1735–1974). Convenção: parâmetros **OUT** ou arrays mutáveis são passados com `@` na **chamada**; em `LPARAMETERS` o nome aparece **sem** `@`. Arrays recebidos por parâmetro exigem `EXTERNAL ARRAY <nome>` logo após `LPARAMETERS` (antes de `LOCAL`). Em `collectPj2MemberList`, `taPjxExcluded` é preenchido com `DIMENSION`/`ACOPY` (não atribuição `=`), para respeitar a referência do caller.
+
+**Convenção de documentação (2026-06-29):** cada `PROCEDURE`/`FUNCTION` possui bloco `*---` com descrição; métodos com parâmetros incluem cabeçalho `* PARAMETERS:` e linhas alinhadas `(v/@)(!/?) IN/OUT`. Wrappers finos descrevem o delegado (`→ o_Cfg`, `→ o_FileUtils`, etc.).
 
 #### `setupProjectBatchEnvironment`
 
@@ -410,6 +412,7 @@ Após factory, logger e refatoração do `execute`, o orquestrador continua leg�
 | Logger + `exception2Str` / `doWriteErrorLog` | `cl_fb2prg_logger.prg` |
 | Unificar `convert` / `loadModule` (`tcMode`: `FULL` \| `LOAD_ONLY`) | `c_foxbin2prg.prg` |
 | Refatorar `execute` em despacho por modo | `c_foxbin2prg.prg` |
+| Documentação de métodos e parâmetros (`PARAMETERS:` em todos os 136 métodos) | `c_foxbin2prg.prg` |
 | Modularização (`c_*.prg` / `cl_*.prg` + `unify.txt`) | Repositório |
 
 ### Prioridade alta (maior impacto, risco controlado)

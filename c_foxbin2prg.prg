@@ -175,6 +175,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    *!* more sophisticated control of inheritance for para file
 
    PROCEDURE INIT
+      *---------------------------------------------------------------------------------------------------
+      * Session startup: VFP environment, log paths, language, o_FSO, o_Cfg, helper objects.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcCFG_File                 (v? IN    ) Optional legacy CFG path; default: same stem as FoxBin2Prg
+      * tcCancelWithEscKey         (v? IN    ) '1' enables ESC cancel (This.l_CancelWithEscKey)
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcCFG_File, tcCancelWithEscKey
 
       #IF .F.
@@ -281,6 +288,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE DESTROY
+      *---------------------------------------------------------------------------------------------------
+      * Session teardown: flush logs, release forms and helper objects, clear DLL declarations.
+      *---------------------------------------------------------------------------------------------------
+
       TRY
          LOCAL lcFileCDX
          lcFileCDX   = FORCEPATH( "TABLABIN.CDX", JUSTPATH(This.c_InputFile) )
@@ -384,6 +395,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE updateProgressbar
+      *---------------------------------------------------------------------------------------------------
+      * Proxy to frm_avance; raises ERROR 1799 when user cancels (unless called from form init).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcTexto                    (v? IN    ) Progress caption text
+      * tnValor                    (v? IN    ) Current item index
+      * tnTotal                    (v? IN    ) Total items
+      * tnTipo                     (v? IN    ) Progress bar mode (frm_avance)
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcTexto, tnValor, tnTotal, tnTipo
 
       TRY
@@ -405,6 +425,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE changeLanguage
+      *---------------------------------------------------------------------------------------------------
+      * Instantiates CL_LANG on _SCREEN and copies localized caption strings to This.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcLanguageId               (v! IN    ) Language id: EN, ES, FR, DE
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcLanguageId
       _SCREEN.ADDPROPERTY( "o_FoxBin2Prg_Lang", NewObject("CL_LANG", "cl_lang.prg", null, tcLanguageId) )
       *-- Localized properties
@@ -415,6 +441,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE clearProcessedFiles
+      *---------------------------------------------------------------------------------------------------
+      * Resets a_ProcessedFiles and session error flags between execute() runs.
+      *---------------------------------------------------------------------------------------------------
+
       *-- Clears processed-file statistics used to optimize
       *-- processing and avoid reprocessing the same files, for example,
       *-- a single VCX shared by 2 or more projects.
@@ -432,8 +462,9 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE clearConfigurationCache
       *---------------------------------------------------------------------------------------------------
-      * Drops per-directory CFG cache on o_Cfg (factory/master CFG are kept).
+      * Delegates to o_Cfg.clearConfigurationCache(); drops per-directory CFG cache only.
       *---------------------------------------------------------------------------------------------------
+
       IF VARTYPE(This.o_Cfg) = 'O' AND !ISNULL(This.o_Cfg)
          This.o_Cfg.clearConfigurationCache()
       ENDIF
@@ -441,47 +472,82 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE ensureFileUtils
+      *---------------------------------------------------------------------------------------------------
+      * Lazy-init This.o_FileUtils (cl_file_utils) if missing.
+      *---------------------------------------------------------------------------------------------------
+
       IF VARTYPE(This.o_FileUtils) <> 'O' OR ISNULL(This.o_FileUtils)
          This.o_FileUtils = NewObject('cl_file_utils', 'cl_file_utils.prg', NULL, This)
       ENDIF
    ENDPROC
 
    PROCEDURE ensureMirror
+      *---------------------------------------------------------------------------------------------------
+      * Lazy-init This.o_Mirror (cl_fb2prg_mirror) if missing.
+      *---------------------------------------------------------------------------------------------------
+
       IF VARTYPE(This.o_Mirror) <> 'O' OR ISNULL(This.o_Mirror)
          This.o_Mirror = NewObject('cl_fb2prg_mirror', 'cl_fb2prg_mirror.prg', NULL, This)
       ENDIF
    ENDPROC
 
    PROCEDURE ensureCfg
+      *---------------------------------------------------------------------------------------------------
+      * Lazy-init This.o_Cfg (cl_fb2prg_cfg) if missing.
+      *---------------------------------------------------------------------------------------------------
+
       IF VARTYPE(This.o_Cfg) <> 'O' OR ISNULL(This.o_Cfg)
          This.o_Cfg = NewObject('cl_fb2prg_cfg', 'cl_fb2prg_cfg.prg', NULL, This)
       ENDIF
    ENDPROC
 
    PROCEDURE ensureSpecialProps
+      *---------------------------------------------------------------------------------------------------
+      * Lazy-init This.o_SpecialProps (cl_fb2prg_special_props) if missing.
+      *---------------------------------------------------------------------------------------------------
+
       IF VARTYPE(This.o_SpecialProps) <> 'O' OR ISNULL(This.o_SpecialProps)
          This.o_SpecialProps = NewObject('cl_fb2prg_special_props', 'cl_fb2prg_special_props.prg' , NULL , This.c_Foxbin2prg_FullPath )
       ENDIF
    ENDPROC
 
    PROCEDURE ensureConversionFactory
+      *---------------------------------------------------------------------------------------------------
+      * Lazy-init This.o_ConversionFactory (cl_fb2prg_conversion_factory) if missing.
+      *---------------------------------------------------------------------------------------------------
+
       IF VARTYPE(This.o_ConversionFactory) <> 'O' OR ISNULL(This.o_ConversionFactory)
          This.o_ConversionFactory = NewObject('cl_fb2prg_conversion_factory', 'cl_fb2prg_conversion_factory.prg', NULL, This)
       ENDIF
    ENDPROC
 
    PROCEDURE ensureLogger
+      *---------------------------------------------------------------------------------------------------
+      * Lazy-init This.o_Logger (cl_fb2prg_logger) if missing.
+      *---------------------------------------------------------------------------------------------------
+
       IF VARTYPE(This.o_Logger) <> 'O' OR ISNULL(This.o_Logger)
          This.o_Logger = NewObject('cl_fb2prg_logger', 'cl_fb2prg_logger.prg', NULL, This)
       ENDIF
    ENDPROC
 
    PROCEDURE declareDLL
+      *---------------------------------------------------------------------------------------------------
+      * Declares Win32 DLLs used by file operations; delegates to o_FileUtils.
+      *---------------------------------------------------------------------------------------------------
+
       This.ensureFileUtils()
       This.o_FileUtils.declareDLL()
    ENDPROC
 
    PROCEDURE get_AbsolutePath
+      *---------------------------------------------------------------------------------------------------
+      * Resolves a relative path against an optional base directory.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tc_InputFile               (v? IN    ) Path to resolve
+      * tc_FullPath                (v? IN    ) Base directory; default from o_FileUtils / c_Foxbin2prg_FullPath
+      * RETURN                    (v?    OUT) Absolute path string
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS tc_InputFile, tc_FullPath
       This.ensureFileUtils()
       RETURN This.o_FileUtils.get_AbsolutePath(tc_InputFile, tc_FullPath)
@@ -530,6 +596,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROCEDURE changeFileAttribute
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper → o_FileUtils.changeFileAttribute.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFileName                 (v! IN    ) Target file
+      * tcAttrib                   (v! IN    ) VFP SET ATTRIBUTES string (e.g. '+R', '-H')
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcFileName, tcAttrib
       This.ensureFileUtils()
       RETURN This.o_FileUtils.changeFileAttribute(tcFileName, tcAttrib)
@@ -537,6 +610,14 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE changeFileTime
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper → o_FileUtils.changeFileTime.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFileName                 (v! IN    ) Target file
+      * tcTimeType                 (v? IN    ) 'C' creation | 'A' access | 'M' modification
+      * tnYear … tnThou             (v? IN    ) Timestamp components
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcFileName, tcTimeType, tnYear, tnMonth, tnDay, tnHour, tnMinute, tnSec, tnThou
       This.ensureFileUtils()
       RETURN This.o_FileUtils.changeFileTime(tcFileName, tcTimeType, tnYear, tnMonth, tnDay, tnHour, tnMinute, tnSec, tnThou)
@@ -544,6 +625,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE compileFoxProBinary
+      *---------------------------------------------------------------------------------------------------
+      * COMPILE CLASSLIB/FORM/REPORT/LABEL/DATABASE for regenerated binary output.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFileName                 (v? IN    ) Binary path; default This.c_OutputFile
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcFileName
       LOCAL lcType
 
@@ -590,6 +677,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE loadProgressbarForm
+      *---------------------------------------------------------------------------------------------------
+      * Creates and shows frm_avance when not already loaded.
+      *---------------------------------------------------------------------------------------------------
+
       IF VARTYPE(This.o_Frm_Avance) <> "O" THEN
          This.o_Frm_Avance   = NewObject( "frm_avance" , "frm_avance.prg" , null , This )
          This.o_Frm_Avance.SHOW()
@@ -598,6 +689,11 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE unloadProgressbarForm
+      *---------------------------------------------------------------------------------------------------
+      * Hides and releases frm_avance when progress bar is enabled or tlForceUnload is .T.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tlForceUnload              (v? IN    ) When .T., unloads even if n_ShowProgressbar = 0
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS tlForceUnload
       IF (tlForceUnload OR This.getCfgValue('n_ShowProgressbar') <> 0) AND VARTYPE(This.o_Frm_Avance) = "O" THEN
          This.o_Frm_Avance.HIDE()
@@ -608,6 +704,14 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    FUNCTION comparedFilesAreEqual
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper → o_FileUtils.comparedFilesAreEqual (binary or string content comparison).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFilename1                (v? IN    ) First file path (or empty when tcStrFileName2 is used)
+      * tcFilename2                (v? IN    ) Second file path
+      * tcStrFileName2             (v? IN    ) In-memory string to compare against tcFilename1
+      * RETURN                    (v?    OUT) .T. when contents are equal
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcFilename1, tcFilename2, tcStrFileName2
       This.ensureFileUtils()
       RETURN This.o_FileUtils.comparedFilesAreEqual(tcFilename1, tcFilename2, tcStrFileName2)
@@ -638,6 +742,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE writeLogDbfCfgSettings
+      *---------------------------------------------------------------------------------------------------
+      * Writes DBF-related CFG properties to the session log when tlGenerateLog is .T.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tlGenerateLog              (v? IN    ) Whether to emit the DBF CFG block
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tlGenerateLog AS Boolean
 
       LOCAL lcOrder, lcCond, lcIdxList
@@ -999,18 +1109,40 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    *==============================================================================================================
 
    PROTECTED FUNCTION isBinToTextMode
+      *---------------------------------------------------------------------------------------------------
+      * True when tcType requests binary-to-text conversion (-BIN2PRG / -BIN2TEXT).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcType                     (v? IN    ) execute() type string
+      * RETURN                    (v?    OUT) .T. for Bin→Txt mode
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcType
       RETURN ATC('-BIN2PRG', ('-' + tcType)) > 0 ;
          OR ATC('-BIN2TEXT', ('-' + tcType)) > 0
    ENDFUNC
 
    PROTECTED FUNCTION isTextToBinMode
+      *---------------------------------------------------------------------------------------------------
+      * True when tcType requests text-to-binary conversion (-PRG2BIN / -TEXT2BIN).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcType                     (v? IN    ) execute() type string
+      * RETURN                    (v?    OUT) .T. for Txt→Bin mode
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcType
       RETURN ATC('-PRG2BIN', ('-' + tcType)) > 0 ;
          OR ATC('-TEXT2BIN', ('-' + tcType)) > 0
    ENDFUNC
 
    PROTECTED PROCEDURE restoreEscapeKey
+      *---------------------------------------------------------------------------------------------------
+      * Restores ON ESCAPE / SET ESCAPE after execute() when ESC cancel was enabled.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * llEscKeyRestored           (v! IN    ) .T. if ESC was never overridden
+      * lcOldSetEscape             (v? IN    ) Previous SET('Escape') value
+      * lcOldOnEscape              (v? IN    ) Previous ON ESCAPE expression
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS llEscKeyRestored, lcOldSetEscape, lcOldOnEscape
       IF NOT llEscKeyRestored AND This.l_CancelWithEscKey THEN
          IF EMPTY(lcOldOnEscape)
@@ -1027,6 +1159,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDPROC
 
    PROTECTED FUNCTION mergeExecuteConfig
+      *---------------------------------------------------------------------------------------------------
+      * Applies optional toCfg to session CFG via o_Cfg.lockMasterFromObject.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * toCfg                      (v? IN    ) CFG object (newConfig) or duck-typed source
+      * RETURN                    (v?    OUT) Effective CFG object passed to execute(), or .NULL.
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS toCfg
       LOCAL loCFG
       loCFG = .NULL.
@@ -1043,6 +1182,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED PROCEDURE beginExecuteSession
+      *---------------------------------------------------------------------------------------------------
+      * execute() setup: NOTIFY OFF, DLL declare, ESC handler, clear processed files.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * loSession                  (@! IN/OUT) Empty object; fields filled for finalizeExecuteSession
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS loSession
       WITH This
          loSession.lc_OldSetNotify  = SET("Notify")
@@ -1066,6 +1211,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDPROC
 
    PROTECTED PROCEDURE validateExecuteEnvironment
+      *---------------------------------------------------------------------------------------------------
+      * Raises ERROR if VFP version or tcType is invalid for execute().
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * lnVFPVersion               (v! IN    ) Val(Version(5))
+      * tcType                     (v? IN    ) execute() type parameter
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS lnVFPVersion, tcType
       LOCAL loLang AS CL_LANG OF 'cl_lang.prg'
       loLang = _SCREEN.o_FoxBin2Prg_Lang
@@ -1084,6 +1236,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDPROC
 
    PROTECTED FUNCTION parseClassOperationSyntax
+      *---------------------------------------------------------------------------------------------------
+      * Parses file.vcx::class|I/E syntax; sets c_ClassToConvert and c_ClassOperationType.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tc_InputFile               (@! IN/OUT) Input path; normalized on return
+      * RETURN                    (v?    OUT) Normalized tc_InputFile
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tc_InputFile
       IF '::' $ tc_InputFile THEN
          tc_InputFile = STRTRAN(tc_InputFile, '::', '|')
@@ -1097,6 +1256,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION detectInputFileType
+      *---------------------------------------------------------------------------------------------------
+      * Returns C_FILETYPE_DIRECTORY or C_FILETYPE_FILE for execute() routing.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tc_InputFile               (v? IN    ) Input path
+      * RETURN                    (v?    OUT) C_FILETYPE_* constant or empty
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tc_InputFile
       LOCAL laDirInfo(1,5), lcInputFile_Type
       lcInputFile_Type = ''
@@ -1111,6 +1277,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION resolveRecompileTarget
+      *---------------------------------------------------------------------------------------------------
+      * Derives tcRecompile and This.c_Recompile from input type and CFG l_Recompile.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tc_InputFile               (v? IN    ) Input path
+      * lcInputFile_Type           (v? IN    ) C_FILETYPE_* from detectInputFileType
+      * tcRecompile                (v? IN/OUT) Recompile flag or directory
+      * RETURN                    (v?    OUT) Effective tcRecompile string
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tc_InputFile, lcInputFile_Type, tcRecompile
       IF EMPTY(tcRecompile) AND NOT EMPTY(lcInputFile_Type)
          IF lcInputFile_Type == C_FILETYPE_DIRECTORY
@@ -1129,6 +1304,14 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED PROCEDURE logExecuteParameters
+      *---------------------------------------------------------------------------------------------------
+      * Writes execute() external parameters block to session debug log.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tc_InputFile               (v? IN    ) Input file/directory
+      * lcType                     (v? IN    ) Normalized tcType
+      * toCfg                      (v? IN    ) Optional CFG object
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tc_InputFile, lcType, toCfg
       LOCAL loLang AS CL_LANG OF 'cl_lang.prg'
       loLang = _SCREEN.o_FoxBin2Prg_Lang
@@ -1145,6 +1328,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDPROC
 
    PROTECTED FUNCTION rewritePerObjectInputPath
+      *---------------------------------------------------------------------------------------------------
+      * Rewrites single-class/form per-file paths for Import (I) and RedirectClassType = 2.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tc_InputFile               (v! IN    ) Original input path
+      * tcType                     (v? IN    ) execute() type
+      * lcExt                      (v! IN    ) Upper extension (VCX, SCX, c_VC2, …)
+      * RETURN                    (v?    OUT) Resolved input path for convert()
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tc_InputFile, tcType, lcExt
       LOCAL laFiles(1,5), lnRedirect, lnUsePerFile, lcTextExt, lcUsePerDir, llIsClass, llIsForm
       IF INLIST(LOWER(EVL(tcType,'')), '-c', 'c', '-t', 't')
@@ -1206,6 +1398,20 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION buildExecuteContext
+      *---------------------------------------------------------------------------------------------------
+      * Builds loCtx empty object with normalized execute() state for dispatch handlers.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tc_InputFile               (v? IN    ) Input path
+      * tcType                     (v? IN    ) Type string
+      * lcType                     (v? IN    ) Upper/normalized type
+      * loCFG                      (v? IN    ) Effective CFG object
+      * tcRecompile                (v? IN    ) Recompile target
+      * lcInputFile_Type           (v? IN    ) C_FILETYPE_*
+      * tcOriginalFileName         (v? IN    ) Original name for headers
+      * tcTextName                 (v? IN    ) Mirror/text output folder alias
+      * RETURN                    (v?    OUT) loCtx object
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tc_InputFile, tcType, lcType, loCFG, tcRecompile, lcInputFile_Type, tcOriginalFileName, tcTextName
       LOCAL loCtx
       loCtx = CREATEOBJECT('Empty')
@@ -1223,6 +1429,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION resolveExecuteMode
+      *---------------------------------------------------------------------------------------------------
+      * Maps input path, type and support flags to C_EXEC_* dispatch constant.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcType                     (v? IN    ) execute() type
+      * tc_InputFile               (v? IN    ) Input path
+      * lcInputFile_Type           (v? IN    ) C_FILETYPE_*
+      * RETURN                    (v?    OUT) C_EXEC_* mode constant
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcType, tc_InputFile, lcInputFile_Type
       LOCAL laDirInfo(1,5)
       IF VERSION(5) < 900
@@ -1270,6 +1485,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED PROCEDURE prepareBatchLog
+      *---------------------------------------------------------------------------------------------------
+      * Sets This.c_LogFile for directory/wildcard batch and optionally erases prior log.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcLogPath                  (v! IN    ) Full path of batch .LOG file
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcLogPath
       This.c_LogFile = tcLogPath
       IF This.getCfgValue('n_Debug') > 0 THEN
@@ -1278,6 +1499,14 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDPROC
 
    PROTECTED PROCEDURE setRecompileDirectory
+      *---------------------------------------------------------------------------------------------------
+      * CD to recompile base directory according to tcRecompile and CFG l_Recompile.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcRecompile                (v? IN    ) '1', directory path, or '0'
+      * tcDefaultPath              (v! IN    ) Default directory when tcRecompile = '1'
+      * tlUseRecompileCfg          (v? IN    ) .T. for directory batch (honor CFG path rules)
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcRecompile, tcDefaultPath, tlUseRecompileCfg
       DO CASE
       CASE This.getCfgValue('l_Recompile') AND LEN(tcRecompile) > 3 AND DIRECTORY(tcRecompile)
@@ -1290,6 +1519,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDPROC
 
    PROTECTED FUNCTION handleConvertResult
+      *---------------------------------------------------------------------------------------------------
+      * Central convert() error handling for batch modes; may accumulate errors without abort.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * lnCodError                 (v! IN    ) convert() return code
+      * toEx                       (@? IN    ) Exception object
+      * tlAccumulateError          (v? IN    ) .T. = set batch error flag instead of aborting
+      * RETURN                    (v?    OUT) .T. when batch should mark l_Error
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS lnCodError, toEx, tlAccumulateError
       LOCAL llBatchError
       llBatchError = .F.
@@ -1307,6 +1545,20 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION runConvertWithProgress
+      *---------------------------------------------------------------------------------------------------
+      * Updates progress bar, calls convert(), optionally flushes log.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * lcFile                     (v! IN    ) File being converted
+      * tnIndex                    (v! IN    ) Current index in batch
+      * tnTotal                    (v! IN    ) Total files in batch
+      * tlRelanzarError            (v? IN    ) Passed to convert()
+      * tcOriginalFileName         (v? IN    ) Original name for headers
+      * toModulo                   (@? IN/OUT) Converter module (tests)
+      * toEx                       (@? IN/OUT) Exception object (pass @)
+      * tlFlushLog                 (v? IN    ) .T. = writeLog_Flush after convert
+      * RETURN                    (v?    OUT) convert() error code
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS lcFile, tnIndex, tnTotal, tlRelanzarError, tcOriginalFileName, toModulo, toEx, tlFlushLog
       LOCAL lnCodError, loLang AS CL_LANG OF 'cl_lang.prg'
       loLang = _SCREEN.o_FoxBin2Prg_Lang
@@ -1319,6 +1571,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED PROCEDURE setupDirectionProgressUI
+      *---------------------------------------------------------------------------------------------------
+      * Logs BIN2PRG/PRG2BIN option and loads progress form with direction caption.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tlBinToText                (v! IN    ) .T. = Bin→Txt batch
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tlBinToText
       LOCAL loLang AS CL_LANG OF 'cl_lang.prg'
       loLang = _SCREEN.o_FoxBin2Prg_Lang
@@ -1338,6 +1596,11 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDPROC
 
    PROTECTED FUNCTION executeEmptyUI
+      *---------------------------------------------------------------------------------------------------
+      * Shows frm_main configuration reference when execute() receives empty input.
+      * RETURN                    (v?    OUT) 0
+      *---------------------------------------------------------------------------------------------------
+
       LOCAL loFrm_Main AS frm_main OF 'frm_main.PRG'
       loFrm_Main = NewObject( 'frm_main', 'frm_main.prg' , null, This)
       loFrm_Main.SHOW()
@@ -1346,6 +1609,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION executeBin3Prg
+      *---------------------------------------------------------------------------------------------------
+      * Bin3Prg handler: validates PJX + mirror root, delegates to exportProjectTree.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * loCtx                      (v! IN    ) Context from buildExecuteContext
+      * RETURN                    (v?    OUT) execute() return code
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS loCtx
       LOCAL lcMirrorRoot, loLang AS CL_LANG OF 'cl_lang.prg', loCfgPass
       loLang = _SCREEN.o_FoxBin2Prg_Lang
@@ -1364,6 +1634,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION executePrg3Bin
+      *---------------------------------------------------------------------------------------------------
+      * Prg3Bin handler: validates PJ2 + mirror root, delegates to importProjectTree.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * loCtx                      (v! IN    ) Context from buildExecuteContext
+      * RETURN                    (v?    OUT) execute() return code
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS loCtx
       LOCAL lcMirrorRoot, loLang AS CL_LANG OF 'cl_lang.prg', loCfgPass
       loLang = _SCREEN.o_FoxBin2Prg_Lang
@@ -1382,6 +1659,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION executeWildcardBatch
+      *---------------------------------------------------------------------------------------------------
+      * Processes a wildcard file specification (ADIR loop) including optional full PJX/PJ2.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * loCtx                      (v! IN    ) Execute context
+      * toEx                       (@? IN/OUT) Exception object (pass @)
+      * toModulo                   (@? IN/OUT) Converter module (tests)
+      * RETURN                    (v?    OUT) Last convert() error code
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS loCtx, toEx, toModulo
       LOCAL I, lcFileSpec, lcFile, lnFileCount, lnCodError, llError, laFiles(1,5), loLang AS CL_LANG OF 'cl_lang.prg'
       loLang = _SCREEN.o_FoxBin2Prg_Lang
@@ -1428,6 +1714,16 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION executeDirectoryBatch
+      *---------------------------------------------------------------------------------------------------
+      * Recursively converts all supported files under a directory.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * loCtx                      (v! IN    ) Execute context
+      * tlBinToText                (v! IN    ) Batch direction
+      * toEx                       (@? IN/OUT) Exception object (pass @)
+      * toModulo                   (@? IN/OUT) Converter module (tests)
+      * RETURN                    (v?    OUT) Last convert() error code
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS loCtx, tlBinToText, toEx, toModulo
       LOCAL I, lcFile, lnFileCount, lnCodError, laFiles(1,5), laDirInfo(1,5), loLang AS CL_LANG OF 'cl_lang.prg'
       loLang = _SCREEN.o_FoxBin2Prg_Lang
@@ -1459,6 +1755,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION executeSingleProject
+      *---------------------------------------------------------------------------------------------------
+      * Converts full PJX or PJ2 project via evaluate_Full_PJX / evaluate_Full_PJ2.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * loCtx                      (v! IN    ) Execute context
+      * toEx                       (@? IN/OUT) Exception object (pass @)
+      * toModulo                   (@? IN/OUT) Converter module (tests)
+      * RETURN                    (v?    OUT) 0
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS loCtx, toEx, toModulo
       LOCAL tcOriginalFileName
       tcOriginalFileName = loCtx.tcOriginalFileName
@@ -1476,6 +1781,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION executeSingleFile
+      *---------------------------------------------------------------------------------------------------
+      * Converts one supported file through convert().
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * loCtx                      (v! IN    ) Execute context
+      * toEx                       (@? IN/OUT) Exception object (pass @)
+      * toModulo                   (@? IN/OUT) Converter module (tests)
+      * RETURN                    (v?    OUT) convert() error code
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS loCtx, toEx, toModulo
       LOCAL laDirInfo(1,5), lnCodError, loLang AS CL_LANG OF 'cl_lang.prg'
       loLang = _SCREEN.o_FoxBin2Prg_Lang
@@ -1498,6 +1812,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION executeUnsupportedInput
+      *---------------------------------------------------------------------------------------------------
+      * Logs unsupported input type for explicit Bin2Prg/Prg2Bin directory-less requests.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tlBinToText                (v! IN    ) .T. = unsupported Bin→Txt
+      * RETURN                    (v?    OUT) 0
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tlBinToText
       LOCAL loLang AS CL_LANG OF 'cl_lang.prg'
       loLang = _SCREEN.o_FoxBin2Prg_Lang
@@ -1512,6 +1833,16 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED FUNCTION dispatchExecuteMode
+      *---------------------------------------------------------------------------------------------------
+      * Central DO CASE router for execute(); delegates to mode-specific handlers.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * lnMode                     (v! IN    ) C_EXEC_* constant from resolveExecuteMode
+      * loCtx                      (v! IN    ) Execute context
+      * toEx                       (@? IN/OUT) Exception object (pass @)
+      * toModulo                   (@? IN/OUT) Converter module (tests)
+      * RETURN                    (v?    OUT) Handler return / error code
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS lnMode, loCtx, toEx, toModulo
       LOCAL loLang AS CL_LANG OF 'cl_lang.prg'
       loLang = _SCREEN.o_FoxBin2Prg_Lang
@@ -1553,6 +1884,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDFUNC
 
    PROTECTED PROCEDURE enrichExecuteException
+      *---------------------------------------------------------------------------------------------------
+      * Appends FoxBin2Prg context lines to Exception.USERVALUE before error display.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * toEx                       (@! IN/OUT) Exception object
+      * tcType                     (v? IN    ) execute() type
+      * tc_InputFile               (v? IN    ) Input path
+      * lcInputFile_Type           (v? IN    ) C_FILETYPE_*
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS toEx, tcType, tc_InputFile, lcInputFile_Type
 
       IF toEx.ERRORNO <> 1799
@@ -1573,6 +1913,18 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROTECTED FUNCTION finalizeExecuteSession
+      *---------------------------------------------------------------------------------------------------
+      * execute() teardown: restore ESC/NOTIFY, flush logs, message boxes, clear CFG cache.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * lnCodError                 (v? IN/OUT) Error code; may be adjusted
+      * tcType                     (v? IN    ) execute() type
+      * toEx                       (@? IN/OUT) Exception object (pass @)
+      * loSession                  (v! IN    ) Session state from beginExecuteSession
+      * loLang                     (v? IN    ) CL_LANG instance
+      * laDirInfo                  (@? IN/OUT) ADIR scratch for error log file check (pass @)
+      * RETURN                    (v?    OUT) Final lnCodError
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS lnCodError, tcType, toEx, loSession, loLang, laDirInfo
 
       EXTERNAL ARRAY laDirInfo
@@ -1642,10 +1994,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
    PROCEDURE execute
       *--------------------------------------------------------------------------------------------------------------
-      * tc_InputFile  Full path of file/directory to convert (empty = show configuration reference form)
-      * tcType        Optional: *, *-, Bin3Prg, Prg3Bin, -BIN2PRG, -PRG2BIN (internal/API use)
-      * toCfg         Optional configuration object from newConfig()
-      * toEx          Error object (by reference)
+      * Main entry: convert one file/directory, a project batch, or show the configuration reference form.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tc_InputFile              (v? IN    ) Full path to convert; empty shows configuration reference form
+      * tcType                    (v? IN    ) *, *-, Bin3Prg, Prg3Bin, -BIN2PRG, -PRG2BIN (internal/API use)
+      * toCfg                     (v? IN    ) Optional configuration object from newConfig()
+      * toEx                      (@?    OUT) Exception object when conversion fails
+      * RETURN                    (v?    OUT) 0 on success; VFP error code otherwise (1098 when l_Errors)
       *--------------------------------------------------------------------------------------------------------------
       LPARAMETERS tc_InputFile, tcType, toCfg, toEx AS EXCEPTION
 
@@ -2198,6 +2553,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    HIDDEN PROCEDURE doWriteErrorLog
+      *---------------------------------------------------------------------------------------------------
+      * Delegates error logging to o_Logger.doWriteErrorLog (session log file and stderr).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * toEx                      (@! IN    ) Exception from the failed conversion/execute path
+      * tcErrorInfo               (@? IN/OUT) Optional preformatted text; filled when empty or on cancel (1799)
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS toEx AS EXCEPTION, tcErrorInfo
       This.ensureLogger()
       This.o_Logger.doWriteErrorLog( @toEx, @tcErrorInfo )
@@ -2562,6 +2923,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE get_DirSettings
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper → o_Cfg.get_DirSettings (factory CFG clone; legacy API).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcDir                      (v? IN    ) Directory key
+      * tcDebug                    (v? IN    ) Debug flag string
+      * tcCFG_File                 (v? IN    ) Legacy CFG file path
+      * RETURN                    (v?    OUT) CFG object
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcDir, tcDebug, tcCFG_File
       This.ensureCfg()
       RETURN This.o_Cfg.get_DirSettings(tcDir, tcDebug, tcCFG_File)
@@ -2569,24 +2939,46 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE formatConfigReferenceText
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper → o_Cfg.formatConfigReferenceText for frm_main display.
+      * RETURN                    (v?    OUT) Multi-line reference text
+      *---------------------------------------------------------------------------------------------------
+
       This.ensureCfg()
       RETURN This.o_Cfg.formatConfigReferenceText()
    ENDPROC
 
 
    PROCEDURE createCfgShell
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper → o_Cfg.createCfgShell (empty marked CFG object).
+      * RETURN                    (v?    OUT) Empty CFG shell object
+      *---------------------------------------------------------------------------------------------------
+
       This.ensureCfg()
       RETURN This.o_Cfg.createCfgShell()
    ENDPROC
 
 
    PROCEDURE getActiveCfg
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper → o_Cfg.getActiveCfg (current session master CFG).
+      * RETURN                    (v?    OUT) Active CFG object
+      *---------------------------------------------------------------------------------------------------
+
       This.ensureCfg()
       RETURN This.o_Cfg.getActiveCfg()
    ENDPROC
 
 
    PROCEDURE getCfgValue
+      *---------------------------------------------------------------------------------------------------
+      * Reads a property from the session CFG object.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcProp                     (v! IN    ) Property name (e.g. 'n_Debug', 'c_VC2')
+      * RETURN                    (v?    OUT) Property value
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcProp
       This.ensureCfg()
       RETURN This.o_Cfg.getCfgValue(tcProp)
@@ -2594,6 +2986,14 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE getCfgFlag
+      *---------------------------------------------------------------------------------------------------
+      * Reads a logical CFG property as .T./.F.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcProp                     (v! IN    ) Property name
+      * tlDefault                  (v? IN    ) Default when property missing
+      * RETURN                    (v?    OUT) Logical flag
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcProp, tlDefault
       This.ensureCfg()
       RETURN This.o_Cfg.getCfgFlag(tcProp, tlDefault)
@@ -2601,6 +3001,14 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE getCfgInt
+      *---------------------------------------------------------------------------------------------------
+      * Reads a numeric CFG property as integer.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcProp                     (v! IN    ) Property name
+      * lnDefault                  (v? IN    ) Default when property missing
+      * RETURN                    (v?    OUT) Integer value
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcProp, lnDefault
       This.ensureCfg()
       RETURN This.o_Cfg.getCfgInt(tcProp, lnDefault)
@@ -2608,12 +3016,24 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE getCfgObjectForWrite
+      *---------------------------------------------------------------------------------------------------
+      * Returns mutable session CFG reference for programmatic updates.
+      * RETURN                    (v?    OUT) CFG object for write
+      *---------------------------------------------------------------------------------------------------
+
       This.ensureCfg()
       RETURN This.o_Cfg.getCfgObjectForWrite()
    ENDPROC
 
 
    PROCEDURE setCfgValue
+      *---------------------------------------------------------------------------------------------------
+      * Writes a property on the session CFG object.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcProp                     (v! IN    ) Property name
+      * txVal                      (v! IN    ) New value
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcProp, txVal
       This.ensureCfg()
       This.o_Cfg.setCfgValue(tcProp, txVal)
@@ -2621,6 +3041,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE isCfg
+      *---------------------------------------------------------------------------------------------------
+      * True when toObj is a FoxBin2Prg CFG marker object.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * toObj                      (v? IN    ) Object to test
+      * RETURN                    (v?    OUT) .T. for valid CFG object
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS toObj
       This.ensureCfg()
       RETURN This.o_Cfg.isCfg(toObj)
@@ -2628,6 +3055,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE cfgCopyFrom
+      *---------------------------------------------------------------------------------------------------
+      * Copies properties from source CFG into parent CFG.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * toParentCFG                (v! IN    ) Destination CFG
+      * toSourceCFG                (v! IN    ) Source CFG
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS toParentCFG, toSourceCFG
       This.ensureCfg()
       This.o_Cfg.cfgCopyFrom(toParentCFG, toSourceCFG)
@@ -2635,12 +3069,24 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE newConfig
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper → o_Cfg.newConfig (empty marked CFG object for programmatic overrides).
+      * RETURN                    (v?    OUT) New CFG shell object
+      *---------------------------------------------------------------------------------------------------
+
       This.ensureCfg()
       RETURN This.o_Cfg.newConfig()
    ENDPROC
 
 
    PROCEDURE configFromObject
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper → o_Cfg.configFromObject (copies properties from any duck-typed object into a CFG).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * toSource                   (v? IN    ) Source object (CFG or duck-typed with FB2P properties)
+      * toDestCfg                  (v? IN    ) Destination CFG; new shell created when omitted or invalid
+      * RETURN                    (v?    OUT) Populated CFG object
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS toSource, toDestCfg
       This.ensureCfg()
       RETURN This.o_Cfg.configFromObject(toSource, toDestCfg)
@@ -2648,6 +3094,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE applyConfig
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper → o_Cfg.applyConfig (replaces session master CFG from object or duck-typed source).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * toCfg                      (v! IN    ) CFG object or duck-typed configuration source
+      * RETURN                    (v?    OUT) .T. when session CFG was updated
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS toCfg
       This.ensureCfg()
       RETURN This.o_Cfg.applyConfig(toCfg)
@@ -2699,6 +3151,12 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE makeDirTree
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper → o_Mirror.makeDirTree (recursively creates directory tree if missing).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcDir                      (v! IN    ) Root directory path to create
+      * RETURN                    (v?    OUT) .T. when tree exists or was created
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcDir
       This.ensureMirror()
       RETURN This.o_Mirror.makeDirTree(tcDir)
@@ -2894,6 +3352,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE get_MirroredPath
+      *---------------------------------------------------------------------------------------------------
+      * Maps a source file path to its mirrored destination path.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFile                     (v! IN    ) Source file path
+      * RETURN                    (v?    OUT) Mirrored output path
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcFile
       This.ensureMirror()
       RETURN This.o_Mirror.get_MirroredPath(tcFile)
@@ -2901,6 +3366,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE isExcludedSubdir
+      *---------------------------------------------------------------------------------------------------
+      * True when tcFile is under a c_ExcludedSubdirs path segment.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFile                     (v! IN    ) File path to test
+      * RETURN                    (v?    OUT) .T. if excluded by subdir rules
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcFile
       This.ensureMirror()
       RETURN This.o_Mirror.isExcludedSubdir(tcFile)
@@ -2908,6 +3380,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE isUnderInputRoot
+      *---------------------------------------------------------------------------------------------------
+      * True when tcFile is under This.cInputRoot (mirror export/import).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFile                     (v! IN    ) File path to test
+      * RETURN                    (v?    OUT) .T. if inside project root
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcFile
       This.ensureMirror()
       RETURN This.o_Mirror.isUnderInputRoot(tcFile)
@@ -2915,6 +3394,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE copyUnconvertedFile
+      *---------------------------------------------------------------------------------------------------
+      * Copies a non-convertible member into the mirrored tree; wrapper → o_Mirror.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFile                     (v! IN    ) Source file path
+      * RETURN                    (v?    OUT) .T. when copy succeeded
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcFile
       This.ensureMirror()
       RETURN This.o_Mirror.copyUnconvertedFile(tcFile)
@@ -2922,6 +3408,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    FUNCTION isTextFileForEncoding
+      *---------------------------------------------------------------------------------------------------
+      * True for plain-text extensions suitable for UTF-8 mirror copy (no binary NUL bytes).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFile                     (v! IN    ) File path to sample
+      * RETURN                    (v?    OUT) .T. for encodable text files
+      *---------------------------------------------------------------------------------------------------
+
       *---------------------------------------------------------------------------------------------------
       * True for plain-text project files that may be UTF-8 encoded when copied in mirrored tree mode.
       *---------------------------------------------------------------------------------------------------
@@ -3074,6 +3567,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE normalizeFileCapitalization
+      *---------------------------------------------------------------------------------------------------
+      * Renames input/output files via filename_caps when available (VCX sidecars, DBF, …).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tl_NormalizeInputFile      (v? IN    ) .T. = normalize input (This.c_InputFile)
+      * tcFileName                 (v? IN    ) Override path; default from c_InputFile/c_OutputFile
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tl_NormalizeInputFile, tcFileName
 
       TRY
@@ -3181,6 +3681,14 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE get_FilesFromDirectory
+      *---------------------------------------------------------------------------------------------------
+      * Recursively collects file paths under tcDir into taFiles (skips '.' directories).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcDir                      (v! IN    ) Root directory to scan
+      * taFiles                    (@! IN/OUT) Output array of full paths (pass @)
+      * tnFileCount                (@! IN/OUT) Element count (pass @)
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcDir, taFiles, tnFileCount
       EXTERNAL ARRAY taFiles
 
@@ -3242,6 +3750,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE readInputVFPParams
+      *---------------------------------------------------------------------------------------------------
+      * Parses Windows command line into taParams (EXE mode); adapted from kernel32 GetCommandLine.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * taParams                   (@!    OUT) Token array (pass @)
+      * tnPCount                   (@?    OUT) Parameter count after stripping EXE name (pass @)
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS taParams, tnPCount
       EXTERNAL ARRAY taParams
       *-----------------------------------------------------------------------------
@@ -3281,6 +3796,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE renameFile
+      *---------------------------------------------------------------------------------------------------
+      * Invokes cl_FileName_Caps to normalize file name capitalization on disk.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFileName                 (v! IN    ) File to rename
+      * tcEXE_CAPS                 (v! IN    ) Path to filename_caps.exe
+      * toFSO                      (v? IN    ) Scripting.FileSystemObject (unused legacy)
+      * tlRelanzarError            (v? IN    ) .T. = re-raise capitalization errors
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcFileName, tcEXE_CAPS, toFSO AS Scripting.FileSystemObject, tlRelanzarError
 
       LOCAL lcLog, laFile(1,5) ;
@@ -3304,6 +3828,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE renameTmpFile2Tx2File
+      *---------------------------------------------------------------------------------------------------
+      * Renames temporary export file to final text extension; wrapper → o_FileUtils.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFileName                 (v! IN    ) Temp file path
+      * RETURN                    (v?    OUT) .T. on success
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcFileName
       This.ensureFileUtils()
       RETURN This.o_FileUtils.renameTmpFile2Tx2File(tcFileName)
@@ -3311,6 +3842,11 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    FUNCTION isExportUTF8
+      *---------------------------------------------------------------------------------------------------
+      * True when session CFG l_ExportUTF8 is enabled.
+      * RETURN                    (v?    OUT) .T. for UTF-8 text export/import
+      *---------------------------------------------------------------------------------------------------
+
       RETURN This.getCfgFlag('l_ExportUTF8')
    ENDFUNC
 
@@ -3318,6 +3854,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    FUNCTION encodeTextForExport
       *---------------------------------------------------------------------------------------------------
       * Converts ANSI text (current code page) to UTF-8 bytes when ExportUTF8 is enabled.
+      *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcText                     (v! IN    ) ANSI text in current code page
+      * RETURN                    (v?    OUT)                     UTF-8 or ANSI string per CFG
       *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcText
       IF This.isExportUTF8()
@@ -3331,6 +3871,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       *---------------------------------------------------------------------------------------------------
       * Converts UTF-8 file bytes to ANSI (current code page) when ExportUTF8 is enabled.
       *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcText                     (v! IN    ) File contents read from disk
+      * RETURN                    (v?    OUT)                     ANSI string for VFP processing
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcText
       IF This.isExportUTF8()
          RETURN StrConv(tcText, 11)
@@ -3343,6 +3887,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       *---------------------------------------------------------------------------------------------------
       * Reads a text representation file (VC2, SC2, PJ2, DB2, etc.) honoring ExportUTF8.
       *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFile                     (v! IN    ) Text file path
+      * RETURN                    (v?    OUT)                     File contents as ANSI string
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcFile
       RETURN This.decodeTextFromImport(FileToStr(tcFile))
    ENDFUNC
@@ -3352,6 +3900,11 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       *---------------------------------------------------------------------------------------------------
       * Writes a text representation file honoring ExportUTF8.
       *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcText                     (v! IN    ) Text to write
+      * tcFile                     (v! IN    ) Destination path
+      * RETURN                    (v?    OUT)                     Bytes written (StrToFile)
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcText, tcFile
       RETURN StrToFile(This.encodeTextForExport(tcText), tcFile)
    ENDFUNC
@@ -3360,6 +3913,10 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    FUNCTION finalizeTextExportFile
       *---------------------------------------------------------------------------------------------------
       * Converts an ANSI text file (e.g. written via Scripting.TextStream) to UTF-8 in place.
+      *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFile                     (v! IN    ) ANSI file to convert in place
+      * RETURN                    (v?    OUT)                     .T. when UTF-8 write succeeded or UTF-8 disabled
       *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcFile
       LOCAL lcText, lnBytes
@@ -3376,6 +3933,11 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       *---------------------------------------------------------------------------------------------------
       * Compares a new ANSI temp file with an existing export file (ANSI or UTF-8).
       *---------------------------------------------------------------------------------------------------
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcNewAnsiFile              (v! IN    ) New export temp file (ANSI)
+      * tcExistingFile             (v! IN    ) Existing file on disk (ANSI or UTF-8)
+      * RETURN                    (v?    OUT)                     .T. when normalized contents match
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcNewAnsiFile, tcExistingFile
       RETURN (FileToStr(tcNewAnsiFile) == This.readTextFile(tcExistingFile))
    ENDFUNC
@@ -3383,6 +3945,14 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE set_Line
+      *---------------------------------------------------------------------------------------------------
+      * Trims leading whitespace/TAB from taCodeLines(I) into tcLine (converter helper).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcLine                     (@! IN/OUT) Output line (pass @)
+      * taCodeLines                (@! IN    ) Source line array (pass @)
+      * I                          (v! IN    ) Line index
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcLine, taCodeLines, I
       EXTERNAL ARRAY taCodeLines
 
@@ -3391,6 +3961,11 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE errOut
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper → o_FileUtils.errOut (writes text to stderr when l_StdOutHabilitado).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcTexto                    (v? IN    ) Text line to emit (CR/LF appended)
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcTexto
       This.ensureFileUtils()
       RETURN This.o_FileUtils.errOut(tcTexto)
@@ -3398,6 +3973,11 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE stdOut
+      *---------------------------------------------------------------------------------------------------
+      * Wrapper → o_FileUtils.stdOut (writes text to stdout when l_StdOutHabilitado).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcTexto                    (v? IN    ) Text line to emit (CR/LF appended)
+      *---------------------------------------------------------------------------------------------------
       LPARAMETERS tcTexto
       This.ensureFileUtils()
       RETURN This.o_FileUtils.stdOut(tcTexto)
@@ -3459,6 +4039,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE writeErrorLog
+      *---------------------------------------------------------------------------------------------------
+      * Appends a line to the session error log buffer; wrapper → o_Logger.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcText                     (v? IN    ) Text line
+      * tnTimeStamp                (v? IN    ) Optional timestamp flag
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcText, tnTimeStamp
       This.ensureLogger()
       This.o_Logger.writeErrorLog( tcText, tnTimeStamp )
@@ -3466,12 +4053,23 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE writeErrorLog_Flush
+      *---------------------------------------------------------------------------------------------------
+      * Flushes error log buffer to c_ErrorLogFile; wrapper → o_Logger.
+      *---------------------------------------------------------------------------------------------------
+
       This.ensureLogger()
       This.o_Logger.writeErrorLog_Flush()
    ENDPROC
 
 
    PROCEDURE writeLog
+      *---------------------------------------------------------------------------------------------------
+      * Appends a line to the session debug log buffer; wrapper → o_Logger.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcText                     (v? IN    ) Text line
+      * tnTimeStamp                (v? IN    ) Optional timestamp / header level
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcText, tnTimeStamp
       This.ensureLogger()
       This.o_Logger.writeLog( tcText, tnTimeStamp )
@@ -3479,12 +4077,23 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE writeLog_Flush
+      *---------------------------------------------------------------------------------------------------
+      * Flushes debug log buffer to c_LogFile; wrapper → o_Logger.
+      *---------------------------------------------------------------------------------------------------
+
       This.ensureLogger()
       This.o_Logger.writeLog_Flush()
    ENDPROC
 
 
    HIDDEN PROCEDURE exception2Str
+      *---------------------------------------------------------------------------------------------------
+      * Serializes an Exception object to text; wrapper → o_Logger.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * toEx                       (@? IN    ) Exception object (pass @)
+      * RETURN                    (v?    OUT) Formatted exception string
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS toEx AS EXCEPTION
       This.ensureLogger()
       RETURN This.o_Logger.exception2Str( @toEx )
@@ -3492,6 +4101,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    PROCEDURE unique_ID
+      *---------------------------------------------------------------------------------------------------
+      * Generates a unique numeric or string id for internal object naming.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcValType                  (v? IN    ) 'N' = numeric | otherwise '_#########' string
+      * RETURN                    (v?    OUT) Unique id
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcValType
 
       tcValType   = EVL(tcValType,'C')
@@ -3506,6 +4122,16 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    FUNCTION wscriptshell_run
+      *---------------------------------------------------------------------------------------------------
+      * Runs a shell command; wrapper → o_FileUtils.wscriptshell_run.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcCmdLine                  (v! IN    ) Command line
+      * tnWindowStyle              (v? IN    ) WScript window style
+      * tbWaitOnReturn             (v? IN    ) Wait for process
+      * tlDebug                    (v? IN    ) Log command when debugging
+      * RETURN                    (v?    OUT) Process exit code / WScript result
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcCmdLine, tnWindowStyle, tbWaitOnReturn, tlDebug
       This.ensureFileUtils()
       RETURN This.o_FileUtils.wscriptshell_run(tcCmdLine, tnWindowStyle, tbWaitOnReturn, tlDebug)
@@ -3513,6 +4139,13 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    FUNCTION FERROR_Message(tcFileName AS STRING)
+      *---------------------------------------------------------------------------------------------------
+      * Returns FERROR() diagnostic text for a file; wrapper → o_FileUtils.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcFileName                 (v? IN    ) File context for message
+      * RETURN                    (v?    OUT) Error description string
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tcFileName
       This.ensureFileUtils()
       RETURN This.o_FileUtils.FERROR_Message(tcFileName)
@@ -3520,6 +4153,14 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
 
    FUNCTION getLocaleInfo
+      *---------------------------------------------------------------------------------------------------
+      * Reads Windows locale information; wrapper → o_FileUtils.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tnSetting                  (v! IN    ) LOCALE_* constant
+      * tcLocale                   (v? IN    ) Optional locale name
+      * RETURN                    (v?    OUT) Locale string
+      *---------------------------------------------------------------------------------------------------
+
       LPARAMETERS tnSetting, tcLocale
       This.ensureFileUtils()
       RETURN This.o_FileUtils.getLocaleInfo(tnSetting, tcLocale)
