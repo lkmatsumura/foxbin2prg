@@ -14,22 +14,26 @@ The optional `toCfg` parameter accepts:
 
 Full example: [`create_mirrored.prg`](../create_mirrored.prg) and [`mirror.prg`](../mirror.prg). Technical overview: [arquitetura.md — Mirrored tree](arquitetura.md#mirrored-tree).
 
-### Command line (`MAIN.PRG`)
+Path mapping (`get_MirroredPath`, `isExcludedSubdir`, `copyUnconvertedFile`, …) is implemented in `cl_fb2prg_mirror.prg` and invoked via `c_foxbin2prg.o_Mirror`.
 
-Single-file conversion only (direction by extension). For mirrored projects use the API above or `mirror.prg`:
+### Command line (`main.prg`)
+
+Single-file conversion only (direction inferred from extension). For mirrored projects use the API above or `mirror.prg`:
 
 ```foxpro
 DO main.prg WITH "<path>\file.vcx"
 DO main.prg WITH "<path>\file.vc2"
 DO main.prg WITH "<path>\file.vcx", "", loCfg
-DO main.prg                              && configuration reference form
+DO main.prg                              && configuration reference form (frm_main)
 ```
+
+`execute()` also accepts internal batch types `-BIN2PRG` / `-PRG2BIN` (folder conversion) and `BIN3PRG` / `PRG3BIN` (mirror export/import aliases that require `cOutputFolder` or `tcTextName`).
 
 ---
 
 ## When the options below apply
 
-The three options documented here **only affect batch project processing** when the session is in **mirrored tree** mode — that is, when `exportProjectTree` or `importProjectTree` set `cOutputFolder` (and `cInputRoot`) via `o_Mirror.setProjectRoots`.
+The mirror-specific options documented below **only affect batch project processing** when the session is in **mirrored tree** mode — that is, when `exportProjectTree` or `importProjectTree` set `cOutputFolder` (and `cInputRoot`) via `o_Mirror.setProjectRoots`.
 
 | Situation | Option effect |
 |----------|-------------------|
@@ -43,15 +47,17 @@ Use the **same `toCfg` object** on export and import for round-trip consistency.
 
 ## Options summary
 
-| `.cfg` key | Programmatic property | Default | Function |
-|-----------------|--------------------------|--------|--------|
-| `ExcludedSubdirs` | `c_ExcludedSubdirs` | *(empty)* | Ignores subfolders (neither converts nor copies) |
-| `CopyNonConvertible` | `l_CopyNonConvertible` | `0` / `.F.` | Copies files FoxBin2Prg does not convert |
-| `CopyExcludedPjxFiles` | `l_CopyExcludedPjxFiles` | `0` / `.F.` | Includes members marked **Exclude** in PJX/PJ2 |
+| Programmatic property | Default | Function |
+|--------------------------|--------|--------|
+| `c_ExcludedSubdirs` | *(empty)* | Ignores subfolders (neither converts nor copies) |
+| `l_CopyNonConvertible` | `.F.` | Copies files FoxBin2Prg does not convert |
+| `l_CopyExcludedPjxFiles` | `.F.` | Includes members marked **Exclude** in PJX/PJ2 |
+| `l_ExportUTF8` | `.F.` | Writes text exports (VC2, SC2, PJ2, …) and copied `.prg`/`.txt`/`.h` files as UTF-8; decodes on import |
+| `l_CopyLowercaseNames` | `.F.` | Lowercase destination names when copying non-convertible files |
 
 ---
 
-## `c_ExcludedSubdirs` / `ExcludedSubdirs`
+## `c_ExcludedSubdirs`
 
 List of subpaths **relative to the project root** (`cInputRoot`) that must be **ignored** during export and import.
 
@@ -67,7 +73,7 @@ loCfg.c_ExcludedSubdirs = 'tmp;backup'
 loCfg.c_ExcludedSubdirs = 'forms\old;deps\vendor'
 ```
 
-With project at `d:\src\app\` and `ExcludedSubdirs: tmp;backup`:
+With project at `d:\src\app\` and `c_ExcludedSubdirs = 'tmp;backup'`:
 
 | Project file | Result |
 |--------------------|-----------|
@@ -82,18 +88,18 @@ With project at `d:\src\app\` and `ExcludedSubdirs: tmp;backup`:
 loCfg.c_ExcludedSubdirs = 'tmp;backup;forms\old'
 ```
 
-Legacy disk `foxbin2prg.cfg` files are **not** supported. Use `newConfig()` and assign the same property names on the CFG object.
+Legacy disk `foxbin2prg.cfg` files are **not** supported. Use `newConfig()` and assign properties on the CFG object (see `getConfigPropertyCatalog()` in `cl_fb2prg_cfg.prg`).
 
 ---
 
-## `l_CopyNonConvertible` / `CopyNonConvertible`
+## `l_CopyNonConvertible`
 
 When a project member is **not supported** for conversion by FoxBin2Prg (for example `.bmp`, `.ico`, `.dll`, `.prg` without conversion support, etc.), the default behavior is to **generate nothing** in the mirrored tree.
 
-With `CopyNonConvertible: 1` (or `loCfg.l_CopyNonConvertible = .T.`):
+With `l_CopyNonConvertible = .T.`:
 
 - The file is **copied byte for byte** to the mirrored destination, preserving subfolders relative to the project.
-- With `ExportUTF8: 1`, recognized **text files** (`.prg`, `.txt`, `.h`, `.cfg`, etc.) are converted to UTF-8 on export and back to ANSI on import; binary files remain a byte-for-byte copy.
+- When `l_ExportUTF8 = .T.`, recognized **text files** (`.prg`, `.txt`, `.h`, `.cfg`, etc.) are converted to UTF-8 on export and back to the current ANSI code page on import; binary files remain a byte-for-byte copy.
 - Copies only if the file exists on disk and is **inside `cInputRoot`**.
 - The destination name respects `l_CopyLowercaseNames` when active.
 - **Log:** `- Copied (not convertible): <mirrored path>`
@@ -110,15 +116,9 @@ loCfg.l_CopyNonConvertible = .T.
 loFb2p.exportProjectTree( 'd:\src\app\app.pjx', 'd:\export\app', loCfg )
 ```
 
-In `.cfg`:
-
-```ini
-CopyNonConvertible: 1
-```
-
 ---
 
-## `l_CopyExcludedPjxFiles` / `CopyExcludedPjxFiles`
+## `l_CopyExcludedPjxFiles`
 
 In Visual FoxPro, project members can be marked **Exclude** (not part of the build, but still listed in the `.pjx`).
 
@@ -144,10 +144,27 @@ loCfg.l_CopyNonConvertible   = .T.   && useful for Exclude members that are .prg
 loFb2p.exportProjectTree( 'd:\src\app\app.pjx', 'd:\export\app', loCfg )
 ```
 
-In `.cfg`:
+---
 
-```ini
-CopyExcludedPjxFiles: 1
+## `l_ExportUTF8`
+
+When enabled (`loCfg.l_ExportUTF8 = .T.`):
+
+- **Converted text files** (VC2, SC2, PJ2, DC2, DB2, …) are written as UTF-8 via `writeTextFile()` / `encodeTextForExport()`.
+- **Imported text files** are read as UTF-8 when the flag is on (`readTextFile()` / `decodeTextFromImport()`).
+- **Non-convertible text copies** (with `l_CopyNonConvertible`) also use UTF-8 on export and decode on import (`cl_fb2prg_mirror.copyUnconvertedFile`).
+- **Binary artifacts** (`.bmp`, `.dll`, VCX, etc.) are unaffected.
+
+Typical SCM setup (see [`mirror.prg`](../mirror.prg)):
+
+```foxpro
+loCfg.l_ExportUTF8       = .T.   && export scm text as UTF-8
+loCfg.l_CopyNonConvertible = .T.
+loFb2p.exportProjectTree( lcPjx, lcDest, loCfg )
+
+* On import of FoxBin2Prg sources, turn off UTF-8 for legacy ANSI .prg trees:
+loCfg.l_ExportUTF8 = .F.
+loFb2p.importProjectTree( lcPj2, lcDest, loCfg )
 ```
 
 ---
@@ -160,6 +177,7 @@ loCfg  = loFb2p.newConfig()
 
 loCfg.l_NoTimestamps         = .T.
 loCfg.l_CopyNonConvertible   = .T.
+loCfg.l_ExportUTF8           = .T.   && optional: UTF-8 text in mirror
 loCfg.l_CopyExcludedPjxFiles = .F.   && default: omit Exclude
 loCfg.c_ExcludedSubdirs      = 'tmp;backup;forms\old'
 
@@ -182,7 +200,7 @@ For each file listed in the PJX/PJ2, in mirrored tree mode:
 
 1. In a subfolder of `c_ExcludedSubdirs`? -> skip
 2. Marked Exclude and `l_CopyExcludedPjxFiles` is false? -> skip
-3. Outside `cInputRoot`? -> skip (or error if `CheckFileInPath: 1`)
+3. Outside `cInputRoot`? -> skip (or error if `n_CheckFileInPath` is set on the CFG)
 4. Convertible? -> convert to mirrored path
 5. Not convertible and `l_CopyNonConvertible`? -> copy
 6. Otherwise -> no output in the tree
@@ -199,4 +217,5 @@ At the end of configuration evaluation, the dump includes:
 CopyNonConvertible:         ...
 CopyExcludedPjxFiles:       ...
 ExcludedSubdirs:            ...
+ExportUTF8:                 ...
 ```

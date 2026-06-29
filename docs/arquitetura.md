@@ -16,9 +16,11 @@ flowchart TB
 
     subgraph orquestracao["Orchestration"]
         FB2P["c_foxbin2prg<br/>(SESSION)"]
-        CFG["CFG objects<br/>(newConfig / Empty)"]
+        CFG["cl_fb2prg_cfg<br/>(o_Cfg)"]
         LANG["CL_LANG"]
-        UI["frm_main / frm_interactive / frm_avance"]
+        UI["frm_main / frm_avance"]
+        FU["cl_file_utils<br/>(o_FileUtils)"]
+        MIR["cl_fb2prg_mirror<br/>(o_Mirror)"]
     end
 
     subgraph conversores["Converter hierarchy"]
@@ -73,20 +75,20 @@ flowchart TB
         H["foxbin2prg.h"]
         PROPS["props/*.txt"]
         SP["cl_fb2prg_special_props"]
-        CFGFILE["FoxBin2Prg.cfg"]
     end
 
     MAIN --> FB2P
     FB2P --> CFG
     FB2P --> LANG
-    FB2P --> DBFCFG
+    FB2P --> FU
+    FB2P --> MIR
     FB2P --> UI
     FB2P -->|"NewObject + convert()"| conversores
     conversores <-->|"build / parse"| dominio
     BASE --> H
     BASE --> PROPS
     BASE --> SP
-    FB2P --> CFGFILE
+    MIR -->|"path mapping"| FB2P
 ```
 
 ---
@@ -189,13 +191,12 @@ classDiagram
 | Class | File | Purpose |
 |--------|---------|------------|
 | **main.prg** | `main.prg` | CLI entry point; receives parameters and instantiates `c_foxbin2prg` |
-| **c_foxbin2prg** | `c_foxbin2prg.prg` | Central orchestrator: session, log, progress, extension routing, full-project conversion; delegates CFG to `o_Cfg` |
-| **cl_fb2prg_cfg** | `cl_fb2prg_cfg.prg` | Configuration manager: `createCfgShell()` schema, `o_CFG` session object, `newConfig()` / `applyConfig()` / `lockMasterFromObject()` |
-| **cl_file_utils** | `cl_file_utils.prg` | Win32/path helpers (`o_FileUtils` on the host) |
-| **cl_fb2prg_mirror** | `cl_fb2prg_mirror.prg` | Mirrored project tree (`o_Mirror` on the host) |
+| **c_foxbin2prg** | `c_foxbin2prg.prg` | Central orchestrator (~4.000 lines): `execute()` dispatch, conversion routing, project batch, logging; delegates CFG, mirror paths, and Win32 I/O to helper classes |
+| **cl_fb2prg_cfg** | `cl_fb2prg_cfg.prg` | Configuration manager: `createCfgShell()` schema, `o_CFG` session object, `newConfig()` / `applyConfig()` / `getCfgValue()` |
+| **cl_file_utils** | `cl_file_utils.prg` | Win32/path helpers on `o_FileUtils`: `declareDLL`, `changeFileAttribute`, `changeFileTime`, `comparedFilesAreEqual`, `stdOut`/`errOut`, `wscriptshell_run` |
+| **cl_fb2prg_mirror** | `cl_fb2prg_mirror.prg` | Mirrored project tree on `o_Mirror`: `setProjectRoots`, `get_MirroredPath`, `isExcludedSubdir`, `copyUnconvertedFile`, `makeDirTree` |
 | **CL_LANG** | `cl_lang.prg` | Localized strings (EN/ES/FR/DE) for UI and log |
-| **frm_main** | `frm_main.prg` | Help/about form |
-| **frm_interactive** | `frm_interactive.prg` | UI to choose bin<->text direction |
+| **frm_main** | `frm_main.prg` | Configuration reference / help form (shown when `DO main.prg` with no file) |
 | **frm_avance** | `frm_avance.prg` | Progress bar |
 | **cl_fb2prg_special_props** | `cl_fb2prg_special_props.prg` | Property sort order by control type (`props/*.txt`); instantiated as `o_SpecialProps` and passed to converters |
 
@@ -215,8 +216,7 @@ classDiagram
 |--------|---------|-----------|
 | `c_conversor_vcx_a_prg` | `c_conversor_vcx_a_prg.prg` | VCX -> VC2 |
 | `c_conversor_scx_a_prg` | `c_conversor_scx_a_prg.prg` | SCX -> SC2 |
-| `c_conversor_pjx_a_prg` | `c_conversor_pjx_a_prg.prg` | PJX -> PJ2 |
-| `c_conversor_pjm_a_prg` | `c_conversor_pjm_a_prg.prg` | PJM -> PJ2 |
+| `c_conversor_pjx_a_prg` | `c_conversor_pjx_a_prg.prg` | PJX / PJM -> PJ2 |
 | `c_conversor_frx_a_prg` | `c_conversor_frx_a_prg.prg` | FRX/LBX -> FR2/LB2 |
 | `c_conversor_mnx_a_prg` | `c_conversor_mnx_a_prg.prg` | MNX -> MN2 |
 | `c_conversor_dbc_a_prg` | `c_conversor_dbc_a_prg.prg` | DBC -> DC2 |
@@ -421,9 +421,17 @@ In `c_foxbin2prg.evaluate_Full_PJX()`:
 ### Entry modes
 
 ```foxpro
-DO main.prg WITH "<path>\FILE.VCX"       && Generates FILE.VC2
+DO main.prg WITH "<path>\FILE.VCX"       && Generates FILE.VC2 (direction by extension)
 DO main.prg WITH "<path>\FILE.PJX", "*"  && Converts full project
-DO main.prg WITH "<dir>", "BIN2PRG"      && All supported binaries in folder
+DO main.prg WITH "<dir>", "-BIN2PRG"     && All supported binaries in folder
+DO main.prg                              && Configuration reference (frm_main)
+```
+
+Programmatic mirror API (see [`mirror.prg`](../mirror.prg), [`create_mirrored.prg`](../create_mirrored.prg)):
+
+```foxpro
+loFb2p.exportProjectTree( 'd:\src\app\app.pjx', 'd:\export\app', loCfg )
+loFb2p.importProjectTree( 'd:\export\app\app.pj2', 'd:\src\app', loCfg )
 ```
 
 ---
@@ -491,16 +499,16 @@ In `c_foxbin2prg.evaluate_Full_PJ2()`:
 ### Entry modes
 
 ```foxpro
-DO main.prg WITH "<path>\FILE.VC2"       && Generates FILE.VCX
+DO main.prg WITH "<path>\FILE.VC2"       && Generates FILE.VCX (direction by extension)
 DO main.prg WITH "<path>\FILE.PJ2", "*"  && Reconverts full project
-DO main.prg WITH "<dir>", "PRG2BIN"      && All supported text files in folder
+DO main.prg WITH "<dir>", "-PRG2BIN"     && All supported text files in folder
 ```
 
 ---
 
 ## Mirrored tree
 
-The `cl_fb2prg_mirror` class (instantiated as `c_foxbin2prg.o_Mirror`) replicates the project's subfolder structure when converting files. Session properties `cInputRoot` (source root) and `cOutputFolder` (destination root) control path mapping in both directions.
+The `cl_fb2prg_mirror` class (instantiated as `c_foxbin2prg.o_Mirror`) replicates the project's subfolder structure when converting files. Session properties `cInputRoot` (source root) and `cOutputFolder` (destination root) control path mapping in both directions. Path logic (`get_MirroredPath`, `isExcludedSubdir`, `isUnderInputRoot`, `copyUnconvertedFile`) lives in `cl_fb2prg_mirror.prg`; `c_foxbin2prg` exposes thin wrappers that call `ensureMirror()` first.
 
 ### High-level API
 
@@ -567,17 +575,19 @@ loFb2p.importProjectTree('d:\export\app\app.pj2', 'd:\src\app', loCfg)
 
 ### Mirrored tree options
 
-Used **only** with `exportProjectTree` / `importProjectTree` (when `cOutputFolder` is set). Full user guide: **[EXPORT_IMPORT_MIRROR.md](EXPORT_IMPORT_MIRROR.md)**.
+Used **only** with `exportProjectTree` / `importProjectTree` (when `cOutputFolder` is set). Full user guide: **[export_import_mirror.md](export_import_mirror.md)**.
 
-| `.cfg` key | Property | Default | Summary |
-|--------------|-------------|--------|-------------------|
-| `ExcludedSubdirs` | `c_ExcludedSubdirs` | *(empty)* | Subfolders ignored (not converted or copied) |
-| `CopyNonConvertible` | `l_CopyNonConvertible` | `0` | Copies non-convertible members to the mirror |
-| `CopyExcludedPjxFiles` | `l_CopyExcludedPjxFiles` | `0` | Includes members with **Exclude** flag in PJX/PJ2 |
+| Property | Default | Summary |
+|--------------|--------|-------------------|
+| `c_ExcludedSubdirs` | *(empty)* | Subfolders ignored (not converted or copied) |
+| `l_CopyNonConvertible` | `.F.` | Copies non-convertible members to the mirror |
+| `l_CopyExcludedPjxFiles` | `.F.` | Includes members with **Exclude** flag in PJX/PJ2 |
+| `l_ExportUTF8` | `.F.` | UTF-8 encoding for text exports and non-convertible text copies |
+| `l_CopyLowercaseNames` | `.F.` | Lowercase names when copying non-convertible files |
 
-Other useful round-trip options: `l_Recompile`, `l_NoTimestamps`, `l_CopyLowercaseNames`.
+Other useful round-trip options: `l_Recompile`, `l_NoTimestamps`.
 
-Full export/import example: [`create_mirrored.prg`](../create_mirrored.prg).
+Full export/import example: [`create_mirrored.prg`](../create_mirrored.prg). Interactive demo: [`mirror.prg`](../mirror.prg).
 
 ---
 
@@ -612,38 +622,36 @@ flowchart LR
 
 | File | Purpose |
 |---------|--------|
-| `foxbin2prg.h` | Constants and metadata tags (`C_LIBCOMMENT_I`, `C_CLASSMETADATA_I`, etc.) |
+| `foxbin2prg.h` | Constants and metadata tags (`C_LIBCOMMENT_I`, `C_CLASSMETADATA_I`, execute-mode constants, etc.) |
 | `props/*.txt` | Property sort order by control type (loaded by `cl_fb2prg_special_props`) |
-| `FoxBin2Prg.cfg` | Custom extensions, behavior flags |
-| `tools/extract_classes.py` | Tool that extracted classes from the original FoxBin2Prg monolith |
-| `tools/class_map.txt` | Map of extracted classes |
-| `tools/convert_to_cp1252.py` | Converts `.prg`/`.cfg` to CP1252+CRLF after editing |
-| `tools/verify_cp1252.py` | Encoding validation for `.prg` |
-| `tools/verify_utf8_docs.py` | Encoding validation for `.md` documentation |
+| `unify.txt` | Ordered list of modular `.prg` sources concatenated into `foxbin2prg.prg` |
+| `unify.prg` | Build script that produces the monolithic `foxbin2prg.prg` from `unify.txt` |
 
 ---
 
 ## Repository structure
 
-There are no `src/` or `lib/` folders. Each class lives in a `.prg` file at the project root, refactored from the original FoxBin2Prg monolith (history in `tools/extract_classes.py` and `tools/class_map.txt`). The `foxbin2prg.prg` monolith is no longer part of the repository.
+There are no `src/` or `lib/` folders. Each class lives in its own modular `.prg` at the project root. The monolithic **`foxbin2prg.prg`** is **generated** by `unify.prg` from the modules listed in `unify.txt` — edit the modular sources (`c_foxbin2prg.prg`, `c_conversor_*.prg`, `cl_*.prg`, …), not the unified file directly.
 
 ```
-fox2/
-|-- main.prg                    # CLI entry
-|-- c_foxbin2prg.prg            # Orchestrator
+scm/
+|-- main.prg                    # CLI entry (minimal; loads c_foxbin2prg)
+|-- c_foxbin2prg.prg            # Orchestrator (modular source)
 |-- cl_fb2prg_cfg.prg           # Configuration manager
-|-- cl_file_utils.prg           # Win32/path helpers
-|-- cl_fb2prg_mirror.prg        # Mirrored tree
+|-- cl_file_utils.prg           # Win32 / path helpers
+|-- cl_fb2prg_mirror.prg        # Mirrored tree path logic
 |-- cl_fb2prg_special_props.prg # Property sort order
 |-- c_conversor_*.prg           # Conversion pipeline
 |-- cl_*.prg                    # Domain model
-|-- frm_*.prg                   # UI forms
-|-- create_mirrored.prg         # Mirrored export/import example
-|-- create_foxbin2prg.prg       # Executable build
+|-- frm_*.prg                   # UI forms (frm_main, frm_avance)
+|-- mirror.prg                  # Interactive export/import demo
+|-- create_mirrored.prg         # Mirrored export/import API example
+|-- unify.prg / unify.txt        # Build foxbin2prg.prg monolith
+|-- foxbin2prg.prg              # Generated monolith (after unify)
 |-- foxbin2prg.h                # Constants
 |-- props/                      # Property sort data
-|-- tools/                      # Maintenance and encoding scripts
 |-- docs/
     |-- arquitetura.md          # This document (English)
-    |-- EXPORT_IMPORT_MIRROR.md # Mirrored tree guide (English)
+    |-- export_import_mirror.md # Mirrored tree guide (English)
+    |-- c_foxbin2prg_ClassAnalysis.md  # Orchestrator analysis (Portuguese)
 ```
