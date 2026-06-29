@@ -2565,6 +2565,263 @@ DEFINE CLASS c_foxbin2prg AS SESSION
    ENDPROC
 
 
+   PROTECTED FUNCTION computePerFileBasePath
+      *---------------------------------------------------------------------------------------------------
+      * Strips dotted stem suffixes from a per-file text path to obtain the container base file path.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * tcInputFile               (v! IN    ) Current input path (VCX/SCX/DBC or per-object text)
+      * tnStemLevels              (v! IN    ) 2 = one dotted segment; 3 = two dotted segments
+      * RETURN                    (v?    OUT) Base file path for per-file optimization / prepareConversion
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS tcInputFile, tnStemLevels
+
+      IF OCCURS('.', JUSTSTEM(tcInputFile)) = 0 OR tnStemLevels < 2
+         RETURN tcInputFile
+      ENDIF
+      IF tnStemLevels = 2
+         RETURN FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM(tcInputFile) ), JUSTEXT(tcInputFile) ), JUSTPATH(tcInputFile) )
+      ENDIF
+      RETURN FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM( JUSTSTEM(tcInputFile) ) ), JUSTEXT(tcInputFile) ), JUSTPATH(tcInputFile) )
+   ENDFUNC
+
+
+   PROTECTED FUNCTION resolveInputBaseFile
+      *---------------------------------------------------------------------------------------------------
+      * Resolves the container base file for VCX/SCX/DBC per-file optimization; may rewrite c_InputFile.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * lcExtension               (v! IN    ) Upper-case extension of c_InputFile
+      * RETURN                    (v?    OUT) Base file path passed to prepareConversion
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS lcExtension
+      LOCAL lcBaseFile, lcStem, lcTextExt
+
+      lcBaseFile = This.c_InputFile
+      lcStem     = JUSTSTEM(This.c_InputFile)
+
+      IF INLIST(lcExtension, 'VCX', This.getCfgValue('c_VC2')) ;
+            AND (This.getCfgValue('n_UseClassPerFile') > 0 AND This.getCfgValue('l_RedirectClassPerFileToMain') ;
+            OR NOT EMPTY(This.c_ClassToConvert))
+
+         lcTextExt = This.getCfgValue('c_VC2')
+         DO CASE
+         CASE This.getCfgValue('n_RedirectClassType') = 1 OR NOT EMPTY(This.c_ClassToConvert)
+            lcBaseFile = This.computePerFileBasePath( This.c_InputFile, 2 )
+         CASE This.getCfgValue('n_UseClassPerFile') = 1 AND INLIST(lcExtension, lcTextExt)
+            lcBaseFile = This.computePerFileBasePath( This.c_InputFile, 2 )
+            IF '.' $ lcStem
+               This.c_InputFile = lcBaseFile
+            ENDIF
+         CASE This.getCfgValue('n_UseClassPerFile') = 2 AND INLIST(lcExtension, lcTextExt)
+            lcBaseFile = This.computePerFileBasePath( This.c_InputFile, 3 )
+            IF '.' $ lcStem
+               This.c_InputFile = lcBaseFile
+            ENDIF
+         ENDCASE
+      ENDIF
+
+      IF INLIST(lcExtension, 'SCX', This.getCfgValue('c_SC2')) ;
+            AND (This.getCfgValue('n_UseFormPerFile') > 0 AND This.getCfgValue('l_RedirectFormPerFileToMain') ;
+            OR NOT EMPTY(This.c_ClassToConvert))
+
+         lcTextExt = This.getCfgValue('c_SC2')
+         DO CASE
+         CASE This.getCfgValue('n_RedirectFormType') = 1 OR NOT EMPTY(This.c_ClassToConvert)
+            lcBaseFile = This.computePerFileBasePath( This.c_InputFile, 2 )
+         CASE This.getCfgValue('n_UseFormPerFile') = 1 AND INLIST(lcExtension, lcTextExt)
+            lcBaseFile = This.computePerFileBasePath( This.c_InputFile, 2 )
+            IF '.' $ lcStem
+               This.c_InputFile = lcBaseFile
+            ENDIF
+         CASE This.getCfgValue('n_UseFormPerFile') = 2 AND INLIST(lcExtension, lcTextExt)
+            lcBaseFile = This.computePerFileBasePath( This.c_InputFile, 3 )
+            IF '.' $ lcStem
+               This.c_InputFile = lcBaseFile
+            ENDIF
+         ENDCASE
+      ENDIF
+
+      IF INLIST(lcExtension, 'DBC', This.getCfgValue('c_DC2')) ;
+            AND This.getCfgValue('n_UseFilesPerDBC') > 0 AND This.getCfgValue('l_RedirectFilePerDBCToMain') ;
+            AND This.getCfgValue('n_UseFilesPerDBC') = 1
+         lcBaseFile = This.computePerFileBasePath( This.c_InputFile, 3 )
+         IF '.' $ lcStem
+            This.c_InputFile = lcBaseFile
+         ENDIF
+      ENDIF
+
+      RETURN lcBaseFile
+   ENDFUNC
+
+
+   PROTECTED PROCEDURE captureConversionFilestamps
+      *---------------------------------------------------------------------------------------------------
+      * Populates t_InputFile_TimeStamp and t_OutputFile_TimeStamp from sibling files in the input folder.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * laFiles                   (@! IN/OUT) ADIR array for FORCEEXT(c_InputFile,'*') — pass with @
+      * tnFileCount               (@! IN/OUT) Row count returned by ADIR — pass with @
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS laFiles, tnFileCount
+      EXTERNAL ARRAY laFiles
+
+      LOCAL I, lcExtA, lcExtB, ltFilestamp, laDirFile(1,5)
+
+      tnFileCount = ADIR( laFiles, FORCEEXT( This.c_InputFile, '*' ), '', 1 )
+      STORE {//::} TO This.t_InputFile_TimeStamp, This.t_OutputFile_TimeStamp, ltFilestamp
+
+      IF tnFileCount > 0 THEN
+         I = ASCAN( laFiles, JUSTFNAME(This.c_InputFile), 1, 0, 1, 1+2+4+8 )
+         IF m.I > 0 THEN
+            This.t_InputFile_TimeStamp = DATETIME( YEAR(laFiles(m.I,3)), MONTH(laFiles(m.I,3)), DAY(laFiles(m.I,3)) ;
+               , VAL(LEFT(laFiles(m.I,4),2)), VAL(SUBSTR(laFiles(m.I,4),4,2)), VAL(RIGHT(laFiles(m.I,4),2)) )
+         ENDIF
+
+         IF ADIR( laDirFile, This.c_OutputFile ) > 0 THEN
+            I = ASCAN( laFiles, JUSTFNAME(This.c_OutputFile), 1, 0, 1, 1+2+4+8 )
+            IF m.I > 0 THEN
+               This.t_OutputFile_TimeStamp = DATETIME( YEAR(laFiles(m.I,3)), MONTH(laFiles(m.I,3)), DAY(laFiles(m.I,3)) ;
+                  , VAL(LEFT(laFiles(m.I,4),2)), VAL(SUBSTR(laFiles(m.I,4),4,2)), VAL(RIGHT(laFiles(m.I,4),2)) )
+            ENDIF
+
+            lcExtA = UPPER(JUSTEXT(This.c_OutputFile))
+
+            DO CASE
+            CASE INLIST(lcExtA, 'SCX', 'VCX', 'MNX', 'FRX', 'LBX')
+               lcExtB = ICASE(lcExtA = 'SCX', 'SCT' ;
+                  , lcExtA = 'VCX', 'VCT' ;
+                  , lcExtA = 'MNX', 'MNT' ;
+                  , lcExtA = 'FRX', 'FRT' ;
+                  , lcExtA = 'LBX', 'LBT')
+               I = ASCAN( laFiles, JUSTFNAME( FORCEEXT(This.c_OutputFile, lcExtB) ), 1, 0, 1, 1+2+4+8 )
+               IF m.I > 0 THEN
+                  ltFilestamp = DATETIME( YEAR(laFiles(m.I,3)), MONTH(laFiles(m.I,3)), DAY(laFiles(m.I,3)) ;
+                     , VAL(LEFT(laFiles(m.I,4),2)), VAL(SUBSTR(laFiles(m.I,4),4,2)), VAL(RIGHT(laFiles(m.I,4),2)) )
+               ENDIF
+            ENDCASE
+
+            This.t_OutputFile_TimeStamp = MAX( This.t_OutputFile_TimeStamp, ltFilestamp )
+         ENDIF
+      ENDIF
+   ENDPROC
+
+
+   PROTECTED FUNCTION shouldSkipByFilestamp
+      *---------------------------------------------------------------------------------------------------
+      * True when n_OptimizeByFilestamp says the output is already up to date (VCX/SCX, per-file off).
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * lcExtension               (v! IN    ) Upper-case extension of c_InputFile
+      * loLang                    (v! IN    ) CL_LANG instance for log messages
+      * RETURN                    (v?    OUT) .T. to skip loConversor.convert
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS lcExtension, loLang AS CL_LANG OF 'cl_lang.prg'
+
+      DO CASE
+      CASE INLIST(lcExtension, 'VCX', This.getCfgValue('c_VC2')) AND This.getCfgValue('n_UseClassPerFile') = 0 ;
+            AND This.getCfgValue('n_OptimizeByFilestamp') = 1 AND This.t_InputFile_TimeStamp < This.t_OutputFile_TimeStamp
+         This.writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC) )
+         RETURN .T.
+
+      CASE INLIST(lcExtension, 'VCX', This.getCfgValue('c_VC2')) AND This.getCfgValue('n_UseClassPerFile') = 0 ;
+            AND This.getCfgValue('n_OptimizeByFilestamp') = 2 AND This.t_InputFile_TimeStamp = This.t_OutputFile_TimeStamp
+         This.writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC) )
+         RETURN .T.
+
+      CASE INLIST(lcExtension, 'SCX', This.getCfgValue('c_SC2')) AND This.getCfgValue('n_UseFormPerFile') = 0 ;
+            AND This.getCfgValue('n_OptimizeByFilestamp') = 1 AND This.t_InputFile_TimeStamp < This.t_OutputFile_TimeStamp
+         This.writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC) )
+         RETURN .T.
+
+      CASE INLIST(lcExtension, 'SCX', This.getCfgValue('c_SC2')) AND This.getCfgValue('n_UseFormPerFile') = 0 ;
+            AND This.getCfgValue('n_OptimizeByFilestamp') = 2 AND This.t_InputFile_TimeStamp = This.t_OutputFile_TimeStamp
+         This.writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC) )
+         RETURN .T.
+
+      OTHERWISE
+         RETURN .F.
+      ENDCASE
+   ENDFUNC
+
+
+   PROTECTED PROCEDURE bindConversorFromHost
+      *---------------------------------------------------------------------------------------------------
+      * Copies session state onto the conversor before convert() or loadModule().
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * loConversor               (v! IN    ) c_conversor_base instance from the factory
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS loConversor AS c_conversor_base OF 'c_conversor_base.prg'
+
+      This.c_Type                           = UPPER(JUSTEXT(This.c_OutputFile))
+      loConversor.c_InputFile               = This.c_InputFile
+      loConversor.c_OutputFile              = This.c_OutputFile
+      loConversor.c_LogFile                 = This.c_LogFile
+      loConversor.n_Debug                   = This.getCfgValue('n_Debug')
+      loConversor.l_Test                    = This.l_Test
+      loConversor.n_FB2PRG_Version          = This.n_FB2PRG_Version
+      loConversor.l_MethodSort_Enabled      = This.l_MethodSort_Enabled
+      loConversor.l_PropSort_Enabled        = This.l_PropSort_Enabled
+      loConversor.l_ReportSort_Enabled      = This.l_ReportSort_Enabled
+      loConversor.c_OriginalFileName        = This.c_OriginalFileName
+      loConversor.c_Foxbin2prg_FullPath     = This.c_Foxbin2prg_FullPath
+   ENDPROC
+
+
+   PROTECTED PROCEDURE logConversorOutput
+      *---------------------------------------------------------------------------------------------------
+      * Writes conversor text log and error block; sets l_Error when the conversor reported failure.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * loConversor               (v! IN    ) c_conversor_base after convert / loadModule
+      * loLang                    (v! IN    ) CL_LANG instance for error captions
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS loConversor AS c_conversor_base OF 'c_conversor_base.prg', loLang AS CL_LANG OF 'cl_lang.prg'
+
+      IF loConversor.l_Error
+         This.l_Error = .T.
+      ENDIF
+
+      This.writeLog()
+      This.writeLog(loConversor.c_TextLog)
+
+      IF NOT EMPTY(loConversor.c_TextErr)
+         This.writeErrorLog( REPLICATE( '-', 100 ), 1 )
+         This.writeErrorLog( loLang.C_ERRORS_FOUND_IN_FILE_LOC + ' [' + This.c_InputFile + '] ' )
+         This.writeErrorLog( loConversor.c_TextErr )
+         This.writeErrorLog()
+      ENDIF
+   ENDPROC
+
+
+   PROTECTED PROCEDURE executeConversorOperation
+      *---------------------------------------------------------------------------------------------------
+      * Binds host props, runs convert or loadModule, and logs the conversor output.
+      * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
+      * loConversor               (v! IN    ) c_conversor_base from the factory
+      * toModulo                  (@?    OUT) Module object for unit tests — pass with @
+      * llLoadOnly                (v! IN    ) .T. = loadModule (LOAD_ONLY mode)
+      * laEvents                  (@! IN/OUT) BINDEVENT tracker array — pass with @
+      * loLang                    (v! IN    ) CL_LANG for progress and error messages
+      *---------------------------------------------------------------------------------------------------
+      LPARAMETERS loConversor AS c_conversor_base OF 'c_conversor_base.prg', toModulo, llLoadOnly AS Boolean, laEvents, loLang AS CL_LANG OF 'cl_lang.prg'
+
+      EXTERNAL ARRAY laEvents
+
+      This.bindConversorFromHost( loConversor )
+
+      IF llLoadOnly
+         loConversor.loadModule( @toModulo, .F., THIS )
+      ELSE
+         This.updateProgressbar( loLang.C_PROCESSING_LOC + ' ' + This.c_InputFile + '...', 0, 0, 0 )
+
+         IF AEVENTS( laEvents, loConversor ) = 0
+            BINDEVENT( loConversor, 'updateProgressbar', THIS, 'updateProgressbar' )
+         ENDIF
+
+         loConversor.convert( @toModulo, .F., THIS )
+         This.n_ProcessedFilesCount = This.n_ProcessedFilesCount + 1
+      ENDIF
+
+      This.logConversorOutput( loConversor, loLang )
+   ENDPROC
+
+
    PROTECTED PROCEDURE convert
       *--------------------------------------------------------------------------------------------------------------
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
@@ -2579,8 +2836,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       LPARAMETERS tc_InputFile, toModulo, toEx AS EXCEPTION, tlRelanzarError, tcOriginalFileName, tcMode
 
       TRY
-         LOCAL lnCodError, lcErrorInfo, laDirFile(1,5), lcExtension, lnFileCount, laFiles(1,1), I ;
-            , ltFilestamp, lcExtA, lcExtB, laEvents(1,1), lcForceAttribs, lnIDInputFile, llLoadOnly, lc_OldSetNotify, lc_BaseFile ;
+         LOCAL lnCodError, lcErrorInfo, laDirFile(1,5), lcExtension, lnFileCount, laFiles(1,1), laEvents(1,1), lcForceAttribs, lnIDInputFile, llLoadOnly, lc_OldSetNotify, lc_BaseFile ;
             , loLang AS CL_LANG OF 'cl_lang.prg' ;
             , loConversor AS c_conversor_base OF 'c_conversor_base.prg' ;
             , loFSO AS Scripting.FileSystemObject
@@ -2617,100 +2873,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   lcForceAttribs  = lcForceAttribs + '-R'
                ENDIF
 
-               *-- VC2/SC2 OPTIMIZATION: CHECK WHETHER BASE FILE WAS PROCESSED TO SKIP REPROCESSING
-               IF INLIST(lcExtension,"VCX",.getCfgValue('c_VC2'));
-                     AND (.getCfgValue('n_UseClassPerFile') > 0 AND .getCfgValue('l_RedirectClassPerFileToMain') ;
-                     OR NOT EMPTY(.c_ClassToConvert))
-
-                  DO CASE
-
-                  CASE .getCfgValue('n_RedirectClassType') = 1 OR NOT EMPTY(.c_ClassToConvert) && Redirect only this class
-                     IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
-                        lc_BaseFile = .c_InputFile
-                     ELSE
-                        lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM(.c_InputFile) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
-                     ENDIF
-
-                  CASE .getCfgValue('n_UseClassPerFile') = 1 AND INLIST(lcExtension,.getCfgValue('c_VC2'))
-                     IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
-                        lc_BaseFile = .c_InputFile
-                     ELSE
-                        lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM(.c_InputFile) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
-                     ENDIF
-
-                     IF '.' $ JUSTSTEM(.c_InputFile)
-                        .c_InputFile    = lc_BaseFile
-                     ENDIF
-
-                  CASE .getCfgValue('n_UseClassPerFile') = 2 AND INLIST(lcExtension,.getCfgValue('c_VC2'))
-                     IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
-                        lc_BaseFile = .c_InputFile
-                     ELSE
-                        lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM( JUSTSTEM(.c_InputFile) ) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
-                     ENDIF
-
-                     IF '.' $ JUSTSTEM(.c_InputFile)
-                        .c_InputFile    = lc_BaseFile
-                     ENDIF
-
-                  ENDCASE
-               ENDIF
-
-               IF INLIST(lcExtension,"SCX",.getCfgValue('c_SC2'));
-                     AND (.getCfgValue('n_UseFormPerFile') > 0 AND .getCfgValue('l_RedirectFormPerFileToMain') ;
-                     OR NOT EMPTY(.c_ClassToConvert))
-
-                  DO CASE
-
-                  CASE .getCfgValue('n_RedirectFormType') = 1 OR NOT EMPTY(.c_ClassToConvert) && Redirect only this class
-                     IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
-                        lc_BaseFile = .c_InputFile
-                     ELSE
-                        lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM(.c_InputFile) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
-                     ENDIF
-
-                  CASE .getCfgValue('n_UseFormPerFile') = 1 AND INLIST(lcExtension,.getCfgValue('c_SC2'))
-                     IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
-                        lc_BaseFile = .c_InputFile
-                     ELSE
-                        lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM(.c_InputFile) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
-                     ENDIF
-
-                     IF '.' $ JUSTSTEM(.c_InputFile)
-                        .c_InputFile    = lc_BaseFile
-                     ENDIF
-
-                  CASE .getCfgValue('n_UseFormPerFile') = 2 AND INLIST(lcExtension,.getCfgValue('c_SC2'))
-                     IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
-                        lc_BaseFile = .c_InputFile
-                     ELSE
-                        lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM( JUSTSTEM(.c_InputFile) ) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
-                     ENDIF
-
-                     IF '.' $ JUSTSTEM(.c_InputFile)
-                        .c_InputFile    = lc_BaseFile
-                     ENDIF
-
-                  ENDCASE
-               ENDIF
-
-               *-- DC2 OPTIMIZATION: CHECK WHETHER BASE FILE WAS PROCESSED TO SKIP REPROCESSING
-               IF INLIST(lcExtension,"DBC",.getCfgValue('c_DC2'));
-                     AND .getCfgValue('n_UseFilesPerDBC') > 0 AND .getCfgValue('l_RedirectFilePerDBCToMain');
-                     AND .getCfgValue('n_UseFilesPerDBC') = 1
-
-                  IF OCCURS('.', JUSTSTEM(.c_InputFile)) = 0 THEN
-                     lc_BaseFile = .c_InputFile
-                  ELSE
-                     lc_BaseFile = FORCEPATH( FORCEEXT( JUSTSTEM( JUSTSTEM( JUSTSTEM(.c_InputFile) ) ), JUSTEXT(.c_InputFile)) , JUSTPATH(.c_InputFile) )
-                  ENDIF
-
-                  IF '.' $ JUSTSTEM(.c_InputFile)
-                     .c_InputFile    = lc_BaseFile
-                  ENDIF
-
-               ENDIF
-
+               lc_BaseFile = .resolveInputBaseFile( lcExtension )
                ERASE ( .c_InputFile + '.ERR' )
             ENDIF
 
@@ -2758,125 +2921,15 @@ DEFINE CLASS c_foxbin2prg AS SESSION
                   .c_OutputFile = loConversor.get_MirroredOutputFile( .c_OutputFile )
                ENDIF
 
-               lnFileCount = ADIR( laFiles, FORCEEXT( .c_InputFile, '*' ), '', 1 )
-               STORE {//::} TO .t_InputFile_TimeStamp, .t_OutputFile_TimeStamp, ltFilestamp
+               .captureConversionFilestamps( @laFiles, @lnFileCount )
 
-               IF lnFileCount > 0 THEN
-                  I   = ASCAN( laFiles, JUSTFNAME(.c_InputFile), 1, 0, 1, 1+2+4+8 )
-                  IF m.I > 0 THEN
-                     .t_InputFile_TimeStamp  =   DATETIME( YEAR(laFiles(m.I,3)), MONTH(laFiles(m.I,3)), DAY(laFiles(m.I,3)) ;
-                        , VAL(LEFT(laFiles(m.I,4),2)), VAL(SUBSTR(laFiles(m.I,4),4,2)), VAL(RIGHT(laFiles(m.I,4),2)) )
-                  ENDIF
-
-                  IF ADIR( laDirFile, .c_OutputFile ) > 0 THEN
-                     I   = ASCAN( laFiles, JUSTFNAME(.c_OutputFile), 1, 0, 1, 1+2+4+8 )
-                     IF m.I > 0 THEN
-                        .t_OutputFile_TimeStamp =   DATETIME( YEAR(laFiles(m.I,3)), MONTH(laFiles(m.I,3)), DAY(laFiles(m.I,3)) ;
-                           , VAL(LEFT(laFiles(m.I,4),2)), VAL(SUBSTR(laFiles(m.I,4),4,2)), VAL(RIGHT(laFiles(m.I,4),2)) )
-                     ENDIF
-
-                     lcExtA  = UPPER(JUSTEXT(.c_OutputFile))
-
-                     DO CASE
-                     CASE INLIST(lcExtA, 'SCX', 'VCX', 'MNX', 'FRX', 'LBX')
-                        lcExtB  = ICASE(lcExtA = 'SCX', 'SCT' ;
-                           , lcExtA = 'VCX', 'VCT' ;
-                           , lcExtA = 'MNX', 'MNT' ;
-                           , lcExtA = 'FRX', 'FRT' ;
-                           , lcExtA = 'LBX', 'LBT')
-                        I   = ASCAN( laFiles, JUSTFNAME( FORCEEXT(.c_OutputFile, lcExtB) ), 1, 0, 1, 1+2+4+8 )
-                        IF m.I > 0 THEN
-                           ltFilestamp = DATETIME( YEAR(laFiles(m.I,3)), MONTH(laFiles(m.I,3)), DAY(laFiles(m.I,3)) ;
-                              , VAL(LEFT(laFiles(m.I,4),2)), VAL(SUBSTR(laFiles(m.I,4),4,2)), VAL(RIGHT(laFiles(m.I,4),2)) )
-                        ENDIF
-
-                     ENDCASE
-
-                     .t_OutputFile_TimeStamp =   MAX( .t_OutputFile_TimeStamp, ltFilestamp )
-                  ENDIF
+               IF !.shouldSkipByFilestamp( lcExtension, loLang )
+                  .executeConversorOperation( loConversor, @toModulo, llLoadOnly, @laEvents, loLang )
                ENDIF
-
-               DO CASE
-               CASE INLIST(lcExtension,"VCX",.getCfgValue('c_VC2')) AND .getCfgValue('n_UseClassPerFile') = 0 AND .getCfgValue('n_OptimizeByFilestamp') = 1 AND .t_InputFile_TimeStamp < .t_OutputFile_TimeStamp
-                  .writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC) )
-
-               CASE INLIST(lcExtension,"VCX",.getCfgValue('c_VC2')) AND .getCfgValue('n_UseClassPerFile') = 0 AND .getCfgValue('n_OptimizeByFilestamp') = 2 AND .t_InputFile_TimeStamp = .t_OutputFile_TimeStamp
-                  .writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC) )
-
-               CASE INLIST(lcExtension,"SCX",.getCfgValue('c_SC2')) AND .getCfgValue('n_UseFormPerFile') = 0 AND .getCfgValue('n_OptimizeByFilestamp') = 1 AND .t_InputFile_TimeStamp < .t_OutputFile_TimeStamp
-                  .writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_NEWER_THAN_INPUTFILE_TIMESTAMP_LOC) )
-
-               CASE INLIST(lcExtension,"SCX",.getCfgValue('c_SC2')) AND .getCfgValue('n_UseFormPerFile') = 0 AND .getCfgValue('n_OptimizeByFilestamp') = 2 AND .t_InputFile_TimeStamp = .t_OutputFile_TimeStamp
-                  .writeLog( C_TAB + C_TAB + '* ' + TEXTMERGE(loLang.C_OUTPUTFILE_TIMESTAMP_EQUAL_THAN_INPUTFILE_TIMESTAMP_LOC) )
-
-               OTHERWISE
-                  .c_Type                             = UPPER(JUSTEXT(.c_OutputFile))
-                  loConversor.c_InputFile             = .c_InputFile
-                  loConversor.c_OutputFile            = .c_OutputFile
-                  loConversor.c_LogFile               = .c_LogFile
-                  loConversor.n_Debug                 = .getCfgValue('n_Debug')
-                  loConversor.l_Test                  = .l_Test
-                  loConversor.n_FB2PRG_Version        = .n_FB2PRG_Version
-                  loConversor.l_MethodSort_Enabled    = .l_MethodSort_Enabled
-                  loConversor.l_PropSort_Enabled      = .l_PropSort_Enabled
-                  loConversor.l_ReportSort_Enabled    = .l_ReportSort_Enabled
-                  loConversor.c_OriginalFileName      = .c_OriginalFileName
-                  loConversor.c_Foxbin2prg_FullPath   = .c_Foxbin2prg_FullPath
-
-                  .updateProgressbar( loLang.C_PROCESSING_LOC + ' ' + .c_InputFile + '...', 0, 0, 0 )
-
-                  IF AEVENTS( laEvents, loConversor ) = 0 THEN
-                     BINDEVENT( loConversor, 'updateProgressbar', THIS, 'updateProgressbar' )
-                  ENDIF
-
-                  loConversor.convert( @toModulo, .F., THIS )
-
-                  IF loConversor.l_Error THEN
-                     .l_Error = .T.
-                  ENDIF
-
-                  .n_ProcessedFilesCount  = .n_ProcessedFilesCount + 1
-                  .writeLog()
-                  .writeLog(loConversor.c_TextLog)
-
-                  IF NOT EMPTY(loConversor.c_TextErr) THEN
-                     .writeErrorLog( REPLICATE( '-', 100 ), 1 )
-                     .writeErrorLog( loLang.C_ERRORS_FOUND_IN_FILE_LOC + ' [' + .c_InputFile + '] ' )
-                     .writeErrorLog( loConversor.c_TextErr )
-                     .writeErrorLog( )
-                  ENDIF
-               ENDCASE
 
                .normalizeFileCapitalization()
             ELSE
-               .c_Type                             = UPPER(JUSTEXT(.c_OutputFile))
-               loConversor.c_InputFile             = .c_InputFile
-               loConversor.c_OutputFile            = .c_OutputFile
-               loConversor.c_LogFile               = .c_LogFile
-               loConversor.n_Debug                 = .getCfgValue('n_Debug')
-               loConversor.l_Test                  = .l_Test
-               loConversor.n_FB2PRG_Version        = .n_FB2PRG_Version
-               loConversor.l_MethodSort_Enabled    = .l_MethodSort_Enabled
-               loConversor.l_PropSort_Enabled      = .l_PropSort_Enabled
-               loConversor.l_ReportSort_Enabled    = .l_ReportSort_Enabled
-               loConversor.c_OriginalFileName      = .c_OriginalFileName
-               loConversor.c_Foxbin2prg_FullPath   = .c_Foxbin2prg_FullPath
-
-               loConversor.loadModule( @toModulo, .F., THIS )
-
-               IF loConversor.l_Error THEN
-                  .l_Error = .T.
-               ENDIF
-
-               .writeLog()
-               .writeLog(loConversor.c_TextLog)
-
-               IF NOT EMPTY(loConversor.c_TextErr) THEN
-                  .writeErrorLog( REPLICATE( '-', 100 ), 1 )
-                  .writeErrorLog( loLang.C_ERRORS_FOUND_IN_FILE_LOC + ' [' + .c_InputFile + '] ' )
-                  .writeErrorLog( loConversor.c_TextErr )
-                  .writeErrorLog( )
-               ENDIF
+               .executeConversorOperation( loConversor, @toModulo, llLoadOnly, @laEvents, loLang )
             ENDIF
          ENDWITH
 
@@ -2913,8 +2966,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
             ENDIF
          ENDIF
 
-         RELEASE lcErrorInfo, laDirFile, lcExtension, lnFileCount, laFiles, I ;
-            , ltFilestamp, lcExtA, lcExtB ;
+         RELEASE lcErrorInfo, laDirFile, lcExtension, lnFileCount, laFiles ;
             , loConversor, loFSO
       ENDTRY
 

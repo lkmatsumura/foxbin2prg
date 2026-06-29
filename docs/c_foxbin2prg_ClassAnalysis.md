@@ -176,10 +176,22 @@ Propriedades `n_UseClassPerFile`, `l_UseClassPerDir`, `n_UseFormPerFile`, `n_Use
 
 | Método | Visibilidade | Finalidade |
 |---|---|---|
-| **`convert`** | Protected | Conversão completa (linhas ~2082–2436): factory, otimização por timestamp, per-file, recompilação |
-| **`loadModule`** | Public | Unit tests (~3101): delega a `convert(..., 'LOAD_ONLY')` |
+| **`convert`** | Protected | Orquestra conversão completa (~2825–2974): factory, helpers per-file/timestamp, `executeConversorOperation` |
+| **`loadModule`** | Public | Unit tests: delega a `convert(..., 'LOAD_ONLY')` |
 | **`compileFoxProBinary`** | Public | `COMPILE CLASSLIB/FORM/REPORT/...` após regeneração |
 | **`get_PROGRAM_HEADER`** | Public | Cabeçalho meta dos arquivos texto |
+
+Helpers protegidos de `convert` (linhas ~2568–2822):
+
+| Método | Finalidade |
+|---|---|
+| **`computePerFileBasePath`** | Remove sufixos dotted do stem (níveis 2 ou 3) para obter o arquivo container |
+| **`resolveInputBaseFile`** | Unifica otimização VCX/SCX/DBC per-file; pode reescrever `c_InputFile` |
+| **`captureConversionFilestamps`** | Preenche `t_InputFile_TimeStamp` / `t_OutputFile_TimeStamp` via ADIR |
+| **`shouldSkipByFilestamp`** | `.T.` quando `n_OptimizeByFilestamp` indica saída já atualizada |
+| **`bindConversorFromHost`** | Copia estado da sessão para o conversor (props duplicadas FULL/LOAD_ONLY) |
+| **`logConversorOutput`** | Escreve log/erro do conversor; propaga `l_Error` |
+| **`executeConversorOperation`** | `bind` + `convert` ou `loadModule` + progress/BINDEVENT + log |
 
 ### 6. Processamento de projetos
 
@@ -373,7 +385,7 @@ Após factory, logger e refatoração do `execute`, o orquestrador continua leg�
 | Bloco | Linhas ~ | Observação |
 |---|---|---|
 | Pipeline `execute` (helpers protegidos) | ~640 | Bem decomposto (`dispatchExecuteMode`, handlers), mas ainda no host |
-| `convert` | ~350 | Maior método restante |
+| `convert` + helpers | ~150 + ~255 | **Refatorado** — lógica per-file/timestamp/exec extraída |
 | `evaluate_Full_PJX` + `evaluate_Full_PJ2` | ~90 + helpers ~240 | **Unificado** — loop em `processProjectMembersLoop` |
 | Per-file VCX/SCX/DBC | ~280 | Usado por factory, conversores e resolução PJ2 |
 | UTF-8 / text I/O | ~90 | Usado por mirror e conversores |
@@ -393,7 +405,7 @@ Após factory, logger e refatoração do `execute`, o orquestrador continua leg�
 | **`doBackup` / logging no host** | God Object | **Mitigado** — `cl_fb2prg_logger`; `doBackup` em `cl_file_utils` (wrapper no host) |
 | **I/O Win32 no orquestrador** | Responsabilidade OS misturada | **Parcial** — `cl_file_utils` e `cl_fb2prg_mirror` extraídos |
 | **Duplicação PJX ↔ PJ2** | Risco de divergência em batch | **Resolvido** — `processProjectMembersLoop` e helpers compartilhados |
-| **`convert` ainda grande** | Difícil manter otimizações per-file | **Pendente** — blocos VCX/SCX/DBC repetidos internamente |
+| **`convert` ainda grande** | Difícil manter otimizações per-file | **Resolvido** — `resolveInputBaseFile`, `shouldSkipByFilestamp`, `bindConversorFromHost`, etc. |
 | **`get_SeparatedLineAndComment` duplicado** | ~85 linhas × 2 arquivos | **Pendente** — `c_foxbin2prg` e `cl_cus_base` |
 | **Bug em `updateProcessedFile`** | Coluna 2 usa `tcProcessed` em vez de `tcInOutType` | **Pendente** — mascarado pelos call sites atuais |
 
@@ -412,7 +424,8 @@ Após factory, logger e refatoração do `execute`, o orquestrador continua leg�
 | Logger + `exception2Str` / `doWriteErrorLog` | `cl_fb2prg_logger.prg` |
 | Unificar `convert` / `loadModule` (`tcMode`: `FULL` \| `LOAD_ONLY`) | `c_foxbin2prg.prg` |
 | Refatorar `execute` em despacho por modo | `c_foxbin2prg.prg` |
-| Documentação de métodos e parâmetros (`PARAMETERS:` em todos os 136 métodos) | `c_foxbin2prg.prg` |
+| Documentação de métodos e parâmetros (`PARAMETERS:` em todos os métodos) | `c_foxbin2prg.prg` |
+| Refatorar `convert` internamente (helpers per-file, timestamp, bind) | `c_foxbin2prg.prg` |
 | Modularização (`c_*.prg` / `cl_*.prg` + `unify.txt`) | Repositório |
 
 ### Prioridade alta (maior impacto, risco controlado)
@@ -431,15 +444,16 @@ Após factory, logger e refatoração do `execute`, o orquestrador continua leg�
 
 #### 2. Refatorar `convert` internamente (~350 linhas)
 
-Sem mudar assinatura pública. Extrações sugeridas:
+**Concluído (2026-06-29).** Assinatura pública inalterada. Helpers protegidos:
 
-```foxpro
-resolveInputBaseFile(lcExtension, lcInputFile)   && VCX/SCX/DBC — blocos quase idênticos hoje
-bindConversorFromHost(loConversor)               && props duplicadas FULL vs LOAD_ONLY
-shouldSkipByFilestamp(...)                       && otimização por timestamp
-```
+- `computePerFileBasePath` — strip de stem dotted (2 ou 3 níveis)
+- `resolveInputBaseFile` — unifica blocos VCX/SCX/DBC per-file
+- `captureConversionFilestamps` — timestamps input/output (+ memo sidecar)
+- `shouldSkipByFilestamp` — otimização por timestamp (VCX/SCX, per-file off)
+- `bindConversorFromHost` — props duplicadas FULL vs LOAD_ONLY
+- `logConversorOutput` / `executeConversorOperation` — execução e log unificados
 
-**Ganho:** método mais legível; hoje é o ponto mais difícil de manter.
+`convert` reduzido a ~150 linhas (pipeline + TRY/CATCH/FINALLY).
 
 #### 3. Extrair `cl_fb2prg_per_file` (~280 linhas)
 
@@ -494,7 +508,7 @@ Call sites atuais (`updateProcessedFile()` sem args ou `updateProcessedFile(lnID
 ### Ordem de implementação recomendada
 
 1. ~~Unificar loop PJX/PJ2~~ **Concluído (2026-06-29)**
-2. Refatorar `convert` por dentro (sem mudar assinatura)
+2. ~~Refatorar `convert` por dentro (sem mudar assinatura)~~ **Concluído (2026-06-29)**
 3. Extrair `cl_fb2prg_per_file`
 4. Corrigir `updateProcessedFile`
 5. Opcional: `cl_fb2prg_execute`, text I/O, process tracker, code parser
