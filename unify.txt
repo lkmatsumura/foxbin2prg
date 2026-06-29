@@ -57,6 +57,7 @@ cl_fb2prg_mirror.prg
 cl_fb2prg_conversion_factory.prg
 cl_fb2prg_logger.prg
 cl_fb2prg_special_props.prg
+cl_fb2prg_split_paths.prg
 cl_file_utils.prg
 cl_lang.prg
 cl_lang_de.prg

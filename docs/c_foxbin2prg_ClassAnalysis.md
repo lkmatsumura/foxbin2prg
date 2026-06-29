@@ -1,7 +1,7 @@
 # Documentação: classe `c_foxbin2prg`
 
 > Análise estrutural da classe orquestradora do FoxBin2Prg (Visual FoxPro 9).  
-> Arquivo fonte modular: `c_foxbin2prg.prg` (~3.500 linhas, 136 métodos).  
+> Arquivo fonte modular: `c_foxbin2prg.prg` (~3.875 linhas).  
 > Data da análise: 2026-06-29 (pós-modularização, factory, logger e plano de melhorias restantes)
 
 ---
@@ -28,6 +28,7 @@ flowchart TB
     subgraph helpers [Helpers extraídos]
         FU[cl_file_utils o_FileUtils]
         MIR[cl_fb2prg_mirror o_Mirror]
+        SPL[cl_fb2prg_split_paths o_SplitPaths]
         LOG[cl_fb2prg_logger o_Logger]
         FAC[cl_fb2prg_conversion_factory o_ConversionFactory]
     end
@@ -47,6 +48,8 @@ flowchart TB
     EXEC --> MIRR
     PROJ --> CONV
     MIRR --> MIR
+    CONV --> SPL
+    EXEC --> SPL
     EXEC --> FU
     CONV --> FAC
     FAC --> CVX & SCX & PJX & OUT
@@ -181,17 +184,34 @@ Propriedades `n_UseClassPerFile`, `l_UseClassPerDir`, `n_UseFormPerFile`, `n_Use
 | **`compileFoxProBinary`** | Public | `COMPILE CLASSLIB/FORM/REPORT/...` após regeneração |
 | **`get_PROGRAM_HEADER`** | Public | Cabeçalho meta dos arquivos texto |
 
-Helpers protegidos de `convert` (linhas ~2568–2822):
+Helpers protegidos de `convert` (permanecem no host, linhas ~2660–2822):
 
 | Método | Finalidade |
 |---|---|
-| **`computePerFileBasePath`** | Remove sufixos dotted do stem (níveis 2 ou 3) para obter o arquivo container |
-| **`resolveInputBaseFile`** | Unifica otimização VCX/SCX/DBC per-file; pode reescrever `c_InputFile` |
 | **`captureConversionFilestamps`** | Preenche `t_InputFile_TimeStamp` / `t_OutputFile_TimeStamp` via ADIR |
 | **`shouldSkipByFilestamp`** | `.T.` quando `n_OptimizeByFilestamp` indica saída já atualizada |
 | **`bindConversorFromHost`** | Copia estado da sessão para o conversor (props duplicadas FULL/LOAD_ONLY) |
 | **`logConversorOutput`** | Escreve log/erro do conversor; propaga `l_Error` |
 | **`executeConversorOperation`** | `bind` + `convert` ou `loadModule` + progress/BINDEVENT + log |
+
+Wrappers protegidos → **`o_SplitPaths`**: `computePerFileBasePath`, `resolveInputBaseFile`.
+
+### 5b. Layout split (`cl_fb2prg_split_paths` via `o_SplitPaths`)
+
+Wrappers públicos no host (API inalterada para conversores e factory):
+
+| Método wrapper | Delegado em `cl_fb2prg_split_paths.prg` |
+|---|---|
+| `getPerFileDir` | Diretório de saída/busca per-file |
+| `getPerFileOutputPath` | Caminho completo do `.vc2`/`.sc2` split |
+| `getPerFileSearchDir` | Pasta para varrer partes irmãs |
+| `getPerFileBinaryOutputPath` | `.vcx`/`.scx` de saída quando texto está em subpasta |
+| `ensurePerFileDir` | Cria árvore per-dir (`o_Host.makeDirTree`) |
+| `resolvePj2TextMemberPath` | Texto correto para membro PJ2 |
+| `isPj2TextMemberAvailable` | `.T.` se import PJ2 pode prosseguir |
+| `rewritePerObjectInputPath` | Import de classe/form única (`execute`) |
+
+Helper interno: **`normalizePerFileParams`** — coerção de `tlUsePerDir` / `lnUsePerFile`.
 
 ### 6. Processamento de projetos
 
@@ -387,11 +407,11 @@ Após factory, logger e refatoração do `execute`, o orquestrador continua leg�
 | Pipeline `execute` (helpers protegidos) | ~640 | Bem decomposto (`dispatchExecuteMode`, handlers), mas ainda no host |
 | `convert` + helpers | ~150 + ~255 | **Refatorado** — lógica per-file/timestamp/exec extraída |
 | `evaluate_Full_PJX` + `evaluate_Full_PJ2` | ~90 + helpers ~240 | **Unificado** — loop em `processProjectMembersLoop` |
-| Per-file VCX/SCX/DBC | ~280 | Usado por factory, conversores e resolução PJ2 |
+| Per-file VCX/SCX/DBC | ~280 | **Extraído** — `cl_fb2prg_split_paths.prg`; ~10 wrappers no host |
 | UTF-8 / text I/O | ~90 | Usado por mirror e conversores |
 | Process tracker | ~120 | Array `a_ProcessedFiles` |
 | `get_SeparatedLineAndComment` | ~85 | **Cópia idêntica** em `cl_cus_base.prg` |
-| Wrappers finos (CFG, mirror, logger, file utils) | ~200 | Fachada intencional — não remover |
+| Wrappers finos (CFG, mirror, split paths, logger, file utils) | ~250 | Fachada intencional — não remover |
 
 ---
 
@@ -426,6 +446,7 @@ Após factory, logger e refatoração do `execute`, o orquestrador continua leg�
 | Refatorar `execute` em despacho por modo | `c_foxbin2prg.prg` |
 | Documentação de métodos e parâmetros (`PARAMETERS:` em todos os métodos) | `c_foxbin2prg.prg` |
 | Refatorar `convert` internamente (helpers per-file, timestamp, bind) | `c_foxbin2prg.prg` |
+| Extrair layout split → `cl_fb2prg_split_paths` | `cl_fb2prg_split_paths.prg` |
 | Modularização (`c_*.prg` / `cl_*.prg` + `unify.txt`) | Repositório |
 
 ### Prioridade alta (maior impacto, risco controlado)
@@ -444,28 +465,28 @@ Após factory, logger e refatoração do `execute`, o orquestrador continua leg�
 
 #### 2. Refatorar `convert` internamente (~350 linhas)
 
-**Concluído (2026-06-29).** Assinatura pública inalterada. Helpers protegidos:
+**Concluído (2026-06-29).** Assinatura pública inalterada. Helpers protegidos no host:
 
-- `computePerFileBasePath` — strip de stem dotted (2 ou 3 níveis)
-- `resolveInputBaseFile` — unifica blocos VCX/SCX/DBC per-file
 - `captureConversionFilestamps` — timestamps input/output (+ memo sidecar)
 - `shouldSkipByFilestamp` — otimização por timestamp (VCX/SCX, per-file off)
 - `bindConversorFromHost` — props duplicadas FULL vs LOAD_ONLY
 - `logConversorOutput` / `executeConversorOperation` — execução e log unificados
 
+Wrappers → `o_SplitPaths`: `computePerFileBasePath`, `resolveInputBaseFile` (ver item 3).
+
 `convert` reduzido a ~150 linhas (pipeline + TRY/CATCH/FINALLY).
 
-#### 3. Extrair `cl_fb2prg_per_file` (~280 linhas)
+#### 3. Extrair `cl_fb2prg_split_paths` (~400 linhas)
 
-Candidatos:
+**Concluído (2026-06-29).** Módulo [`cl_fb2prg_split_paths.prg`](cl_fb2prg_split_paths.prg) com `o_Host`; lazy-init via `ensureSplitPaths()`.
 
+Implementação movida:
+
+- `normalizePerFileParams`, `computePerFileBasePath`, `resolveInputBaseFile`
 - `getPerFileDir`, `getPerFileOutputPath`, `getPerFileSearchDir`, `getPerFileBinaryOutputPath`, `ensurePerFileDir`
-- `resolvePj2TextMemberPath`, `isPj2TextMemberAvailable`
-- `rewritePerObjectInputPath` (parte do pipeline `execute`)
+- `resolvePj2TextMemberPath`, `isPj2TextMemberAvailable`, `rewritePerObjectInputPath`
 
-Incluir helper interno `normalizePerFileParams(tlUsePerDir, lnUsePerFile)` para eliminar boilerplate repetido em cada método.
-
-Manter wrappers em `c_foxbin2prg` para API estável. Usado por `cl_fb2prg_conversion_factory`, conversores `prg_a_*` e batch de projetos.
+Wrappers 1:1 em `c_foxbin2prg` — conversores, factory e Thor **sem alteração**.
 
 ### Prioridade média
 
@@ -509,7 +530,7 @@ Call sites atuais (`updateProcessedFile()` sem args ou `updateProcessedFile(lnID
 
 1. ~~Unificar loop PJX/PJ2~~ **Concluído (2026-06-29)**
 2. ~~Refatorar `convert` por dentro (sem mudar assinatura)~~ **Concluído (2026-06-29)**
-3. Extrair `cl_fb2prg_per_file`
+3. ~~Extrair `cl_fb2prg_split_paths`~~ **Concluído (2026-06-29)**
 4. Corrigir `updateProcessedFile`
 5. Opcional: `cl_fb2prg_execute`, text I/O, process tracker, code parser
 
@@ -558,6 +579,11 @@ classDiagram
         +get_MirroredPath()
         +copyUnconvertedFile()
     }
+    class cl_fb2prg_split_paths {
+        +getPerFileOutputPath()
+        +resolvePj2TextMemberPath()
+        +resolveInputBaseFile()
+    }
     class cl_fb2prg_conversion_factory {
         +createConversor()
         +prepareConversion()
@@ -570,6 +596,7 @@ classDiagram
     c_foxbin2prg --> cl_fb2prg_cfg
     c_foxbin2prg --> cl_file_utils
     c_foxbin2prg --> cl_fb2prg_mirror
+    c_foxbin2prg --> cl_fb2prg_split_paths
     c_foxbin2prg --> cl_fb2prg_conversion_factory
     c_foxbin2prg --> cl_fb2prg_logger
     c_foxbin2prg --> c_conversor_base : delega conversão
@@ -588,7 +615,7 @@ classDiagram
         +dispatchExecuteMode()
         +executeDirectoryBatch()
     }
-    class cl_fb2prg_per_file {
+    class cl_fb2prg_split_paths {
         +getPerFileOutputPath()
         +resolvePj2TextMemberPath()
     }
@@ -602,7 +629,7 @@ classDiagram
     }
 
     c_foxbin2prg --> cl_fb2prg_execute
-    c_foxbin2prg --> cl_fb2prg_per_file
+    c_foxbin2prg --> cl_fb2prg_split_paths
     c_foxbin2prg --> cl_fb2prg_project_batch
     c_foxbin2prg --> cl_fb2prg_process_tracker
     c_foxbin2prg --> cl_fb2prg_conversion_factory
