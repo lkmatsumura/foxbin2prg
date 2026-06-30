@@ -27,19 +27,19 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
          Local lnCodError, loRegClass, loRegObj  , lnMethodCount, lnLen, lnObjCount, lnLastClass, lnRecno ;
              , lcMethods, lcObjName, I, lnPropsAndValues_Count, lnPropsAndComments_Count, lnProtected_Count ;
              , lcCodigo , lnClassCount, lcOutputFile, lcExternalHeader, lnClassTotal, lnStepCount, lnStep ;
-             , lcObjPathInsideClass, lnPos, lcSc2Ext, llUseFormPerDir, lnUseFormPerFile
+             , lcObjPathInsideClass, lnPos, lcSc2Ext, llUseFormPerDir, lnUseFormPerFile, lnDataEnvCount
 
          LOCAL loLang As CL_LANG Of 'cl_lang.prg'
 
          LOCAL laMethods(1), laCode(1), laProtected(1), laPropsAndValues(1), laPropsAndComments(1), la_NombresObjsOle(1) ;
-             , laObjs(1,4), laClasses(1,3)
+             , laObjs(1,4), laClasses(1,3), laDataEnvNames(1)
 
 
          Store 0 To lnCodError, lnLastClass, lnObjCount, lnPropsAndValues_Count, lnPropsAndComments_Count ;
-                  , lnProtected_Count, lnMethodCount, lnClassCount, lnStepCount, lnStep
+                  , lnProtected_Count, lnMethodCount, lnClassCount, lnStepCount, lnStep, lnDataEnvCount
 
          Store '' To laMethods, laCode, laProtected, laPropsAndComments, laObjs, lcCodigo, laClasses, lcOutputFile ;
-                   , C_FB2PRG_CODE, lcExternalHeader
+                   , C_FB2PRG_CODE, lcExternalHeader, laDataEnvNames
 
          Store .Null. To loRegClass, loRegObj
 
@@ -48,14 +48,11 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
          With This As c_conversor_scx_a_prg Of 'c_conversor_scx_a_prg.prg'
             Use (.c_InputFile) Shared Again Noupdate Alias _TABLAORIG
 
-            *!* LScheffler 20.08.2023
             *issue #96, including issue #95, [KestasL] keep CodePage relavant information for binary sources
             toFoxBin2Prg.i_CPID = Cpdbf("_TABLAORIG")
 
             Set NoCPTrans To Class,CLASSLOC,BaseClass,OBJNAME,Parent,PROPERTIES,Protected,METHODS;
                ,OBJCODE,OLE,OLE2,RESERVED1,RESERVED2,RESERVED3,RESERVED4,RESERVED5,RESERVED6,RESERVED7,RESERVED8,User
-
-            */LScheffler 20.08.2023
 
             Select _TABLAORIG.*,Recno() regnum From _TABLAORIG Into Cursor TABLABIN Readwrite
 
@@ -70,6 +67,14 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
             .get_OLEPublicObjectName( @la_NombresObjsOle )
 
             .write_OLEObjectDefinitions( @toFoxBin2Prg )
+
+            lnDataEnvCount = 0
+            Select TABLABIN
+            Scan For Lower( Alltrim( TABLABIN.BaseClass ) ) = 'dataenvironment'
+               lnDataEnvCount = lnDataEnvCount + 1
+               Dimension laDataEnvNames( lnDataEnvCount )
+               laDataEnvNames( lnDataEnvCount ) = Lower( Alltrim( TABLABIN.OBJNAME ) )
+            Endscan
 
             *-- Escribo los métodos ordenados
             lnLastObj       = 0
@@ -160,7 +165,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                lnObjCount  = 0
                lnRecno = Recno()
                Locate For Upper( TABLABIN.PLATFORM ) = "WINDOWS" And Lower( Alltrim( Getwordnum( TABLABIN.Parent, 1, '.' ) ) ) == Lower(lcObjName)
-               *!* LScheffler 04.08.2023
+
                Scan Rest While Upper( TABLABIN.PLATFORM ) = "WINDOWS" And Lower( Alltrim( Getwordnum( TABLABIN.Parent, 1, '.' ) ) ) == Lower(lcObjName)
                   lnObjCount  = lnObjCount + 1
                   loRegObj    = .Null.
@@ -183,10 +188,6 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                   Endif
 
                   Dimension laObjs(lnObjCount,4)
-                  laObjs(lnObjCount,1)    = loRegObj
-                  laObjs(lnObjCount,2)    = loRegObj.regnum       && ZOrder
-                  laObjs(lnObjCount,3)    = lnObjCount            && Alphabetic order
-                  laObjs(lnObjCount,4)    = lcObjPathInsideClass  && To check duplicates
 
                   If toFoxBin2Prg.getCfgValue('l_NoTimestamps')
                      loRegObj.Timestamp  = 0
@@ -197,6 +198,16 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                      loRegObj.UNIQUEID   = Alltrim(loRegObj.UNIQUEID)
                   Endif
 
+                  If toFoxBin2Prg.getCfgValue('l_StripDataEnvCursorPaths') ;
+                        And .isDataEnvCursor( @loRegObj, @laDataEnvNames, lnDataEnvCount )
+                     loRegObj.Properties = .stripDataEnvCursorProperties( loRegObj.Properties )
+                  Endif
+
+                  laObjs(lnObjCount,1)    = loRegObj
+                  laObjs(lnObjCount,2)    = loRegObj.regnum       && ZOrder
+                  laObjs(lnObjCount,3)    = lnObjCount            && Alphabetic order
+                  laObjs(lnObjCount,4)    = lcObjPathInsideClass  && To check duplicates
+
                   loRegObj    = .Null.
                Endscan
 
@@ -204,7 +215,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                Asort(laObjs, 2, -1, 0, 0)  && Orden por ZOrder
 
                If lnObjCount > 0
-                  lcCodigo    = lcCodigo + CR_LF + '  *-- OBJECTDATA items order determines ZOrder / El orden de los items OBJECTDATA determina el ZOrder '
+                  lcCodigo    = lcCodigo + CR_LF + C_TAB +'*-- OBJECTDATA items order determines ZOrder / El orden de los items OBJECTDATA determina el ZOrder '
 
                   For I = 1 To lnObjCount
                      .write_OBJECTMETADATA( laObjs(m.I,1), @lcCodigo )
@@ -384,11 +395,119 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
             , lnCodError, loRegClass, loRegObj, lnMethodCount, laMethods, laCode, laProtected, lnLen, lnObjCount ;
             , laPropsAndValues, laPropsAndComments, lnLastClass, lnRecno, lcMethods, lcObjName, la_NombresObjsOle ;
             , laObjs, I, lnPropsAndValues_Count, lnPropsAndComments_Count, lnProtected_Count ;
-            , lcCodigo, laClasses, lnClassCount, lcOutputFile
+            , lcCodigo, laClasses, lnClassCount, lcOutputFile, laDataEnvNames, lnDataEnvCount
 
       Endtry
 
       Return
    Endproc
+
+
+   Function isDataEnvCursor
+      *---------------------------------------------------------------------------------------------------
+      * True when the object is a cursor whose immediate parent is a DataEnvironment.
+      *---------------------------------------------------------------------------------------------------
+      Lparameters toRegObj, taDataEnvNames, tnDataEnvCount
+      Local lcParent, lcImmediateParent
+
+      If Lower( Alltrim( toRegObj.BaseClass ) ) # 'cursor' Or tnDataEnvCount < 1
+         Return .F.
+      Endif
+
+      lcParent = Lower( Alltrim( toRegObj.Parent ) )
+      If Empty( lcParent )
+         Return .F.
+      Endif
+
+      If '.' $ lcParent
+         lcImmediateParent = Lower( Getwordnum( lcParent, Getwordcount( lcParent, '.' ), '.' ) )
+      Else
+         lcImmediateParent = lcParent
+      Endif
+
+      Return Ascan( taDataEnvNames, lcImmediateParent, 1, 0, 0, 1+2 ) > 0
+   Endfunc
+
+
+   Function stripDataEnvCursorProperties
+      *---------------------------------------------------------------------------------------------------
+      * Removes directory paths from Database and CursorSource lines in PROPERTIES (CR+LF separated).
+      *---------------------------------------------------------------------------------------------------
+      Lparameters tcProperties
+      Local laLines(1), lnLines, lnI, lcLine, lnEqPos, lcProp, lcValue, lcNewValue, lcResult
+
+      If Empty( tcProperties )
+         Return tcProperties
+      Endif
+
+      lnLines = Alines( laLines, tcProperties, 0, CR_LF )
+      lcResult = ''
+
+      For lnI = 1 To lnLines
+         lcLine = laLines(lnI)
+
+         If Empty( lcLine ) Or C_MPROPHEADER $ lcLine
+            lcResult = lcResult + Iif( Empty( lcResult ), '', CR_LF ) + lcLine
+            Loop
+         Endif
+
+         lnEqPos = At( '=', lcLine )
+         If lnEqPos < 2
+            lcResult = lcResult + Iif( Empty( lcResult ), '', CR_LF ) + lcLine
+            Loop
+         Endif
+
+         lcProp = Lower( Alltrim( Left( lcLine, lnEqPos - 1 ) ) )
+         lcValue = Substr( lcLine, lnEqPos + 1 )
+
+         Do Case
+         Case lcProp == 'database'
+            lcNewValue = This.normalizeCursorPathPropertyValue( lcValue )
+            lcLine = Alltrim( Left( lcLine, lnEqPos - 1 ) ) + ' = ' + lcNewValue
+
+         Case lcProp == 'cursorsource'
+            If This.propertyValueHasPath( lcValue )
+               lcNewValue = This.normalizeCursorPathPropertyValue( lcValue )
+               lcLine = Alltrim( Left( lcLine, lnEqPos - 1 ) ) + ' = ' + lcNewValue
+            Endif
+         Endcase
+
+         lcResult = lcResult + Iif( Empty( lcResult ), '', CR_LF ) + lcLine
+      Endfor
+
+      Return lcResult
+   Endfunc
+
+
+   Function propertyValueHasPath
+      Lparameters tcValue
+      Local lcVal
+
+      lcVal = Alltrim( tcValue )
+      If Left( lcVal, 1 ) == '"' And Right( lcVal, 1 ) == '"'
+         lcVal = Substr( lcVal, 2, Len( lcVal ) - 2 )
+      Endif
+
+      Return ( '\' $ lcVal Or '/' $ lcVal Or ( Len( lcVal ) > 1 And Substr( lcVal, 2, 1 ) == ':' ) )
+   Endfunc
+
+
+   Function normalizeCursorPathPropertyValue
+      Lparameters tcValue
+      Local lcVal, lcOrig, llQuoted
+
+      lcOrig = tcValue
+      lcVal = Alltrim( tcValue )
+      llQuoted = ( Left( lcVal, 1 ) == '"' And Right( lcVal, 1 ) == '"' )
+      If llQuoted
+         lcVal = Substr( lcVal, 2, Len( lcVal ) - 2 )
+      Endif
+
+      If This.propertyValueHasPath( lcVal )
+         Return JustFname( lcVal )
+      Endif
+
+      Return lcOrig
+   Endfunc
 
 Enddefine

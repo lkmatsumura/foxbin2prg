@@ -104,6 +104,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       AddProperty(loCfg, 'n_RedirectFormType', 0)
       AddProperty(loCfg, 'l_FormPerFileCheck', .F.)
       AddProperty(loCfg, 'l_UseFormPerDir', .F.)
+      AddProperty(loCfg, 'l_StripDataEnvCursorPaths', .T.)
       AddProperty(loCfg, 'n_CheckFileInPath', 0)
       AddProperty(loCfg, 'l_OldFilesPerDBC', .T.)
       AddProperty(loCfg, 'n_UseFilesPerDBC', 0)
@@ -213,6 +214,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       This.appendCfgCatalogRow(@taCat, '3', 'l_RedirectFormPerFileToMain',   'L', '.T.|.F.')
       This.appendCfgCatalogRow(@taCat, '3', 'n_RedirectFormType',            'N', '0|1|2')
       This.appendCfgCatalogRow(@taCat, '3', 'l_FormPerFileCheck',            'L', '.T.|.F.')
+      This.appendCfgCatalogRow(@taCat, '3', 'l_StripDataEnvCursorPaths',     'L', '.T.|.F.')
 
       *-- 4 Mirror
       This.appendCfgCatalogRow(@taCat, '4', 'l_CopyNonConvertible',    'L', '.T.|.F.')
@@ -299,6 +301,8 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
          RETURN 'Import single form object into SCX when 2.'
       CASE tcProp == 'l_FormPerFileCheck'
          RETURN 'Validate per-form SC2 membership.'
+      CASE tcProp == 'l_StripDataEnvCursorPaths'
+         RETURN 'SCX export: strip paths from Database and CursorSource on DataEnvironment cursors.'
       CASE tcProp == 'l_CopyNonConvertible'
          RETURN 'Copy non-convertible PJX members into mirror tree.'
       CASE tcProp == 'l_CopyExcludedPjxFiles'
