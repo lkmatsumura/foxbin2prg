@@ -489,6 +489,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       ENDIF
    ENDPROC
 
+
    PROCEDURE ensureMirror
       *---------------------------------------------------------------------------------------------------
       * Lazy-init This.o_Mirror (cl_fb2prg_mirror) if missing.
@@ -498,6 +499,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          This.o_Mirror = NewObject('cl_fb2prg_mirror', 'cl_fb2prg_mirror.prg', NULL, This)
       ENDIF
    ENDPROC
+
 
    PROCEDURE ensureSplitPaths
       *---------------------------------------------------------------------------------------------------
@@ -509,6 +511,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       ENDIF
    ENDPROC
 
+
    PROCEDURE ensureExecute
       *---------------------------------------------------------------------------------------------------
       * Lazy-init This.o_Execute (cl_fb2prg_execute) if missing.
@@ -518,6 +521,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          This.o_Execute = NewObject('cl_fb2prg_execute', 'cl_fb2prg_execute.prg', NULL, This)
       ENDIF
    ENDPROC
+
 
    PROCEDURE ensureCfg
       *---------------------------------------------------------------------------------------------------
@@ -539,6 +543,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       ENDIF
    ENDPROC
 
+
    PROCEDURE ensureConversionFactory
       *---------------------------------------------------------------------------------------------------
       * Lazy-init This.o_ConversionFactory (cl_fb2prg_conversion_factory) if missing.
@@ -548,6 +553,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          This.o_ConversionFactory = NewObject('cl_fb2prg_conversion_factory', 'cl_fb2prg_conversion_factory.prg', NULL, This)
       ENDIF
    ENDPROC
+
 
    PROCEDURE ensureLogger
       *---------------------------------------------------------------------------------------------------
@@ -559,6 +565,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       ENDIF
    ENDPROC
 
+
    PROCEDURE declareDLL
       *---------------------------------------------------------------------------------------------------
       * Declares Win32 DLLs used by file operations; delegates to o_FileUtils.
@@ -567,6 +574,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureFileUtils()
       This.o_FileUtils.declareDLL()
    ENDPROC
+
 
    PROCEDURE get_AbsolutePath
       *---------------------------------------------------------------------------------------------------
@@ -897,6 +905,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
       RETURN lcTextExt
    ENDPROC
+
+
    PROCEDURE resolvePj2TextMemberPath
       *---------------------------------------------------------------------------------------------------
       * Wrapper -> o_SplitPaths.resolvePj2TextMemberPath (PJ2 import text path resolution).
@@ -908,6 +918,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureSplitPaths()
       RETURN This.o_SplitPaths.resolvePj2TextMemberPath(tcBinFile)
    ENDPROC
+
+
    FUNCTION isPj2TextMemberAvailable
       *---------------------------------------------------------------------------------------------------
       * Wrapper -> o_SplitPaths.isPj2TextMemberAvailable.
@@ -919,6 +931,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureSplitPaths()
       RETURN This.o_SplitPaths.isPj2TextMemberAvailable(tcBinFile)
    ENDFUNC
+
+
    PROCEDURE hasSupport_Bin2Prg(tcFileName AS STRING, tcDir AS STRING) AS Boolean
       *---------------------------------------------------------------------------------------------------
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
@@ -1026,6 +1040,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       RETURN This.o_Execute.mergeExecuteConfig( toCfg )
    ENDFUNC
 
+
    FUNCTION rewritePerObjectInputPath
       *---------------------------------------------------------------------------------------------------
       * Wrapper -> o_SplitPaths.rewritePerObjectInputPath (Import / RedirectClassType = 2).
@@ -1041,6 +1056,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       RETURN This.o_SplitPaths.rewritePerObjectInputPath(tc_InputFile, tcType, lcExt)
    ENDFUNC
 
+
    PROCEDURE execute
       *--------------------------------------------------------------------------------------------------------------
       * Main entry: convert one file/directory, a project batch, or show the configuration reference form.
@@ -1055,7 +1071,6 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureExecute()
       RETURN This.o_Execute.run( tc_InputFile, tcType, toCfg, @toEx )
    ENDPROC
-
 
 
    *==============================================================================================================
@@ -1535,6 +1550,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureLogger()
       This.o_Logger.doWriteErrorLog( @toEx, @tcErrorInfo )
    ENDPROC
+
+
    PROTECTED FUNCTION computePerFileBasePath
       *---------------------------------------------------------------------------------------------------
       * Wrapper -> o_SplitPaths.computePerFileBasePath.
@@ -1547,6 +1564,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureSplitPaths()
       RETURN This.o_SplitPaths.computePerFileBasePath(tcInputFile, tnStemLevels)
    ENDFUNC
+
+
    PROTECTED FUNCTION resolveInputBaseFile
       *---------------------------------------------------------------------------------------------------
       * Wrapper -> o_SplitPaths.resolveInputBaseFile (may rewrite c_InputFile on host).
@@ -1558,6 +1577,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureSplitPaths()
       RETURN This.o_SplitPaths.resolveInputBaseFile(lcExtension)
    ENDFUNC
+
+
    PROTECTED PROCEDURE captureConversionFilestamps
       *---------------------------------------------------------------------------------------------------
       * Populates t_InputFile_TimeStamp and t_OutputFile_TimeStamp from sibling files in the input folder.
@@ -2148,6 +2169,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureSplitPaths()
       RETURN This.o_SplitPaths.getPerFileOutputPath(tcBinaryFile, tcSuffix, tcTextExt, tlUsePerDir, lnUsePerFile)
    ENDPROC
+
+
    PROCEDURE getPerFileSearchDir
       *---------------------------------------------------------------------------------------------------
       * Wrapper -> o_SplitPaths.getPerFileSearchDir.
@@ -2162,6 +2185,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureSplitPaths()
       RETURN This.o_SplitPaths.getPerFileSearchDir(tcTextFile, tcTextExt, tlUsePerDir, lnUsePerFile)
    ENDPROC
+
+
    PROCEDURE getPerFileBinaryOutputPath
       *---------------------------------------------------------------------------------------------------
       * Wrapper -> o_SplitPaths.getPerFileBinaryOutputPath.
@@ -2177,6 +2202,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureSplitPaths()
       RETURN This.o_SplitPaths.getPerFileBinaryOutputPath(tcSourceFile, tcBinExt, tcTextExt, tlUsePerDir, lnUsePerFile)
    ENDPROC
+
+
    PROCEDURE ensurePerFileDir
       *---------------------------------------------------------------------------------------------------
       * Wrapper -> o_SplitPaths.ensurePerFileDir (creates per-dir text folder via makeDirTree).
@@ -2190,6 +2217,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureSplitPaths()
       This.o_SplitPaths.ensurePerFileDir(tcBinaryFile, tcTextExt, tlUsePerDir, lnUsePerFile)
    ENDPROC
+
+
    PROCEDURE get_MirroredPath
       *---------------------------------------------------------------------------------------------------
       * Maps a source file path to its mirrored destination path.
