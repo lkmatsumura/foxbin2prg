@@ -30,6 +30,8 @@ Define Class c_conversor_base As Custom
       + [<memberdata name="get_textfilenames" display="get_TextFileNames"/>] ;
       + [<memberdata name="get_valuefromnullterminatedvalue" display="get_ValueFromNullTerminatedValue"/>] ;
       + [<memberdata name="identifyexclusionblocks" display="identifyExclusionBlocks"/>] ;
+      + [<memberdata name="rtrimproccodeline" display="rtrimProcCodeLine"/>] ;
+      + [<memberdata name="rtrimproccodelines" display="rtrimProcCodeLines"/>] ;
       + [<memberdata name="lineisonlycommentandnometadata" display="lineIsOnlyCommentAndNoMetadata"/>] ;
       + [<memberdata name="loadmodule" display="loadModule"/>] ;
       + [<memberdata name="normalizeassignment" display="normalizeAssignment"/>] ;
@@ -956,6 +958,49 @@ Define Class c_conversor_base As Custom
    Procedure identifyCodeBlocks
       Lparameters taCodeLines, tnCodeLines, taLineasExclusion, tnBloquesExclusion, toModulo
       External Array taCodeLines
+   Endproc
+
+
+   Function rtrimProcCodeLine
+      Lparameters tcLine As String
+      Return Rtrim( m.tcLine, 0, Chr(9), ' ' )
+   Endfunc
+
+
+   Procedure rtrimProcCodeLines
+      *---------------------------------------------------------------------------------------------------
+      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taLines                   (!@ IN/OUT) Array de líneas de código de procedure
+      * tnCount                   (v! IN    ) Cantidad de líneas
+      * taExclusion               (@?    OUT) Array opcional con líneas de bloques TEXT/ENDTEXT o #IF/#ENDIF
+      *---------------------------------------------------------------------------------------------------
+      Lparameters taLines, tnCount, taExclusion
+      External Array taLines
+
+      Local I, lnBloquesExclusion, laLineasExclusion(1), laBloquesExclusion(1,2)
+      Dimension laLineasExclusion(m.tnCount)
+
+      With This As c_conversor_base Of 'c_conversor_base.prg'
+         .identifyExclusionBlocks( @taLines, m.tnCount, .F., @laLineasExclusion, @lnBloquesExclusion )
+
+         For I = 1 To m.tnCount
+            If Not laLineasExclusion(m.I)
+               taLines(m.I) = .rtrimProcCodeLine( taLines(m.I) )
+            Endif
+         Endfor
+      Endwith && THIS
+
+      If Pcount() >= 3 And Vartype( m.taExclusion ) == 'A'
+         If Alen( m.taExclusion, 1 ) # m.tnCount
+            Dimension m.taExclusion( m.tnCount )
+         Endif
+
+         For I = 1 To m.tnCount
+            m.taExclusion(m.I) = laLineasExclusion(m.I)
+         Endfor
+      Endif
+
+      Return
    Endproc
 
 

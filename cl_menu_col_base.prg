@@ -185,7 +185,7 @@ Define Class CL_MENU_COL_BASE As CL_COL_BASE Of 'cl_col_base.prg'
       Endif
 
       *-- Si se indicó indentación, se reprocesa el código del procedimiento
-      If Not Empty(tcProcCode) And (tnIndentation <> 0 Or tlAddProcEndproc)
+      If Not Empty(tcProcCode)
          lnLine_Count    = Alines( laProcLines, tcProcCode )
          tcProcCode      = ''
 
@@ -198,22 +198,22 @@ Define Class CL_MENU_COL_BASE As CL_COL_BASE Of 'cl_col_base.prg'
          Case tnIndentation = 0
             For I = 1 To lnLine_Count
                *-- No Indentar
-               tcProcCode  = tcProcCode + laProcLines(m.I) + CR_LF
+               tcProcCode  = tcProcCode + Rtrim( laProcLines(m.I), 0, Chr(9), ' ' ) + CR_LF
             Endfor
 
          Case tnIndentation > 0
             For I = 1 To lnLine_Count
                *-- Indentar
-               tcProcCode  = tcProcCode + C_TAB + laProcLines(m.I) + CR_LF
+               tcProcCode  = tcProcCode + C_TAB + Rtrim( laProcLines(m.I), 0, Chr(9), ' ' ) + CR_LF
             Endfor
 
          Otherwise
             For I = 1 To lnLine_Count
                *-- Quitar indentación
                If Inlist( Left(laProcLines(m.I),1), Space(1), C_TAB )
-                  tcProcCode  = tcProcCode + Substr( laProcLines(m.I), 2 ) + CR_LF
+                  tcProcCode  = tcProcCode + Rtrim( Substr( laProcLines(m.I), 2 ), 0, Chr(9), ' ' ) + CR_LF
                Else
-                  tcProcCode  = tcProcCode + laProcLines(m.I) + CR_LF
+                  tcProcCode  = tcProcCode + Rtrim( laProcLines(m.I), 0, Chr(9), ' ' ) + CR_LF
                Endif
             Endfor
          Endcase

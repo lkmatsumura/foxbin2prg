@@ -282,7 +282,9 @@ Define Class CL_DBC As CL_DBC_BASE Of 'cl_dbc_base.prg'
             , loConnections As CL_DBC_CONNECTIONS Of 'cl_dbc_connections.prg' ;
             , loTables As CL_DBC_TABLES Of 'cl_dbc_tables.prg' ;
             , loViews As CL_DBC_VIEWS Of 'cl_dbc_views.prg' ;
-            , loRelations As CL_DBC_RELATIONS Of 'cl_dbc_relations.prg'
+            , loRelations As CL_DBC_RELATIONS Of 'cl_dbc_relations.prg' ;
+            , loConv As c_conversor_base Of 'c_conversor_base.prg' ;
+            , laSPLines(1), lnSPCount
          Store .Null. To loRelations, loViews, loTables, loTables
 
          With This As CL_DBC Of 'cl_dbc.prg'
@@ -315,6 +317,21 @@ Define Class CL_DBC As CL_DBC_BASE Of 'cl_dbc_base.prg'
                FROM TABLABIN ;
                WHERE Str(ParentId) + ObjectType + Lower(OBJECTNAME) = Str(1) + Padr('Database',10) + Padr(Lower('StoredProceduresSource'),128) ;
                INTO Array laCode
+
+            If _Tally > 0 And Not Empty(laCode(1,1))
+               loConv      = NewObject( 'c_conversor_base', 'c_conversor_base.prg' )
+               lnSPCount   = Alines( laSPLines, laCode(1,1) )
+               loConv.rtrimProcCodeLines( @laSPLines, lnSPCount )
+               laCode(1,1) = ''
+
+               For I = 1 To lnSPCount
+                  laCode(1,1) = laCode(1,1) + laSPLines(m.I) + CR_LF
+               Endfor
+
+               laCode(1,1) = Rtrim( laCode(1,1), 0, Chr(10), Chr(13), ' ' )
+               loConv      = .Null.
+            Endif
+
             TEXT TO ._StoredProcedures TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                     <<Chr(9)>><<C_STORED_PROC_I>>
                     <<laCode(1,1)>>
@@ -346,7 +363,7 @@ Define Class CL_DBC As CL_DBC_BASE Of 'cl_dbc_base.prg'
 
       Finally
          Store .Null. To loRelations, loViews, loTables, loTables
-         Release I, lcDBC, laCode, loConnections, loTables, loViews, loRelations
+         Release I, lcDBC, laCode, loConnections, loTables, loViews, loRelations, loConv, laSPLines, lnSPCount
 
       Endtry
 

@@ -683,6 +683,8 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
             lnOffset    = 1
          Endif
 
+         .rtrimProcCodeLines( @laLineas, lnFin )
+
          For I = lnInicio + lnOffset To lnFin - lnOffset
             *-- TEXT/ENDTEXT aquí da error 2044 de recursividad. No usar.
             lcMethod    = lcMethod + CR_LF + tcIndentation + laLineas(m.I)
@@ -947,7 +949,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
       *--     1.Bloque de código del método en su posición original
       Try
          Local lnLineCount, laLine(1), I, lnTextNodes, tcSorted, lnProtectedLine, lcMethod, lnLine_Len, lcLine, llProcOpen ;
-            , laLineasExclusion(1), lnBloquesExclusion, lcLastLine ;
+            , laLineasExclusion(1), lnBloquesExclusion, lcLastLine, lcAppendLine ;
             , loEx As Exception
 
          If Not Empty(m.tcMethod) And Left(m.tcMethod,9) == "ENDPROC"+Chr(13)+Chr(10)
@@ -1008,14 +1010,16 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                   Do Case
                   Case laLineasExclusion(m.I)
                      If tnMethodCount > 0 And llProcOpen
-                        taCode(tnMethodCount)   = taCode(tnMethodCount) + laLine(m.I) + CR_LF
+                        lcAppendLine  = laLine(m.I)
+                        taCode(tnMethodCount)   = taCode(tnMethodCount) + lcAppendLine + CR_LF
                      Else
                         *-- Invalid method code, as outer code added for tools like ReFox or others, is cleaned up
                      Endif
 
                   Case Right(lcLastLine,1) == ';'
                      *-- Saltear el análisis de esta línea, que es continuación de la anterior (lcLastLine).
-                     taCode(tnMethodCount)   = taCode(tnMethodCount) + laLine(m.I) + CR_LF
+                     lcAppendLine  = Iif( laLineasExclusion(m.I), laLine(m.I), .rtrimProcCodeLine( laLine(m.I) ) )
+                     taCode(tnMethodCount)   = taCode(tnMethodCount) + lcAppendLine + CR_LF
                      Loop
 
                   Case lnTextNodes = 0 And Upper( Left(lcLine, 10) ) == 'PROCEDURE '
@@ -1081,11 +1085,13 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                         Endif
                      Else
                         *-- Es otra cosa (variable, etc)
-                        taCode(tnMethodCount)   = taCode(tnMethodCount) + lcLine + CR_LF
+                        lcAppendLine  = Iif( laLineasExclusion(m.I), lcLine, .rtrimProcCodeLine( lcLine ) )
+                        taCode(tnMethodCount)   = taCode(tnMethodCount) + lcAppendLine + CR_LF
                         Loop
                      Endif
 
-                     taCode(tnMethodCount)   = taCode(tnMethodCount) + lcLine &&+ CR_LF
+                     lcAppendLine  = Iif( laLineasExclusion(m.I), lcLine, .rtrimProcCodeLine( lcLine ) )
+                     taCode(tnMethodCount)   = taCode(tnMethodCount) + lcAppendLine &&+ CR_LF
                      llProcOpen              = .F.
 
                   Case lnTextNodes = 0 And Left(laLine(m.I), 7) == 'ENDFUNC'  && NOT VALID WITH VFP IDE, BUT 3rd. PARTY SOFTWARE CAN USE IT
@@ -1098,11 +1104,13 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                         lcLine  = Strtran( lcLine, 'ENDFUNC', 'ENDPROC' )
                      Else
                         *-- Es otra cosa (variable, etc)
-                        taCode(tnMethodCount)   = taCode(tnMethodCount) + lcLine + CR_LF
+                        lcAppendLine  = Iif( laLineasExclusion(m.I), lcLine, .rtrimProcCodeLine( lcLine ) )
+                        taCode(tnMethodCount)   = taCode(tnMethodCount) + lcAppendLine + CR_LF
                         Loop
                      Endif
 
-                     taCode(tnMethodCount)   = taCode(tnMethodCount) + lcLine &&+ CR_LF
+                     lcAppendLine  = Iif( laLineasExclusion(m.I), lcLine, .rtrimProcCodeLine( lcLine ) )
+                     taCode(tnMethodCount)   = taCode(tnMethodCount) + lcAppendLine &&+ CR_LF
                      llProcOpen              = .F.
 
                      *CASE tnMethodCount = 0 OR NOT llProcOpen AND LEFT( LTRIM(laLine(m.I)),1 ) = '*'
@@ -1111,7 +1119,8 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
                      *-- Aquí como condición podría poner: NOT llProcOpen AND LEFT(laLine(m.I), 7) # 'ENDPROC', pero abarcaría demasiado.
 
                   Otherwise && Method Code
-                     taCode(tnMethodCount)   = taCode(tnMethodCount) + laLine(m.I) + CR_LF
+                     lcAppendLine  = Iif( laLineasExclusion(m.I), laLine(m.I), .rtrimProcCodeLine( laLine(m.I) ) )
+                     taCode(tnMethodCount)   = taCode(tnMethodCount) + lcAppendLine + CR_LF
 
                   Endcase
                Endfor
@@ -1158,7 +1167,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
          Release tcMethod, taMethods, taCode, tcSorted, tnMethodCount, taPropsAndComments, tnPropsAndComments_Count ;
             , taProtected, tnProtected_Count, toFoxBin2Prg ;
             , lnLineCount, laLine, I, lnTextNodes, tcSorted, lnProtectedLine, lcMethod, lnLine_Len, lcLine, llProcOpen ;
-            , laLineasExclusion, lnBloquesExclusion ;
+            , laLineasExclusion, lnBloquesExclusion, lcLastLine, lcAppendLine ;
             , loEx
       Endtry
 
