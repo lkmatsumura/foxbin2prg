@@ -849,10 +849,16 @@ DEFINE CLASS cl_fb2prg_execute AS Custom
 
       CD (JUSTPATH(loHost.c_CurDir))
 
-      IF ATC('-SHOWMSG', ('-' + tcType)) > 0 ;
-            OR loHost.getCfgValue('l_ShowErrors') AND lnCodError > 0 AND NOT ISNULL(toEx)
-
+      * Soft conversor errors (e.g. duplicate objects) set l_Errors but leave lnCodError = 0.
+      IF loHost.l_Errors
          loHost.writeErrorLog_Flush()
+      ENDIF
+
+      IF      ATC('-SHOWMSG', ('-' + tcType)) > 0 ;
+         OR loHost.getCfgValue('l_ShowErrors') AND ( ;
+            (lnCodError > 0 AND NOT ISNULL(toEx)) ;
+            OR (EMPTY(lnCodError) AND loHost.l_Errors) ;
+         )
 
          DO CASE
          CASE lnCodError = 1098
@@ -877,7 +883,6 @@ DEFINE CLASS cl_fb2prg_execute AS Custom
       ENDIF
 
       IF EMPTY(lnCodError) AND loHost.l_Errors
-         SET STEP ON
          lnCodError = 1098
       ENDIF
 

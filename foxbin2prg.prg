@@ -810,6 +810,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       ENDIF
    ENDPROC
 
+
    PROCEDURE ensureMirror
       *---------------------------------------------------------------------------------------------------
       * Lazy-init This.o_Mirror (cl_fb2prg_mirror) if missing.
@@ -819,6 +820,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          This.o_Mirror = CreateObject('cl_fb2prg_mirror' ,  This)
       ENDIF
    ENDPROC
+
 
    PROCEDURE ensureSplitPaths
       *---------------------------------------------------------------------------------------------------
@@ -830,6 +832,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       ENDIF
    ENDPROC
 
+
    PROCEDURE ensureExecute
       *---------------------------------------------------------------------------------------------------
       * Lazy-init This.o_Execute (cl_fb2prg_execute) if missing.
@@ -839,6 +842,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          This.o_Execute = CreateObject('cl_fb2prg_execute' ,  This)
       ENDIF
    ENDPROC
+
 
    PROCEDURE ensureCfg
       *---------------------------------------------------------------------------------------------------
@@ -860,6 +864,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       ENDIF
    ENDPROC
 
+
    PROCEDURE ensureConversionFactory
       *---------------------------------------------------------------------------------------------------
       * Lazy-init This.o_ConversionFactory (cl_fb2prg_conversion_factory) if missing.
@@ -869,6 +874,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
          This.o_ConversionFactory = CreateObject('cl_fb2prg_conversion_factory' ,  This)
       ENDIF
    ENDPROC
+
 
    PROCEDURE ensureLogger
       *---------------------------------------------------------------------------------------------------
@@ -880,6 +886,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       ENDIF
    ENDPROC
 
+
    PROCEDURE declareDLL
       *---------------------------------------------------------------------------------------------------
       * Declares Win32 DLLs used by file operations; delegates to o_FileUtils.
@@ -888,6 +895,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureFileUtils()
       This.o_FileUtils.declareDLL()
    ENDPROC
+
 
    PROCEDURE get_AbsolutePath
       *---------------------------------------------------------------------------------------------------
@@ -1218,6 +1226,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
 
       RETURN lcTextExt
    ENDPROC
+
+
    PROCEDURE resolvePj2TextMemberPath
       *---------------------------------------------------------------------------------------------------
       * Wrapper -> o_SplitPaths.resolvePj2TextMemberPath (PJ2 import text path resolution).
@@ -1229,6 +1239,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureSplitPaths()
       RETURN This.o_SplitPaths.resolvePj2TextMemberPath(tcBinFile)
    ENDPROC
+
+
    FUNCTION isPj2TextMemberAvailable
       *---------------------------------------------------------------------------------------------------
       * Wrapper -> o_SplitPaths.isPj2TextMemberAvailable.
@@ -1240,6 +1252,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureSplitPaths()
       RETURN This.o_SplitPaths.isPj2TextMemberAvailable(tcBinFile)
    ENDFUNC
+
+
    PROCEDURE hasSupport_Bin2Prg(tcFileName AS STRING, tcDir AS STRING) AS Boolean
       *---------------------------------------------------------------------------------------------------
       * PARAMETERS:               (v=Pass by value | @=Pass by reference) (!=Required | ?=Optional) (IN/OUT)
@@ -1347,6 +1361,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       RETURN This.o_Execute.mergeExecuteConfig( toCfg )
    ENDFUNC
 
+
    FUNCTION rewritePerObjectInputPath
       *---------------------------------------------------------------------------------------------------
       * Wrapper -> o_SplitPaths.rewritePerObjectInputPath (Import / RedirectClassType = 2).
@@ -1362,6 +1377,7 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       RETURN This.o_SplitPaths.rewritePerObjectInputPath(tc_InputFile, tcType, lcExt)
    ENDFUNC
 
+
    PROCEDURE execute
       *--------------------------------------------------------------------------------------------------------------
       * Main entry: convert one file/directory, a project batch, or show the configuration reference form.
@@ -1376,7 +1392,6 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureExecute()
       RETURN This.o_Execute.run( tc_InputFile, tcType, toCfg, @toEx )
    ENDPROC
-
 
 
    *==============================================================================================================
@@ -1856,6 +1871,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureLogger()
       This.o_Logger.doWriteErrorLog( @toEx, @tcErrorInfo )
    ENDPROC
+
+
    PROTECTED FUNCTION computePerFileBasePath
       *---------------------------------------------------------------------------------------------------
       * Wrapper -> o_SplitPaths.computePerFileBasePath.
@@ -1868,6 +1885,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureSplitPaths()
       RETURN This.o_SplitPaths.computePerFileBasePath(tcInputFile, tnStemLevels)
    ENDFUNC
+
+
    PROTECTED FUNCTION resolveInputBaseFile
       *---------------------------------------------------------------------------------------------------
       * Wrapper -> o_SplitPaths.resolveInputBaseFile (may rewrite c_InputFile on host).
@@ -1879,6 +1898,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureSplitPaths()
       RETURN This.o_SplitPaths.resolveInputBaseFile(lcExtension)
    ENDFUNC
+
+
    PROTECTED PROCEDURE captureConversionFilestamps
       *---------------------------------------------------------------------------------------------------
       * Populates t_InputFile_TimeStamp and t_OutputFile_TimeStamp from sibling files in the input folder.
@@ -2469,6 +2490,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureSplitPaths()
       RETURN This.o_SplitPaths.getPerFileOutputPath(tcBinaryFile, tcSuffix, tcTextExt, tlUsePerDir, lnUsePerFile)
    ENDPROC
+
+
    PROCEDURE getPerFileSearchDir
       *---------------------------------------------------------------------------------------------------
       * Wrapper -> o_SplitPaths.getPerFileSearchDir.
@@ -2483,6 +2506,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureSplitPaths()
       RETURN This.o_SplitPaths.getPerFileSearchDir(tcTextFile, tcTextExt, tlUsePerDir, lnUsePerFile)
    ENDPROC
+
+
    PROCEDURE getPerFileBinaryOutputPath
       *---------------------------------------------------------------------------------------------------
       * Wrapper -> o_SplitPaths.getPerFileBinaryOutputPath.
@@ -2498,6 +2523,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureSplitPaths()
       RETURN This.o_SplitPaths.getPerFileBinaryOutputPath(tcSourceFile, tcBinExt, tcTextExt, tlUsePerDir, lnUsePerFile)
    ENDPROC
+
+
    PROCEDURE ensurePerFileDir
       *---------------------------------------------------------------------------------------------------
       * Wrapper -> o_SplitPaths.ensurePerFileDir (creates per-dir text folder via makeDirTree).
@@ -2511,6 +2538,8 @@ DEFINE CLASS c_foxbin2prg AS SESSION
       This.ensureSplitPaths()
       This.o_SplitPaths.ensurePerFileDir(tcBinaryFile, tcTextExt, tlUsePerDir, lnUsePerFile)
    ENDPROC
+
+
    PROCEDURE get_MirroredPath
       *---------------------------------------------------------------------------------------------------
       * Maps a source file path to its mirrored destination path.
@@ -8075,6 +8104,7 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                   If toFoxBin2Prg.getCfgValue('l_ClearUniqueID')
                      loRegCab.UNIQUEID   = ''
                   Endif
+                  .sanitizeFrxHeaderExport( @loRegCab, @toFoxBin2Prg )
                Endif
 
                If .l_ReportSort_Enabled
@@ -8112,6 +8142,8 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                      loRegObj.UNIQUEID   = ''
                   Endif
 
+                  .sanitizeFrxObjectExport( @loRegObj )
+
                   .write_TXT_REPORTE( @loRegObj )
                Endscan
 
@@ -8130,6 +8162,8 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                      loRegDataEnv.UNIQUEID   = ''
                   Endif
 
+                  .sanitizeFrxObjectExport( @loRegDataEnv )
+
                   .write_TXT_REPORTE( @loRegDataEnv )
                Endif
 
@@ -8146,6 +8180,8 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                   If toFoxBin2Prg.getCfgValue('l_ClearUniqueID')
                      loRegCur.UNIQUEID   = ''
                   Endif
+
+                  .sanitizeFrxObjectExport( @loRegCur )
 
                   .write_TXT_REPORTE( @loRegCur )
                Endscan
@@ -8199,6 +8235,77 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
 
       Return
    Endproc
+
+
+   Procedure sanitizeFrxHeaderExport
+      *---------------------------------------------------------------------------------------------------
+      * Header record (ObjType=1): optional printer / paper Expr filtering for SCM-friendly export.
+      *---------------------------------------------------------------------------------------------------
+      Lparameters toReg, toFoxBin2Prg
+      #If .F.
+         Local toReg, toFoxBin2Prg As c_foxbin2prg Of 'foxbin2prg.prg'
+      #Endif
+
+      If toFoxBin2Prg.getCfgValue('l_NoPrinterInfo')
+         toReg.Tag   = ''
+         toReg.Tag2  = ''
+      Endif
+
+      If !Empty( toFoxBin2Prg.getCfgValue('c_ReportPaperInfo') )
+         toReg.Expr = This.filterReportPaperExpr( toReg.Expr, toFoxBin2Prg.getCfgValue('c_ReportPaperInfo') )
+      Endif
+
+      Return
+   Endproc
+
+
+   Procedure sanitizeFrxObjectExport
+      *---------------------------------------------------------------------------------------------------
+      * Non-header records: normalize invalid width values before export.
+      *---------------------------------------------------------------------------------------------------
+      Lparameters toReg
+
+      If toReg.width < 0 Or (toReg.width > 0 And Log10( toReg.width ) >= 9)
+         toReg.width = 0
+      Endif
+
+      Return
+   Endproc
+
+
+   Function filterReportPaperExpr
+      *---------------------------------------------------------------------------------------------------
+      * Keeps only Expr lines whose key (before '=') is listed in tcKeepList (; or , separated).
+      * Empty tcKeepList returns tcExpr unchanged.
+      *---------------------------------------------------------------------------------------------------
+      Lparameters tcExpr, tcKeepList
+      Local lcResult, laLines(1), laKeep(1), lnI, lnJ, lcLine, lcKey, lcKeepKey
+
+      If Empty( tcKeepList )
+         Return tcExpr
+      Endif
+
+      lnKeep = Alines( laKeep, Strtran( Upper( Alltrim( tcKeepList )), ',', ';' ) )
+      lnLines = Alines( laLines, Strtran( tcExpr, Chr(13), '' ) )
+      lcResult = ''
+
+      For lnI = 1 To lnLines
+         lcLine = laLines(lnI)
+         If Empty( lcLine )
+            Loop
+         Endif
+         lcKey = Upper( Left( lcLine, At( '=', lcLine + '=' ) - 1 ) )
+         For lnJ = 1 To lnKeep
+            lcKeepKey = Alltrim( laKeep(lnJ) )
+            If !Empty( lcKeepKey ) And lcKey == lcKeepKey
+               lcResult = lcResult + Iif( Empty( lcResult ), '', Chr(10) ) + lcLine
+               Exit
+            Endif
+         Endfor
+      Endfor
+
+      Return lcResult
+   Endfunc
 
 
    Procedure write_TXT_REPORTE
@@ -15354,19 +15461,19 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
          Local lnCodError, loRegClass, loRegObj  , lnMethodCount, lnLen, lnObjCount, lnLastClass, lnRecno ;
              , lcMethods, lcObjName, I, lnPropsAndValues_Count, lnPropsAndComments_Count, lnProtected_Count ;
              , lcCodigo , lnClassCount, lcOutputFile, lcExternalHeader, lnClassTotal, lnStepCount, lnStep ;
-             , lcObjPathInsideClass, lnPos, lcSc2Ext, llUseFormPerDir, lnUseFormPerFile
+             , lcObjPathInsideClass, lnPos, lcSc2Ext, llUseFormPerDir, lnUseFormPerFile, lnDataEnvCount
 
          LOCAL loLang As CL_LANG Of 'foxbin2prg.prg'
 
          LOCAL laMethods(1), laCode(1), laProtected(1), laPropsAndValues(1), laPropsAndComments(1), la_NombresObjsOle(1) ;
-             , laObjs(1,4), laClasses(1,3)
+             , laObjs(1,4), laClasses(1,3), laDataEnvNames(1)
 
 
          Store 0 To lnCodError, lnLastClass, lnObjCount, lnPropsAndValues_Count, lnPropsAndComments_Count ;
-                  , lnProtected_Count, lnMethodCount, lnClassCount, lnStepCount, lnStep
+                  , lnProtected_Count, lnMethodCount, lnClassCount, lnStepCount, lnStep, lnDataEnvCount
 
          Store '' To laMethods, laCode, laProtected, laPropsAndComments, laObjs, lcCodigo, laClasses, lcOutputFile ;
-                   , C_FB2PRG_CODE, lcExternalHeader
+                   , C_FB2PRG_CODE, lcExternalHeader, laDataEnvNames
 
          Store .Null. To loRegClass, loRegObj
 
@@ -15375,14 +15482,11 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
          With This As c_conversor_scx_a_prg Of 'foxbin2prg.prg'
             Use (.c_InputFile) Shared Again Noupdate Alias _TABLAORIG
 
-            *!* LScheffler 20.08.2023
             *issue #96, including issue #95, [KestasL] keep CodePage relavant information for binary sources
             toFoxBin2Prg.i_CPID = Cpdbf("_TABLAORIG")
 
             Set NoCPTrans To Class,CLASSLOC,BaseClass,OBJNAME,Parent,PROPERTIES,Protected,METHODS;
                ,OBJCODE,OLE,OLE2,RESERVED1,RESERVED2,RESERVED3,RESERVED4,RESERVED5,RESERVED6,RESERVED7,RESERVED8,User
-
-            */LScheffler 20.08.2023
 
             Select _TABLAORIG.*,Recno() regnum From _TABLAORIG Into Cursor TABLABIN Readwrite
 
@@ -15397,6 +15501,14 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
             .get_OLEPublicObjectName( @la_NombresObjsOle )
 
             .write_OLEObjectDefinitions( @toFoxBin2Prg )
+
+            lnDataEnvCount = 0
+            Select TABLABIN
+            Scan For Lower( Alltrim( TABLABIN.BaseClass ) ) = 'dataenvironment'
+               lnDataEnvCount = lnDataEnvCount + 1
+               Dimension laDataEnvNames( lnDataEnvCount )
+               laDataEnvNames( lnDataEnvCount ) = Lower( Alltrim( TABLABIN.OBJNAME ) )
+            Endscan
 
             *-- Escribo los métodos ordenados
             lnLastObj       = 0
@@ -15487,7 +15599,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                lnObjCount  = 0
                lnRecno = Recno()
                Locate For Upper( TABLABIN.PLATFORM ) = "WINDOWS" And Lower( Alltrim( Getwordnum( TABLABIN.Parent, 1, '.' ) ) ) == Lower(lcObjName)
-               *!* LScheffler 04.08.2023
+
                Scan Rest While Upper( TABLABIN.PLATFORM ) = "WINDOWS" And Lower( Alltrim( Getwordnum( TABLABIN.Parent, 1, '.' ) ) ) == Lower(lcObjName)
                   lnObjCount  = lnObjCount + 1
                   loRegObj    = .Null.
@@ -15510,10 +15622,6 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                   Endif
 
                   Dimension laObjs(lnObjCount,4)
-                  laObjs(lnObjCount,1)    = loRegObj
-                  laObjs(lnObjCount,2)    = loRegObj.regnum       && ZOrder
-                  laObjs(lnObjCount,3)    = lnObjCount            && Alphabetic order
-                  laObjs(lnObjCount,4)    = lcObjPathInsideClass  && To check duplicates
 
                   If toFoxBin2Prg.getCfgValue('l_NoTimestamps')
                      loRegObj.Timestamp  = 0
@@ -15524,6 +15632,16 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                      loRegObj.UNIQUEID   = Alltrim(loRegObj.UNIQUEID)
                   Endif
 
+                  If toFoxBin2Prg.getCfgValue('l_StripDataEnvCursorPaths') ;
+                        And .isDataEnvCursor( @loRegObj, @laDataEnvNames, lnDataEnvCount )
+                     loRegObj.Properties = .stripDataEnvCursorProperties( loRegObj.Properties )
+                  Endif
+
+                  laObjs(lnObjCount,1)    = loRegObj
+                  laObjs(lnObjCount,2)    = loRegObj.regnum       && ZOrder
+                  laObjs(lnObjCount,3)    = lnObjCount            && Alphabetic order
+                  laObjs(lnObjCount,4)    = lcObjPathInsideClass  && To check duplicates
+
                   loRegObj    = .Null.
                Endscan
 
@@ -15531,7 +15649,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
                Asort(laObjs, 2, -1, 0, 0)  && Orden por ZOrder
 
                If lnObjCount > 0
-                  lcCodigo    = lcCodigo + CR_LF + '  *-- OBJECTDATA items order determines ZOrder / El orden de los items OBJECTDATA determina el ZOrder '
+                  lcCodigo    = lcCodigo + CR_LF + C_TAB +'*-- OBJECTDATA items order determines ZOrder / El orden de los items OBJECTDATA determina el ZOrder '
 
                   For I = 1 To lnObjCount
                      .write_OBJECTMETADATA( laObjs(m.I,1), @lcCodigo )
@@ -15711,12 +15829,120 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'foxbin2prg.prg'
             , lnCodError, loRegClass, loRegObj, lnMethodCount, laMethods, laCode, laProtected, lnLen, lnObjCount ;
             , laPropsAndValues, laPropsAndComments, lnLastClass, lnRecno, lcMethods, lcObjName, la_NombresObjsOle ;
             , laObjs, I, lnPropsAndValues_Count, lnPropsAndComments_Count, lnProtected_Count ;
-            , lcCodigo, laClasses, lnClassCount, lcOutputFile
+            , lcCodigo, laClasses, lnClassCount, lcOutputFile, laDataEnvNames, lnDataEnvCount
 
       Endtry
 
       Return
    Endproc
+
+
+   Function isDataEnvCursor
+      *---------------------------------------------------------------------------------------------------
+      * True when the object is a cursor whose immediate parent is a DataEnvironment.
+      *---------------------------------------------------------------------------------------------------
+      Lparameters toRegObj, taDataEnvNames, tnDataEnvCount
+      Local lcParent, lcImmediateParent
+
+      If Lower( Alltrim( toRegObj.BaseClass ) ) # 'cursor' Or tnDataEnvCount < 1
+         Return .F.
+      Endif
+
+      lcParent = Lower( Alltrim( toRegObj.Parent ) )
+      If Empty( lcParent )
+         Return .F.
+      Endif
+
+      If '.' $ lcParent
+         lcImmediateParent = Lower( Getwordnum( lcParent, Getwordcount( lcParent, '.' ), '.' ) )
+      Else
+         lcImmediateParent = lcParent
+      Endif
+
+      Return Ascan( taDataEnvNames, lcImmediateParent, 1, 0, 0, 1+2 ) > 0
+   Endfunc
+
+
+   Function stripDataEnvCursorProperties
+      *---------------------------------------------------------------------------------------------------
+      * Removes directory paths from Database and CursorSource lines in PROPERTIES (CR+LF separated).
+      *---------------------------------------------------------------------------------------------------
+      Lparameters tcProperties
+      Local laLines(1), lnLines, lnI, lcLine, lnEqPos, lcProp, lcValue, lcNewValue, lcResult
+
+      If Empty( tcProperties )
+         Return tcProperties
+      Endif
+
+      lnLines = Alines( laLines, tcProperties, 0, CR_LF )
+      lcResult = ''
+
+      For lnI = 1 To lnLines
+         lcLine = laLines(lnI)
+
+         If Empty( lcLine ) Or C_MPROPHEADER $ lcLine
+            lcResult = lcResult + Iif( Empty( lcResult ), '', CR_LF ) + lcLine
+            Loop
+         Endif
+
+         lnEqPos = At( '=', lcLine )
+         If lnEqPos < 2
+            lcResult = lcResult + Iif( Empty( lcResult ), '', CR_LF ) + lcLine
+            Loop
+         Endif
+
+         lcProp = Lower( Alltrim( Left( lcLine, lnEqPos - 1 ) ) )
+         lcValue = Substr( lcLine, lnEqPos + 1 )
+
+         Do Case
+         Case lcProp == 'database'
+            lcNewValue = This.normalizeCursorPathPropertyValue( lcValue )
+            lcLine = Alltrim( Left( lcLine, lnEqPos - 1 ) ) + ' = ' + lcNewValue
+
+         Case lcProp == 'cursorsource'
+            If This.propertyValueHasPath( lcValue )
+               lcNewValue = This.normalizeCursorPathPropertyValue( lcValue )
+               lcLine = Alltrim( Left( lcLine, lnEqPos - 1 ) ) + ' = ' + lcNewValue
+            Endif
+         Endcase
+
+         lcResult = lcResult + Iif( Empty( lcResult ), '', CR_LF ) + lcLine
+      Endfor
+
+      Return lcResult
+   Endfunc
+
+
+   Function propertyValueHasPath
+      Lparameters tcValue
+      Local lcVal
+
+      lcVal = Alltrim( tcValue )
+      If Left( lcVal, 1 ) == '"' And Right( lcVal, 1 ) == '"'
+         lcVal = Substr( lcVal, 2, Len( lcVal ) - 2 )
+      Endif
+
+      Return ( '\' $ lcVal Or '/' $ lcVal Or ( Len( lcVal ) > 1 And Substr( lcVal, 2, 1 ) == ':' ) )
+   Endfunc
+
+
+   Function normalizeCursorPathPropertyValue
+      Lparameters tcValue
+      Local lcVal, lcOrig, llQuoted
+
+      lcOrig = tcValue
+      lcVal = Alltrim( tcValue )
+      llQuoted = ( Left( lcVal, 1 ) == '"' And Right( lcVal, 1 ) == '"' )
+      If llQuoted
+         lcVal = Substr( lcVal, 2, Len( lcVal ) - 2 )
+      Endif
+
+      If This.propertyValueHasPath( lcVal )
+         Return JustFname( lcVal )
+      Endif
+
+      Return lcOrig
+   Endfunc
 
 Enddefine
 
@@ -23926,6 +24152,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       AddProperty(loCfg, 'n_RedirectFormType', 0)
       AddProperty(loCfg, 'l_FormPerFileCheck', .F.)
       AddProperty(loCfg, 'l_UseFormPerDir', .F.)
+      AddProperty(loCfg, 'l_StripDataEnvCursorPaths', .T.)
       AddProperty(loCfg, 'n_CheckFileInPath', 0)
       AddProperty(loCfg, 'l_OldFilesPerDBC', .T.)
       AddProperty(loCfg, 'n_UseFilesPerDBC', 0)
@@ -23954,6 +24181,8 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       AddProperty(loCfg, 'n_SCX_Conversion_Support', 2)
       AddProperty(loCfg, 'n_FRX_Conversion_Support', 2)
       AddProperty(loCfg, 'n_LBX_Conversion_Support', 2)
+      AddProperty(loCfg, 'l_NoPrinterInfo', .T.)
+      AddProperty(loCfg, 'c_ReportPaperInfo', 'ORIENTATION')
       AddProperty(loCfg, 'n_MNX_Conversion_Support', 2)
       AddProperty(loCfg, 'n_DBC_Conversion_Support', 2)
       AddProperty(loCfg, 'n_DBF_Conversion_Support', 1)
@@ -24033,6 +24262,7 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       This.appendCfgCatalogRow(@taCat, '3', 'l_RedirectFormPerFileToMain',   'L', '.T.|.F.')
       This.appendCfgCatalogRow(@taCat, '3', 'n_RedirectFormType',            'N', '0|1|2')
       This.appendCfgCatalogRow(@taCat, '3', 'l_FormPerFileCheck',            'L', '.T.|.F.')
+      This.appendCfgCatalogRow(@taCat, '3', 'l_StripDataEnvCursorPaths',     'L', '.T.|.F.')
 
       *-- 4 Mirror
       This.appendCfgCatalogRow(@taCat, '4', 'l_CopyNonConvertible',    'L', '.T.|.F.')
@@ -24057,6 +24287,8 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       This.appendCfgCatalogRow(@taCat, '5', 'n_ProjectDevInfo',          'N', '0|1')
       This.appendCfgCatalogRow(@taCat, '5', 'n_BodyDevInfo',             'N', '0|1|2')
       This.appendCfgCatalogRow(@taCat, '5', 'n_FRX_Conversion_Support',  'N', '0|1|2')
+      This.appendCfgCatalogRow(@taCat, '5', 'l_NoPrinterInfo',           'L', '.T.|.F.')
+      This.appendCfgCatalogRow(@taCat, '5', 'c_ReportPaperInfo',         'C', 'ORIENTATION|list;sep|empty=all')
       This.appendCfgCatalogRow(@taCat, '5', 'n_MNX_Conversion_Support',  'N', '0|1|2')
 
       *-- 6 Extensions
@@ -24117,6 +24349,8 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
          RETURN 'Import single form object into SCX when 2.'
       CASE tcProp == 'l_FormPerFileCheck'
          RETURN 'Validate per-form SC2 membership.'
+      CASE tcProp == 'l_StripDataEnvCursorPaths'
+         RETURN 'SCX export: strip paths from Database and CursorSource on DataEnvironment cursors.'
       CASE tcProp == 'l_CopyNonConvertible'
          RETURN 'Copy non-convertible PJX members into mirror tree.'
       CASE tcProp == 'l_CopyExcludedPjxFiles'
@@ -24173,6 +24407,10 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
          RETURN '0=omit DevInfo on PJX file records, 1=keep, 2=omit DevInfo and ObjRev on file records.'
       CASE tcProp == 'n_FRX_Conversion_Support'
          RETURN 'FRX support: 0=none, 1=diff, 2=merge.'
+      CASE tcProp == 'l_NoPrinterInfo'
+         RETURN 'FRX/LBX export: clear Tag and Tag2 on report header (printer info).'
+      CASE tcProp == 'c_ReportPaperInfo'
+         RETURN 'FRX/LBX export: keep only listed paper Expr keys (e.g. ORIENTATION); empty keeps all.'
       CASE tcProp == 'n_MNX_Conversion_Support'
          RETURN 'MNX support: 0=none, 1=diff, 2=merge.'
       OTHERWISE
@@ -28682,10 +28920,16 @@ DEFINE CLASS cl_fb2prg_execute AS Custom
 
       CD (JUSTPATH(loHost.c_CurDir))
 
-      IF ATC('-SHOWMSG', ('-' + tcType)) > 0 ;
-            OR loHost.getCfgValue('l_ShowErrors') AND lnCodError > 0 AND NOT ISNULL(toEx)
-
+      * Soft conversor errors (e.g. duplicate objects) set l_Errors but leave lnCodError = 0.
+      IF loHost.l_Errors
          loHost.writeErrorLog_Flush()
+      ENDIF
+
+      IF      ATC('-SHOWMSG', ('-' + tcType)) > 0 ;
+         OR loHost.getCfgValue('l_ShowErrors') AND ( ;
+            (lnCodError > 0 AND NOT ISNULL(toEx)) ;
+            OR (EMPTY(lnCodError) AND loHost.l_Errors) ;
+         )
 
          DO CASE
          CASE lnCodError = 1098
@@ -28710,7 +28954,6 @@ DEFINE CLASS cl_fb2prg_execute AS Custom
       ENDIF
 
       IF EMPTY(lnCodError) AND loHost.l_Errors
-         SET STEP ON
          lnCodError = 1098
       ENDIF
 
