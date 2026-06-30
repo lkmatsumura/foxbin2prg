@@ -3963,6 +3963,8 @@ Define Class c_conversor_base As Custom
       + [<memberdata name="get_textfilenames" display="get_TextFileNames"/>] ;
       + [<memberdata name="get_valuefromnullterminatedvalue" display="get_ValueFromNullTerminatedValue"/>] ;
       + [<memberdata name="identifyexclusionblocks" display="identifyExclusionBlocks"/>] ;
+      + [<memberdata name="rtrimproccodeline" display="rtrimProcCodeLine"/>] ;
+      + [<memberdata name="rtrimproccodelines" display="rtrimProcCodeLines"/>] ;
       + [<memberdata name="lineisonlycommentandnometadata" display="lineIsOnlyCommentAndNoMetadata"/>] ;
       + [<memberdata name="loadmodule" display="loadModule"/>] ;
       + [<memberdata name="normalizeassignment" display="normalizeAssignment"/>] ;
@@ -4889,6 +4891,49 @@ Define Class c_conversor_base As Custom
    Procedure identifyCodeBlocks
       Lparameters taCodeLines, tnCodeLines, taLineasExclusion, tnBloquesExclusion, toModulo
       External Array taCodeLines
+   Endproc
+
+
+   Function rtrimProcCodeLine
+      Lparameters tcLine As String
+      Return Rtrim( m.tcLine, 0, Chr(9), ' ' )
+   Endfunc
+
+
+   Procedure rtrimProcCodeLines
+      *---------------------------------------------------------------------------------------------------
+      * PARÁMETROS:               (v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
+      * taLines                   (!@ IN/OUT) Array de líneas de código de procedure
+      * tnCount                   (v! IN    ) Cantidad de líneas
+      * taExclusion               (@?    OUT) Array opcional con líneas de bloques TEXT/ENDTEXT o #IF/#ENDIF
+      *---------------------------------------------------------------------------------------------------
+      Lparameters taLines, tnCount, taExclusion
+      External Array taLines
+
+      Local I, lnBloquesExclusion, laLineasExclusion(1), laBloquesExclusion(1,2)
+      Dimension laLineasExclusion(m.tnCount)
+
+      With This As c_conversor_base Of 'foxbin2prg.prg'
+         .identifyExclusionBlocks( @taLines, m.tnCount, .F., @laLineasExclusion, @lnBloquesExclusion )
+
+         For I = 1 To m.tnCount
+            If Not laLineasExclusion(m.I)
+               taLines(m.I) = .rtrimProcCodeLine( taLines(m.I) )
+            Endif
+         Endfor
+      Endwith && THIS
+
+      If Pcount() >= 3 And Vartype( m.taExclusion ) == 'A'
+         If Alen( m.taExclusion, 1 ) # m.tnCount
+            Dimension m.taExclusion( m.tnCount )
+         Endif
+
+         For I = 1 To m.tnCount
+            m.taExclusion(m.I) = laLineasExclusion(m.I)
+         Endfor
+      Endif
+
+      Return
    Endproc
 
 
@@ -6277,6 +6322,8 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
             lnOffset    = 1
          Endif
 
+         .rtrimProcCodeLines( @laLineas, lnFin )
+
          For I = lnInicio + lnOffset To lnFin - lnOffset
             *-- TEXT/ENDTEXT aquí da error 2044 de recursividad. No usar.
             lcMethod    = lcMethod + CR_LF + tcIndentation + laLineas(m.I)
@@ -6541,7 +6588,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
       *--     1.Bloque de código del método en su posición original
       Try
          Local lnLineCount, laLine(1), I, lnTextNodes, tcSorted, lnProtectedLine, lcMethod, lnLine_Len, lcLine, llProcOpen ;
-            , laLineasExclusion(1), lnBloquesExclusion, lcLastLine ;
+            , laLineasExclusion(1), lnBloquesExclusion, lcLastLine, lcAppendLine ;
             , loEx As Exception
 
          If Not Empty(m.tcMethod) And Left(m.tcMethod,9) == "ENDPROC"+Chr(13)+Chr(10)
@@ -6602,14 +6649,16 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
                   Do Case
                   Case laLineasExclusion(m.I)
                      If tnMethodCount > 0 And llProcOpen
-                        taCode(tnMethodCount)   = taCode(tnMethodCount) + laLine(m.I) + CR_LF
+                        lcAppendLine  = laLine(m.I)
+                        taCode(tnMethodCount)   = taCode(tnMethodCount) + lcAppendLine + CR_LF
                      Else
                         *-- Invalid method code, as outer code added for tools like ReFox or others, is cleaned up
                      Endif
 
                   Case Right(lcLastLine,1) == ';'
                      *-- Saltear el análisis de esta línea, que es continuación de la anterior (lcLastLine).
-                     taCode(tnMethodCount)   = taCode(tnMethodCount) + laLine(m.I) + CR_LF
+                     lcAppendLine  = Iif( laLineasExclusion(m.I), laLine(m.I), .rtrimProcCodeLine( laLine(m.I) ) )
+                     taCode(tnMethodCount)   = taCode(tnMethodCount) + lcAppendLine + CR_LF
                      Loop
 
                   Case lnTextNodes = 0 And Upper( Left(lcLine, 10) ) == 'PROCEDURE '
@@ -6675,11 +6724,13 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
                         Endif
                      Else
                         *-- Es otra cosa (variable, etc)
-                        taCode(tnMethodCount)   = taCode(tnMethodCount) + lcLine + CR_LF
+                        lcAppendLine  = Iif( laLineasExclusion(m.I), lcLine, .rtrimProcCodeLine( lcLine ) )
+                        taCode(tnMethodCount)   = taCode(tnMethodCount) + lcAppendLine + CR_LF
                         Loop
                      Endif
 
-                     taCode(tnMethodCount)   = taCode(tnMethodCount) + lcLine &&+ CR_LF
+                     lcAppendLine  = Iif( laLineasExclusion(m.I), lcLine, .rtrimProcCodeLine( lcLine ) )
+                     taCode(tnMethodCount)   = taCode(tnMethodCount) + lcAppendLine &&+ CR_LF
                      llProcOpen              = .F.
 
                   Case lnTextNodes = 0 And Left(laLine(m.I), 7) == 'ENDFUNC'  && NOT VALID WITH VFP IDE, BUT 3rd. PARTY SOFTWARE CAN USE IT
@@ -6692,11 +6743,13 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
                         lcLine  = Strtran( lcLine, 'ENDFUNC', 'ENDPROC' )
                      Else
                         *-- Es otra cosa (variable, etc)
-                        taCode(tnMethodCount)   = taCode(tnMethodCount) + lcLine + CR_LF
+                        lcAppendLine  = Iif( laLineasExclusion(m.I), lcLine, .rtrimProcCodeLine( lcLine ) )
+                        taCode(tnMethodCount)   = taCode(tnMethodCount) + lcAppendLine + CR_LF
                         Loop
                      Endif
 
-                     taCode(tnMethodCount)   = taCode(tnMethodCount) + lcLine &&+ CR_LF
+                     lcAppendLine  = Iif( laLineasExclusion(m.I), lcLine, .rtrimProcCodeLine( lcLine ) )
+                     taCode(tnMethodCount)   = taCode(tnMethodCount) + lcAppendLine &&+ CR_LF
                      llProcOpen              = .F.
 
                      *CASE tnMethodCount = 0 OR NOT llProcOpen AND LEFT( LTRIM(laLine(m.I)),1 ) = '*'
@@ -6705,7 +6758,8 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
                      *-- Aquí como condición podría poner: NOT llProcOpen AND LEFT(laLine(m.I), 7) # 'ENDPROC', pero abarcaría demasiado.
 
                   Otherwise && Method Code
-                     taCode(tnMethodCount)   = taCode(tnMethodCount) + laLine(m.I) + CR_LF
+                     lcAppendLine  = Iif( laLineasExclusion(m.I), laLine(m.I), .rtrimProcCodeLine( laLine(m.I) ) )
+                     taCode(tnMethodCount)   = taCode(tnMethodCount) + lcAppendLine + CR_LF
 
                   Endcase
                Endfor
@@ -6752,7 +6806,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
          Release tcMethod, taMethods, taCode, tcSorted, tnMethodCount, taPropsAndComments, tnPropsAndComments_Count ;
             , taProtected, tnProtected_Count, toFoxBin2Prg ;
             , lnLineCount, laLine, I, lnTextNodes, tcSorted, lnProtectedLine, lcMethod, lnLine_Len, lcLine, llProcOpen ;
-            , laLineasExclusion, lnBloquesExclusion ;
+            , laLineasExclusion, lnBloquesExclusion, lcLastLine, lcAppendLine ;
             , loEx
       Endtry
 
@@ -21559,7 +21613,9 @@ Define Class CL_DBC As CL_DBC_BASE Of 'foxbin2prg.prg'
             , loConnections As CL_DBC_CONNECTIONS Of 'foxbin2prg.prg' ;
             , loTables As CL_DBC_TABLES Of 'foxbin2prg.prg' ;
             , loViews As CL_DBC_VIEWS Of 'foxbin2prg.prg' ;
-            , loRelations As CL_DBC_RELATIONS Of 'foxbin2prg.prg'
+            , loRelations As CL_DBC_RELATIONS Of 'foxbin2prg.prg' ;
+            , loConv As c_conversor_base Of 'foxbin2prg.prg' ;
+            , laSPLines(1), lnSPCount
          Store .Null. To loRelations, loViews, loTables, loTables
 
          With This As CL_DBC Of 'foxbin2prg.prg'
@@ -21592,6 +21648,21 @@ Define Class CL_DBC As CL_DBC_BASE Of 'foxbin2prg.prg'
                FROM TABLABIN ;
                WHERE Str(ParentId) + ObjectType + Lower(OBJECTNAME) = Str(1) + Padr('Database',10) + Padr(Lower('StoredProceduresSource'),128) ;
                INTO Array laCode
+
+            If _Tally > 0 And Not Empty(laCode(1,1))
+               loConv      = CreateObject( 'c_conversor_base'  )
+               lnSPCount   = Alines( laSPLines, laCode(1,1) )
+               loConv.rtrimProcCodeLines( @laSPLines, lnSPCount )
+               laCode(1,1) = ''
+
+               For I = 1 To lnSPCount
+                  laCode(1,1) = laCode(1,1) + laSPLines(m.I) + CR_LF
+               Endfor
+
+               laCode(1,1) = Rtrim( laCode(1,1), 0, Chr(10), Chr(13), ' ' )
+               loConv      = .Null.
+            Endif
+
             TEXT TO ._StoredProcedures TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
                     <<Chr(9)>><<C_STORED_PROC_I>>
                     <<laCode(1,1)>>
@@ -21623,7 +21694,7 @@ Define Class CL_DBC As CL_DBC_BASE Of 'foxbin2prg.prg'
 
       Finally
          Store .Null. To loRelations, loViews, loTables, loTables
-         Release I, lcDBC, laCode, loConnections, loTables, loViews, loRelations
+         Release I, lcDBC, laCode, loConnections, loTables, loViews, loRelations, loConv, laSPLines, lnSPCount
 
       Endtry
 
@@ -32245,7 +32316,7 @@ Define Class CL_MENU_COL_BASE As CL_COL_BASE Of 'foxbin2prg.prg'
       Endif
 
       *-- Si se indicó indentación, se reprocesa el código del procedimiento
-      If Not Empty(tcProcCode) And (tnIndentation <> 0 Or tlAddProcEndproc)
+      If Not Empty(tcProcCode)
          lnLine_Count    = Alines( laProcLines, tcProcCode )
          tcProcCode      = ''
 
@@ -32258,22 +32329,22 @@ Define Class CL_MENU_COL_BASE As CL_COL_BASE Of 'foxbin2prg.prg'
          Case tnIndentation = 0
             For I = 1 To lnLine_Count
                *-- No Indentar
-               tcProcCode  = tcProcCode + laProcLines(m.I) + CR_LF
+               tcProcCode  = tcProcCode + Rtrim( laProcLines(m.I), 0, Chr(9), ' ' ) + CR_LF
             Endfor
 
          Case tnIndentation > 0
             For I = 1 To lnLine_Count
                *-- Indentar
-               tcProcCode  = tcProcCode + C_TAB + laProcLines(m.I) + CR_LF
+               tcProcCode  = tcProcCode + C_TAB + Rtrim( laProcLines(m.I), 0, Chr(9), ' ' ) + CR_LF
             Endfor
 
          Otherwise
             For I = 1 To lnLine_Count
                *-- Quitar indentación
                If Inlist( Left(laProcLines(m.I),1), Space(1), C_TAB )
-                  tcProcCode  = tcProcCode + Substr( laProcLines(m.I), 2 ) + CR_LF
+                  tcProcCode  = tcProcCode + Rtrim( Substr( laProcLines(m.I), 2 ), 0, Chr(9), ' ' ) + CR_LF
                Else
-                  tcProcCode  = tcProcCode + laProcLines(m.I) + CR_LF
+                  tcProcCode  = tcProcCode + Rtrim( laProcLines(m.I), 0, Chr(9), ' ' ) + CR_LF
                Endif
             Endfor
          Endcase
