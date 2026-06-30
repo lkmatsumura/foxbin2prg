@@ -132,6 +132,8 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       AddProperty(loCfg, 'n_SCX_Conversion_Support', 2)
       AddProperty(loCfg, 'n_FRX_Conversion_Support', 2)
       AddProperty(loCfg, 'n_LBX_Conversion_Support', 2)
+      AddProperty(loCfg, 'l_NoPrinterInfo', .T.)
+      AddProperty(loCfg, 'c_ReportPaperInfo', 'ORIENTATION')
       AddProperty(loCfg, 'n_MNX_Conversion_Support', 2)
       AddProperty(loCfg, 'n_DBC_Conversion_Support', 2)
       AddProperty(loCfg, 'n_DBF_Conversion_Support', 1)
@@ -235,6 +237,8 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
       This.appendCfgCatalogRow(@taCat, '5', 'n_ProjectDevInfo',          'N', '0|1')
       This.appendCfgCatalogRow(@taCat, '5', 'n_BodyDevInfo',             'N', '0|1|2')
       This.appendCfgCatalogRow(@taCat, '5', 'n_FRX_Conversion_Support',  'N', '0|1|2')
+      This.appendCfgCatalogRow(@taCat, '5', 'l_NoPrinterInfo',           'L', '.T.|.F.')
+      This.appendCfgCatalogRow(@taCat, '5', 'c_ReportPaperInfo',         'C', 'ORIENTATION|list;sep|empty=all')
       This.appendCfgCatalogRow(@taCat, '5', 'n_MNX_Conversion_Support',  'N', '0|1|2')
 
       *-- 6 Extensions
@@ -351,6 +355,10 @@ DEFINE CLASS cl_fb2prg_cfg AS Custom
          RETURN '0=omit DevInfo on PJX file records, 1=keep, 2=omit DevInfo and ObjRev on file records.'
       CASE tcProp == 'n_FRX_Conversion_Support'
          RETURN 'FRX support: 0=none, 1=diff, 2=merge.'
+      CASE tcProp == 'l_NoPrinterInfo'
+         RETURN 'FRX/LBX export: clear Tag and Tag2 on report header (printer info).'
+      CASE tcProp == 'c_ReportPaperInfo'
+         RETURN 'FRX/LBX export: keep only listed paper Expr keys (e.g. ORIENTATION); empty keeps all.'
       CASE tcProp == 'n_MNX_Conversion_Support'
          RETURN 'MNX support: 0=none, 1=diff, 2=merge.'
       OTHERWISE

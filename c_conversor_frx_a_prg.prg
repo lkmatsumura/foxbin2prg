@@ -77,6 +77,7 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                   If toFoxBin2Prg.getCfgValue('l_ClearUniqueID')
                      loRegCab.UNIQUEID   = ''
                   Endif
+                  .sanitizeFrxHeaderExport( @loRegCab, @toFoxBin2Prg )
                Endif
 
                If .l_ReportSort_Enabled
@@ -114,6 +115,8 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                      loRegObj.UNIQUEID   = ''
                   Endif
 
+                  .sanitizeFrxObjectExport( @loRegObj )
+
                   .write_TXT_REPORTE( @loRegObj )
                Endscan
 
@@ -132,6 +135,8 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                      loRegDataEnv.UNIQUEID   = ''
                   Endif
 
+                  .sanitizeFrxObjectExport( @loRegDataEnv )
+
                   .write_TXT_REPORTE( @loRegDataEnv )
                Endif
 
@@ -148,6 +153,8 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                   If toFoxBin2Prg.getCfgValue('l_ClearUniqueID')
                      loRegCur.UNIQUEID   = ''
                   Endif
+
+                  .sanitizeFrxObjectExport( @loRegCur )
 
                   .write_TXT_REPORTE( @loRegCur )
                Endscan
@@ -201,6 +208,77 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
 
       Return
    Endproc
+
+
+   Procedure sanitizeFrxHeaderExport
+      *---------------------------------------------------------------------------------------------------
+      * Header record (ObjType=1): optional printer / paper Expr filtering for SCM-friendly export.
+      *---------------------------------------------------------------------------------------------------
+      Lparameters toReg, toFoxBin2Prg
+      #If .F.
+         Local toReg, toFoxBin2Prg As c_foxbin2prg Of 'c_foxbin2prg.prg'
+      #Endif
+
+      If toFoxBin2Prg.getCfgValue('l_NoPrinterInfo')
+         toReg.Tag   = ''
+         toReg.Tag2  = ''
+      Endif
+
+      If !Empty( toFoxBin2Prg.getCfgValue('c_ReportPaperInfo') )
+         toReg.Expr = This.filterReportPaperExpr( toReg.Expr, toFoxBin2Prg.getCfgValue('c_ReportPaperInfo') )
+      Endif
+
+      Return
+   Endproc
+
+
+   Procedure sanitizeFrxObjectExport
+      *---------------------------------------------------------------------------------------------------
+      * Non-header records: normalize invalid width values before export.
+      *---------------------------------------------------------------------------------------------------
+      Lparameters toReg
+
+      If toReg.width < 0 Or (toReg.width > 0 And Log10( toReg.width ) >= 9)
+         toReg.width = 0
+      Endif
+
+      Return
+   Endproc
+
+
+   Function filterReportPaperExpr
+      *---------------------------------------------------------------------------------------------------
+      * Keeps only Expr lines whose key (before '=') is listed in tcKeepList (; or , separated).
+      * Empty tcKeepList returns tcExpr unchanged.
+      *---------------------------------------------------------------------------------------------------
+      Lparameters tcExpr, tcKeepList
+      Local lcResult, laLines(1), laKeep(1), lnI, lnJ, lcLine, lcKey, lcKeepKey
+
+      If Empty( tcKeepList )
+         Return tcExpr
+      Endif
+
+      lnKeep = Alines( laKeep, Strtran( Upper( Alltrim( tcKeepList )), ',', ';' ) )
+      lnLines = Alines( laLines, Strtran( tcExpr, Chr(13), '' ) )
+      lcResult = ''
+
+      For lnI = 1 To lnLines
+         lcLine = laLines(lnI)
+         If Empty( lcLine )
+            Loop
+         Endif
+         lcKey = Upper( Left( lcLine, At( '=', lcLine + '=' ) - 1 ) )
+         For lnJ = 1 To lnKeep
+            lcKeepKey = Alltrim( laKeep(lnJ) )
+            If !Empty( lcKeepKey ) And lcKey == lcKeepKey
+               lcResult = lcResult + Iif( Empty( lcResult ), '', Chr(10) ) + lcLine
+               Exit
+            Endif
+         Endfor
+      Endfor
+
+      Return lcResult
+   Endfunc
 
 
    Procedure write_TXT_REPORTE
