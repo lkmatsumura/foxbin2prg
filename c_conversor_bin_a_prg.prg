@@ -687,7 +687,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'c_conversor_base.prg'
 
          For I = lnInicio + lnOffset To lnFin - lnOffset
             *-- TEXT/ENDTEXT aquí da error 2044 de recursividad. No usar.
-            lcMethod    = lcMethod + CR_LF + tcIndentation + laLineas(m.I)
+            lcMethod    = lcMethod + CR_LF + iif( Empty(laLineas(m.I)), '', tcIndentation + laLineas(m.I) )
          Endfor
 
          If llProcedure And tlKeepProcHeader
