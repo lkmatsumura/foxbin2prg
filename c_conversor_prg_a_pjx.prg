@@ -273,7 +273,7 @@ Define Class c_conversor_prg_a_pjx As c_conversor_prg_a_bin Of 'c_conversor_prg_
          , COMMENTS      M ;
          , RESERVED1     M ;
          , RESERVED2     M ;
-         , SCCDATA       M ;
+         , SCCDATA       M NoCPTrans ;
          , Local         L ;
          , Key           C(32) ;
          , User          M )

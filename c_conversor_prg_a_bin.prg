@@ -179,7 +179,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
          , Protected     M ;
          , METHODS       M ;
          , OBJCODE       M NoCPTrans ;
-         , OLE           M ;
+         , OLE           M NoCPTrans;
          , OLE2          M ;
          , RESERVED1     M ;
          , RESERVED2     M ;
@@ -243,7 +243,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
          , Protected     M ;
          , METHODS       M ;
          , OBJCODE       M NoCPTrans ;
-         , OLE           M ;
+         , OLE           M NoCPTrans ;
          , OLE2          M ;
          , RESERVED1     M ;
          , RESERVED2     M ;
@@ -319,14 +319,14 @@ Define Class c_conversor_prg_a_bin As c_conversor_base Of 'c_conversor_base.prg'
             , 'WIDTH'       N(9,3) ;
             , 'STYLE'       M ;
             , 'PICTURE'     M ;
-            , 'ORDER'       M ;
+            , 'ORDER'       M NOCPTRANS;
             , 'UNIQUE'      L ;
             , 'COMMENT'     M ;
             , 'ENVIRON'     L ;
             , 'BOXCHAR'     C(1) ;
             , 'FILLCHAR'    C(1) ;
             , 'TAG'         M ;
-            , 'TAG2'        M ;
+            , 'TAG2'        M NOCPTRANS;
             , 'PENRED'      N(5) ;
             , 'PENGREEN'    N(5) ;
             , 'PENBLUE'     N(5) ;
