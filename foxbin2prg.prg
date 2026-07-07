@@ -826,7 +826,7 @@ tcType			= Evl(tcType,'')
 If Atc('-VERNO','-'+tc_InputFile) > 0
  tc_InputFile = DC_FB2PRG_VERSION_REAL
  RETURN DC_FB2PRG_VERSION_REAL
-Endif &&Atc('-VERNO','-'+tc_InputFile) > 0 
+Endif &&Atc('-VERNO','-'+tc_InputFile) > 0
 
 *!*	/Changed by: LScheffler 06.08.2023
 
@@ -854,16 +854,16 @@ If Upper(tcType)=='-C' Or tcType=='-t' ;
 
 	If Pcount()>2 THEN
 		tcCFG_File = tcTextName
-		IF VARTYPE(tcCFG_File)="C" AND EMPTY(JUSTPATH(tcCFG_File)) THEN 
+		IF VARTYPE(tcCFG_File)="C" AND EMPTY(JUSTPATH(tcCFG_File)) THEN
 		 tcCFG_File = FULLPATH(tcCFG_File,"")
 		ENDIF &&VARTYPE(tcCFG_File)="C" AND EMPTY(JUSTPATH(tcCFG_File))
 		tcTextName = .F.
-	ENDIF &&Pcount()>2 
+	ENDIF &&Pcount()>2
 
 	If Pcount()>3 THEN
 		tcDebug   = tlGenText
 		tlGenText = .F.
-	ENDIF &&Pcount()>3 
+	ENDIF &&Pcount()>3
 
 	Do Case
 		Case Pcount()>4
@@ -879,7 +879,7 @@ If Upper(tcType)=='-C' Or tcType=='-t' ;
 
 	Endcase
 *!*	/Changed by: LScheffler 15.2.2021
-ENDIF &&Upper(tcType)=='-C' Or tcType=='-t' OR Upper(tcType)=='C' Or tcType=='t' 
+ENDIF &&Upper(tcType)=='-C' Or tcType=='-t' OR Upper(tcType)=='C' Or tcType=='t'
 
 Try
 		loEx	= .Null.
@@ -1221,12 +1221,12 @@ Define Class c_foxbin2prg As Session
 	n_HomeDir						= 1				&& 0 = don't save HomeDir in PJ2, 1 = save HomeDir in PJ2
 *!*	LScheffler 20.08.2023
 *issue #96, [KestasL] keep CodePage relavant information for binary sources
-	i_CPID							= 0 &&CPCURRENT(1) 
+	i_CPID							= 0 &&CPCURRENT(1)
 *!*	LScheffler 31.08.2023 more sophisticated control of inheritance for para file
     c_SingleConfig_Folder			= ''
-    o_CFG							= .NULL. 
+    o_CFG							= .NULL.
     l_AllowFolder					= .T.
-    
+
 	Procedure Init
 		Lparameters tcCFG_File, tcCancelWithEscKey
 
@@ -1581,8 +1581,8 @@ Define Class c_foxbin2prg As Session
 			Endif
 		ELSE  &&ISNULL(This.n_DebugP)
 			Return This.n_DebugP
-		
-		ENDIF &&ISNULL(This.n_DebugP) 
+
+		ENDIF &&ISNULL(This.n_DebugP)
 	Endproc
 
 
@@ -2486,12 +2486,12 @@ Define Class c_foxbin2prg As Session
 					 IF ISNULL(This.n_DebugP) THEN
 						This.n_Debug	= Int(Val(tcDebug))
 						This.n_DebugP	= This.n_Debug
-					 ENDIF &&ISNULL(This.n_DebugP) 
+					 ENDIF &&ISNULL(This.n_DebugP)
 					Endif
 
 					Store 0 To lnKey
 					llSetSingleConfig = .Null.
-					
+
 					loLang				= _Screen.o_FoxBin2Prg_Lang
 					tcRecompile			= Evl(tcRecompile, .c_Recompile)
 					lo_Configuration	= .o_Configuration
@@ -2512,20 +2512,20 @@ Define Class c_foxbin2prg As Session
 					  .o_Configuration.Remove(-1)
 					  .n_CFG_EvaluateFromParam	= 0
 					  .l_SingleConfig            = .F.
-					 
+
 					  llSetSingleConfig			= .T.
 					  .writeLog( '> ' + Upper(loLang.C_USING_THIS_SETTINGS_LOC) + ': ' + .c_Foxbin2prg_ConfigFile + ;
 					   loLang.C_USING_THIS_SETTINGS_LOC1 )
 
-					 Else &&EMPTY(lo_Configuration.GetKey(tcCFG_File)) 
+					 Else &&EMPTY(lo_Configuration.GetKey(tcCFG_File))
 					  This.writeLog( '> ' + loLang.C_USING_THIS_SETTINGS_LOC6+tcCFG_File + loLang.C_USING_THIS_SETTINGS_LOC7+;
 					   ICASE(This.n_InhibitInheritance=0, loLang.C_USING_THIS_SETTINGS_LOC2,;
 					    This.n_InhibitInheritance=1, loLang.C_USING_THIS_SETTINGS_LOC3,;
 					    This.n_InhibitInheritance=2, loLang.C_USING_THIS_SETTINGS_LOC4,;
 					    This.n_InhibitInheritance=3, loLang.C_USING_THIS_SETTINGS_LOC5," Failure."+CR_LF))
 
-					 ENDIF &&EMPTY(lo_Configuration.GetKey(tcCFG_File)) 
-					ENDIF &&VARTYPE(tcCFG_File)='C' AND !EMPTY(tcCFG_File) 
+					 ENDIF &&EMPTY(lo_Configuration.GetKey(tcCFG_File))
+					ENDIF &&VARTYPE(tcCFG_File)='C' AND !EMPTY(tcCFG_File)
 
 
 					lcConfigFile		= .c_Foxbin2prg_ConfigFile
@@ -2566,10 +2566,10 @@ Define Class c_foxbin2prg As Session
 
 						Endcase
 					Else
-						If Empty(tc_InputFile) THEN 
+						If Empty(tc_InputFile) THEN
 								lc_InputPath        = ""
-					 
-						ELSE  &&Empty(tc_InputFile) 
+
+						ELSE  &&Empty(tc_InputFile)
 							Do Case
 								Case tcInputFile_Type==C_FILETYPE_QUERYSUPPORT
 									lc_InputPath        = ""
@@ -2582,7 +2582,7 @@ Define Class c_foxbin2prg As Session
 									lc_InputPath        = JUSTPATH(tc_InputFile)
 
 							Endcase
-						ENDIF &&Empty(tc_InputFile)  
+						ENDIF &&Empty(tc_InputFile)
 					Endif
 
 *!*	LScheffler 30.08.2023, just the single config from programm parameter, or sub dirs of the config file given by the parameter
@@ -2752,7 +2752,7 @@ Define Class c_foxbin2prg As Session
 					Endif
 
 *check for lockfile
-					If .l_Main_CFG_Loaded And llFirstRead AND llLockFileExists THEN 
+					If .l_Main_CFG_Loaded And llFirstRead AND llLockFileExists THEN
 					 lo_CFG.l_AllowFolder = .F.
 					 .writeLog( C_TAB + Justfname(lcLockFile) + loLang.C_LOCKINGFOLDER_LOC )
 					ENDIF &&.l_Main_CFG_Loaded And llFirstRead AND llLockFileExists
@@ -2852,7 +2852,7 @@ Define Class c_foxbin2prg As Session
 									If Not Inlist( Transform(tcDebug), '0', '1' ) And Inlist( lcValue, '0', '1' ) Then
 										IF ISNULL(This.n_DebugP) THEN
 										 lo_CFG.n_Debug	= Int(Val(lcValue))
-										ENDIF &&ISNULL(This.n_DebugP) 
+										ENDIF &&ISNULL(This.n_DebugP)
 										.writeLog( C_TAB + Justfname(lcConfigFile) + ' > Debug:                      ' + lcValue +;
 										 IIF(ISNULL(This.n_DebugP), "", ", will be ignored, debug set via parameter. Using: " + TRANSFORM(This.n_DebugP) ) )
 									Endif
@@ -3113,7 +3113,7 @@ Define Class c_foxbin2prg As Session
 									If Inlist( lcValue, '0', '1' , '2' , '3' ) Then
 										IF llSetSingleConfig THEN
 										 lo_CFG.n_InhibitInheritance	=  Int( Val( lcValue ) )
-										ENDIF &&llSetSingleConfig 
+										ENDIF &&llSetSingleConfig
 
 										.writeLog( C_TAB + Justfname(lcConfigFile) + ' > InhibitInheritance:         ' + Transform(lcValue) +;
 										IIF(m.llSetSingleConfig, "", ", will be ignored, standard configuration file." ) )
@@ -3397,10 +3397,10 @@ Define Class c_foxbin2prg As Session
 						.writeLog( C_TAB + 'extension: DC2              ' + Transform(.c_DC2) )
 						.writeLog( C_TAB + 'extension: FK2              ' + Transform(.c_FK2) )
 						.writeLog( C_TAB + 'extension: ME2              ' + Transform(.c_ME2) )
-					ENDIF &&lo_CFG.l_AllowFolder 
+					ENDIF &&lo_CFG.l_AllowFolder
 
 					.writeLog( )
-					 
+
 				Endwith && THIS
 
 			Catch To loEx
@@ -3435,10 +3435,10 @@ Define Class c_foxbin2prg As Session
 					IF This.n_InhibitInheritance=0 THEN
 						This.evaluateConfiguration( '', '', '', '', '', '', '', '', This.c_Foxbin2prg_ConfigFile, C_FILETYPE_FILE, lo_CFG)
 *In case we run FoxBin2Prg against FoxBin2Prg folder. do not reread
-						This.n_InhibitInheritance = 1 
-						
+						This.n_InhibitInheritance = 1
+
 					ENDIF &&This.n_InhibitInheritance=0
-				ENDIF &&llSetSingleConfig 
+				ENDIF &&llSetSingleConfig
 
 				Store .Null. To lo_Configuration, lo_CFG, loEx
 				Release tcDontShowProgress, tcDontShowErrors, tcNoTimestamps, tcDebug, tcRecompile, tcExtraBackupLevels ;
@@ -4025,7 +4025,7 @@ Define Class c_foxbin2prg As Session
 
 *!*								Case Upper( tcType ) =='-C' Or tcType =='-t' Or Upper( tcType ) =='C' Or tcType =='t'
 *!*									lcInputFile_Type	= C_FILETYPE_QUERYSUPPORT	&&C_FILETYPE_CONFIG
-								
+
 							Otherwise
 *-- Ejemplo: "c:\desa\*.scx", "c:\desa\file.ext", (lista de archivos)
 								lcInputFile_Type	= C_FILETYPE_FILE
@@ -4069,7 +4069,7 @@ Define Class c_foxbin2prg As Session
 						.writeLog( C_TAB + 'tcClearUniqueID:              ' + Transform( Evl(tcClearUniqueID, '(empty)  -> Will use Default [' + Transform(.l_ClearUniqueID) + ']' ) ) )
 						.writeLog( C_TAB + 'tcOptimizeByFilestamp:        ' + Transform( Evl(tcOptimizeByFilestamp, '(empty)  -> Will use Default [' + Transform(.n_OptimizeByFilestamp) + ']' ) ) )
 						.writeLog( C_TAB + 'tcCFG_File                    ' + Transform( IIF(VARTYPE(tcCFG_File)='O' AND !ISNULL(tcCFG_File),'(object)',Evl(tcCFG_File, '(empty)' ) ) ) )
-					ENDIF &&Upper(tcType)=='-C' Or tcType=='-t' OR Upper(tcType)=='C' Or tcType=='t' 
+					ENDIF &&Upper(tcType)=='-C' Or tcType=='-t' OR Upper(tcType)=='C' Or tcType=='t'
 					.writeLog( )
 
 *-- ARCHIVO DE CONFIGURACIÓN PRINCIPAL
@@ -4087,7 +4087,7 @@ Define Class c_foxbin2prg As Session
 * allow to import only the class to file.VCX with n_RedirectClassType = 2
 * n_RedirectClassType = 0 will import all classes of file.VCX (as just handing file.vc2)
 * n_RedirectClassType = 1 will import the class to single lib file[.baseclass].class.VCX
-					lcExt = JUSTEXT( m.tc_InputFile ) 
+					lcExt = JUSTEXT( m.tc_InputFile )
 
 					Do Case
 						Case ( Lower(m.lcType)=='-c' Or Lower(m.lcType)=='c' )
@@ -4161,7 +4161,7 @@ Define Class c_foxbin2prg As Session
 *!*	Problem recreating ingle classes
 *!*	</change>
 *!*	</pdm>
- 
+
 * Redefinir nombre archivo de entrada según el tipo de conversión (IMPORT/EXPORT)
 					If .c_ClassOperationType = 'I'
 * En el caso de importar, debo cambiar la sintaxis de tc_InputFile para poder usar
@@ -4471,11 +4471,11 @@ Define Class c_foxbin2prg As Session
 									If m.laOptions( m.lnOption, 3 ) = 4 THEN
 *numeric to numeric, keep comment
 										laLines( m.lnLine ) = Strtran(m.laLines( m.lnLine ) , m.lcValue, m.lcReturn)
-									 
+
 									ELSE  &&m.laOptions( m.lnOption, 3 ) = 4
 										laLines( m.lnLine ) = Substr(Strtran(m.laLines( m.lnLine ) , m.lcValue, m.lcReturn), 2 )
-									
-									ENDIF &&m.laOptions( m.lnOption, 3 ) = 4 
+
+									ENDIF &&m.laOptions( m.lnOption, 3 ) = 4
 
 								Endif &&lnLine >0
 
@@ -5629,7 +5629,7 @@ Define Class c_foxbin2prg As Session
 
 						Case lcExtension = .c_DB2
 							lnFileCount	= .get_DBF_Configuration( Forceext(.c_InputFile, 'DBF'), @loDBF_CFG )
-							If !Iif(Isnull(loDBF_CFG), Inlist(.n_DBF_Conversion_Support, 2, 8), Inlist(loDBF_CFG.n_DBF_Conversion_Support, 2, 8) ) 
+							If !Iif(Isnull(loDBF_CFG), Inlist(.n_DBF_Conversion_Support, 2, 8), Inlist(loDBF_CFG.n_DBF_Conversion_Support, 2, 8) )
 *-- Soporte txt-2-bin habilitado
 								Error (Textmerge(loLang.C_FILE_NAME_IS_NOT_SUPPORTED_LOC))
 							Endif
@@ -9649,7 +9649,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base
 
 *!*	LScheffler 20.08.2023
 *issue #96, [KestasL] keep CodePage relavant information for binary sources
-		lcCodepage = Str(toProject._CPID) 
+		lcCodepage = Str(toProject._CPID)
 
 		Create TABLE (This.c_OutputFile) ;
 		     CODEPAGE = &lcCodepage.  ;
@@ -9683,8 +9683,8 @@ Define Class c_conversor_prg_a_bin As c_conversor_base
 			, User			M )
 
 		Use (This.c_OutputFile) Alias TABLABIN Again Shared
-		
-		SET NOCPTRANS TO Name,OUTFILE,HomeDir,DEVINFO,SYMBOLS,Object,COMMENTS,RESERVED1,RESERVED2,SCCDATA,User	
+
+		SET NOCPTRANS TO Name,OUTFILE,HomeDir,DEVINFO,SYMBOLS,Object,COMMENTS,RESERVED1,RESERVED2,SCCDATA,User
 
 	Endproc
 
@@ -9697,9 +9697,9 @@ Define Class c_conversor_prg_a_bin As c_conversor_base
 			Local toProject As CL_PROJECT Of 'FOXBIN2PRG.PRG'
 		#Endif
 
-		Local lcProjectName
-		lcProjectName = Forcepath( Evl(This.c_OriginalFileName, This.c_OutputFile), toProject._HomeDir)
-		lcProjectName = Upper( Forceext( lcProjectName, Justext( This.c_OutputFile ) ) ) + chr(0)
+		Local lcOutputFile
+
+		 lcOutputFile = Fullpath(This.c_OutputFile)
 
 		Insert Into TABLABIN ;
 			( Name ;
@@ -9722,11 +9722,11 @@ Define Class c_conversor_prg_a_bin As c_conversor_base
 			, User ;
 			, Key ) ;
 			VALUES ;
-			( lcProjectName ;
+			( lcOutputFile + chr(0) ;
 			, 'H' ;
 			, 0 ;
 			, '<Source>' + Chr(0) ;
-			, Lower(toProject._HomeDir) + Chr(0) ;
+			, Lower(Justpath(lcOutputFile)) + Chr(0) ;
 			, toProject._SaveCode ;
 			, toProject._Debug ;
 			, toProject._Encrypted ;
@@ -9734,8 +9734,8 @@ Define Class c_conversor_prg_a_bin As c_conversor_base
 			, toProject._CmntStyle ;
 			, 260 ;
 			, toProject.getRowDeviceInfo() ;
-			, Lower(toProject._HomeDir) + Chr(0) ;
-			, lcProjectName ;
+			, Lower(Justpath(lcOutputFile)) + Chr(0) ;
+			, lcOutputFile ;
 			, toProject._ServerHead.getRowServerInfo() ;
 			, toProject._SccData ;
 			, .T. ;
@@ -9753,7 +9753,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base
 
 *!*	LScheffler 20.08.2023
 *issue #96, [KestasL] keep CodePage relavant information for binary sources
-		lcCodepage = Str(toModulo._CPID) 
+		lcCodepage = Str(toModulo._CPID)
 
 		Create TABLE (This.c_OutputFile) ;
 		     CODEPAGE = &lcCodepage.  ;
@@ -9782,7 +9782,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base
 			, User			M )
 
 		Use (This.c_OutputFile) Alias TABLABIN Again Shared
-		
+
 		SET NOCPTRANS TO Class,CLASSLOC,BaseClass,OBJNAME,Parent,PROPERTIES,Protected,METHODS,OBJCODE,OLE,OLE2,;
 			RESERVED1,RESERVED2,RESERVED3,RESERVED4,RESERVED5,RESERVED6,RESERVED7,RESERVED8,User
 
@@ -9819,7 +9819,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base
 
 *!*	LScheffler 20.08.2023
 *issue #96, [KestasL] keep CodePage relavant information for binary sources
-		lcCodepage = Str(toModulo._CPID) 
+		lcCodepage = Str(toModulo._CPID)
 
 		Create TABLE (This.c_OutputFile) ;
 		     CODEPAGE = &lcCodepage.  ;
@@ -9847,7 +9847,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base
 			, RESERVED8		M ;
 			, User			M )
 
-		Use (This.c_OutputFile) Alias TABLABIN Again Shared 
+		Use (This.c_OutputFile) Alias TABLABIN Again Shared
 
 		SET NOCPTRANS TO CLASS,CLASSLOC,BASECLASS,OBJNAME,PARENT,PROPERTIES,PROTECTED,METHODS;
 				,OBJCODE,OLE,OLE2,RESERVED1,RESERVED2,RESERVED3,RESERVED4,RESERVED5,RESERVED6,RESERVED7,RESERVED8,USER
@@ -9880,15 +9880,15 @@ Define Class c_conversor_prg_a_bin As c_conversor_base
 
 	Procedure createReport
 		Lparameters tcTableOrCursor,toReport	&& 'TABLE' or 'CURSOR'
-            
-            
+
+
 		Local lcCursorName,lcCodepage
 		tcTableOrCursor	= Evl( tcTableOrCursor, 'TABLE' )
 		lcCursorName	= Icase( tcTableOrCursor = 'TABLE', This.c_OutputFile, 'TABLABIN' )
 
 *!*	LScheffler 20.08.2023
 *issue #96, [KestasL] keep CodePage relavant information for binary sources
-		lcCodepage = Icase(ISNULL(toReport),Str(Cpcurrent()),Str(toReport._CPID)) 
+		lcCodepage = Icase(ISNULL(toReport),Str(Cpcurrent()),Str(toReport._CPID))
 
 		Create &tcTableOrCursor. (lcCursorName) ;
 		     CODEPAGE = &lcCodepage.  ;
@@ -9971,7 +9971,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base
 		If tcTableOrCursor = 'TABLE' Then
 			Use (This.c_OutputFile) Alias TABLABIN Again Shared
 		ENDIF
-		
+
 		SET NOCPTRANS TO NAME,EXPR,STYLE,PICTURE,ORDER,COMMENT,TAG,TAG2,FONTFACE,SUPEXPR,USER
 
 	Endproc
@@ -9984,10 +9984,10 @@ Define Class c_conversor_prg_a_bin As c_conversor_base
 		Local lcCursorName,lcCodepage
 		tcTableOrCursor	= Evl( tcTableOrCursor, 'TABLE' )
 		lcCursorName	= Icase( tcTableOrCursor = 'TABLE', This.c_OutputFile, 'TABLABIN' )
-		
+
 *!*	LScheffler 20.08.2023
 *issue #96, [KestasL] keep CodePage relavant information for binary sources
-		lcCodepage = Icase(Isnull(toMenu),Str(Cpcurrent()),Str(toMenu._CPID)) 
+		lcCodepage = Icase(Isnull(toMenu),Str(Cpcurrent()),Str(toMenu._CPID))
 
 		Create &tcTableOrCursor. (lcCursorName) ;
 		     CODEPAGE = &lcCodepage.  ;
@@ -10020,7 +10020,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base
 		If tcTableOrCursor = 'TABLE' Then
 			Use (This.c_OutputFile) Alias TABLABIN Again Shared
 		ENDIF
-		
+
 		SET NOCPTRANS TO NAME,PROMPT,COMMAND,MESSAGE,PROCEDURE,SETUP,CLEANUP,KEYNAME,KEYLABEL,SKIPFOR
 
 
@@ -11023,7 +11023,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base
 *String:
 *prop2 = Number
 *String with leading and trailing space:
-*prop3 =  with spaces 
+*prop3 =  with spaces
 *String with inline comment:
 *prop4 = with && text
 *Property = Property_Expression (in Property sheet as =....)
@@ -11900,7 +11900,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base
 					, loClase As CL_CLASE Of 'FOXBIN2PRG.PRG',;
 					ln_UseXPerFile,;
 					ll_RedirectXPerFileToMain
-				
+
 				With This As c_conversor_prg_a_bin Of 'FOXBIN2PRG.PRG'
 					Store '' To lcProcedureAbierto
 
@@ -11919,9 +11919,9 @@ Define Class c_conversor_prg_a_bin As c_conversor_base
 							OTHERWISE
 								ln_UseXPerFile            = toFoxBin2Prg.n_UseClassPerFile
 								ll_RedirectXPerFileToMain = toFoxBin2Prg.l_RedirectClassPerFileToMain
-			  
+
 						ENDCASE
-					 
+
 						IF !( ln_UseXPerFile > 0 And ll_RedirectXPerFileToMain)
 							llEXTERNAL_CLASS_Completed	= .T.
 						endif
@@ -12017,7 +12017,7 @@ Define Class c_conversor_prg_a_bin As c_conversor_base
 			OTHERWISE
 				ln_UseXPerFile   = toFoxBin2Prg.n_UseClassPerFile
 				ll_XPerFileCheck = toFoxBin2Prg.l_ClassPerFileCheck
-			  
+
 		ENDCASE
 
 *-- Verificación de las Clases, si son Externas y se indicó chequearlas
@@ -14448,7 +14448,7 @@ Define Class c_conversor_prg_a_dbf As c_conversor_prg_a_bin
 *-- If table CFG exists, use it for DBF-specific configuration. FDBOZZO. 2014/06/15
 					lnFileCount	= toFoxBin2Prg.get_DBF_Configuration( Forceext(.c_InputFile, 'DBF'), @loDBF_CFG, .T. )
 					lcTempDBC	= Forcepath( '_FB2P', Justpath(.c_OutputFile) )
-					
+
 					ln_DBF_Conversion_Support = Iif(Isnull(loDBF_CFG), toFoxBin2Prg.n_DBF_Conversion_Support, loDBF_CFG.n_DBF_Conversion_Support )
 
 					Do Case
@@ -15054,12 +15054,12 @@ Define Class c_conversor_prg_a_dbc As c_conversor_prg_a_bin
  								For Y = 1 To Alines( laLines, lcTempTxt )
 									If m.Y < lnHeaderEnd Then
 										IF LEFT( laLines( m.Y), 23 ) = '*< FOXBIN2PRG: Version=' Then
-*Header ends two lines below										 
+*Header ends two lines below
 											lnHeaderEnd = m.Y + 2
-										Endif &&LEFT( laLines( m.Y), 23 )  = '*< FOXBIN2PRG: Version=' 
+										Endif &&LEFT( laLines( m.Y), 23 )  = '*< FOXBIN2PRG: Version='
 										Loop
-									Endif &&m.Y < lnHeaderEnd 
-									
+									Endif &&m.Y < lnHeaderEnd
+
 *!*	/Changed by: SF 19.11.2023
 									C_FB2PRG_CODE	= C_FB2PRG_CODE + laLines(m.Y) + CR_LF
 								Endfor
@@ -17555,7 +17555,7 @@ Define Class c_conversor_bin_a_prg As c_conversor_base
 					Endif
 
 					lnBytes	= Strtofile( tcCodigo, tcOutputFile )
-						
+
 					This.writeLog( C_TAB + C_TAB + '- ' + loLang.C_FILENAME_LOC + ': ' + tcOutputFile + ' (' + Alltrim(Transform(lnBytes/1024,'######.##')) + '/' + Alltrim(Transform(Len(tcCodigo)/1024,'######.##')) + ' KiB)' )
 *THIS.writeLog( '- ' + loLang.C_GENERATED_FILE_SIZE_LOC )
 
@@ -17673,8 +17673,8 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg
 				loLang	= _Screen.o_FoxBin2Prg_Lang
 
 				With This As c_conversor_vcx_a_prg Of 'FOXBIN2PRG.PRG'
-					Use (.c_InputFile) Shared Again Noupdate Alias _TABLAORIG 
- 
+					Use (.c_InputFile) Shared Again Noupdate Alias _TABLAORIG
+
 *LScheffler 20.08.2023
 *issue #96, including issue #95, [KestasL] keep CodePage relavant information for binary sources
 					toFoxBin2Prg.i_CPID = Cpdbf("_TABLAORIG")
@@ -18062,7 +18062,7 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg
 					SET NOCPTRANS TO CLASS,CLASSLOC,BASECLASS,OBJNAME,PARENT,PROPERTIES,PROTECTED,METHODS;
 						,OBJCODE,OLE,OLE2,RESERVED1,RESERVED2,RESERVED3,RESERVED4,RESERVED5,RESERVED6,RESERVED7,RESERVED8,USER
 */LScheffler 20.08.2023
-					
+
 					Select _TABLAORIG.*,Recno() regnum From _TABLAORIG Into Cursor TABLABIN Readwrite
 
 					Use In (Select("_TABLAORIG"))
@@ -18411,8 +18411,8 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg
 			Local toModulo As CL_PROJECT Of 'FOXBIN2PRG.PRG'
 		#Endif
 		DoDefault( @toModulo, @toEx, @toFoxBin2Prg )
- 
-		TRY 
+
+		TRY
 				Local lnCodError, lcStr, lnPos, lnLen, lnServerCount, loReg, lnLen ;
 					, loEx As Exception ;
 					, loProject As CL_PROJECT Of 'FOXBIN2PRG.PRG' ;
@@ -18452,23 +18452,23 @@ Define Class c_conversor_pjx_a_prg As c_conversor_bin_a_prg
 toFoxBin2Prg.n_CheckFileInPath=2
 						lcStr = ADDBS( Chrtran( loProject._HomeDir, ['], [] ))
 						IF toFoxBin2Prg.n_CheckFileInPath=1 THEN
-*let's scan all files against pjx home dir 
+*let's scan all files against pjx home dir
 							IF !Empty(loProject._MainProg) AND !EMPTY( JUSTDRIVE( SYS( 2014, loProject._MainProg, m.lcStr))) THEN
 								lcStr = loLang.C_PJXPATH_ERR_LOC1 + loProject._MainProg + loLang.C_PJXPATH_ERR_LOC4 + m.lcStr + loLang.C_PJXPATH_ERR_LOC5
 					 			ERROR 1941
-							ENDIF &&!Empty(loProject._MainProg) AND !EMPTY( JUSTDRIVE( SYS( 2014, loProject._MainProg, m.lcStr))) 
+							ENDIF &&!Empty(loProject._MainProg) AND !EMPTY( JUSTDRIVE( SYS( 2014, loProject._MainProg, m.lcStr)))
 							IF !Empty(loProject._Icon) AND !EMPTY( JUSTDRIVE( SYS( 2014, loProject._Icon, m.lcStr))) THEN
 								lcStr = loLang.C_PJXPATH_ERR_LOC2 + loProject._Icon + loLang.C_PJXPATH_ERR_LOC4 + m.lcStr + loLang.C_PJXPATH_ERR_LOC5
 					 			ERROR 1941
-							ENDIF &&!Empty(loProject._Icon) AND !EMPTY( JUSTDRIVE( SYS( 2014, loProject._Icon, m.lcStr))) 
-							
+							ENDIF &&!Empty(loProject._Icon) AND !EMPTY( JUSTDRIVE( SYS( 2014, loProject._Icon, m.lcStr)))
+
 							For Each loReg In loProject &&FOXOBJECT
 							IF !EMPTY( JUSTDRIVE( SYS( 2014, loReg.Name,m.lcStr))) THEN
 								lcStr = loLang.C_PJXPATH_ERR_LOC3 + loReg.Name + loLang.C_PJXPATH_ERR_LOC4 + m.lcStr + loLang.C_PJXPATH_ERR_LOC5
 					 			ERROR 1941
-								ENDIF &&!EMPTY( JUSTDRIVE( SYS( 2014, loReg.Name, m.lcStr))) 
+								ENDIF &&!EMPTY( JUSTDRIVE( SYS( 2014, loReg.Name, m.lcStr)))
 							Endfor
-						ENDIF &&toFoxBin2Prg.n_CheckFileInPath=1 
+						ENDIF &&toFoxBin2Prg.n_CheckFileInPath=1
 
 *!*	/Changed by: LScheffler 19.3.2023
 
@@ -18788,11 +18788,11 @@ toFoxBin2Prg.n_CheckFileInPath=2
 
 				With This As c_conversor_pjx_a_prg Of 'FOXBIN2PRG.PRG'
 					Use (.c_InputFile) Shared Again Noupdate Alias _TABLAORIG
-				
+
 *!*	LScheffler 20.08.2023
 *issue #96, including issue #95, [KestasL] keep CodePage relavant information for binary sources
 					toFoxBin2Prg.i_CPID = Cpdbf("_TABLAORIG")
-					SET NOCPTRANS TO Name,OUTFILE,HomeDir,DEVINFO,SYMBOLS,Object,COMMENTS,RESERVED1,RESERVED2,SCCDATA,User	
+					SET NOCPTRANS TO Name,OUTFILE,HomeDir,DEVINFO,SYMBOLS,Object,COMMENTS,RESERVED1,RESERVED2,SCCDATA,User
 */LScheffler 20.08.2023
 
 					Select * From _TABLAORIG Into Cursor TABLABIN
@@ -18931,18 +18931,18 @@ toFoxBin2Prg.n_CheckFileInPath=2
 	*---------------------------------------------------------------------------------------------------
 	* PARÁMETROS:				(v=Pasar por valor | @=Pasar por referencia) (!=Obligatorio | ?=Opcional) (IN/OUT)
 	* tcFilePath				(v! IN    ) String of a file with path
-	* tcProjPath				(v! IN    ) Home directory of a project 
+	* tcProjPath				(v! IN    ) Home directory of a project
 	* tcPrefix					(v! IN    ) Prefix for return
 	* tcSufix					(v! IN    ) Sufix for return
 	* toFoxBin2Prg				(v! IN    ) Referencia al objeto principal
-	* 
+	*
 	* Return					String to File in text file
 	*---------------------------------------------------------------------------------------------------
 		Lparameters tcFilePath, tcProjPath, tcPrefix, tcSufix, toFoxBin2Prg
-	
+
 		Local;
 			lcReturn As String
-			
+
 		lcReturn = SYS( 2014, m.tcFilePath, m.tcProjPath)
 		Do Case
 			Case m.toFoxBin2Prg.n_CheckFileInPath=2 AND !EMPTY( JUSTDRIVE( m.lcReturn))
@@ -18952,17 +18952,17 @@ toFoxBin2Prg.n_CheckFileInPath=2
 			Case m.toFoxBin2Prg.n_CheckFileInPath=3 AND (!EMPTY( JUSTDRIVE( m.lcReturn)) OR LEFT(m.lcReturn, 2) = "..")
 *!*	3 Create absolute path if file is not in structure<br />
 		lcReturn = '"' + m.tcFilePath + '"'
-	
+
 			Otherwise
 *!*	just normal relative path
 		lcReturn = m.tcPrefix + m.tcFilePath + m.tcSufix
-	
+
 		Endcase
-	
+
 		RETURN m.lcReturn
 	Endproc &&GetPathFromHome
 *!*	/Changed by: LScheffler 20.3.2023
-	
+
 Enddefine
 
 
@@ -19418,14 +19418,14 @@ Define Class c_conversor_frx_a_prg As c_conversor_bin_a_prg
 						Store '' To laMethods(1), laCode(1), laProtected(1), laPropsAndComments(1)
 						Store .Null. To loRegObj, loRegCab, loRegDataEnv, loRegCur
 
-						Use (.c_InputFile) Shared Again Noupdate Alias _TABLAORIG 
-						
+						Use (.c_InputFile) Shared Again Noupdate Alias _TABLAORIG
+
 *LScheffler 20.08.2023
 *issue #96, including issue #95, [KestasL] keep CodePage relavant information for binary sources
 						toFoxBin2Prg.i_CPID = Cpdbf("_TABLAORIG")
 						SET NOCPTRANS TO NAME,EXPR,STYLE,PICTURE,ORDER,COMMENT,TAG,TAG2,FONTFACE,SUPEXPR,USER
 */LScheffler 20.08.2023
-						
+
 						This.updateProgressbar( 'Scanning FRX...', 1, 2, 1 )
 
 *-- Verificación de REPORTE VFP 9
@@ -20079,7 +20079,7 @@ Define Class c_conversor_mnx_a_prg As c_conversor_bin_a_prg
 						SET NOCPTRANS TO NAME,PROMPT,COMMAND,MESSAGE,PROCEDURE,SETUP,CLEANUP,KEYNAME,KEYLABEL,SKIPFOR
 */LScheffler 20.08.2023
 
-					
+
 						Select * From _TABLAORIG Into Cursor TABLABIN
 						Use In (Select("_TABLAORIG"))
 						.updateProgressbar( 'Analyzing MNX...', 1, 2, 1 )
@@ -22709,7 +22709,7 @@ Define Class CL_DBC As CL_DBC_BASE
 *LScheffler 20.08.2023
 *issue #96, [KestasL] keep CodePage relavant information for binary sources
 	_cpid =      Cpcurrent()
-	
+
 
 *-- Database Info
 	_Name					= ''
@@ -24377,7 +24377,7 @@ Define Class CL_DBC_FIELD_DB As CL_DBC_BASE
 
 	Procedure read_BinDataToProperties
 		Lparameters tcTable, tcField
-        Local lcFullFieldName 
+        Local lcFullFieldName
 
 		With This As CL_DBC_FIELD_DB Of 'FOXBIN2PRG.PRG'
 			If Not ._Saved Then
@@ -30417,7 +30417,7 @@ Define Class CL_MENU_OPTION As CL_MENU_COL_BASE
 					lcName2	= m.lcName
 				Endif &&!Empty(toReg.Name) And ISDIGIT( toReg.Name )
 
-* LScheffler 
+* LScheffler
 * location of definition  of MENU BAR Evl( toReg.Name, toReg.ItemNum )
 * /LScheffler
 *-- DEFINE BAR
@@ -31408,7 +31408,7 @@ Define Class CL_CFG As Custom
 
         IF PCOUNT()=1 THEN
          toSourceCFG = This
-        ENDIF &&PCOUNT()=1 
+        ENDIF &&PCOUNT()=1
 
 *		With This As CL_CFG Of 'FOXBIN2PRG.PRG'
 		With toSourceCFG As CL_CFG Of 'FOXBIN2PRG.PRG'
@@ -31753,17 +31753,17 @@ Define Class CL_LANG As Custom
 						<<>>-- Settings for internal work, not processing
 						<<>>Language: (auto)               && Language of shown messages and LOGs. EN=English, FR=French, ES=Español, DE=German, Not defined = AUTOMATIC [DEFAULT]
 						<<>>ShowProgressbar: 1             && 0=Don't show, 1=Allways show, 2=Show only for multi-file processing
-						<<>>                               && Note: This setting will be ignored, if cDontShowProgress parameter is set. 
+						<<>>                               && Note: This setting will be ignored, if cDontShowProgress parameter is set.
 						<<>>DontShowErrors: 0              && Show message errors by default
-						<<>>                               && Note: This setting will be ignored, if cDontShowError parameter is set. 
-						<<>>                               && Note: There is no inheritance for this setting. First occurance wins. 
+						<<>>                               && Note: This setting will be ignored, if cDontShowError parameter is set.
+						<<>>                               && Note: There is no inheritance for this setting. First occurance wins.
 						<<>>ExtraBackupLevels: 1           && By default 1 BAK is created. With this you can make more .N.BAK, or none
-						<<>>                               && Note: There is no inheritance for this setting. First occurance wins. 
+						<<>>                               && Note: There is no inheritance for this setting. First occurance wins.
 						<<>>Debug: 0                       && 0=Don't Activate individual <file>.Log by default
 						<<>>                               && 1=Activate individual <file>.Log by default
 						<<>>                               && 2=???
 						<<>>                               && Only valid if not controlled by parameter cDebug
-						<<>>                               && Note: This setting will be ignored, if cDebug parameter is set. 
+						<<>>                               && Note: This setting will be ignored, if cDebug parameter is set.
 						<<>>BackgroundImage: <cFile>       && Backgroundimage for process form. Empty for empty Background. File not found uses default.
 						<<>>HomeDir: 1                     && Home directory in PJX
 						<<>>                               && 0 don't save HomeDir in PJ2
@@ -31869,12 +31869,12 @@ Define Class CL_LANG As Custom
 						<<>>
 						<<>>-- General files
 						<<>>NoTimestamps: 1                && Clear timestamps of several file types by default for minimize text-file differences
-						<<>>                               && Note: This setting will be ignored, if cNoTimestamps parameter is set. 
-						<<>>                               && Note: There is no inheritance for this setting. First occurance wins. 
+						<<>>                               && Note: This setting will be ignored, if cNoTimestamps parameter is set.
+						<<>>                               && Note: There is no inheritance for this setting. First occurance wins.
 						<<>>ClearUniqueID: 1               && 0=Keep UniqueID in text files, 1=Clear Unique ID. Useful for Diff and Merge
-						<<>>                               && Note: There is no inheritance for this setting. First occurance wins. 
+						<<>>                               && Note: There is no inheritance for this setting. First occurance wins.
 						<<>>OptimizeByFilestamp: 0         && 1=Optimize file regeneration depending on file timestamp. Dangerous while working with branches!
-						<<>>                               && Note: There is no inheritance for this setting. First occurance wins. 
+						<<>>                               && Note: There is no inheritance for this setting. First occurance wins.
 						<<>>RemoveNullCharsFromCode: 1     && 1=Drop .Null. chars from source code
 						<<>>RemoveZOrderSetFromProps: 0    && 0=Do not remove ZOrderSet property from object, 1=Remove ZOrderSet property from object
 						<<>>PRG_Compat_Level: 0            && 0=Legacy, 1=Use HELPSTRING as Class Procedure comment
@@ -31989,7 +31989,7 @@ Define Class CL_LANG As Custom
 							.C_PJXPATH_ERR_LOC1												= CR_LF + 'Main file "'
 							.C_PJXPATH_ERR_LOC2												= CR_LF + 'Project icon file "'
 							.C_PJXPATH_ERR_LOC3												= CR_LF + 'File ""'
-							.C_PJXPATH_ERR_LOC4												= '"' + CR_LF + 'not in PJX folder structure, "' 
+							.C_PJXPATH_ERR_LOC4												= '"' + CR_LF + 'not in PJX folder structure, "'
 							.C_PJXPATH_ERR_LOC5												= '",' + CR_LF + 'check option "CheckFileInPath".' + CR_LF+CR_LF
 
 						Case Inlist(tcLanguage, '34', 'ES') && Spanish (Español)
@@ -32112,17 +32112,17 @@ Define Class CL_LANG As Custom
 						<<>>-- Settings for internal work, not processing
 						<<>>Language: (auto)               && Language of shown messages and LOGs. EN=English, FR=French, ES=Español, DE=German, Not defined = AUTOMATIC [DEFAULT]
 						<<>>ShowProgressbar: 1             && 0=Don't show, 1=Allways show, 2=Show only for multi-file processing
-						<<>>                               && Note: This setting will be ignored, if cDontShowProgress parameter is set. 
+						<<>>                               && Note: This setting will be ignored, if cDontShowProgress parameter is set.
 						<<>>DontShowErrors: 0              && Show message errors by default
-						<<>>                               && Note: This setting will be ignored, if cDontShowError parameter is set. 
-						<<>>                               && Note: There is no inheritance for this setting. First occurance wins. 
+						<<>>                               && Note: This setting will be ignored, if cDontShowError parameter is set.
+						<<>>                               && Note: There is no inheritance for this setting. First occurance wins.
 						<<>>ExtraBackupLevels: 1           && By default 1 BAK is created. With this you can make more .N.BAK, or none
-						<<>>                               && Note: There is no inheritance for this setting. First occurance wins. 
+						<<>>                               && Note: There is no inheritance for this setting. First occurance wins.
 						<<>>Debug: 0                       && 0=Don't Activate individual <file>.Log by default
 						<<>>                               && 1=Activate individual <file>.Log by default
 						<<>>                               && 2=???
 						<<>>                               && Only valid if not controlled by parameter cDebug
-						<<>>                               && Note: This setting will be ignored, if cDebug parameter is set. 
+						<<>>                               && Note: This setting will be ignored, if cDebug parameter is set.
 						<<>>BackgroundImage: <cFile>       && Backgroundimage for process form. Empty for empty Background. File not found uses default.
 						<<>>HomeDir: 1                     && Home directory in PJX
 						<<>>                               && 0 don't save HomeDir in PJ2
@@ -32228,12 +32228,12 @@ Define Class CL_LANG As Custom
 						<<>>
 						<<>>-- General files
 						<<>>NoTimestamps: 1                && Clear timestamps of several file types by default for minimize text-file differences
-						<<>>                               && Note: This setting will be ignored, if cNoTimestamps parameter is set. 
-						<<>>                               && Note: There is no inheritance for this setting. First occurance wins. 
+						<<>>                               && Note: This setting will be ignored, if cNoTimestamps parameter is set.
+						<<>>                               && Note: There is no inheritance for this setting. First occurance wins.
 						<<>>ClearUniqueID: 1               && 0=Keep UniqueID in text files, 1=Clear Unique ID. Useful for Diff and Merge
-						<<>>                               && Note: There is no inheritance for this setting. First occurance wins. 
+						<<>>                               && Note: There is no inheritance for this setting. First occurance wins.
 						<<>>OptimizeByFilestamp: 0         && 1=Optimize file regeneration depending on file timestamp. Dangerous while working with branches!
-						<<>>                               && Note: There is no inheritance for this setting. First occurance wins. 
+						<<>>                               && Note: There is no inheritance for this setting. First occurance wins.
 						<<>>RemoveNullCharsFromCode: 1     && 1=Drop .Null. chars from source code
 						<<>>RemoveZOrderSetFromProps: 0    && 0=Do not remove ZOrderSet property from object, 1=Remove ZOrderSet property from object
 						<<>>PRG_Compat_Level: 0            && 0=Legacy, 1=Use HELPSTRING as Class Procedure comment
@@ -32348,7 +32348,7 @@ Define Class CL_LANG As Custom
 							.C_PJXPATH_ERR_LOC1												= CR_LF + 'Main file "'
 							.C_PJXPATH_ERR_LOC2												= CR_LF + 'Project icon file "'
 							.C_PJXPATH_ERR_LOC3												= CR_LF + 'File ""'
-							.C_PJXPATH_ERR_LOC4												= '"' + CR_LF + 'not in PJX folder structure, "' 
+							.C_PJXPATH_ERR_LOC4												= '"' + CR_LF + 'not in PJX folder structure, "'
 							.C_PJXPATH_ERR_LOC5												= '",' + CR_LF + 'check option "CheckFileInPath".' + CR_LF+CR_LF
 
 						Case Inlist(tcLanguage, '49', 'DE') && German (Alemán)
@@ -32471,13 +32471,13 @@ Define Class CL_LANG As Custom
 						<<>>Interne Einstellungen
 						<<>>Language: (auto)               && Sprache für Anzeigen und Logs. EN=English, FR=Français, ES=Español, DE=Deutsch, Nicht definiert = Automatisch [DEFAULT]
 						<<>>ShowProgressbar: 1             && 0=Zeige Fortschrittsfenster, 1=Zeige es nicht, 2=Zeige Fortschrittsfenster nur, wenn mehrere Dateien konvertiert werden.
-						<<>>                               && Achtung: Wird der Parameter cDontShowProgress genutzt, wird diese einstellung ignoriert. 
+						<<>>                               && Achtung: Wird der Parameter cDontShowProgress genutzt, wird diese einstellung ignoriert.
 						<<>>DontShowErrors: 0              && 0=Zeige Fehler an, 1=Zeige keine Fehler an
-						<<>>                               && Achtung: Wird der Parameter cDontShowError genutzt, wird diese einstellung ignoriert. 
-						<<>>                               && Achtung: Diese Einstellung folgt nicht der Vererbung. Der erste Eintrag wird genutzt. 
+						<<>>                               && Achtung: Wird der Parameter cDontShowError genutzt, wird diese einstellung ignoriert.
+						<<>>                               && Achtung: Diese Einstellung folgt nicht der Vererbung. Der erste Eintrag wird genutzt.
 						<<>>ExtraBackupLevels: 1           && Anzahl der Backup-Ebenen der Binärdateien 0=kein Backup, 1=<Datei>.BAK, n>1= n-Backup-Ebenen, <Datei>.n.BAK
-						<<>>                               && Achtung: Diese Einstellung folgt nicht der Vererbung. Der erste Eintrag wird genutzt. 
-						<<>>Debug: 0                       && 0=Individuelles Logging ist aus 
+						<<>>                               && Achtung: Diese Einstellung folgt nicht der Vererbung. Der erste Eintrag wird genutzt.
+						<<>>Debug: 0                       && 0=Individuelles Logging ist aus
 						<<>>                               && 1=Individuelles Log per Datei <Datei>.Log
 						<<>>                               && 2=???
 						<<>>                               && Nur gültig, wenn nicht durch einen Parameter cDebug übersteuert
@@ -32597,12 +32597,12 @@ Define Class CL_LANG As Custom
 						<<>>
 						<<>>Allgemeine Dateien
 						<<>>NoTimestamps: 1                && 0=Zeitstempel einiger Dateiarten werden nicht gelöscht 1=Zeitstempel werden zum Minimieren der Text-Datei-Unterschiede gelöscht
-						<<>>                               && Achtung: Wird der Parameter cNoTimestamps genutzt, wird diese einstellung ignoriert. 
-						<<>>                               && Achtung: Diese Einstellung folgt nicht der Vererbung. Der erste Eintrag wird genutzt. 
+						<<>>                               && Achtung: Wird der Parameter cNoTimestamps genutzt, wird diese einstellung ignoriert.
+						<<>>                               && Achtung: Diese Einstellung folgt nicht der Vererbung. Der erste Eintrag wird genutzt.
 						<<>>ClearUniqueID: 1               && 0=Erhalte die Unique ID in den Text-Dateien, 1=Lösche Unique ID. Nützlich für Diff und Merge
-						<<>>                               && Achtung: Diese Einstellung folgt nicht der Vererbung. Der erste Eintrag wird genutzt. 
+						<<>>                               && Achtung: Diese Einstellung folgt nicht der Vererbung. Der erste Eintrag wird genutzt.
 						<<>>OptimizeByFilestamp: 0         && 0=Aus, 1=Optimierte Erzeugung der Binärdateien in Abhängigkeit vom Zeitstempel. Gefährlich beim Arbeiten mit Zweigen!
-						<<>>                               && Achtung: Diese Einstellung folgt nicht der Vererbung. Der erste Eintrag wird genutzt. 
+						<<>>                               && Achtung: Diese Einstellung folgt nicht der Vererbung. Der erste Eintrag wird genutzt.
 						<<>>RemoveNullCharsFromCode: 1     && 0=Aus 1=Lösche .Null. (CHR(0)) Zeichen aus dem Quellcode
 						<<>>RemoveZOrderSetFromProps: 0    && 0=Aus, 1=Entferne ZOrderSet Eigenschaft von Objekten
 						<<>>PRG_Compat_Level: 0            && 0=Legacy, 1=Nutze HELPSTRING als Class Procedure Kommentar
@@ -32856,12 +32856,12 @@ Define Class CL_LANG As Custom
 						<<>>-- Settings for internal work, not processing
 						<<>>Language: (auto)               && Language of shown messages and LOGs. EN=English, FR=French, ES=Español, DE=German, Not defined = AUTOMATIC [DEFAULT]
 						<<>>ShowProgressbar: 1             && 0=Don't show, 1=Allways show, 2=Show only for multi-file processing
-						<<>>                               && Note: This setting will be ignored, if cDontShowProgress parameter is set. 
+						<<>>                               && Note: This setting will be ignored, if cDontShowProgress parameter is set.
 						<<>>DontShowErrors: 0              && Show message errors by default
-						<<>>                               && Note: This setting will be ignored, if cDontShowError parameter is set. 
-						<<>>                               && Note: There is no inheritance for this setting. First occurance wins. 
+						<<>>                               && Note: This setting will be ignored, if cDontShowError parameter is set.
+						<<>>                               && Note: There is no inheritance for this setting. First occurance wins.
 						<<>>ExtraBackupLevels: 1           && By default 1 BAK is created. With this you can make more .N.BAK, or none
-						<<>>                               && Note: There is no inheritance for this setting. First occurance wins. 
+						<<>>                               && Note: There is no inheritance for this setting. First occurance wins.
 						<<>>Debug: 0                       && 0=Don't Activate individual <file>.Log by default
 						<<>>                               && 1=Activate individual <file>.Log by default
 						<<>>                               && 2=???
@@ -32971,12 +32971,12 @@ Define Class CL_LANG As Custom
 						<<>>
 						<<>>-- General files
 						<<>>NoTimestamps: 1                && Clear timestamps of several file types by default for minimize text-file differences
-						<<>>                               && Note: This setting will be ignored, if cNoTimestamps parameter is set. 
-						<<>>                               && Note: There is no inheritance for this setting. First occurance wins. 
+						<<>>                               && Note: This setting will be ignored, if cNoTimestamps parameter is set.
+						<<>>                               && Note: There is no inheritance for this setting. First occurance wins.
 						<<>>ClearUniqueID: 1               && 0=Keep UniqueID in text files, 1=Clear Unique ID. Useful for Diff and Merge
-						<<>>                               && Note: There is no inheritance for this setting. First occurance wins. 
+						<<>>                               && Note: There is no inheritance for this setting. First occurance wins.
 						<<>>OptimizeByFilestamp: 0         && 1=Optimize file regeneration depending on file timestamp. Dangerous while working with branches!
-						<<>>                               && Note: There is no inheritance for this setting. First occurance wins. 
+						<<>>                               && Note: There is no inheritance for this setting. First occurance wins.
 						<<>>RemoveNullCharsFromCode: 1     && 1=Drop .Null. chars from source code
 						<<>>RemoveZOrderSetFromProps: 0    && 0=Do not remove ZOrderSet property from object, 1=Remove ZOrderSet property from object
 						<<>>PRG_Compat_Level: 0            && 0=Legacy, 1=Use HELPSTRING as Class Procedure comment
@@ -33091,7 +33091,7 @@ Define Class CL_LANG As Custom
 							.C_PJXPATH_ERR_LOC1												= CR_LF + 'Main file "'
 							.C_PJXPATH_ERR_LOC2												= CR_LF + 'Project icon file "'
 							.C_PJXPATH_ERR_LOC3												= CR_LF + 'File ""'
-							.C_PJXPATH_ERR_LOC4												= '"' + CR_LF + 'not in PJX folder structure, "' 
+							.C_PJXPATH_ERR_LOC4												= '"' + CR_LF + 'not in PJX folder structure, "'
 							.C_PJXPATH_ERR_LOC5												= '",' + 0h0D0A + 'check option "CheckFileInPath".' + CR_LF+CR_LF
 
 							.n_LanguageSelectedMethod	= 0	&& 0=Automatic with VERSION(3)
