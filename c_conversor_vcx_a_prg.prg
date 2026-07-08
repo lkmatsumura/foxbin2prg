@@ -273,7 +273,7 @@ Define Class c_conversor_vcx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                .updateProgressbar( 'Processing Class ' + lcObjName + ' > Writing Objects Methods...', lnStep, lnClassTotal*lnStepCount, 1 )
 
                .write_ALL_OBJECT_METHODS( @lcMethods, @laMethods, @laCode, @lnMethodCount, @laPropsAndComments, lnPropsAndComments_Count, @laProtected ;
-                  , lnProtected_Count, @toFoxBin2Prg, @lcCodigo )
+                  , lnProtected_Count, @toFoxBin2Prg, @lcCodigo, loRegClass.Baseclass )
 
                Goto Record (lnRecno)
                .write_ENDDEFINE_IfApplicable( lnLastClass, @lcCodigo )

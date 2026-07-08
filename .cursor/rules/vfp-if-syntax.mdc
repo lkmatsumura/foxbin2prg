@@ -1,0 +1,40 @@
+---
+description: VFP conditional syntax — no ELSEIF/ELSIF
+globs: **/*.prg
+alwaysApply: false
+---
+
+# Visual FoxPro IF syntax
+
+Visual FoxPro does **not** support `ELSEIF`, `ElseIf`, `ELSIF`, `Elsif`, or `ELSE IF`.
+
+## Valid pattern
+
+```foxpro
+IF <logical_condition>
+   ...
+ELSE
+   ...
+ENDIF
+```
+
+## Multiple branches
+
+Use nested `IF` inside `ELSE`:
+
+```foxpro
+IF <condition_1>
+   ...
+ELSE
+   IF <condition_2>
+      ...
+   ELSE
+      ...
+   ENDIF
+ENDIF
+```
+
+## When editing or generating `.prg` code
+
+- Never emit `ELSEIF` / `ELSIF` variants.
+- Before finishing, search the changed files for `Elseif|Elsif|ELSEIF|ELSIF` and fix any match.
