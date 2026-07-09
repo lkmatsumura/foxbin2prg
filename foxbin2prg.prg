@@ -7251,8 +7251,6 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
             .sortMethod( @tcMethods, @taMethods, @taCode, '', @tnMethodCount ;
                , @taPropsAndComments, tnPropsAndComments_Count, @taProtected, tnProtected_Count, @toFoxBin2Prg, tcBaseClass )
 
-            lcMethods   = C_TAB
-
             For I = 1 To tnMethodCount
                *-- Generate the indented methods
                *-- Avoid TEXT/ENDTEXT here because it sometimes strips trailing spaces, which is unsafe
@@ -7331,32 +7329,18 @@ Define Class c_conversor_bin_a_prg As c_conversor_base Of 'foxbin2prg.prg'
                *!* </pdm>
                If tnPropsAndValues_Count>0
                   *LScheffler 16.3.2023 set delimiters around properties value, so we know it's without comment and we can keep "&&" in value
-                  tcCodigo = tcCodigo + Chr(13) + Chr(10) + Chr(9) + C_DEFINED_PROPVAL_I
+                  tcCodigo = tcCodigo + CR_LF + C_TAB + C_DEFINED_PROPVAL_I
 
                   For I = 1 To tnPropsAndValues_Count
-                     tcCodigo = tcCodigo + Chr(13) + Chr(10) + Chr(9) + Chr(9) + taPropsAndValues(m.I,1) + ' = ' + taPropsAndValues(m.I,2)
-
-                     *LScheffler 16.3.2023 without comment
-                     *                           If tnPropsAndComments_Count > 0 Then
-                     *                               lnComment   = Ascan( taPropsAndComments, taPropsAndValues(m.I,1), 1, 0, 1, 1+2+4+8)
-                     *
-                     *                               If lnComment > 0 And Not Empty(taPropsAndComments(lnComment,2))
-                     *                                   tcCodigo = tcCodigo + Chr(9) + Chr(9) + '&' + '& ' + taPropsAndComments(lnComment,2)
-                     *                               Endif
-                     *                           Endif
-
+                     tcCodigo = tcCodigo + CR_LF + C_TAB + C_TAB + taPropsAndValues(m.I,1) + ' = ' + taPropsAndValues(m.I,2)
                   Endfor
 
-                  *LScheffler 16.3.2023 set delimiters around properties value, so we know it's without comment and we can keep "&&" in value
-                  tcCodigo = tcCodigo + Chr(13) + Chr(10) + Chr(9) + C_DEFINED_PROPVAL_F
-               Endif &&tnPropsAndValues_Count>0
-               *!* /Changed by: LScheffler 16.3.2023
+                  tcCodigo = tcCodigo + CR_LF + C_TAB + C_DEFINED_PROPVAL_F
+               Endif
 
-               TEXT TO tcCodigo ADDITIVE TEXTMERGE NOSHOW FLAGS 1+2 PRETEXT 1+2
-                        <<>>
-               ENDTEXT
+               tcCodigo = tcCodigo + CR_LF
             Endif
-         Endwith && THIS
+         Endwith
 
       Catch To loEx
          If This.n_Debug > 0 And _vfp.StartMode = 0
