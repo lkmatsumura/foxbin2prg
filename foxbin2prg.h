@@ -76,6 +76,8 @@
 #DEFINE C_LEN_FB2P_VALUE_F          Len(C_FB2P_VALUE_F)
 #DEFINE C_VFPDATA_I                 '<VFPData>'
 #DEFINE C_VFPDATA_F                 '</VFPData>'
+#DEFINE C_VFPDATA_TAG               '<VFPData'
+#DEFINE C_VFPDATA_MULTI_LINE_ATTR   'multi-line="true"'
 #DEFINE C_MEMBERDATA_I              C_VFPDATA_I
 #DEFINE C_MEMBERDATA_F              C_VFPDATA_F
 #DEFINE C_LEN_MEMBERDATA_I          Len(C_MEMBERDATA_I)

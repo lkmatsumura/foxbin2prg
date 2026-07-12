@@ -18,6 +18,13 @@ Define Class c_conversor_base As Custom
       + [<memberdata name="decode_specialcodes_cr_lf" display="decode_SpecialCodes_CR_LF"/>] ;
       + [<memberdata name="denormalizeassignment" display="denormalizeAssignment"/>] ;
       + [<memberdata name="denormalizepropertyvalue" display="denormalizePropertyValue"/>] ;
+      + [<memberdata name="extractvfpdatainnercontent" display="extractVFPDataInnerContent"/>] ;
+      + [<memberdata name="extractvfpdataopentag" display="extractVFPDataOpenTag"/>] ;
+      + [<memberdata name="getvfpdatamultilineflag" display="getVFPDataMultiLineFlag"/>] ;
+      + [<memberdata name="ismemberdataprop" display="isMemberDataProp"/>] ;
+      + [<memberdata name="isvfpdataopentag" display="isVFPDataOpenTag"/>] ;
+      + [<memberdata name="memberdatahaslinebreaksbetweentags" display="memberDataHasLineBreaksBetweenTags"/>] ;
+      + [<memberdata name="unwrapmemberdatasourcevalue" display="unwrapMemberDataSourceValue"/>] ;
       + [<memberdata name="denormalizexmlvalue" display="denormalizeXMLValue"/>] ;
       + [<memberdata name="isindicatedtoken" display="isIndicatedToken"/>] ;
       + [<memberdata name="encode_specialcodes_1_31" display="encode_SpecialCodes_1_31"/>] ;
@@ -153,12 +160,101 @@ Define Class c_conversor_base As Custom
 
 
 
+   Function isMemberDataProp
+      Lparameters tcProp
+      Return Lower( Alltrim( tcProp ) ) == '_memberdata'
+   Endfunc
+
+
+   Function isVFPDataOpenTag
+      Lparameters tcValue
+      Return Left( Lower( Ltrim( tcValue ) ), Len( C_VFPDATA_TAG ) ) == Lower( C_VFPDATA_TAG )
+   Endfunc
+
+
+   Function extractVFPDataOpenTag
+      Lparameters tcValue
+      Local lcTrim, lnGtPos
+      lcTrim  = Ltrim( tcValue )
+      If Not .isVFPDataOpenTag( lcTrim )
+         Return C_VFPDATA_I
+      Endif
+      lnGtPos = At( '>', lcTrim )
+      If lnGtPos > 0
+         Return Left( lcTrim, lnGtPos )
+      Endif
+      Return C_VFPDATA_I
+   Endfunc
+
+
+   Function getVFPDataMultiLineFlag
+      Lparameters tcValue
+      Local lcOpenTag
+      If Not .isVFPDataOpenTag( tcValue )
+         Return .F.
+      Endif
+      lcOpenTag   = Lower( .extractVFPDataOpenTag( tcValue ) )
+      Return Lower( C_VFPDATA_MULTI_LINE_ATTR ) $ lcOpenTag
+   Endfunc
+
+
+   Function unwrapMemberDataSourceValue
+      Lparameters tcValue
+      If Left( tcValue, C_LEN_FB2P_VALUE_I ) == C_FB2P_VALUE_I
+         tcValue = Strextract( tcValue, C_FB2P_VALUE_I, C_FB2P_VALUE_F, 1, 1 )
+      Endif
+      Return tcValue
+   Endfunc
+
+
+   Function extractVFPDataInnerContent
+      Lparameters tcValue
+      Local lnOpenEnd, lnClose
+      tcValue     = .unwrapMemberDataSourceValue( tcValue )
+      If .isVFPDataOpenTag( tcValue )
+         lnOpenEnd   = At( '>', tcValue )
+         If lnOpenEnd > 0
+            tcValue = Substr( tcValue, lnOpenEnd + 1 )
+         Endif
+         lnClose = At( C_VFPDATA_F, tcValue )
+         If lnClose > 0
+            tcValue = Left( tcValue, lnClose - 1 )
+         Endif
+      Endif
+      Return tcValue
+   Endfunc
+
+
+   Function memberDataHasLineBreaksBetweenTags
+      Lparameters tcValue
+      Local lcInner, lnCount, I, lnTagStart, lnLastEnd, lcBetween
+      lcInner     = .extractVFPDataInnerContent( tcValue )
+      lnCount     = Occurs( '<memberdata ', lcInner )
+      lnLastEnd   = 0
+      For I = 1 To lnCount
+         lnTagStart  = At( '<memberdata ', lcInner, m.I )
+         If lnLastEnd > 0
+            lcBetween   = Substr( lcInner, lnLastEnd, lnTagStart - lnLastEnd )
+            If Chr(10) $ lcBetween Or Chr(13) $ lcBetween
+               Return .T.
+            Endif
+         Endif
+         lnLastEnd   = At( '/>', lcInner, m.I ) + 2
+      Endfor
+      Return .F.
+   Endfunc
+
+
    Procedure analyzeAssignmentOf_TAG
       *-- DETAILS: This method reads FB2P_VALUE and MEMBERDATA tags, which use this syntax:
       *
       *   _memberdata = <VFPData>
       *       <memberdata name="mimetodo" display="miMetodo"/>
       *       </VFPData>      && XML Metadata for customizable properties
+      *
+      *   _memberdata = <VFPData multi-line="true">
+      *       <memberdata name="mimetodo" display="miMetodo"/>
+      *       </VFPData>      && multi-line binary round-trip marker (text only)
       *
       *   <fb2p_value>This is a&#13;special value</fb2p_value>
       *
@@ -178,11 +274,25 @@ Define Class c_conversor_base As Custom
 
       External Array taProps
 
-      Local llBloqueEncontrado, loEx As Exception
+      Local llBloqueEncontrado, loEx As Exception, lcOpenTag
+
+      llBloqueEncontrado = .F.
 
       Try
-         If Left( tcValue, tnLEN_TAG_I) == tcTAG_I
-            llBloqueEncontrado  = .T.
+         If tcTAG_I == C_MEMBERDATA_I
+            llBloqueEncontrado = .isVFPDataOpenTag( tcValue )
+         Else
+            llBloqueEncontrado = ( Left( tcValue, tnLEN_TAG_I ) == tcTAG_I )
+         Endif
+
+         If llBloqueEncontrado
+
+            If tcTAG_I == C_MEMBERDATA_I
+               lcOpenTag   = .extractVFPDataOpenTag( tcValue )
+            Else
+               lcOpenTag   = tcTAG_I
+            Endif
+
             Local lcLine, lnArrayCols
 
             With This As c_conversor_base Of 'c_conversor_base.prg'
@@ -206,14 +316,14 @@ Define Class c_conversor_base As Custom
                   Do Case
                   Case Left( lcLine, tnLEN_TAG_F ) == tcTAG_F
                      *-- <EndTag>
-                     tcValue = tcTAG_I + Substr( tcValue, 3 ) + tcTAG_F
+                     tcValue = lcOpenTag + Substr( tcValue, 3 ) + tcTAG_F
                      .denormalizePropertyValue( @tcPropName, @tcValue, '' )
                      I = m.I + 1
                      Exit
 
                   Case tcTAG_F $ lcLine
                      *-- Data-Data-Data-<EndTag>
-                     tcValue = tcTAG_I + Substr( tcValue, 3 ) + Left( lcLine, At( tcTAG_F, lcLine )-1 ) + tcTAG_F
+                     tcValue = lcOpenTag + Substr( tcValue, 3 ) + Left( lcLine, At( tcTAG_F, lcLine )-1 ) + tcTAG_F
                      .denormalizePropertyValue( @tcPropName, @tcValue, '' )
                      I = m.I + 1
                      Exit
@@ -489,29 +599,41 @@ Define Class c_conversor_base As Custom
    Procedure denormalizePropertyValue
       *-- This method runs when the binary is regenerated from the tx2 file
       Lparameters tcProp, tcValue, tcComentario
-      Local lnCodError, lnPos, lcValue
+      Local lnCodError, lnPos, llMultiLine, lcInner, lcValue, I, lcSep
       tcComentario    = ''
 
       *-- Adjustments for some special cases
       Do Case
-      Case tcProp == '_memberdata'
-         *-- Keep the important part and strip CHR(0) and length sometimes prepended
-         lcValue = ''
+      Case .isMemberDataProp( tcProp )
+         *-- PRG -> BIN import: same STREXTRACT contract as export — full <memberdata .../> tag
+         llMultiLine = .getVFPDataMultiLineFlag( tcValue )
+         lcInner     = .extractVFPDataInnerContent( tcValue )
+         If Occurs( '<memberdata ', lcInner ) = 0
+            lcInner = .unwrapMemberDataSourceValue( tcValue )
+         Endif
+         lcValue     = ''
+         lcSep       = ''
 
-         For I = 1 To Occurs( '/>', tcValue )
-            * issue#16: memberdata property should be saved in compressed format
-            lcValue = lcValue + Chrtran( Strextract( tcValue, '<memberdata ', '/>', m.I, 1+4 ), CR_LF, '  ' )
+         For I = 1 To Occurs( '<memberdata ', lcInner )
+            lcValue = lcValue + lcSep + Strextract( lcInner, '<memberdata ', '/>', m.I, 1+4 )
+            If llMultiLine
+               lcSep   = C_LF
+            Endif
          Endfor
 
-         * issue#16: memberdata property should be saved in compressed format
-         TEXT TO tcValue TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                <VFPData><<SUBSTR( lcValue, 1)>></VFPData>
-         ENDTEXT
-
-         If Len(lcValue) > 255
-            tcValue = C_MPROPHEADER + Str( Len(tcValue), 8 ) + tcValue
+         If llMultiLine
+            tcValue = C_VFPDATA_I + C_LF + lcValue + C_LF + C_VFPDATA_F
          Else
-            tcValue = Chrtran( tcValue, CR_LF, '' )
+            tcValue = C_VFPDATA_I + lcValue + C_VFPDATA_F
+         Endif
+
+         If Len( tcValue ) > 255
+            tcValue = C_MPROPHEADER + Str( Len( tcValue ), 8 ) + tcValue
+         Else
+            If Not llMultiLine
+               * issue#16: memberdata property should be saved in compressed format
+               tcValue = Chrtran( tcValue, CR_LF, '' )
+            Endif
          Endif
 
       Case Left( tcValue, C_LEN_FB2P_VALUE_I ) == C_FB2P_VALUE_I
@@ -521,7 +643,7 @@ Define Class c_conversor_base As Custom
 
       Endcase
 
-      Release tcProp, tcComentario, lnCodError, lnPos, lcValue
+      Release tcProp, tcComentario, lnCodError, lnPos, llMultiLine, lcInner, lcValue, I, lcSep
       Return tcValue
    Endproc
 
@@ -1220,7 +1342,7 @@ Define Class c_conversor_base As Custom
    Procedure normalizePropertyValue
       *-- This method runs when the tx2 file is generated from the binary
       Lparameters tcProp, tcValue, tcComentario
-      Local lcValue, I
+      Local lcValue, I, llMultiLine, lcOpenTag, lcWork
       tcComentario    = ''
 
       *-- Strip unused characters
@@ -1231,18 +1353,27 @@ Define Class c_conversor_base As Custom
 
       *-- Adjustments for some special cases
       Do Case
-      Case tcProp == '_memberdata'
-         lcValue = ''
+      Case .isMemberDataProp( tcProp )
+         *-- BIN -> PRG export: STREXTRACT(..., '<memberdata ', '/>', n, 1+4) returns the full
+         *-- <memberdata .../> tag. Append it directly to each VC2 line — never prefix
+         *-- '<memberdata ' or suffix '/>' again (would produce <memberdata <memberdata .../>/>).
+         llMultiLine = .memberDataHasLineBreaksBetweenTags( tcValue )
+         lcWork      = .unwrapMemberDataSourceValue( tcValue )
+         lcValue     = ''
 
-         For I = 1 To Occurs( '/>', tcValue )
-            *TEXT TO lcValue TEXTMERGE ADDITIVE NOSHOW FLAGS 1+2 PRETEXT 1+2
-            *   <<>>        <<CHRTRAN( STREXTRACT( tcValue, '<memberdata ', '/>', m.I, 1+4 ), CR_LF, '  ' )>>
-            *ENDTEXT
-            lcValue = lcValue + Chr(13) + Chr(10) + Chr(9) + Chr(9) + Chr(9) + Chrtran( Strextract( tcValue, '<memberdata ', '/>', m.I, 1+4 ), CR_LF, '  ' )
+         For I = 1 To Occurs( '<memberdata ', lcWork )
+            lcValue = lcValue + Chr(13) + Chr(10) + Chr(9) + Chr(9) + Chr(9) ;
+               + Strextract( lcWork, '<memberdata ', '/>', m.I, 1+4 )
          Endfor
 
+         If llMultiLine
+            lcOpenTag   = '<VFPData ' + C_VFPDATA_MULTI_LINE_ATTR + '>'
+         Else
+            lcOpenTag   = C_VFPDATA_I
+         Endif
+
          TEXT TO tcValue TEXTMERGE NOSHOW FLAGS 1 PRETEXT 1+2
-                <VFPData>
+                <<lcOpenTag>>
                 <<SUBSTR( lcValue, 3)>>
                 <<Chr(9)+Chr(9)>></VFPData>
          ENDTEXT
@@ -1257,7 +1388,7 @@ Define Class c_conversor_base As Custom
 
       Endcase
 
-      Release tcProp, lcValue, I, tcComentario
+      Release tcProp, lcValue, I, tcComentario, llMultiLine, lcOpenTag, lcWork
       Return tcValue
    Endproc
 
