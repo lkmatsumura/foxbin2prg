@@ -611,21 +611,18 @@ Define Class c_conversor_base As Custom
          If Occurs( '<memberdata ', lcInner ) = 0
             lcInner = .unwrapMemberDataSourceValue( tcValue )
          Endif
-         lcValue     = ''
+         lcValue     = C_VFPDATA_I
          lcSep       = ''
+         If llMultiLine
+            lcSep   = C_LF
+         Endif
 
+         lcValue = lcValue + lcSep
          For I = 1 To Occurs( '<memberdata ', lcInner )
-            lcValue = lcValue + lcSep + Strextract( lcInner, '<memberdata ', '/>', m.I, 1+4 )
-            If llMultiLine
-               lcSep   = C_LF
-            Endif
+            lcValue = lcValue + Strextract( lcInner, '<memberdata ', '/>', m.I, 1+4 ) + lcSep
          Endfor
 
-         If llMultiLine
-            tcValue = C_VFPDATA_I + C_LF + lcValue + C_LF + C_VFPDATA_F
-         Else
-            tcValue = C_VFPDATA_I + lcValue + C_VFPDATA_F
-         Endif
+         tcValue = lcValue + C_VFPDATA_F
 
          If Len( tcValue ) > 255
             tcValue = C_MPROPHEADER + Str( Len( tcValue ), 8 ) + tcValue

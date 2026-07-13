@@ -94,6 +94,8 @@ DEFINE CLASS ut__foxbin2prg__c_conversor_base__memberDataMultiLine AS FxuTestCas
 			+ '<memberdata name="bar" display="Bar"/>' + CHR(10) + '</VFPData>'
 		THIS.assertequals( lcExpected, lcBinary, 'Restauracao multiline deve usar LF apos VFPData, entre tags e antes de fechar' )
 		THIS.assertequals( .F., 'multi-line="true"' $ lcBinary, 'Binario nao deve conter o atributo multi-line' )
+		THIS.assertequals( .F., CHR(9) $ lcBinary, 'Binario multiline nao deve conter tabs de indentacao' )
+		THIS.assertequals( .F., RIGHT( lcBinary, 1 ) $ CHR(13) + CHR(10), 'Binario nao deve terminar com salto de linha apos </VFPData>' )
 
 	ENDFUNC
 
@@ -167,6 +169,31 @@ DEFINE CLASS ut__foxbin2prg__c_conversor_base__memberDataMultiLine AS FxuTestCas
 			+ '<memberdata name="bar" display="Bar"/>' + CHR(10) + '</VFPData>'
 		THIS.assertequals( lcExpected, lcValue, 'Importacao VC2 multiline deve restaurar LF apos VFPData, entre tags e antes de fechar' )
 		THIS.assertequals( .F., '<memberdata <memberdata' $ lcValue, 'Importacao nao deve duplicar tags memberdata' )
+		THIS.assertequals( .F., CHR(9) $ lcValue, 'Importacao VC2 nao deve incluir tabs de indentacao no binario' )
+		THIS.assertequals( .F., RIGHT( lcValue, 1 ) $ CHR(13) + CHR(10), 'Importacao nao deve terminar com salto de linha apos </VFPData>' )
+
+	ENDFUNC
+
+
+	*******************************************************************************************************************************************
+	FUNCTION Deberia_ignorarLinhaVaziaAntesDeFechar
+		LOCAL loObj AS c_conversor_base OF "c_conversor_base.prg"
+		LOCAL taLines[1], tnLines, I, lcProp, lcValue, lcExpected
+		loObj = THIS.icObj
+		DIMENSION taLines[5]
+		taLines[1] = CHR(9) + CHR(9) + '_memberdata = <VFPData multi-line="true">'
+		taLines[2] = CHR(9) + CHR(9) + CHR(9) + CHR(9) + CHR(9) + '<memberdata name="foo" display="Foo"/>'
+		taLines[3] = CHR(9) + CHR(9) + CHR(9) + CHR(9) + CHR(9) + '<memberdata name="bar" display="Bar"/>'
+		taLines[4] = CHR(9) + CHR(9) + CHR(9) + CHR(9)
+		taLines[5] = CHR(9) + CHR(9) + CHR(9) + CHR(9) + '</VFPData>'
+		tnLines = 5
+		I = 1
+		loObj.get_SeparatedPropAndValue( taLines[1], @lcProp, @lcValue, NULL, @taLines, tnLines, @I )
+		lcExpected = '<VFPData>' + CHR(10) + '<memberdata name="foo" display="Foo"/>' + CHR(10) ;
+			+ '<memberdata name="bar" display="Bar"/>' + CHR(10) + '</VFPData>'
+		THIS.assertequals( lcExpected, lcValue, 'Linha vazia antes do fechamento nao deve gerar LF extra' )
+		THIS.assertequals( .F., CHR(9) $ lcValue, 'Binario nao deve conter tabs' )
+		THIS.assertequals( .F., RIGHT( lcValue, 1 ) $ CHR(13) + CHR(10), 'Binario nao deve terminar com salto de linha apos </VFPData>' )
 
 	ENDFUNC
 
