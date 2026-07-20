@@ -97,7 +97,7 @@ flowchart LR
 | Converters | [c_conversor_*.prg](c_conversor_base.prg) | All derive from `c_conversor_base` |
 | Mirror driver | [mirror.prg](mirror.prg) | Interactive import/export for this repository's layout |
 
-Further reading: [docs/arquitetura.md](docs/arquitetura.md) (full diagram and helper-class detail), [docs/export_import_mirror.md](docs/export_import_mirror.md).
+Further reading: [docs/arquitetura.md](docs/arquitetura.md) (full diagram and helper-class detail), [docs/export_import_mirror.md](docs/export_import_mirror.md), [docs/single_file_mirror.md](docs/single_file_mirror.md) (unit conversion with mirrored roots).
 
 ---
 
@@ -114,6 +114,8 @@ loCfg  = loFb2p.newConfig()
 loFb2p.exportProjectTree('d:\src\app\app.pjx', 'd:\export\app', loCfg)
 loFb2p.importProjectTree('d:\export\app\app.pj2', 'd:\src\app', loCfg)
 ```
+
+**One file or one class/object** (same mirrored roots, without the full PJX/PJ2 batch) — set `cInputRoot` + `cOutputFolder` and call `execute()` / `copyUnconvertedFile`. Guide: [docs/single_file_mirror.md](docs/single_file_mirror.md).
 
 **Interactive driver for this repository** — [mirror.prg](mirror.prg) batch-processes the projects bundled here (`foxbin2prg`, `Others`, `Fb2P_Diff`, `FileName_Caps`, `dont_convert`) between the `scm` text tree and the parent binary folder.
 

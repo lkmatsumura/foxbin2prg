@@ -16,9 +16,13 @@ Full example: [`create_mirrored.prg`](../create_mirrored.prg) and [`mirror.prg`]
 
 Path mapping (`get_MirroredPath`, `isExcludedSubdir`, `copyUnconvertedFile`, …) is implemented in `cl_fb2prg_mirror.prg` and invoked via `c_foxbin2prg.o_Mirror`. Project batch conversion runs through `execute()` → `cl_fb2prg_execute.run()` → `evaluate_Full_PJX` / `evaluate_Full_PJ2`.
 
+### Unit conversion (one file or one class/object)
+
+To convert a **single** project member (or one VCX class / SCX object) into the mirrored tree — without running the full PJX/PJ2 batch — set `cInputRoot` + `cOutputFolder` on the instance and call `execute()` (or `copyUnconvertedFile` for non-convertible files). See **[single_file_mirror.md](./single_file_mirror.md)**.
+
 ### Command line (`main.prg`)
 
-Single-file conversion only (direction inferred from extension). For mirrored projects use the API above or `mirror.prg`:
+Single-file conversion only (direction inferred from extension). For mirrored projects use the API above or `mirror.prg`. For mirrored **unit** conversion, set session roots before `execute` (see [single_file_mirror.md](./single_file_mirror.md)):
 
 ```foxpro
 DO main.prg WITH "<path>\file.vcx"
@@ -33,13 +37,14 @@ DO main.prg                              && configuration reference form (frm_ma
 
 ## When the options below apply
 
-The mirror-specific options documented below **only affect batch project processing** when the session is in **mirrored tree** mode — that is, when `exportProjectTree` or `importProjectTree` set `cOutputFolder` (and `cInputRoot`) via `o_Mirror.setProjectRoots`.
+The options in the summary table (`c_ExcludedSubdirs`, `l_CopyNonConvertible`, `l_CopyExcludedPjxFiles`, …) drive the **project member loop** when the session is in mirrored-tree mode — that is, when `exportProjectTree` / `importProjectTree` (or manual `o_Mirror.setProjectRoots`) set `cOutputFolder` and `cInputRoot`.
 
-| Situation | Option effect |
-|----------|-------------------|
-| `exportProjectTree` / `importProjectTree` with `toCfg` | **Yes** — apply to each PJX/PJ2 member |
-| `execute` on a single `.vcx` / `.scx` | **No** — no project mirrored folder |
-| Folder conversion with `BIN2PRG` / `PRG2BIN` on the CLI | **No** — does not use the same project-member flow |
+| Situation | Project-member options (`ExcludedSubdirs`, `CopyExcludedPjxFiles`, auto `CopyNonConvertible`) | Path remapping (`cInputRoot` + `cOutputFolder`) |
+|----------|--------------------------------------------------------------------------------------------------|--------------------------------------------------|
+| `exportProjectTree` / `importProjectTree` with `toCfg` | **Yes** — apply to each PJX/PJ2 member | **Yes** |
+| `execute` on a single file **with** roots set | **No** — you pick the file; use `copyUnconvertedFile` if needed | **Yes** — see [single_file_mirror.md](./single_file_mirror.md) |
+| `execute` on a single file **without** roots | **No** | **No** — output next to source |
+| Folder conversion with `BIN2PRG` / `PRG2BIN` on the CLI | **No** — not the project-member flow | Only if you set roots yourself |
 
 Use the **same `toCfg` object** on export and import for round-trip consistency.
 

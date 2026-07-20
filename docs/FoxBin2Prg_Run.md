@@ -136,6 +136,8 @@ loCnv.importProjectTree( 'd:\mirror\app\app.pj2', 'd:\src\app', loCfg )
 
 See [export_import_mirror.md](./export_import_mirror.md).
 
+For **one** member (or one VCX class / SCX object) with the same mirrored folder layout, set `loCnv.cInputRoot` and `loCnv.cOutputFolder`, then call `execute` (or `copyUnconvertedFile` for non-convertible files). See [single_file_mirror.md](./single_file_mirror.md).
+
 ### Legacy CLI (removed)
 
 > **2026:** Generating `foxbin2prg.cfg` via `-c` / `-C` / `-t`, SCCAPI multi-parameter `execute`, and disk `.cfg` inheritance are **no longer supported**. Use `DO main.prg` with no file for the reference form, or `newConfig()` / `applyConfig()`. See [FoxBin2Prg_Internals — Configuration file](./FoxBin2Prg_Internals.md#configuration-file).
