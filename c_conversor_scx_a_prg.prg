@@ -215,13 +215,13 @@ Define Class c_conversor_scx_a_prg As c_conversor_bin_a_prg Of 'c_conversor_bin_
                Asort(laObjs, 2, -1, 0, 0)  && Orden por ZOrder
 
                If lnObjCount > 0
-                  lcCodigo    = lcCodigo + CR_LF + C_TAB +'*-- OBJECTDATA items order determines ZOrder / El orden de los items OBJECTDATA determina el ZOrder '
+                  lcCodigo = lcCodigo + CR_LF + C_TAB +'*-- OBJECTDATA items order determines ZOrder / El orden de los items OBJECTDATA determina el ZOrder'
 
                   For I = 1 To lnObjCount
                      .write_OBJECTMETADATA( laObjs(m.I,1), @lcCodigo )
                   Endfor
 
-                  lcCodigo    = lcCodigo + CR_LF
+                  lcCodigo = lcCodigo + CR_LF
                Endif
 
                .write_INCLUDE( @loRegClass, @lcCodigo )
